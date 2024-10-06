@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <Sdk Name="Microsoft.Build.CentralPackageVersions" Version="2.1.3" />
+
+  <ItemGroup>
+    <PackageReference Include="Ardalis.GuardClauses" />
+    <PackageReference Include="Ardalis.Result" />
+    <PackageReference Include="Ardalis.SharedKernel" />
+    <PackageReference Include="Ardalis.SmartEnum" />
+    <PackageReference Include="Ardalis.Specification" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="DependentAggregate\Events\" />
+    <Folder Include="DependentAggregate\Handlers\" />
+    <Folder Include="EmployeeAggregate\Events\" />
+    <Folder Include="EmployeeAggregate\Handlers\" />
+    <Folder Include="EmployeeAggregate\Specifications\" />
+    <Folder Include="EmployeeTypeAggregate\Events\" />
+    <Folder Include="EmployeeTypeAggregate\Handlers\" />
+    <Folder Include="Forms\FailureInOutAggregate\Events\" />
+    <Folder Include="Forms\FailureInOutAggregate\Handlers\" />
+    <Folder Include="Forms\LeaveAggregate\Events\" />
+    <Folder Include="Forms\LeaveAggregate\Handlers\" />
+    <Folder Include="Forms\OvertimeAggregate\Events\" />
+    <Folder Include="Forms\OvertimeAggregate\Handlers\" />
+    <Folder Include="Forms\UndertimeAggregate\Events\" />
+    <Folder Include="Forms\UndertimeAggregate\Handlers\" />
+    <Folder Include="LeaveCreditAggregate\Events\" />
+    <Folder Include="LeaveCreditAggregate\Handlers\" />
+    <Folder Include="LevelAggregate\Events\" />
+    <Folder Include="LevelAggregate\Handlers\" />
+    <Folder Include="PayAggregate\Events\" />
+    <Folder Include="PayAggregate\Handlers\" />
+    <Folder Include="ShiftAggregate\Events\" />
+    <Folder Include="ShiftAggregate\Handlers\" />
+    <Folder Include="UserAggregate\Events\" />
+    <Folder Include="UserAggregate\Handlers\" />
+  </ItemGroup>
+
+</Project>

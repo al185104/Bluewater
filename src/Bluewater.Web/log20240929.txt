@@ -1,0 +1,535 @@
+2024-09-29 01:05:13.555 +08:00 [INF] Registered 15 endpoints in 460 milliseconds.
+2024-09-29 01:05:14.265 +08:00 [WRN] The foreign key property 'Employee.ChargingId1' was created in shadow state because a conflicting property with the simple name 'ChargingId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 01:05:14.265 +08:00 [WRN] The foreign key property 'Employee.LevelId1' was created in shadow state because a conflicting property with the simple name 'LevelId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 01:05:14.266 +08:00 [WRN] The foreign key property 'Employee.PayId1' was created in shadow state because a conflicting property with the simple name 'PayId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 01:05:14.266 +08:00 [WRN] The foreign key property 'Employee.PositionId1' was created in shadow state because a conflicting property with the simple name 'PositionId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 01:05:14.315 +08:00 [WRN] No store type was specified for the decimal property 'Height' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:05:14.315 +08:00 [WRN] No store type was specified for the decimal property 'Weight' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:05:14.315 +08:00 [WRN] No store type was specified for the decimal property 'DefaultCredits' on entity type 'LeaveCredit'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:05:14.315 +08:00 [WRN] No store type was specified for the decimal property 'BasicPay' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:05:14.315 +08:00 [WRN] No store type was specified for the decimal property 'DailyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:05:14.315 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Con' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:05:14.315 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Er' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:05:14.315 +08:00 [WRN] No store type was specified for the decimal property 'HourlyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:05:14.315 +08:00 [WRN] No store type was specified for the decimal property 'BreakHours' on entity type 'Shift'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:05:14.630 +08:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2024-09-29 01:05:14.649 +08:00 [INF] Executed DbCommand (14ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+
+IF EXISTS
+    (SELECT *
+     FROM [sys].[objects] o
+     WHERE [o].[type] = 'U'
+     AND [o].[is_ms_shipped] = 0
+     AND NOT EXISTS (SELECT *
+         FROM [sys].[extended_properties] AS [ep]
+         WHERE [ep].[major_id] = [o].[object_id]
+             AND [ep].[minor_id] = 0
+             AND [ep].[class] = 1
+             AND [ep].[name] = N'microsoft_database_tools_support'
+    )
+)
+SELECT 1 ELSE SELECT 0
+2024-09-29 01:05:14.761 +08:00 [INF] Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Contributors] AS [c]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+2024-09-29 01:05:14.817 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2024-09-29 01:05:14.829 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger - null null
+2024-09-29 01:05:14.888 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-09-29 01:05:14.888 +08:00 [INF] Hosting environment: Development
+2024-09-29 01:05:14.888 +08:00 [INF] Content root path: C:\Users\adria\source\repos\Bluewater\src\Bluewater.Web
+2024-09-29 01:05:14.932 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/index.html - null null
+2024-09-29 01:05:14.933 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger - 302 null null 106.4658ms
+2024-09-29 01:05:14.992 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/index.html - 200 null text/html; charset=utf-8 60.8901ms
+2024-09-29 01:05:14.998 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - null null
+2024-09-29 01:05:14.998 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_vs/browserLink - null null
+2024-09-29 01:05:15.001 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - 200 13762 application/javascript; charset=utf-8 2.629ms
+2024-09-29 01:05:15.023 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_vs/browserLink - 200 null text/javascript; charset=UTF-8 24.922ms
+2024-09-29 01:05:15.066 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - null null
+2024-09-29 01:05:15.411 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 345.4648ms
+2024-09-29 01:09:46.470 +08:00 [INF] Registered 15 endpoints in 1,078 milliseconds.
+2024-09-29 01:09:47.164 +08:00 [WRN] The foreign key property 'Employee.ChargingId1' was created in shadow state because a conflicting property with the simple name 'ChargingId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 01:09:47.164 +08:00 [WRN] The foreign key property 'Employee.LevelId1' was created in shadow state because a conflicting property with the simple name 'LevelId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 01:09:47.164 +08:00 [WRN] The foreign key property 'Employee.PayId1' was created in shadow state because a conflicting property with the simple name 'PayId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 01:09:47.164 +08:00 [WRN] The foreign key property 'Employee.PositionId1' was created in shadow state because a conflicting property with the simple name 'PositionId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 01:09:47.217 +08:00 [WRN] No store type was specified for the decimal property 'Height' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:09:47.217 +08:00 [WRN] No store type was specified for the decimal property 'Weight' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:09:47.217 +08:00 [WRN] No store type was specified for the decimal property 'DefaultCredits' on entity type 'LeaveCredit'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:09:47.217 +08:00 [WRN] No store type was specified for the decimal property 'BasicPay' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:09:47.217 +08:00 [WRN] No store type was specified for the decimal property 'DailyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:09:47.217 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Con' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:09:47.217 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Er' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:09:47.217 +08:00 [WRN] No store type was specified for the decimal property 'HourlyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:09:47.217 +08:00 [WRN] No store type was specified for the decimal property 'BreakHours' on entity type 'Shift'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 01:09:47.513 +08:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2024-09-29 01:09:47.533 +08:00 [INF] Executed DbCommand (14ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+
+IF EXISTS
+    (SELECT *
+     FROM [sys].[objects] o
+     WHERE [o].[type] = 'U'
+     AND [o].[is_ms_shipped] = 0
+     AND NOT EXISTS (SELECT *
+         FROM [sys].[extended_properties] AS [ep]
+         WHERE [ep].[major_id] = [o].[object_id]
+             AND [ep].[minor_id] = 0
+             AND [ep].[class] = 1
+             AND [ep].[name] = N'microsoft_database_tools_support'
+    )
+)
+SELECT 1 ELSE SELECT 0
+2024-09-29 01:09:47.650 +08:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Contributors] AS [c]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+2024-09-29 01:09:47.708 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2024-09-29 01:09:47.721 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger - null null
+2024-09-29 01:09:47.784 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-09-29 01:09:47.784 +08:00 [INF] Hosting environment: Development
+2024-09-29 01:09:47.784 +08:00 [INF] Content root path: C:\Users\adria\source\repos\Bluewater\src\Bluewater.Web
+2024-09-29 01:09:47.825 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/index.html - null null
+2024-09-29 01:09:47.827 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger - 302 null null 109.0284ms
+2024-09-29 01:09:47.890 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/index.html - 200 null text/html; charset=utf-8 64.9813ms
+2024-09-29 01:09:47.901 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - null null
+2024-09-29 01:09:47.901 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_vs/browserLink - null null
+2024-09-29 01:09:47.904 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - 200 13762 application/javascript; charset=utf-8 2.9262ms
+2024-09-29 01:09:47.928 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_vs/browserLink - 200 null text/javascript; charset=UTF-8 26.4395ms
+2024-09-29 01:09:47.966 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - null null
+2024-09-29 01:09:48.333 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 367.1087ms
+2024-09-29 10:31:41.690 +08:00 [INF] Registered 15 endpoints in 1,144 milliseconds.
+2024-09-29 10:31:42.500 +08:00 [WRN] The foreign key property 'Employee.ChargingId1' was created in shadow state because a conflicting property with the simple name 'ChargingId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 10:31:42.500 +08:00 [WRN] The foreign key property 'Employee.LevelId1' was created in shadow state because a conflicting property with the simple name 'LevelId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 10:31:42.500 +08:00 [WRN] The foreign key property 'Employee.PayId1' was created in shadow state because a conflicting property with the simple name 'PayId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 10:31:42.500 +08:00 [WRN] The foreign key property 'Employee.PositionId1' was created in shadow state because a conflicting property with the simple name 'PositionId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 10:31:42.565 +08:00 [WRN] No store type was specified for the decimal property 'Height' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:31:42.565 +08:00 [WRN] No store type was specified for the decimal property 'Weight' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:31:42.565 +08:00 [WRN] No store type was specified for the decimal property 'DefaultCredits' on entity type 'LeaveCredit'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:31:42.565 +08:00 [WRN] No store type was specified for the decimal property 'BasicPay' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:31:42.565 +08:00 [WRN] No store type was specified for the decimal property 'DailyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:31:42.565 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Con' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:31:42.565 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Er' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:31:42.566 +08:00 [WRN] No store type was specified for the decimal property 'HourlyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:31:42.566 +08:00 [WRN] No store type was specified for the decimal property 'BreakHours' on entity type 'Shift'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:31:42.910 +08:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2024-09-29 10:31:42.931 +08:00 [INF] Executed DbCommand (15ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+
+IF EXISTS
+    (SELECT *
+     FROM [sys].[objects] o
+     WHERE [o].[type] = 'U'
+     AND [o].[is_ms_shipped] = 0
+     AND NOT EXISTS (SELECT *
+         FROM [sys].[extended_properties] AS [ep]
+         WHERE [ep].[major_id] = [o].[object_id]
+             AND [ep].[minor_id] = 0
+             AND [ep].[class] = 1
+             AND [ep].[name] = N'microsoft_database_tools_support'
+    )
+)
+SELECT 1 ELSE SELECT 0
+2024-09-29 10:31:43.053 +08:00 [INF] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Contributors] AS [c]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+2024-09-29 10:31:43.121 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2024-09-29 10:31:43.138 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger - null null
+2024-09-29 10:31:43.205 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-09-29 10:31:43.205 +08:00 [INF] Hosting environment: Development
+2024-09-29 10:31:43.205 +08:00 [INF] Content root path: C:\Users\adria\source\repos\Bluewater\src\Bluewater.Web
+2024-09-29 10:31:43.776 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/index.html - null null
+2024-09-29 10:31:43.778 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger - 302 null null 646.3991ms
+2024-09-29 10:31:43.846 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/index.html - 200 null text/html; charset=utf-8 69.3534ms
+2024-09-29 10:31:43.861 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - null null
+2024-09-29 10:31:43.861 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_vs/browserLink - null null
+2024-09-29 10:31:43.865 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - 200 13762 application/javascript; charset=utf-8 5.8535ms
+2024-09-29 10:31:43.916 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_vs/browserLink - 200 null text/javascript; charset=UTF-8 54.6548ms
+2024-09-29 10:31:43.951 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - null null
+2024-09-29 10:31:44.404 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 453.197ms
+2024-09-29 10:41:14.233 +08:00 [INF] Registered 15 endpoints in 1,057 milliseconds.
+2024-09-29 10:41:14.951 +08:00 [WRN] The foreign key property 'Employee.ChargingId1' was created in shadow state because a conflicting property with the simple name 'ChargingId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 10:41:14.952 +08:00 [WRN] The foreign key property 'Employee.LevelId1' was created in shadow state because a conflicting property with the simple name 'LevelId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 10:41:14.952 +08:00 [WRN] The foreign key property 'Employee.PayId1' was created in shadow state because a conflicting property with the simple name 'PayId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 10:41:14.952 +08:00 [WRN] The foreign key property 'Employee.PositionId1' was created in shadow state because a conflicting property with the simple name 'PositionId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 10:41:15.006 +08:00 [WRN] No store type was specified for the decimal property 'Height' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:15.006 +08:00 [WRN] No store type was specified for the decimal property 'Weight' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:15.006 +08:00 [WRN] No store type was specified for the decimal property 'DefaultCredits' on entity type 'LeaveCredit'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:15.007 +08:00 [WRN] No store type was specified for the decimal property 'BasicPay' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:15.007 +08:00 [WRN] No store type was specified for the decimal property 'DailyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:15.007 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Con' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:15.007 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Er' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:15.007 +08:00 [WRN] No store type was specified for the decimal property 'HourlyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:15.007 +08:00 [WRN] No store type was specified for the decimal property 'BreakHours' on entity type 'Shift'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:15.303 +08:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2024-09-29 10:41:15.319 +08:00 [INF] Executed DbCommand (11ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+
+IF EXISTS
+    (SELECT *
+     FROM [sys].[objects] o
+     WHERE [o].[type] = 'U'
+     AND [o].[is_ms_shipped] = 0
+     AND NOT EXISTS (SELECT *
+         FROM [sys].[extended_properties] AS [ep]
+         WHERE [ep].[major_id] = [o].[object_id]
+             AND [ep].[minor_id] = 0
+             AND [ep].[class] = 1
+             AND [ep].[name] = N'microsoft_database_tools_support'
+    )
+)
+SELECT 1 ELSE SELECT 0
+2024-09-29 10:41:15.429 +08:00 [INF] Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Contributors] AS [c]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+2024-09-29 10:41:15.486 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2024-09-29 10:41:15.498 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger - null null
+2024-09-29 10:41:15.563 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-09-29 10:41:15.563 +08:00 [INF] Hosting environment: Development
+2024-09-29 10:41:15.563 +08:00 [INF] Content root path: C:\Users\adria\source\repos\Bluewater\src\Bluewater.Web
+2024-09-29 10:41:16.138 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/index.html - null null
+2024-09-29 10:41:16.140 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger - 302 null null 644.9803ms
+2024-09-29 10:41:16.200 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/index.html - 200 null text/html; charset=utf-8 62.5684ms
+2024-09-29 10:41:16.221 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - null null
+2024-09-29 10:41:16.221 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_vs/browserLink - null null
+2024-09-29 10:41:16.224 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - 200 13762 application/javascript; charset=utf-8 4.2359ms
+2024-09-29 10:41:16.253 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_vs/browserLink - 200 null text/javascript; charset=UTF-8 32.0449ms
+2024-09-29 10:41:16.282 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - null null
+2024-09-29 10:41:16.662 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 380.1156ms
+2024-09-29 10:41:54.683 +08:00 [INF] Registered 15 endpoints in 1,040 milliseconds.
+2024-09-29 10:41:55.375 +08:00 [WRN] The foreign key property 'Employee.ChargingId1' was created in shadow state because a conflicting property with the simple name 'ChargingId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 10:41:55.375 +08:00 [WRN] The foreign key property 'Employee.LevelId1' was created in shadow state because a conflicting property with the simple name 'LevelId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 10:41:55.375 +08:00 [WRN] The foreign key property 'Employee.PayId1' was created in shadow state because a conflicting property with the simple name 'PayId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 10:41:55.375 +08:00 [WRN] The foreign key property 'Employee.PositionId1' was created in shadow state because a conflicting property with the simple name 'PositionId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 10:41:55.433 +08:00 [WRN] No store type was specified for the decimal property 'Height' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:55.434 +08:00 [WRN] No store type was specified for the decimal property 'Weight' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:55.434 +08:00 [WRN] No store type was specified for the decimal property 'DefaultCredits' on entity type 'LeaveCredit'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:55.434 +08:00 [WRN] No store type was specified for the decimal property 'BasicPay' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:55.434 +08:00 [WRN] No store type was specified for the decimal property 'DailyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:55.434 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Con' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:55.434 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Er' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:55.434 +08:00 [WRN] No store type was specified for the decimal property 'HourlyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:55.434 +08:00 [WRN] No store type was specified for the decimal property 'BreakHours' on entity type 'Shift'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 10:41:55.747 +08:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2024-09-29 10:41:55.765 +08:00 [INF] Executed DbCommand (11ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+
+IF EXISTS
+    (SELECT *
+     FROM [sys].[objects] o
+     WHERE [o].[type] = 'U'
+     AND [o].[is_ms_shipped] = 0
+     AND NOT EXISTS (SELECT *
+         FROM [sys].[extended_properties] AS [ep]
+         WHERE [ep].[major_id] = [o].[object_id]
+             AND [ep].[minor_id] = 0
+             AND [ep].[class] = 1
+             AND [ep].[name] = N'microsoft_database_tools_support'
+    )
+)
+SELECT 1 ELSE SELECT 0
+2024-09-29 10:41:55.873 +08:00 [INF] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Contributors] AS [c]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+2024-09-29 10:41:55.929 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2024-09-29 10:41:55.941 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger - null null
+2024-09-29 10:41:56.004 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-09-29 10:41:56.004 +08:00 [INF] Hosting environment: Development
+2024-09-29 10:41:56.004 +08:00 [INF] Content root path: C:\Users\adria\source\repos\Bluewater\src\Bluewater.Web
+2024-09-29 10:41:56.044 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/index.html - null null
+2024-09-29 10:41:56.044 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger - 302 null null 106.5296ms
+2024-09-29 10:41:56.108 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/index.html - 200 null text/html; charset=utf-8 64.1101ms
+2024-09-29 10:41:56.118 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - null null
+2024-09-29 10:41:56.120 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_vs/browserLink - null null
+2024-09-29 10:41:56.123 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - 200 13762 application/javascript; charset=utf-8 4.3976ms
+2024-09-29 10:41:56.147 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_vs/browserLink - 200 null text/javascript; charset=UTF-8 26.7561ms
+2024-09-29 10:41:56.182 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - null null
+2024-09-29 10:41:56.541 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 358.4283ms
+2024-09-29 11:11:13.786 +08:00 [INF] Registered 15 endpoints in 1,062 milliseconds.
+2024-09-29 11:11:14.488 +08:00 [WRN] The foreign key property 'Employee.ChargingId1' was created in shadow state because a conflicting property with the simple name 'ChargingId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 11:11:14.489 +08:00 [WRN] The foreign key property 'Employee.LevelId1' was created in shadow state because a conflicting property with the simple name 'LevelId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 11:11:14.489 +08:00 [WRN] The foreign key property 'Employee.PayId1' was created in shadow state because a conflicting property with the simple name 'PayId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 11:11:14.489 +08:00 [WRN] The foreign key property 'Employee.PositionId1' was created in shadow state because a conflicting property with the simple name 'PositionId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 11:11:14.542 +08:00 [WRN] No store type was specified for the decimal property 'Height' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:11:14.542 +08:00 [WRN] No store type was specified for the decimal property 'Weight' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:11:14.542 +08:00 [WRN] No store type was specified for the decimal property 'DefaultCredits' on entity type 'LeaveCredit'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:11:14.542 +08:00 [WRN] No store type was specified for the decimal property 'BasicPay' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:11:14.542 +08:00 [WRN] No store type was specified for the decimal property 'DailyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:11:14.542 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Con' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:11:14.542 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Er' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:11:14.542 +08:00 [WRN] No store type was specified for the decimal property 'HourlyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:11:14.542 +08:00 [WRN] No store type was specified for the decimal property 'BreakHours' on entity type 'Shift'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:11:14.836 +08:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2024-09-29 11:11:14.852 +08:00 [INF] Executed DbCommand (11ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+
+IF EXISTS
+    (SELECT *
+     FROM [sys].[objects] o
+     WHERE [o].[type] = 'U'
+     AND [o].[is_ms_shipped] = 0
+     AND NOT EXISTS (SELECT *
+         FROM [sys].[extended_properties] AS [ep]
+         WHERE [ep].[major_id] = [o].[object_id]
+             AND [ep].[minor_id] = 0
+             AND [ep].[class] = 1
+             AND [ep].[name] = N'microsoft_database_tools_support'
+    )
+)
+SELECT 1 ELSE SELECT 0
+2024-09-29 11:11:14.961 +08:00 [INF] Executed DbCommand (9ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Contributors] AS [c]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+2024-09-29 11:11:15.020 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2024-09-29 11:11:15.032 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger - null null
+2024-09-29 11:11:15.093 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-09-29 11:11:15.093 +08:00 [INF] Hosting environment: Development
+2024-09-29 11:11:15.093 +08:00 [INF] Content root path: C:\Users\adria\source\repos\Bluewater\src\Bluewater.Web
+2024-09-29 11:11:15.664 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/index.html - null null
+2024-09-29 11:11:15.666 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger - 302 null null 637.2245ms
+2024-09-29 11:11:15.726 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/index.html - 200 null text/html; charset=utf-8 61.9978ms
+2024-09-29 11:11:15.738 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - null null
+2024-09-29 11:11:15.740 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_vs/browserLink - null null
+2024-09-29 11:11:15.743 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - 200 13762 application/javascript; charset=utf-8 4.7811ms
+2024-09-29 11:11:15.769 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_vs/browserLink - 200 null text/javascript; charset=UTF-8 29.2008ms
+2024-09-29 11:11:15.799 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - null null
+2024-09-29 11:11:16.180 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 380.8187ms
+2024-09-29 11:11:23.814 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/Divisions - null null
+2024-09-29 11:11:23.816 +08:00 [WRN] Failed to determine the https port for redirect.
+2024-09-29 11:11:23.820 +08:00 [INF] Executing endpoint 'HTTP: GET /Divisions'
+2024-09-29 11:11:23.842 +08:00 [INF] Handling ListDivisionsQuery
+2024-09-29 11:11:23.843 +08:00 [INF] Property skip : null
+2024-09-29 11:11:23.843 +08:00 [INF] Property take : null
+2024-09-29 11:11:23.911 +08:00 [ERR] Failed executing DbCommand (23ms) [Parameters=[p0='?' (Size = 4000)], CommandType='"Text"', CommandTimeout='30']
+@p0
+2024-09-29 11:11:23.918 +08:00 [ERR] An exception occurred while iterating over the results of a query for context type 'Bluewater.Infrastructure.Data.AppDbContext'.
+Microsoft.Data.SqlClient.SqlException (0x80131904): Could not find stored procedure 'SELECT Id, Name, Description FROM Divisions'.
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<ExecuteDbDataReaderAsync>b__211_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+ClientConnectionId:405a3156-c97d-4b33-aa14-b8d63c5734fa
+Error Number:2812,State:62,Class:16
+Microsoft.Data.SqlClient.SqlException (0x80131904): Could not find stored procedure 'SELECT Id, Name, Description FROM Divisions'.
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<ExecuteDbDataReaderAsync>b__211_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+ClientConnectionId:405a3156-c97d-4b33-aa14-b8d63c5734fa
+Error Number:2812,State:62,Class:16
+2024-09-29 11:11:23.986 +08:00 [INF] Executed endpoint 'HTTP: GET /Divisions'
+2024-09-29 11:11:23.988 +08:00 [ERR] An unhandled exception has occurred while executing the request.
+Microsoft.Data.SqlClient.SqlException (0x80131904): Could not find stored procedure 'SELECT Id, Name, Description FROM Divisions'.
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<ExecuteDbDataReaderAsync>b__211_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Bluewater.Infrastructure.Data.Queries.ListDivisionsQueryService.ListAsync() in C:\Users\adria\source\repos\Bluewater\src\Bluewater.Infrastructure\Data\Queries\ListDivisionsQueryService.cs:line 12
+   at Bluewater.UseCases.Divisions.List.ListDivisionsHandler.Handle(ListDivisionsQuery request, CancellationToken cancellationToken) in C:\Users\adria\source\repos\Bluewater\src\Bluewater.UseCases\Divisions\List\ListDivisionsHandler.cs:line 9
+   at Ardalis.SharedKernel.LoggingBehavior`2.Handle(TRequest request, RequestHandlerDelegate`1 next, CancellationToken cancellationToken)
+   at Bluewater.Web.Divisions.List.HandleAsync(CancellationToken ct) in C:\Users\adria\source\repos\Bluewater\src\Bluewater.Web\Divisions\List.cs:line 22
+   at FastEndpoints.Endpoint`2.ExecAsync(CancellationToken ct)
+   at FastEndpoints.Endpoint`2.ExecAsync(CancellationToken ct)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at NSwag.AspNetCore.Middlewares.SwaggerUiIndexMiddleware.Invoke(HttpContext context)
+   at NSwag.AspNetCore.Middlewares.RedirectToIndexMiddleware.Invoke(HttpContext context)
+   at NSwag.AspNetCore.Middlewares.OpenApiDocumentMiddleware.Invoke(HttpContext context)
+   at Ardalis.ListStartupServices.ShowAllServicesMiddleware.Invoke(HttpContext httpContext)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+ClientConnectionId:405a3156-c97d-4b33-aa14-b8d63c5734fa
+Error Number:2812,State:62,Class:16
+2024-09-29 11:11:24.010 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/Divisions - 500 null text/plain; charset=utf-8 195.7475ms
+2024-09-29 11:12:57.453 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/Divisions - null null
+2024-09-29 11:12:57.453 +08:00 [INF] Executing endpoint 'HTTP: GET /Divisions'
+2024-09-29 11:12:57.454 +08:00 [INF] Handling ListDivisionsQuery
+2024-09-29 11:12:57.454 +08:00 [INF] Property skip : null
+2024-09-29 11:12:57.455 +08:00 [INF] Property take : null
+2024-09-29 11:13:02.830 +08:00 [ERR] Failed executing DbCommand (17ms) [Parameters=[p0='?' (Size = 4000)], CommandType='"Text"', CommandTimeout='30']
+@p0
+2024-09-29 11:13:02.831 +08:00 [ERR] An exception occurred while iterating over the results of a query for context type 'Bluewater.Infrastructure.Data.AppDbContext'.
+Microsoft.Data.SqlClient.SqlException (0x80131904): Could not find stored procedure 'SELECT Id, Name, Description FROM Divisions'.
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<ExecuteDbDataReaderAsync>b__211_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+ClientConnectionId:405a3156-c97d-4b33-aa14-b8d63c5734fa
+Error Number:2812,State:62,Class:16
+Microsoft.Data.SqlClient.SqlException (0x80131904): Could not find stored procedure 'SELECT Id, Name, Description FROM Divisions'.
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<ExecuteDbDataReaderAsync>b__211_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+ClientConnectionId:405a3156-c97d-4b33-aa14-b8d63c5734fa
+Error Number:2812,State:62,Class:16
+2024-09-29 11:13:02.893 +08:00 [INF] Executed endpoint 'HTTP: GET /Divisions'
+2024-09-29 11:13:02.893 +08:00 [ERR] An unhandled exception has occurred while executing the request.
+Microsoft.Data.SqlClient.SqlException (0x80131904): Could not find stored procedure 'SELECT Id, Name, Description FROM Divisions'.
+   at Microsoft.Data.SqlClient.SqlCommand.<>c.<ExecuteDbDataReaderAsync>b__211_0(Task`1 result)
+   at System.Threading.Tasks.ContinuationResultTaskFromResultTask`2.InnerInvoke()
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal.SqlServerExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.FromSqlQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Bluewater.Infrastructure.Data.Queries.ListDivisionsQueryService.ListAsync() in C:\Users\adria\source\repos\Bluewater\src\Bluewater.Infrastructure\Data\Queries\ListDivisionsQueryService.cs:line 12
+   at Bluewater.UseCases.Divisions.List.ListDivisionsHandler.Handle(ListDivisionsQuery request, CancellationToken cancellationToken) in C:\Users\adria\source\repos\Bluewater\src\Bluewater.UseCases\Divisions\List\ListDivisionsHandler.cs:line 9
+   at Ardalis.SharedKernel.LoggingBehavior`2.Handle(TRequest request, RequestHandlerDelegate`1 next, CancellationToken cancellationToken)
+   at Bluewater.Web.Divisions.List.HandleAsync(CancellationToken ct) in C:\Users\adria\source\repos\Bluewater\src\Bluewater.Web\Divisions\List.cs:line 22
+   at FastEndpoints.Endpoint`2.ExecAsync(CancellationToken ct)
+   at FastEndpoints.Endpoint`2.ExecAsync(CancellationToken ct)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at NSwag.AspNetCore.Middlewares.SwaggerUiIndexMiddleware.Invoke(HttpContext context)
+   at NSwag.AspNetCore.Middlewares.RedirectToIndexMiddleware.Invoke(HttpContext context)
+   at NSwag.AspNetCore.Middlewares.OpenApiDocumentMiddleware.Invoke(HttpContext context)
+   at Ardalis.ListStartupServices.ShowAllServicesMiddleware.Invoke(HttpContext httpContext)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+ClientConnectionId:405a3156-c97d-4b33-aa14-b8d63c5734fa
+Error Number:2812,State:62,Class:16
+2024-09-29 11:13:02.896 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/Divisions - 500 null text/plain; charset=utf-8 5443.9277ms
+2024-09-29 11:15:21.679 +08:00 [INF] Registered 15 endpoints in 317 milliseconds.
+2024-09-29 11:15:22.271 +08:00 [WRN] The foreign key property 'Employee.ChargingId1' was created in shadow state because a conflicting property with the simple name 'ChargingId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 11:15:22.272 +08:00 [WRN] The foreign key property 'Employee.LevelId1' was created in shadow state because a conflicting property with the simple name 'LevelId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 11:15:22.272 +08:00 [WRN] The foreign key property 'Employee.PayId1' was created in shadow state because a conflicting property with the simple name 'PayId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 11:15:22.272 +08:00 [WRN] The foreign key property 'Employee.PositionId1' was created in shadow state because a conflicting property with the simple name 'PositionId' exists in the entity type, but is either not mapped, is already used for another relationship, or is incompatible with the associated primary key type. See https://aka.ms/efcore-relationships for information on mapping relationships in EF Core.
+2024-09-29 11:15:22.322 +08:00 [WRN] No store type was specified for the decimal property 'Height' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:15:22.322 +08:00 [WRN] No store type was specified for the decimal property 'Weight' on entity type 'Employee'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:15:22.322 +08:00 [WRN] No store type was specified for the decimal property 'DefaultCredits' on entity type 'LeaveCredit'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:15:22.322 +08:00 [WRN] No store type was specified for the decimal property 'BasicPay' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:15:22.323 +08:00 [WRN] No store type was specified for the decimal property 'DailyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:15:22.323 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Con' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:15:22.323 +08:00 [WRN] No store type was specified for the decimal property 'HDMF_Er' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:15:22.323 +08:00 [WRN] No store type was specified for the decimal property 'HourlyRate' on entity type 'Pay'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:15:22.323 +08:00 [WRN] No store type was specified for the decimal property 'BreakHours' on entity type 'Shift'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+2024-09-29 11:15:22.605 +08:00 [INF] Executed DbCommand (10ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT 1
+2024-09-29 11:15:22.621 +08:00 [INF] Executed DbCommand (11ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+
+IF EXISTS
+    (SELECT *
+     FROM [sys].[objects] o
+     WHERE [o].[type] = 'U'
+     AND [o].[is_ms_shipped] = 0
+     AND NOT EXISTS (SELECT *
+         FROM [sys].[extended_properties] AS [ep]
+         WHERE [ep].[major_id] = [o].[object_id]
+             AND [ep].[minor_id] = 0
+             AND [ep].[class] = 1
+             AND [ep].[name] = N'microsoft_database_tools_support'
+    )
+)
+SELECT 1 ELSE SELECT 0
+2024-09-29 11:15:22.732 +08:00 [INF] Executed DbCommand (8ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT CASE
+    WHEN EXISTS (
+        SELECT 1
+        FROM [Contributors] AS [c]) THEN CAST(1 AS bit)
+    ELSE CAST(0 AS bit)
+END
+2024-09-29 11:15:22.790 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2024-09-29 11:15:22.801 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger - null null
+2024-09-29 11:15:22.860 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-09-29 11:15:22.860 +08:00 [INF] Hosting environment: Development
+2024-09-29 11:15:22.860 +08:00 [INF] Content root path: C:\Users\adria\source\repos\Bluewater\src\Bluewater.Web
+2024-09-29 11:15:22.903 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/index.html - null null
+2024-09-29 11:15:22.905 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger - 302 null null 106.4524ms
+2024-09-29 11:15:22.968 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/index.html - 200 null text/html; charset=utf-8 64.209ms
+2024-09-29 11:15:22.981 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_vs/browserLink - null null
+2024-09-29 11:15:22.981 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - null null
+2024-09-29 11:15:22.984 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_framework/aspnetcore-browser-refresh.js - 200 13762 application/javascript; charset=utf-8 3.0247ms
+2024-09-29 11:15:23.008 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/_vs/browserLink - 200 null text/javascript; charset=UTF-8 27.1864ms
+2024-09-29 11:15:23.042 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - null null
+2024-09-29 11:15:23.383 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 340.8299ms
+2024-09-29 11:15:26.684 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/Divisions - null null
+2024-09-29 11:15:26.686 +08:00 [WRN] Failed to determine the https port for redirect.
+2024-09-29 11:15:26.689 +08:00 [INF] Executing endpoint 'HTTP: GET /Divisions'
+2024-09-29 11:15:26.711 +08:00 [INF] Handling ListDivisionsQuery
+2024-09-29 11:15:26.711 +08:00 [INF] Property skip : null
+2024-09-29 11:15:26.712 +08:00 [INF] Property take : null
+2024-09-29 11:15:28.370 +08:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [d].[Id], [d].[Name], [d].[Description]
+FROM [Divisions] AS [d]
+2024-09-29 11:15:37.705 +08:00 [INF] Handled ListDivisionsQuery with Ardalis.Result.Result`1[System.Collections.Generic.IEnumerable`1[Bluewater.UseCases.Divisions.DivisionDTO]] in 10993 ms
+2024-09-29 11:15:37.714 +08:00 [INF] Executed endpoint 'HTTP: GET /Divisions'
+2024-09-29 11:15:37.717 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/Divisions - 200 null application/json 11032.8821ms
+2024-09-29 11:18:05.179 +08:00 [INF] Request starting HTTP/1.1 GET http://localhost:57678/Divisions - null null
+2024-09-29 11:18:05.179 +08:00 [INF] Executing endpoint 'HTTP: GET /Divisions'
+2024-09-29 11:18:05.180 +08:00 [INF] Handling ListDivisionsQuery
+2024-09-29 11:18:05.181 +08:00 [INF] Property skip : null
+2024-09-29 11:18:05.181 +08:00 [INF] Property take : null
+2024-09-29 11:18:05.224 +08:00 [INF] Executed DbCommand (2ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT [d].[Id], [d].[Name], [d].[Description]
+FROM [Divisions] AS [d]
+2024-09-29 11:18:05.228 +08:00 [INF] Handled ListDivisionsQuery with Ardalis.Result.Result`1[System.Collections.Generic.IEnumerable`1[Bluewater.UseCases.Divisions.DivisionDTO]] in 44 ms
+2024-09-29 11:18:05.230 +08:00 [INF] Executed endpoint 'HTTP: GET /Divisions'
+2024-09-29 11:18:05.230 +08:00 [INF] Request finished HTTP/1.1 GET http://localhost:57678/Divisions - 200 null application/json 53.4399ms

@@ -1,0 +1,26 @@
+﻿@rendermode InteractiveServer
+
+<div class="navmenu">
+    <input type="checkbox" title="Menu expand/collapse toggle" id="navmenu-toggle" class="navmenu-icon" />
+    <label for="navmenu-toggle" class="navmenu-icon"><FluentIcon Value="@(new Icons.Regular.Size24.Navigation())" Color="Color.Fill" /></label>
+    <nav class="sitenav" aria-labelledby="main-menu">
+        <FluentNavMenu Id="main-menu" Collapsible="true" Width="200" Title="Navigation menu" @bind-Expanded="expanded" CustomToggle="true">
+            <FluentNavLink Href="/" Match="NavLinkMatch.All" Icon="@(new Icons.Regular.Size24.Home())" IconColor="Color.Accent">Dashboard</FluentNavLink>
+            <FluentNavLink Href="counter" Icon="@(new Icons.Regular.Size24.PersonAccounts())" IconColor="Color.Accent">Employees</FluentNavLink>
+            <FluentNavLink Href="shift" Icon="@(new Icons.Regular.Size24.CalendarEdit())" IconColor="Color.Accent">Schedule</FluentNavLink>
+            <FluentNavLink Href="counter" Icon="@(new Icons.Regular.Size24.Document())" IconColor="Color.Accent">Forms</FluentNavLink>
+            <FluentNavLink Href="counter" Icon="@(new Icons.Regular.Size24.DocumentArrowDown())" IconColor="Color.Accent">Deductions</FluentNavLink>
+            <FluentNavLink Href="counter" Icon="@(new Icons.Regular.Size24.Wallet())" IconColor="Color.Accent">Other Earnings</FluentNavLink>
+            <FluentNavLink Href="counter" Icon="@(new Icons.Regular.Size24.Timer())" IconColor="Color.Accent">Timesheet</FluentNavLink>
+            <FluentNavLink Href="counter" Icon="@(new Icons.Regular.Size24.Money())" IconColor="Color.Accent">Payroll</FluentNavLink>
+            <FluentNavLink Href="counter" Icon="@(new Icons.Regular.Size24.DocumentPrint())" IconColor="Color.Accent">Reports</FluentNavLink>
+            <FluentNavLink Href="counter" Icon="@(new Icons.Regular.Size24.ContactCard())" IconColor="Color.Accent">Contact</FluentNavLink>
+            <FluentNavLink Href="weather" Icon="@(new Icons.Regular.Size24.PersonAccounts())" IconColor="Color.Accent">Profile</FluentNavLink>
+            <FluentNavLink Href="setting" Icon="@(new Icons.Regular.Size24.SettingsCogMultiple())" IconColor="Color.Accent">Settings</FluentNavLink>
+        </FluentNavMenu>
+    </nav>
+</div>
+
+@code {
+    private bool expanded = true;
+}

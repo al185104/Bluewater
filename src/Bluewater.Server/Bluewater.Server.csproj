@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ardalis.ListStartupServices" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.DataGrid.EntityFrameworkAdapter" />
+    <PackageReference Include="Microsoft.FluentUI.AspNetCore.Components.Icons" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" />
+    <PackageReference Include="Serilog" />
+    <PackageReference Include="Serilog.Extensions.Logging" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Forms\" />
+    <Folder Include="Components\Tables\" />
+    <Folder Include="Components\Pages\Division\" />
+    <Folder Include="Components\Pages\Employee\" />
+    <Folder Include="Components\Pages\Charging\" />
+    <Folder Include="Components\Pages\Department\" />
+    <Folder Include="Components\Pages\Dependent\" />
+    <Folder Include="Components\Pages\EmployeeType\" />
+    <Folder Include="Components\Pages\Forms\" />
+    <Folder Include="Components\Pages\LeaveCredit\" />
+    <Folder Include="Components\Pages\Level\" />
+    <Folder Include="Components\Pages\Timesheet\" />
+    <Folder Include="Components\Pages\User\" />
+    <Folder Include="Components\Pages\Section\" />
+    <Folder Include="Components\Pages\Position\" />
+    <Folder Include="Components\Pages\Pay\" />
+    <Folder Include="Utilities\Helpers\" />
+    <Folder Include="Utilities\Extensions\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bluewater.Infrastructure\Bluewater.Infrastructure.csproj" />
+    <ProjectReference Include="..\Bluewater.UseCases\Bluewater.UseCases.csproj" />
+  </ItemGroup>
+</Project>

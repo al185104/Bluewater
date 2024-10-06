@@ -1,0 +1,657 @@
+﻿@page "/setting"
+@rendermode InteractiveServer
+@using Bluewater.UseCases.Chargings.Delete
+@using Bluewater.UseCases.Departments.Delete
+@using Bluewater.UseCases.Divisions
+@using Bluewater.UseCases.Divisions.Delete
+@using Bluewater.UseCases.Divisions.List;
+@using Bluewater.UseCases.Divisions.Create;
+@using Bluewater.UseCases.Departments;
+@using Bluewater.UseCases.Departments.List;
+@using Bluewater.UseCases.Departments.Create;
+@using Bluewater.UseCases.Holidays.Delete
+@using Bluewater.UseCases.Positions.Delete
+@using Bluewater.UseCases.Sections;
+@using Bluewater.UseCases.Sections.Delete
+@using Bluewater.UseCases.Sections.List;
+@using Bluewater.UseCases.Sections.Create;
+@using Bluewater.UseCases.Positions;
+@using Bluewater.UseCases.Positions.List;
+@using Bluewater.UseCases.Positions.Create;
+@using Bluewater.UseCases.Chargings;
+@using Bluewater.UseCases.Chargings.List;
+@using Bluewater.UseCases.Chargings.Create;
+@using Bluewater.UseCases.Holidays;
+@using Bluewater.UseCases.Holidays.List;
+@using Bluewater.UseCases.Holidays.Create;
+
+@using MediatR;
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+
+<PageTitle>System Settings</PageTitle>
+
+<h3>System Settings</h3>
+
+<FluentStack Orientation="Orientation.Vertical">
+
+    <FluentGrid Spacing="2">
+        @* division *@
+        <FluentGridItem xs ="6">
+            <FluentCard MinimalStyle="true" AreaRestricted="false">
+                <h5>Divisions</h5>
+                <div>
+                    <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Start" VerticalAlignment="VerticalAlignment.Bottom">
+                        <div>
+                            <FluentTextField @bind-Value="InputDivision.Name" Name="divisionName" Label="Division Name" Required />
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <FluentTextField @bind-Value="InputDivision.Description" Name="divisionDescription" Label="Division Description" Style="flex: 1;" />
+                        </div>
+                        <FluentButton Loading="@btnLoading" OnClick="@AddDivision" Appearance="Appearance.Accent" Style="margin-bottom: 4px">Add</FluentButton>
+                    </FluentStack>
+                </div>
+
+                <div style="height: 300px; overflow:auto;" tabindex="-1">
+                    <FluentDataGrid Items="@Divisions" ItemSize="3">
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
+                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <TemplateColumn Title="Actions" Align="@Align.End">
+                            <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteDivisionAsync(context))"/>
+                        </TemplateColumn>
+                    </FluentDataGrid>
+                </div>
+            </FluentCard>
+        </FluentGridItem>
+
+        @* department *@
+        <FluentGridItem xs="6">
+            <FluentCard MinimalStyle="true" AreaRestricted="false">
+                <h5>Departments</h5>
+                <div>
+                    <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom">
+                        <div>
+                            <FluentTextField @bind-Value="InputDepartment.Name" Name="departmentName" Label="Department Name" Required />
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <FluentTextField @bind-Value="InputDepartment.Description" Name="departmentDescription" Label="Department Description" />
+                        </div>
+                        <div style="margin-bottom: 4px">
+                            <FluentSelect Items="@Divisions" TOption="DivisionDTO" @onchange="SelectedDivisionOptionChanged" OptionValue="@(i => i.Id.ToString())" OptionText="@(i => i.Name)" Label="Division Classification" Required />
+                        </div>
+                        <FluentButton Loading="@btnLoading" OnClick="@AddDepartment" Appearance="Appearance.Accent" Style="margin-bottom: 4px">Add</FluentButton>
+                    </FluentStack>
+                </div>
+
+                <div style="height: 300px; overflow:auto;" tabindex="-1">
+                    <FluentDataGrid Items="@Departments">
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
+                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <PropertyColumn Title="Division" Property="@(p => GetDivisionName(p.DivisionId))" />
+                        <TemplateColumn Title="Actions" Align="@Align.End">
+                            <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteDepartmentAsync(context))"/>
+                        </TemplateColumn>
+                    </FluentDataGrid>
+                </div>
+            </FluentCard>
+        </FluentGridItem>
+        
+        @* section *@
+        <FluentGridItem xs="6">
+            <FluentCard MinimalStyle="true" AreaRestricted="false">
+                <h5>Sections</h5>
+                <div>
+                    <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom">
+                        <div>
+                            <FluentTextField @bind-Value="InputSection.Name" Name="sectionName" Label="Section Name" Required />
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <FluentTextField @bind-Value="InputSection.Description" Name="sectionDescription" Label="Section Description" />
+                        </div>
+                        <div style="margin-bottom: 4px">
+                            <FluentSelect Items="@Departments" TOption="DepartmentDTO" @onchange="SelectedDepartmentOptionChanged" OptionValue="@(i => i.Id.ToString())" OptionText="@(i => i.Name)" Label="Department Classification" Required />
+                        </div>
+                        <FluentButton Loading="@btnLoading" OnClick="@AddSection" Appearance="Appearance.Accent" Style="margin-bottom: 4px">Add</FluentButton>
+                    </FluentStack>
+                </div>
+
+                <div style="height: 300px; overflow:auto;" tabindex="-1">
+                    <FluentDataGrid Items="@Sections">
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
+                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <PropertyColumn Title="Department" Property="@(p => GetDepartmentName(p.DepartmentId))" />
+                        <TemplateColumn Title="Actions" Align="@Align.End">
+                            <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteSectionAsync(context))"/>
+                        </TemplateColumn>
+                    </FluentDataGrid>
+                </div>
+            </FluentCard>
+        </FluentGridItem>
+
+        @* position *@
+        <FluentGridItem xs="6">
+            <FluentCard MinimalStyle="true" AreaRestricted="false">
+                <h5>Positions</h5>
+                <div>
+                    <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom">
+                        <div>
+                            <FluentTextField @bind-Value="InputPosition.Name" Name="positionName" Label="Position Name" Required />
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <FluentTextField @bind-Value="InputPosition.Description" Name="positionDescription" Label="Position Description" />
+                        </div>
+                        <div style="margin-bottom: 4px">
+                            <FluentSelect Items="@Sections" TOption="SectionDTO" @onchange="SelectedSectionOptionChanged" OptionValue="@(i => i.Id.ToString())" OptionText="@(i => i.Name)" Label="Section Classification" Required />
+                        </div>
+                        <FluentButton Loading="@btnLoading" OnClick="@AddPosition" Appearance="Appearance.Accent" Style="margin-bottom: 4px">Add</FluentButton>
+                    </FluentStack>
+                </div>
+
+                <div style="height: 300px; overflow:auto;" tabindex="-1">
+                    <FluentDataGrid Items="@Positions">
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
+                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <PropertyColumn Title="Section" Property="@(p => GetSectionName(p.SectionId))" />
+                        <TemplateColumn Title="Actions" Align="@Align.End">
+                            <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeletePositionAsync(context))"/>
+                        </TemplateColumn>
+                    </FluentDataGrid>
+                </div>
+            </FluentCard>
+        </FluentGridItem>
+
+        @* charing *@
+        <FluentGridItem xs="6">
+            <FluentCard MinimalStyle="true" AreaRestricted="false">
+                <h5>Chargings</h5>
+                <div>
+                    <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom">
+                        <div>
+                            <FluentTextField @bind-Value="InputCharging.Name" Name="chargingName" Label="Charging Name" Required />
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <FluentTextField @bind-Value="InputCharging.Description" Name="chargingDescription" Label="Charging Description" />
+                        </div>
+                        <FluentButton Loading="@btnLoading" OnClick="@AddCharging" Appearance="Appearance.Accent" Style="margin-bottom: 4px">Add</FluentButton>
+                    </FluentStack>
+                </div>
+                <div style="height: 300px; overflow:auto;" tabindex="-1">
+                    <FluentDataGrid Items="@Chargings">
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
+                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <TemplateColumn Title="Actions" Align="@Align.End">
+                            <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteChargingAsync(context))"/>
+                        </TemplateColumn>
+                    </FluentDataGrid>
+                </div>
+            </FluentCard>
+        </FluentGridItem>
+    </FluentGrid>
+
+    <FluentCard>
+        <h5>Holidays</h5>
+        <FluentGrid>
+            <FluentGridItem xs="6">
+                <div style="height: 300px; overflow:auto;" tabindex="-1">
+                    <FluentDataGrid Items="@Holidays">
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
+                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <PropertyColumn Title="Date" Property="@(p => p.Date.ToShortDateString())" />
+                        <TemplateColumn Title="Actions" Align="@Align.End">
+                            @* <FluentButton aria-label="Edit item" IconEnd="@(new Icons.Regular.Size16.Edit())" /> *@
+                            <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteHolidayAsync(context))"/>
+                        </TemplateColumn>
+                    </FluentDataGrid>
+                </div>
+            </FluentGridItem>
+            <FluentGridItem xs="3" Style="display: flex; justify-content: center;">
+                <FluentStack Orientation="Orientation.Vertical" VerticalAlignment="VerticalAlignment.Top" VerticalGap="4">
+                    <FluentTextField @bind-Value="InputHoliday.Name" Name="holidayName" Label="Holiday Name" Required />
+                    <FluentTextField @bind-Value="InputHoliday.Description" Name="holidayDescription" Label="Holiday Description" Required />
+                    <FluentSwitch @bind-Value="@InputHoliday.IsRegular" Label="Holiday Type">
+                        <span slot="checked-message">Regular</span>
+                        <span slot="unchecked-message">Special</span>
+                    </FluentSwitch>
+                    <FluentButton Loading="@btnLoading" OnClick="@AddHoliday" Appearance="Appearance.Accent" Style="margin-bottom: 4px;">Add</FluentButton>
+                </FluentStack>
+            </FluentGridItem>
+            <FluentGridItem xs="3" Style="display: flex; justify-content: center;">
+                <FluentCalendar @bind-Value="@SelectedDayStart" View="CalendarViews.Days" Style="height: 250px;" />
+            </FluentGridItem>
+        </FluentGrid>
+    </FluentCard>
+
+</FluentStack>
+
+
+@code {
+    bool btnLoading = false;
+    private DateTime? SelectedDayStart = null;
+
+    public DivisionDTO InputDivision { get; set; } = new();
+    public DepartmentDTO InputDepartment { get; set; } = new();
+    public SectionDTO InputSection { get; set; } = new();
+    public PositionDTO InputPosition { get; set; } = new();
+    public ChargingDTO InputCharging { get; set; } = new();
+    public HolidayDTO InputHoliday { get; set; } = new();
+
+    public IQueryable<DivisionDTO> Divisions { get; set; } = default!;
+    public IQueryable<DepartmentDTO> Departments { get; set; } = default!;
+    public IQueryable<SectionDTO> Sections { get; set; } = default!;
+    public IQueryable<PositionDTO> Positions { get; set; } = default!;
+    public IQueryable<ChargingDTO> Chargings { get; set; } = default!;
+    public IQueryable<HolidayDTO> Holidays { get; set; } = default!;
+
+    #region Initialize
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            List<Task> tasks = new();
+
+            tasks.Add(LoadDivisions());
+            tasks.Add(LoadDepartments());
+            tasks.Add(LoadSections());
+            tasks.Add(LoadPositions());
+            tasks.Add(LoadChargings());
+            tasks.Add(LoadHolidays());
+
+            await Task.WhenAll(tasks);
+        }
+        finally
+        {
+            await base.OnInitializedAsync();
+        }
+    }
+    #endregion
+
+    #region Load Data
+    private async Task LoadHolidays()
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListHolidayQuery(null, null));
+                if (result.IsSuccess)
+                    Holidays = result.Value.AsQueryable();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    private async Task LoadChargings()
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListChargingQuery(null, null));
+                if (result.IsSuccess)
+                    Chargings = result.Value.AsQueryable();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    private async Task LoadPositions()
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListPositionsQuery(null, null));
+                if (result.IsSuccess)
+                    Positions = result.Value.AsQueryable();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    private async Task LoadSections()
+    {
+        try
+        {
+            using(var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListSectionsQuery(null, null));
+                if (result.IsSuccess)
+                    Sections = result.Value.AsQueryable();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    private async Task LoadDepartments()
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListDepartmentsQuery(null, null));
+                if (result.IsSuccess)
+                    Departments = result.Value.AsQueryable();
+            }
+        }
+        catch(Exception)
+        {
+            throw;
+        }
+    }
+
+    private async Task LoadDivisions()
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListDivisionsQuery(null, null));
+                if (result.IsSuccess){
+                    Divisions = result.Value.AsQueryable();
+                }
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+    #endregion
+
+    #region Add Data
+    async Task AddHoliday()
+    {
+        try
+        {
+            btnLoading = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateHolidayCommand(InputHoliday.Name, InputHoliday.Description, SelectedDayStart!.Value,  true));
+                if (result.IsSuccess)
+                {
+                    await LoadHolidays();
+                    InputHoliday = new();
+                }
+            }
+        }
+        finally
+        {
+            btnLoading = false;
+        }
+    }
+
+    async Task AddDivision()
+    {
+        try
+        {
+            btnLoading = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateDivisionCommand(InputDivision.Name, InputDivision.Description));
+                if (result.IsSuccess)
+                {
+                    await LoadDivisions();
+                    InputDivision = new();
+                }
+            }
+        }
+        finally
+        {
+            btnLoading = false;
+        }
+    }
+
+    async Task AddDepartment()
+    {
+        try
+        {
+            btnLoading = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateDepartmentCommand(InputDepartment.Name, InputDepartment.Description, selectedDivisionId));
+                if (result.IsSuccess)
+                {
+                    await LoadDepartments();
+                    InputDepartment = new();
+                }
+            }
+        }
+        finally
+        {
+            btnLoading = false;
+        }
+    }
+
+    async Task AddSection()
+    {
+        try
+        {
+            btnLoading = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateSectionCommand(InputSection.Name, InputSection.Description, string.Empty, string.Empty, string.Empty, selectedDepartmentId));
+                if (result.IsSuccess)
+                {
+                    await LoadSections();
+                    InputSection = new();
+                }
+            }
+        }
+        finally
+        {
+            btnLoading = false;
+        }
+    }
+
+    async Task AddPosition()
+    {
+        try
+        {
+            btnLoading = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreatePositionCommand(InputPosition.Name, InputPosition.Description, selectedSectionId));
+                if (result.IsSuccess)
+                {
+                    await LoadPositions();
+                    InputPosition = new();
+                }
+            }
+        }
+        finally
+        {
+            btnLoading = false;
+        }
+    }
+
+    async Task AddCharging()
+    {
+        try
+        {
+            btnLoading = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateChargingCommand(InputCharging.Name, InputCharging.Description));
+                if (result.IsSuccess)
+                {
+                    await LoadChargings();
+                    InputCharging = new();
+                }
+            }
+        }
+        finally
+        {
+            btnLoading = false;
+        }
+    }
+    #endregion
+
+    #region Delete Data
+    private async Task DeleteDivisionAsync(DivisionDTO item)
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteDivisionCommand(item.Id));
+                if (result.IsSuccess)
+                    await LoadDivisions();
+            }
+        }
+        finally
+        {
+        }
+    }
+
+    private async Task DeleteDepartmentAsync(DepartmentDTO item)
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteDepartmentCommand(item.Id));
+                if (result.IsSuccess)
+                    await LoadDepartments();
+            }
+        }
+        finally
+        {
+        }
+    }
+
+    private async Task DeleteSectionAsync(SectionDTO item)
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteSectionCommand(item.Id));
+                if (result.IsSuccess)
+                    await LoadSections();
+            }
+        }
+        finally
+        {
+        }
+    }
+
+    private async Task DeletePositionAsync(PositionDTO item)
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeletePositionCommand(item.Id));
+                if (result.IsSuccess)
+                    await LoadPositions();
+            }
+        }
+        finally
+        {
+        }
+    }
+
+    private async Task DeleteChargingAsync(ChargingDTO item)
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteChargingCommand(item.Id));
+                if (result.IsSuccess)
+                    await LoadChargings();
+            }
+        }
+        finally
+        {
+        }
+    }
+
+    private async Task DeleteHolidayAsync(HolidayDTO item)
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteHolidayCommand(item.Id));
+                if (result.IsSuccess)
+                    await LoadHolidays();
+            }
+        }
+        finally
+        {
+        }
+    }
+    #endregion
+
+    #region Private Methods
+    private string GetDivisionName(Guid divisionId)
+    {
+        var division = Divisions.FirstOrDefault(d => d.Id == divisionId);
+        return division?.Name ?? "Unknown";
+    }
+
+    private Guid selectedDivisionId = Guid.Empty;
+    private void SelectedDivisionOptionChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null && Guid.TryParse(e.Value?.ToString(), out var selectedId))
+            selectedDivisionId = selectedId;
+    }
+
+    private string GetDepartmentName(Guid departmentId)
+    {
+        var department = Departments.FirstOrDefault(d => d.Id == departmentId);
+        return department?.Name ?? "Unknown";
+    }
+
+    private Guid selectedDepartmentId = Guid.Empty;
+    private void SelectedDepartmentOptionChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null && Guid.TryParse(e.Value?.ToString(), out var selectedId))
+            selectedDepartmentId = selectedId;
+    }
+
+    private string GetSectionName(Guid sectionId)
+    {
+        var section = Sections.FirstOrDefault(d => d.Id == sectionId);
+        return section?.Name ?? "Unknown";
+    }
+
+    private Guid selectedSectionId = Guid.Empty;
+    private void SelectedSectionOptionChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null && Guid.TryParse(e.Value?.ToString(), out var selectedId))
+            selectedSectionId = selectedId;
+    }
+    #endregion
+}

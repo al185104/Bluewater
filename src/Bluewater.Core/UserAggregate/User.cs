@@ -1,0 +1,24 @@
+﻿using Ardalis.SharedKernel;
+using Bluewater.Core.EmployeeAggregate;
+using Bluewater.Core.UserAggregate.Enum;
+
+namespace Bluewater.Core.UserAggregate;
+public class User(string username, string passwordHash, Credential? credential, Guid? supervisedGroup) : EntityBase<Guid>, IAggregateRoot
+{
+  public string Username { get; private set; } = username;
+  public string PasswordHash { get; private set; } = passwordHash;
+  public Credential Credential { get; private set; } = credential ?? Credential.None;
+  public Guid? SupervisedGroup { get; private set; } = credential >= Credential.Manager ? supervisedGroup : null;
+
+  public DateTime CreatedDate { get; private set; } = DateTime.Now;
+  public Guid CreateBy { get; private set; } = Guid.Empty;
+  public DateTime UpdatedDate { get; private set; } = DateTime.Now;
+  public Guid UpdateBy { get; private set; } = Guid.Empty;
+
+  // Foreign Key
+  public Guid EmployeeId { get; set; }
+  // Navigation Property
+  public virtual Employee Employee { get; set; } = null!;
+
+  public User() : this(string.Empty, string.Empty, Credential.None, null) { }
+}

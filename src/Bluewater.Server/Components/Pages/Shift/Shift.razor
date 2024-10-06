@@ -1,0 +1,155 @@
+﻿@page "/shift"
+@rendermode InteractiveServer
+
+@using Bluewater.UseCases.Shifts
+@using Bluewater.UseCases.Shifts.Create
+@using Bluewater.UseCases.Shifts.Delete
+@using Bluewater.UseCases.Shifts.List
+@using MediatR;
+@using Microsoft.FluentUI.AspNetCore.Components.Extensions
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+
+<PageTitle>Shifts and Schedules</PageTitle>
+
+<h3>Shifts and Schedules</h3>
+
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Bottom">
+    <div>
+        <FluentTextField @bind-Value="InputShift!.Name" Name="shiftName" Label="Shift name" Required />
+    </div>
+    <div>
+        <FluentTimePicker Value="@InputShift.ShiftStartTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftStartTime = e.ToTimeOnly())" Name="shiftStart" Label="Shift start time" Required />
+    </div>
+    <div>
+        <FluentTimePicker Value="@InputShift.ShiftBreakTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftBreakTime = e.ToTimeOnly())" Name="breakStartTime" Label="Break start time" Required />
+    </div>
+    <div>
+        <FluentTimePicker Value="@InputShift.ShiftBreakEndTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftBreakEndTime = e.ToTimeOnly())" Name="breakEndTime" Label="Break end time" Required />
+    </div>
+    <div>
+        <FluentTimePicker Value="@InputShift.ShiftEndTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftEndTime = e.ToTimeOnly())" Name="shiftEnd" Label="Shift end time" Required />
+    </div>
+    <div>
+        <FluentTextField Value="@InputShift.BreakHours.ToString()" Name="shiftBreakHours" Label="Break hours" Required />
+    </div>
+    <div>
+        <FluentButton aria-label="Delete item" Appearance="Appearance.Accent" Style="margin-bottom: 4px" OnClick="@(async() => await AddShiftAsync())">Add</FluentButton>
+    </div>
+</FluentStack>
+
+@if (Shifts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <FluentDataGrid Id="shiftsGrid" Items="@Shifts" GridTemplateColumns="1fr 1fr 1fr 1fr 1fr 1fr 1fr" TGridItem="ShiftDTO">
+        <PropertyColumn Title="Name" Property="@(c => c!.Name)" Align="Align.Start" />
+        <PropertyColumn Title="Shift start time" Property="@(c => c!.ShiftStartTime!.ToString())" Align="Align.Center" />
+        <PropertyColumn Title="Break start time" Property="@(c => c!.ShiftBreakTime!.ToString())" Align="Align.Center" />
+        <PropertyColumn Title="Break end time" Property="@(c => c!.ShiftBreakEndTime)" Align="Align.End" />
+        <PropertyColumn Title="Shift end time" Property="@(c => c!.ShiftEndTime)" Align="Align.End" />
+        <PropertyColumn Title="Break hours" Property="@(c => c!.BreakHours)" Align="Align.End" />
+        <TemplateColumn Title="Actions" Align="@Align.End">
+            <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteShiftAsync(context))"/>
+        </TemplateColumn>
+    </FluentDataGrid>
+}
+
+<FluentProgressRing style="width: 82px; height: 82px;" Visible="isBusy"/>
+
+@code {
+    private bool isBusy = false;
+    private IQueryable<ShiftDTO>? Shifts;
+    private ShiftDTO InputShift { get; set; } = new();
+
+    #region Initialize
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isBusy = true;
+            await LoadShiftsAsync();
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    async Task LoadShiftsAsync()
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListShiftQuery(null, null));
+                if (result.IsSuccess)
+                    Shifts = result.Value.AsQueryable();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+    #endregion
+
+    #region Actions
+    private async Task DeleteShiftAsync(ShiftDTO item)
+    {
+        try
+        {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteShiftCommand(item.Id));
+                if (result.IsSuccess)
+                    await LoadShiftsAsync();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private async Task AddShiftAsync()
+    {
+        try
+        {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateShiftCommand(InputShift.Name, InputShift.ShiftStartTime, InputShift.ShiftBreakTime, InputShift.ShiftBreakEndTime, InputShift.ShiftEndTime, InputShift.BreakHours));
+                if (result.IsSuccess)
+                {
+                    await LoadShiftsAsync();
+                    InputShift = new();
+                }
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+    #endregion
+}
