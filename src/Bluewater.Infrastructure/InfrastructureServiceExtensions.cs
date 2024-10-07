@@ -25,10 +25,12 @@ public static class InfrastructureServiceExtensions
     ConfigurationManager config,
     ILogger logger)
   {
-    string? connectionString = config.GetConnectionString("DefaultConnection");
+//    string? connectionString = config.GetConnectionString("DefaultConnection");
+    string? connectionString = config.GetConnectionString("SqliteConnection");        
     Guard.Against.Null(connectionString);
     services.AddDbContext<AppDbContext>(options =>
-     options.UseSqlServer(connectionString));
+    options.UseSqlite(connectionString));
+     //options.UseSqlServer(connectionString));
 
     services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
     services.AddScoped(typeof(IReadRepository<>), typeof(EfRepository<>));
@@ -51,10 +53,13 @@ public static class InfrastructureServiceExtensions
     // Chargings
     services.AddScoped<IListChargingQueryService, ListChargingQueryService>();
     services.AddScoped<IDeleteChargingService, DeleteChargingService>();
-    // Holiday
+    // Holidays
     services.AddScoped<IDeleteHolidayService, DeleteHolidayService>();
-
-    // Shift
+    // Employee Types
+    services.AddScoped<IDeleteEmployeeTypeService, DeleteEmployeeTypeService>();
+    // Employee Levels
+    services.AddScoped<IDeleteLevelService, DeleteLevelService>();
+    // Shifts
     services.AddScoped<IListShiftQueryService, ListShiftsQueryService>();
 
     //services.AddScoped<IEmailSender, FakeEmailSender>();

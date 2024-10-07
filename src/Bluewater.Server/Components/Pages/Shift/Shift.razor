@@ -63,7 +63,13 @@ else
 @code {
     private bool isBusy = false;
     private IQueryable<ShiftDTO>? Shifts;
-    private ShiftDTO InputShift { get; set; } = new();
+    private ShiftDTO InputShift { get; set; } = new(){
+        ShiftStartTime = TimeOnly.FromDateTime(DateTime.Today),
+        ShiftBreakTime = TimeOnly.FromDateTime(DateTime.Today),
+        ShiftBreakEndTime = TimeOnly.FromDateTime(DateTime.Today),
+        ShiftEndTime = TimeOnly.FromDateTime(DateTime.Today),
+        BreakHours = 1
+    };
 
     #region Initialize
     protected override async Task OnInitializedAsync()
@@ -138,7 +144,13 @@ else
                 if (result.IsSuccess)
                 {
                     await LoadShiftsAsync();
-                    InputShift = new();
+                    InputShift = new() {
+                        ShiftStartTime = TimeOnly.FromDateTime(DateTime.Today),
+                        ShiftBreakTime = TimeOnly.FromDateTime(DateTime.Today),
+                        ShiftBreakEndTime = TimeOnly.FromDateTime(DateTime.Today),
+                        ShiftEndTime = TimeOnly.FromDateTime(DateTime.Today),
+                        BreakHours = 1
+                    };
                 }
             }
         }

@@ -2,11 +2,11 @@
 using Bluewater.Core.EmployeeAggregate;
 
 namespace Bluewater.Core.LevelAggregate;
-public class Level(string name, string value) : EntityBase<Guid>, IAggregateRoot
+public class Level(string name, string value, bool isActive) : EntityBase<Guid>, IAggregateRoot
 {
   public string Name { get; private set; } = name;
   public string Value { get; private set; } = value;
-  public bool IsActive { get; private set; } = true;
+  public bool IsActive { get; private set; } = isActive;
 
   public DateTime CreatedDate { get; private set; } = DateTime.Now;
   public Guid CreateBy { get; private set; } = Guid.Empty;
@@ -15,6 +15,12 @@ public class Level(string name, string value) : EntityBase<Guid>, IAggregateRoot
 
   // Navigation Properties
   public virtual ICollection<Employee>? Employees { get; private set; }
+  public Level() : this(string.Empty, string.Empty, false) { }
 
-  public Level() : this(string.Empty, string.Empty) { }
+  public void UpdateLevel(string name, string value, bool isActive)
+  {
+    Name = name;
+    Value = value;
+    IsActive = isActive;
+  }
 }

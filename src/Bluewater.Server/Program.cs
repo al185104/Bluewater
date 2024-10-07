@@ -22,6 +22,8 @@ using Bluewater.Core.PositionAggregate;
 using Bluewater.UseCases.Positions.Create;
 using Bluewater.Core.ChargingAggregate;
 using Bluewater.UseCases.Chargings.Create;
+using Bluewater.Core.ShiftAggregate;
+using Bluewater.UseCases.Shifts.Create;
 
 internal class Program
 {
@@ -113,7 +115,10 @@ internal class Program
       Assembly.GetAssembly(typeof(CreatePositionCommand)), // UseCases
 
       Assembly.GetAssembly(typeof(Charging)), // Core
-      Assembly.GetAssembly(typeof(CreateChargingCommand)) // UseCases
+      Assembly.GetAssembly(typeof(CreateChargingCommand)), // UseCases
+
+      Assembly.GetAssembly(typeof(Shift)),
+      Assembly.GetAssembly(typeof(CreateShiftCommand))
     };
     builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(mediatRAssemblies!));
     builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));

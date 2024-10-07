@@ -24,6 +24,14 @@
 @using Bluewater.UseCases.Holidays;
 @using Bluewater.UseCases.Holidays.List;
 @using Bluewater.UseCases.Holidays.Create;
+@using Bluewater.UseCases.EmployeeTypes;
+@using Bluewater.UseCases.EmployeeTypes.Delete;
+@using Bluewater.UseCases.EmployeeTypes.List;
+@using Bluewater.UseCases.EmployeeTypes.Create;
+@using Bluewater.UseCases.Levels;
+@using Bluewater.UseCases.Levels.Delete;
+@using Bluewater.UseCases.Levels.List;
+@using Bluewater.UseCases.Levels.Create;
 
 @using MediatR;
 @inject IServiceScopeFactory ServiceScopeFactory
@@ -31,7 +39,7 @@
 
 <PageTitle>System Settings</PageTitle>
 
-<h3>System Settings</h3>
+<h3>Team Settings</h3>
 
 <FluentStack Orientation="Orientation.Vertical">
 
@@ -45,8 +53,8 @@
                         <div>
                             <FluentTextField @bind-Value="InputDivision.Name" Name="divisionName" Label="Division Name" Required />
                         </div>
-                        <div style="flex-grow: 1;">
-                            <FluentTextField @bind-Value="InputDivision.Description" Name="divisionDescription" Label="Division Description" Style="flex: 1;" />
+                        <div style="flex-grow: 1;" >
+                            <FluentTextField @bind-Value="InputDivision.Description" Name="divisionDescription" Label="Division Description" Style="flex: 1; width: 100%;" />
                         </div>
                         <FluentButton Loading="@btnLoading" OnClick="@AddDivision" Appearance="Appearance.Accent" Style="margin-bottom: 4px">Add</FluentButton>
                     </FluentStack>
@@ -74,7 +82,7 @@
                             <FluentTextField @bind-Value="InputDepartment.Name" Name="departmentName" Label="Department Name" Required />
                         </div>
                         <div style="flex-grow: 1;">
-                            <FluentTextField @bind-Value="InputDepartment.Description" Name="departmentDescription" Label="Department Description" />
+                            <FluentTextField @bind-Value="InputDepartment.Description" Name="departmentDescription" Label="Department Description" Style="width: 100%;"/>
                         </div>
                         <div style="margin-bottom: 4px">
                             <FluentSelect Items="@Divisions" TOption="DivisionDTO" @onchange="SelectedDivisionOptionChanged" OptionValue="@(i => i.Id.ToString())" OptionText="@(i => i.Name)" Label="Division Classification" Required />
@@ -106,7 +114,7 @@
                             <FluentTextField @bind-Value="InputSection.Name" Name="sectionName" Label="Section Name" Required />
                         </div>
                         <div style="flex-grow: 1;">
-                            <FluentTextField @bind-Value="InputSection.Description" Name="sectionDescription" Label="Section Description" />
+                            <FluentTextField @bind-Value="InputSection.Description" Name="sectionDescription" Label="Section Description" Style="width: 100%;"/>
                         </div>
                         <div style="margin-bottom: 4px">
                             <FluentSelect Items="@Departments" TOption="DepartmentDTO" @onchange="SelectedDepartmentOptionChanged" OptionValue="@(i => i.Id.ToString())" OptionText="@(i => i.Name)" Label="Department Classification" Required />
@@ -138,7 +146,7 @@
                             <FluentTextField @bind-Value="InputPosition.Name" Name="positionName" Label="Position Name" Required />
                         </div>
                         <div style="flex-grow: 1;">
-                            <FluentTextField @bind-Value="InputPosition.Description" Name="positionDescription" Label="Position Description" />
+                            <FluentTextField @bind-Value="InputPosition.Description" Name="positionDescription" Label="Position Description" Style="width: 100%;"/>
                         </div>
                         <div style="margin-bottom: 4px">
                             <FluentSelect Items="@Sections" TOption="SectionDTO" @onchange="SelectedSectionOptionChanged" OptionValue="@(i => i.Id.ToString())" OptionText="@(i => i.Name)" Label="Section Classification" Required />
@@ -170,7 +178,7 @@
                             <FluentTextField @bind-Value="InputCharging.Name" Name="chargingName" Label="Charging Name" Required />
                         </div>
                         <div style="flex-grow: 1;">
-                            <FluentTextField @bind-Value="InputCharging.Description" Name="chargingDescription" Label="Charging Description" />
+                            <FluentTextField @bind-Value="InputCharging.Description" Name="chargingDescription" Label="Charging Description" Style="width: 100%;"/>
                         </div>
                         <FluentButton Loading="@btnLoading" OnClick="@AddCharging" Appearance="Appearance.Accent" Style="margin-bottom: 4px">Add</FluentButton>
                     </FluentStack>
@@ -188,6 +196,78 @@
         </FluentGridItem>
     </FluentGrid>
 
+    <h3>Employee Details</h3>
+    <FluentGrid Spacing="2" style="width: 100%;" AdaptiveRendering="true" >
+        @* employee types *@
+        <FluentGridItem xs="6">
+            <FluentCard MinimalStyle="true" AreaRestricted="false">
+                <h5>Employee Types</h5>
+                <div>
+                    <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom">
+                        <div>
+                            <FluentTextField @bind-Value="InputEmployeeType.Name" Name="employeeTypeName" Label="Type Name" Required />
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <FluentTextField @bind-Value="InputEmployeeType.Value" Name="employeeDescription" Label="Type" Style="width: 100%;"/>
+                        </div>
+                        <div>
+                            <FluentSwitch @bind-Value="@InputEmployeeType.IsActive" Label="Status">
+                                <span slot="checked-message">Active</span>
+                                <span slot="unchecked-message">Inactive</span>
+                            </FluentSwitch>
+                        </div>
+                        <FluentButton Loading="@btnLoading" OnClick="@AddEmployeeType" Appearance="Appearance.Accent" Style="margin-bottom: 4px">Add</FluentButton>
+                    </FluentStack>
+                </div>
+                <div style="height: 300px; overflow:auto;" tabindex="-1">
+                    <FluentDataGrid Items="@EmployeeTypes">
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
+                        <PropertyColumn Title="Value" Property="@(p => p.Value)" />
+                        <PropertyColumn Title="Status" Property="@(p => p.IsActive ? "Active" : "Inactive")" />
+                        <TemplateColumn Title="Actions" Align="@Align.End">
+                            <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteEmployeeTypeAsync(context))"/>
+                        </TemplateColumn>
+                    </FluentDataGrid>
+                </div>
+            </FluentCard>
+        </FluentGridItem>
+        <FluentGridItem xs="6">
+            <FluentCard MinimalStyle="true" AreaRestricted="false">
+                <h5>Employee Levels</h5>
+                <div>
+                    <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom">
+                        <div>
+                            <FluentTextField @bind-Value="InputLevel.Name" Name="employeeLevelName" Label="Level Name" Required />
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <FluentTextField @bind-Value="InputLevel.Value" Name="employeeLevelDescription" Label="Levels" Style="width: 100%;"/>
+                        </div>
+                        <div>
+                            <FluentSwitch @bind-Value="@InputLevel.IsActive" Label="Status">
+                                <span slot="checked-message">Active</span>
+                                <span slot="unchecked-message">Inactive</span>
+                            </FluentSwitch>
+                        </div>
+                        <FluentButton Loading="@btnLoading" OnClick="@AddLevel" Appearance="Appearance.Accent" Style="margin-bottom: 4px">Add</FluentButton>
+                    </FluentStack>
+                </div>
+                <div style="height: 300px; overflow:auto;" tabindex="-1">
+                    <FluentDataGrid Items="@Levels">
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
+                        <PropertyColumn Title="Value" Property="@(p => p.Value)" />
+                        <PropertyColumn Title="Status" Property="@(p => p.IsActive ? "Active" : "Inactive")" />
+                        <TemplateColumn Title="Actions" Align="@Align.End">
+                            <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteLevelAsync(context))"/>
+                        </TemplateColumn>
+                    </FluentDataGrid>
+                </div>
+            </FluentCard>
+        </FluentGridItem>
+
+    </FluentGrid>
+
+    <h3>Holidays</h3>
+
     <FluentCard>
         <h5>Holidays</h5>
         <FluentGrid>
@@ -198,16 +278,16 @@
                         <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
                         <PropertyColumn Title="Date" Property="@(p => p.Date.ToShortDateString())" />
                         <TemplateColumn Title="Actions" Align="@Align.End">
-                            @* <FluentButton aria-label="Edit item" IconEnd="@(new Icons.Regular.Size16.Edit())" /> *@
                             <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteHolidayAsync(context))"/>
                         </TemplateColumn>
                     </FluentDataGrid>
                 </div>
             </FluentGridItem>
-            <FluentGridItem xs="3" Style="display: flex; justify-content: center;">
+            
+            <FluentGridItem xs="3" Style="display: flex; justify-content: stretch ">
                 <FluentStack Orientation="Orientation.Vertical" VerticalAlignment="VerticalAlignment.Top" VerticalGap="4">
-                    <FluentTextField @bind-Value="InputHoliday.Name" Name="holidayName" Label="Holiday Name" Required />
-                    <FluentTextField @bind-Value="InputHoliday.Description" Name="holidayDescription" Label="Holiday Description" Required />
+                    <FluentTextField @bind-Value="InputHoliday.Name" Name="holidayName" Label="Holiday Name" Style="width: 100%;" Required />
+                    <FluentTextField @bind-Value="InputHoliday.Description" Name="holidayDescription" Label="Holiday Description" Style="width: 100%;" Required />
                     <FluentSwitch @bind-Value="@InputHoliday.IsRegular" Label="Holiday Type">
                         <span slot="checked-message">Regular</span>
                         <span slot="unchecked-message">Special</span>
@@ -234,6 +314,9 @@
     public PositionDTO InputPosition { get; set; } = new();
     public ChargingDTO InputCharging { get; set; } = new();
     public HolidayDTO InputHoliday { get; set; } = new();
+    public EmployeeTypeDTO InputEmployeeType { get; set; } = new();
+    public LevelDTO InputLevel { get; set; } = new();
+
 
     public IQueryable<DivisionDTO> Divisions { get; set; } = default!;
     public IQueryable<DepartmentDTO> Departments { get; set; } = default!;
@@ -241,6 +324,8 @@
     public IQueryable<PositionDTO> Positions { get; set; } = default!;
     public IQueryable<ChargingDTO> Chargings { get; set; } = default!;
     public IQueryable<HolidayDTO> Holidays { get; set; } = default!;
+    public IQueryable<EmployeeTypeDTO> EmployeeTypes { get; set; } = default!;
+    public IQueryable<LevelDTO> Levels { get; set; } = default!;
 
     #region Initialize
     protected override async Task OnInitializedAsync()
@@ -255,6 +340,8 @@
             tasks.Add(LoadPositions());
             tasks.Add(LoadChargings());
             tasks.Add(LoadHolidays());
+            tasks.Add(LoadEmployeeTypes());
+            tasks.Add(LoadLevels());
 
             await Task.WhenAll(tasks);
         }
@@ -266,6 +353,42 @@
     #endregion
 
     #region Load Data
+    private async Task LoadEmployeeTypes()
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListEmployeeTypeQuery(null, null));
+                if (result.IsSuccess)
+                    EmployeeTypes = result.Value.AsQueryable();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    private async Task LoadLevels()
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListLevelQuery(null, null));
+                if (result.IsSuccess)
+                    Levels = result.Value.AsQueryable();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
     private async Task LoadHolidays()
     {
         try
@@ -377,6 +500,50 @@
     #endregion
 
     #region Add Data
+    async Task AddLevel()
+    {
+        try
+        {
+            btnLoading = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateLevelCommand(InputLevel.Name, InputLevel.Value, InputLevel.IsActive));
+                if (result.IsSuccess)
+                {
+                    await LoadLevels();
+                    InputLevel = new();
+                }
+            }
+        }
+        finally
+        {
+            btnLoading = false;
+        }
+    }
+
+    async Task AddEmployeeType()
+    {
+        try
+        {
+            btnLoading = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateEmployeeTypeCommand(InputEmployeeType.Name, InputEmployeeType.Value, InputEmployeeType.IsActive));
+                if (result.IsSuccess)
+                {
+                    await LoadEmployeeTypes();
+                    InputEmployeeType = new();
+                }
+            }
+        }
+        finally
+        {
+            btnLoading = false;
+        }
+    }
+    
     async Task AddHoliday()
     {
         try
@@ -511,6 +678,40 @@
     #endregion
 
     #region Delete Data
+    private async Task DeleteLevelAsync(LevelDTO item)
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteLevelCommand(item.Id));
+                if (result.IsSuccess)
+                    await LoadLevels();
+            }
+        }
+        finally
+        {
+        }
+    }
+
+    private async Task DeleteEmployeeTypeAsync(EmployeeTypeDTO item)
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteEmployeeTypeCommand(item.Id));
+                if (result.IsSuccess)
+                    await LoadEmployeeTypes();
+            }
+        }
+        finally
+        {
+        }
+    }
+
     private async Task DeleteDivisionAsync(DivisionDTO item)
     {
         try

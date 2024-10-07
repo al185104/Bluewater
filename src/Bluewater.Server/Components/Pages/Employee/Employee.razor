@@ -1,0 +1,48 @@
+@page  "/employee"
+@rendermode InteractiveServer
+@using MediatR
+@using Microsoft.FluentUI.AspNetCore.Components.Extensions
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+
+<FluentProgressRing IsVisible="@isBusy" />
+
+@code{
+    private bool isBusy = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isBusy = true;
+            await LoadEmployeesAsync();
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    async Task LoadEmployeesAsync()
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                await Task.Delay(1000);
+                @* var result = await mediator.Send(new ListEmployeeQuery(null, null));
+                if (result.IsSuccess)
+                    Employees = result.Value.AsQueryable(); *@
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+}    using MediatR;

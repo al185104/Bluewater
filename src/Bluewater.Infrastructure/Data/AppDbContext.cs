@@ -52,6 +52,12 @@ public class AppDbContext : DbContext
     modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
   }
 
+  protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+  {
+    optionsBuilder.UseSqlite("Data Source=localdatabase.db");
+    //base.OnConfiguring(optionsBuilder);
+  }
+
   public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
   {
     int result = await base.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
