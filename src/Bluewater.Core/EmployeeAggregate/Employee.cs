@@ -1,4 +1,5 @@
-﻿using Ardalis.SharedKernel;
+﻿using Ardalis.GuardClauses;
+using Ardalis.SharedKernel;
 using Bluewater.Core.ChargingAggregate;
 using Bluewater.Core.DependentAggregate;
 using Bluewater.Core.EmployeeAggregate.Enum;
@@ -11,22 +12,22 @@ using Bluewater.Core.UserAggregate;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bluewater.Core.EmployeeAggregate;
-public class Employee : EntityBase<Guid>, IAggregateRoot
+public class Employee(string firstName, string lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks) : EntityBase<Guid>, IAggregateRoot
 {
   // Personal Information
-  public string FirstName { get; private set; } = null!;
-  public string LastName { get; private set; } = null!;
-  public string? MiddleName { get; private set; }
-  public DateTime? DateOfBirth { get; private set; }
-  public Gender Gender { get; private set; } = Gender.NotSet;
-  public CivilStatus CivilStatus { get; private set; } = CivilStatus.NotSet;
-  public BloodType BloodType { get; private set; } = BloodType.NotSet;
-  public Status Status { get; private set; } = Status.NotSet;
-  public decimal? Height { get; private set; }
-  public decimal? Weight { get; private set; }
+  public string FirstName { get; private set; } = Guard.Against.NullOrEmpty(firstName, nameof(firstName));
+  public string LastName { get; private set; } = Guard.Against.NullOrEmpty(lastName, nameof(lastName));
+  public string? MiddleName { get; private set; } = middleName;
+  public DateTime? DateOfBirth { get; private set; } = dateOfBirth;
+  public Gender Gender { get; private set; } = gender; 
+  public CivilStatus CivilStatus { get; private set; } = civilStatus;
+  public BloodType BloodType { get; private set; } = bloodType;
+  public Status Status { get; private set; } = status;
+  public decimal? Height { get; private set; } = height;
+  public decimal? Weight { get; private set; } = weight;
   public bool IsDeleted { get; private set; } = false;
-  public byte[]? ImageUrl { get; private set; }  
-  public string? Remarks { get; private set; }
+  public byte[]? ImageUrl { get; private set; }  = imageUrl;
+  public string? Remarks { get; private set; } = remarks;
   
   public ContactInfo? ContactInfo { get; private set; }
   public EducationInfo? EducationInfo { get; private set; }
@@ -55,17 +56,68 @@ public class Employee : EntityBase<Guid>, IAggregateRoot
   
   public virtual ICollection<LeaveCredit>? LeaveCredits { get; private set; }
   public virtual ICollection<Dependent>? Dependents { get; private set; }
+
+  public void SetContactInfo(ContactInfo contactInfo)
+  {
+    ContactInfo = new ContactInfo(contactInfo.Email,
+                                  contactInfo.TelNumber,
+                                  contactInfo.MobileNumber,
+                                  contactInfo.Address,
+                                  contactInfo.ProvincialAddress,
+                                  contactInfo.MothersMaidenName,
+                                  contactInfo.FathersName,
+                                  contactInfo.EmergencyContact,
+                                  contactInfo.RelationshipContact,
+                                  contactInfo.AddressContact,
+                                  contactInfo.TelNoContact,
+                                  contactInfo.MobileNoContact);
+  }
+
+  public void SetEducationInfo(EducationInfo educationInfo)
+  {
+    EducationInfo = new EducationInfo(educationInfo.PrimarySchool,
+                                      educationInfo.SecondarySchool,
+                                      educationInfo.TertiarySchool,
+                                      educationInfo.VocationalSchool,
+                                      educationInfo.PrimaryDegree,
+                                      educationInfo.SecondaryDegree,
+                                      educationInfo.TertiaryDegree,
+                                      educationInfo.VocationalDegree);
+  }
+
+  public void SetEmploymentInfo(EmploymentInfo employmentInfo)
+  {
+    EmploymentInfo = new EmploymentInfo(employmentInfo.DateHired,
+                                        employmentInfo.DateRegularized,
+                                        employmentInfo.DateResigned,
+                                        employmentInfo.DateTerminated,
+                                        employmentInfo.TINNo,
+                                        employmentInfo.SSSNo,
+                                        employmentInfo.HDMFNo,
+                                        employmentInfo.PHICNo,
+                                        employmentInfo.BankAccount,
+                                        employmentInfo.HasServiceCharge);
+  }
+
+  public void SetExternalKeys(Guid positionId, Guid payId, Guid typeId, Guid levelId, Guid chargingId)
+  {
+    PositionId = positionId;
+    PayId = payId;
+    TypeId = typeId;
+    LevelId = levelId;
+    ChargingId = chargingId;
+  }
 }
 
 #region ContactInfo
 [Owned]
 public class ContactInfo : ValueObject
 {
-    public string Email { get; private set; }
-    public string TelNumber { get; private set; }
-    public string MobileNumber { get; private set; }
-    public string Address { get; private set; }
-    public string ProvincialAddress { get; private set; }
+    public string? Email { get; private set; }
+    public string? TelNumber { get; private set; }
+    public string? MobileNumber { get; private set; }
+    public string? Address { get; private set; }
+    public string? ProvincialAddress { get; private set; }
     public string? MothersMaidenName { get; private set; }
     public string? FathersName { get; private set; }
     public string? EmergencyContact { get; private set; }
@@ -74,11 +126,11 @@ public class ContactInfo : ValueObject
     public string? TelNoContact { get; private set; }
     public string? MobileNoContact { get; private set; }
 
-    public ContactInfo(string email,
-                       string telNumber,
-                       string mobileNumber,
-                       string address,
-                       string provincialAddress,
+    public ContactInfo(string? email,
+                       string? telNumber,
+                       string? mobileNumber,
+                       string? address,
+                       string? provincialAddress,
                        string? mothersMaidenName,
                        string? fathersName,
                        string? emergencyContact,
@@ -103,11 +155,11 @@ public class ContactInfo : ValueObject
 
     protected override IEnumerable<object> GetEqualityComponents()
     {
-        yield return Email;
-        yield return TelNumber;
-        yield return MobileNumber;
-        yield return Address;
-        yield return ProvincialAddress;
+        yield return Email ?? string.Empty;
+        yield return TelNumber ?? string.Empty;
+        yield return MobileNumber ?? string.Empty;
+        yield return Address ?? string.Empty;
+        yield return ProvincialAddress ?? string.Empty;
         yield return MothersMaidenName ?? string.Empty;
         yield return FathersName ?? string.Empty;
         yield return EmergencyContact ?? string.Empty;
@@ -188,16 +240,16 @@ public class EmploymentInfo : ValueObject
 [Owned]
 public class EducationInfo : ValueObject
 {
-  public string PrimarySchool { get; private set; }
-  public string SecondarySchool { get; private set; }
-  public string TertiarySchool { get; private set; }
-  public string VocationalSchool { get; private set; }
+  public string? PrimarySchool { get; private set; }
+  public string? SecondarySchool { get; private set; }
+  public string? TertiarySchool { get; private set; }
+  public string? VocationalSchool { get; private set; }
   public string? PrimaryDegree { get; private set; }
   public string? SecondaryDegree { get; private set; }
   public string? TertiaryDegree { get; private set; }
   public string? VocationalDegree { get; private set; }
 
-  public EducationInfo(string primarySchool, string secondarySchool, string tertiarySchool, string vocationalSchool, string? primaryDegree = null, string? secondaryDegree = null, string? tertiaryDegree = null, string? vocationalDegree = null)
+  public EducationInfo(string? primarySchool, string? secondarySchool, string? tertiarySchool, string? vocationalSchool, string? primaryDegree = null, string? secondaryDegree = null, string? tertiaryDegree = null, string? vocationalDegree = null)
   {
       PrimarySchool = primarySchool;
       SecondarySchool = secondarySchool;
@@ -218,10 +270,10 @@ public class EducationInfo : ValueObject
 
   protected override IEnumerable<object> GetEqualityComponents()
   {
-      yield return PrimarySchool;
-      yield return SecondarySchool;
-      yield return TertiarySchool;
-      yield return VocationalSchool;
+      yield return PrimarySchool ?? string.Empty;
+      yield return SecondarySchool ?? string.Empty;
+      yield return TertiarySchool ?? string.Empty;
+      yield return VocationalSchool ?? string.Empty;
       yield return PrimaryDegree ?? string.Empty;
       yield return SecondaryDegree ?? string.Empty;
       yield return TertiaryDegree ?? string.Empty;

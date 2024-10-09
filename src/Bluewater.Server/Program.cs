@@ -24,6 +24,12 @@ using Bluewater.Core.ChargingAggregate;
 using Bluewater.UseCases.Chargings.Create;
 using Bluewater.Core.ShiftAggregate;
 using Bluewater.UseCases.Shifts.Create;
+using Bluewater.Core.HolidayAggregate;
+using Bluewater.UseCases.Holidays.Create;
+using Bluewater.Core.EmployeeTypeAggregate;
+using Bluewater.UseCases.EmployeeTypes.Create;
+using Bluewater.Core.EmployeeAggregate;
+using Bluewater.UseCases.Employees.Create;
 
 internal class Program
 {
@@ -118,7 +124,16 @@ internal class Program
       Assembly.GetAssembly(typeof(CreateChargingCommand)), // UseCases
 
       Assembly.GetAssembly(typeof(Shift)),
-      Assembly.GetAssembly(typeof(CreateShiftCommand))
+      Assembly.GetAssembly(typeof(CreateShiftCommand)),
+
+      Assembly.GetAssembly(typeof(Holiday)),
+      Assembly.GetAssembly(typeof(CreateHolidayCommand)),
+
+      Assembly.GetAssembly(typeof(EmployeeType)),
+      Assembly.GetAssembly(typeof(CreateEmployeeTypeCommand)),
+
+      Assembly.GetAssembly(typeof(Employee)),
+      Assembly.GetAssembly(typeof(CreateEmployeeCommand)),
     };
     builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(mediatRAssemblies!));
     builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
