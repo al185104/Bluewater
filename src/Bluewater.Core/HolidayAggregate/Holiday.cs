@@ -13,7 +13,7 @@ public class Holiday(string name, string? description, DateTime date, bool isReg
   public DateTime UpdatedDate { get; private set; } = DateTime.Now;
   public Guid UpdateBy { get; private set; } = Guid.Empty;
 
-  public Holiday() : this(string.Empty, string.Empty,  DateTime.Now, false) { }
+  public Holiday() : this(string.Empty, string.Empty, DateTime.Now, false) { }
 
   public void UpdateHoliday(string name, string? description, DateTime date, bool isRegular)
   {

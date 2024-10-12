@@ -53,10 +53,10 @@ public class Employee(string firstName, string lastName, string? middleName, Dat
   public virtual Level? Level { get; private set; }
   public virtual Charging? Charging { get; private set; }
 
-  
   public virtual ICollection<LeaveCredit>? LeaveCredits { get; private set; }
   public virtual ICollection<Dependent>? Dependents { get; private set; }
 
+  //public Employee() : this(string.Empty, string.Empty,  null, null, Gender.NotSet, CivilStatus.NotSet, BloodType.NotSet, Status.NotSet, null, null, null, null) { }
   public void SetContactInfo(ContactInfo contactInfo)
   {
     ContactInfo = new ContactInfo(contactInfo.Email,
@@ -106,6 +106,23 @@ public class Employee(string firstName, string lastName, string? middleName, Dat
     TypeId = typeId;
     LevelId = levelId;
     ChargingId = chargingId;
+  }
+
+  public void UpdateEmployee(string firstName, string lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks)
+  {
+    FirstName = Guard.Against.NullOrEmpty(firstName, nameof(firstName));
+    LastName = Guard.Against.NullOrEmpty(lastName, nameof(lastName));
+    MiddleName = middleName;
+    DateOfBirth = dateOfBirth;
+    Gender = gender;
+    CivilStatus = civilStatus;
+    BloodType = bloodType;
+    Status = status;
+    Height = height;
+    Weight = weight;
+    ImageUrl = imageUrl;
+    Remarks = remarks;
+    UpdatedDate = DateTime.Now;
   }
 }
 
