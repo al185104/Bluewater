@@ -1,5 +1,6 @@
 ﻿using Microsoft.FluentUI.AspNetCore.Components;
 using Bluewater.Server.Components;
+using Bluewater.Server.Global;
 using Ardalis.ListStartupServices;
 using Ardalis.SharedKernel;
 using Bluewater.Core.ContributorAggregate;
@@ -15,7 +16,6 @@ using Serilog;
 using Serilog.Extensions.Logging;
 using Bluewater.Infrastructure.Email;
 using Bluewater.Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using Bluewater.Core.SectionAggregate;
 using Bluewater.UseCases.Sections.Create;
 using Bluewater.Core.PositionAggregate;
@@ -41,7 +41,6 @@ internal class Program
     builder.Services.AddRazorComponents()
         .AddInteractiveServerComponents();
 
-
     builder.Configuration
         .SetBasePath(Directory.GetCurrentDirectory())
         .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -60,6 +59,7 @@ internal class Program
     ConfigureMediatR(builder);
     
     builder.Services.AddInfrastructureServices(builder.Configuration, microsoftLogger);
+    builder.Services.AddSingleton<IGlobalService, GlobalService>();
 
     if (builder.Environment.IsDevelopment())
     {
@@ -69,6 +69,7 @@ internal class Program
 
       // Otherwise use this:
       builder.Services.AddScoped<IEmailSender, FakeEmailSender>();
+
       AddShowAllServicesSupport(builder);
     }
     else

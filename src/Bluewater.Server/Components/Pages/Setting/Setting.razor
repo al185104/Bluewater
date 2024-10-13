@@ -33,9 +33,12 @@
 @using Bluewater.UseCases.Levels.List;
 @using Bluewater.UseCases.Levels.Create;
 
+@using Bluewater.Server.Global;
+
 @using MediatR;
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
+@inject IGlobalService GlobalService
 
 <PageTitle>System Settings</PageTitle>
 
@@ -303,9 +306,16 @@
 
 </FluentStack>
 
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
 
 @code {
     bool btnLoading = false;
+    bool isBusy = false;
     private DateTime? SelectedDayStart = null;
 
     public DivisionDTO InputDivision { get; set; } = new();
@@ -328,26 +338,31 @@
     public IQueryable<LevelDTO> Levels { get; set; } = default!;
 
     #region Initialize
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         try
         {
-            List<Task> tasks = new();
-
-            tasks.Add(LoadDivisions());
-            tasks.Add(LoadDepartments());
-            tasks.Add(LoadSections());
-            tasks.Add(LoadPositions());
-            tasks.Add(LoadChargings());
-            tasks.Add(LoadHolidays());
-            tasks.Add(LoadEmployeeTypes());
-            tasks.Add(LoadLevels());
-
-            await Task.WhenAll(tasks);
+            isBusy = true;
+            if (firstRender)
+            {
+                await Task.Delay(100);
+                Divisions = GlobalService.Divisions.ToList().AsQueryable();
+                Departments = GlobalService.Departments.ToList().AsQueryable();
+                Sections = GlobalService.Sections.ToList().AsQueryable();
+                Positions = GlobalService.Positions.ToList().AsQueryable();
+                Chargings = GlobalService.Chargings.ToList().AsQueryable();
+                Holidays = GlobalService.Holidays.ToList().AsQueryable();
+                EmployeeTypes = GlobalService.EmployeeTypes.ToList().AsQueryable();
+                Levels = GlobalService.Levels.ToList().AsQueryable();
+            }
         }
+        catch(Exception)
+        {
+            throw;
+        } 
         finally
         {
-            await base.OnInitializedAsync();
+            isBusy = false;
         }
     }
     #endregion

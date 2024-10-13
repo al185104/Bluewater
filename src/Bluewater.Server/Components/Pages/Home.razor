@@ -1,4 +1,28 @@
 ﻿@page "/"
+@inject IJSRuntime JSRuntime
+@using Bluewater.UseCases.Positions;
+@using Bluewater.UseCases.Positions.List;
+@using Bluewater.UseCases.Sections;
+@using Bluewater.UseCases.Sections.List;
+@using Bluewater.UseCases.Departments;
+@using Bluewater.UseCases.Departments.List;
+@using Bluewater.UseCases.Divisions;
+@using Bluewater.UseCases.Divisions.List;
+@using Bluewater.UseCases.Chargings;
+@using Bluewater.UseCases.Chargings.List;
+@using Bluewater.UseCases.Holidays;
+@using Bluewater.UseCases.Holidays.List;
+@using Bluewater.UseCases.EmployeeTypes;
+@using Bluewater.UseCases.EmployeeTypes.List;
+@using Bluewater.UseCases.Levels;
+@using Bluewater.UseCases.Levels.List;
+@using Bluewater.Server.Global;
+
+@using MediatR;
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+@inject IGlobalService GlobalService
+
 
 <PageTitle>Home</PageTitle>
 
@@ -6,7 +30,40 @@
 
 Welcome to your new Fluent Blazor app.
 
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
 
 @code {
+    private bool isBusy = false;
+    public IQueryable<DivisionDTO> Divisions { get; set; } = default!;
+    public IQueryable<DepartmentDTO> Departments { get; set; } = default!;
+    public IQueryable<SectionDTO> Sections { get; set; } = default!;
+    public IQueryable<PositionDTO> Positions { get; set; } = default!;
+    public IQueryable<ChargingDTO> Chargings { get; set; } = default!;
+    public IQueryable<HolidayDTO> Holidays { get; set; } = default!;
+    public IQueryable<EmployeeTypeDTO> EmployeeTypes { get; set; } = default!;
+    public IQueryable<LevelDTO> Levels { get; set; } = default!;    
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            Console.WriteLine("OnAfterRenderAsync Done");
+            isBusy = true;
+            if (firstRender)
+                await GlobalService.LoadDataAsync();
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally{
+            await base.OnAfterRenderAsync(firstRender);
+            isBusy = false;
+        }
+    }
 }

@@ -159,7 +159,8 @@ public class GetEmployeeHandler(IRepository<Employee> _repository, IServiceScope
 
     return new EmployeeDTO(
         entity.Id,
-        $"{entity.LastName} {entity.FirstName}",
+        entity.FirstName,
+        entity.LastName,
         entity.MiddleName,
         entity.DateOfBirth,
         entity.Gender,

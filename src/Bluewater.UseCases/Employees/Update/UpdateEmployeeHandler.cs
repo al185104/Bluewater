@@ -212,7 +212,8 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
     return Result.Success(
         new EmployeeDTO(
             existingEmployee.Id,
-            $"{existingEmployee.LastName} {existingEmployee.FirstName}",
+            existingEmployee.FirstName,
+            existingEmployee.LastName,
             existingEmployee.MiddleName,
             existingEmployee.DateOfBirth,
             existingEmployee.Gender,

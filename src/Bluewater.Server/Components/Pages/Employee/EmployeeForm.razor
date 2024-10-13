@@ -1,0 +1,159 @@
+@using Bluewater.Core.EmployeeAggregate.Enum;
+@using Bluewater.Core.UserAggregate.Enum;
+@using Bluewater.UseCases.Employees;
+@using Bluewater.UseCases.Helpers;
+@using System.ComponentModel;
+@using System.Reflection;
+
+@using Bluewater.UseCases.Positions;
+@using Bluewater.UseCases.Sections;
+@using Bluewater.UseCases.Departments;
+@using Bluewater.UseCases.Divisions;
+@using Bluewater.UseCases.Chargings;
+@using Bluewater.UseCases.EmployeeTypes;
+@using Bluewater.UseCases.Levels;
+
+@using Bluewater.Server.Global;
+@inject IGlobalService GlobalService
+
+@implements IDialogContentComponent<EmployeeDTO>
+
+<FluentDialogBody OnAfterRenderAsync="@InitializeDialogAsync()">
+    <FluentGrid Spacing="2">
+        <FluentGridItem xs="12"><h4>Personal information</h4></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Style="width: 100%" Label="First Name" Value="@Content.FirstName" required /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Style="width: 100%" Label="Last Name" Value="@Content.LastName" required /></FluentGridItem>
+        
+        <FluentGridItem xs="6"><FluentTextField Style="width: 100%" Label="Middle Name" Value="@Content.MiddleName" /></FluentGridItem>
+        <FluentGridItem xs="6"></FluentGridItem>
+        
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="EnumOption"
+                Label="Gender"
+                Items="@genderOptions"
+                OptionText="@(o => o.Description)"
+                Style="width: 100%" >
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="EnumOption"
+                Label="Civil Status"
+                Items="@civilStatusOptions"
+                OptionText="@(o => o.Description)"
+                Style="width: 100%" >
+            </FluentSelect>
+        </FluentGridItem>
+
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="EnumOption"
+                Label="Blood Type"
+                Items="@bloodTypeOptions"
+                OptionText="@(o => o.Description)"
+                Style="width: 100%" >
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="EnumOption"
+                Label="Educational Attainment"
+                Items="@educationalAttainmentOptions"
+                OptionText="@(o => o.Description)"
+                Style="width: 100%" >
+            </FluentSelect>
+        </FluentGridItem>
+
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="EnumOption"
+                Label="Employment Status"
+                Items="@employmentStatusOptions"
+                OptionText="@(o => o.Description)"
+                Style="width: 100%" >
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="6"></FluentGridItem>
+
+        <FluentGridItem xs="6"><FluentTextField Label="Height (cm)" Value="@Content.Height.ToString()" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Weight (kg)" Value="@Content.Weight.ToString()" Style="width: 100%" /></FluentGridItem>
+
+
+        <FluentGridItem xs="12"><h4>Contact information</h4></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Landline Number" Value="@Content.ContactInfo!.TelNumber" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Mobile Number" Value="@Content.ContactInfo!.MobileNumber" required Style="width: 100%" /></FluentGridItem>        
+        <FluentGridItem xs="6"><FluentTextField Label="Address" Value="@Content.ContactInfo!.Address" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Provincial Address" Value="@Content.ContactInfo!.ProvincialAddress" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Email" Value="@Content.ContactInfo!.Email" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Mother's Maiden Name" Value="@Content.ContactInfo!.MothersMaidenName" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Father's Name" Value="@Content.ContactInfo!.FathersName" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Emergency Contact" Value="@Content.ContactInfo!.EmergencyContact"/></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Relationship with Contact" Value="@Content.ContactInfo!.RelationshipContact"/></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Contact's Landline Number" Value="@Content.ContactInfo!.TelNoContact" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Contact's Mobile Number" Value="@Content.ContactInfo!.MobileNoContact" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Contact's Address" Value="@Content.ContactInfo!.AddressContact" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"></FluentGridItem>
+
+        <FluentGridItem xs="12"><h4>Educational information</h4></FluentGridItem>
+        <FluentGridItem xs="12"><h4>Employement information</h4></FluentGridItem>
+
+        <FluentGridItem xs="12"><h4>Login credentials</h4></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Username" Value="@Content.User!.Username" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Password" Value="@Content.User!.Password" required Style="width: 100%" /></FluentGridItem>
+
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="EnumOption"
+                Label="Credentials"
+                Items="@credentialsOptions"
+                OptionText="@(o => o.Description)"
+                Style="width: 100%" >
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Supervised Group" Value="@Content.User!.SupervisedGroup.ToString()" required Style="width: 100%" /></FluentGridItem>
+
+    </FluentGrid>
+</FluentDialogBody>
+
+@code{
+    [Parameter]
+    public EmployeeDTO Content { get; set; } = default!;
+
+    private List<EnumOption> genderOptions = new();
+    private List<EnumOption> civilStatusOptions = new();
+    private List<EnumOption> bloodTypeOptions = new();
+    private List<EnumOption> educationalAttainmentOptions = new();
+    private List<EnumOption> employmentStatusOptions = new();
+    private List<EnumOption> credentialsOptions = new();
+
+    private List<PositionDTO> positions = new();
+    private List<SectionDTO> sections = new();
+    private List<DepartmentDTO> departments = new();
+    private List<DivisionDTO> divisions = new();
+    private List<ChargingDTO> chargings = new();
+    private List<EmployeeTypeDTO> employeeTypes = new();
+    private List<LevelDTO> levels = new();
+
+    bool isFirstLoad = false;
+
+    public Task InitializeDialogAsync()
+    {
+        if(!isFirstLoad)
+        {
+            isFirstLoad = true;
+            Content.User ??= new UserDTO(null, null, null, null);
+            Content.ContactInfo ??= new ContactInfoDTO(null,null,null,null,null,null,null,null,null,null,null,null);
+            genderOptions = EnumUtilities.GetEnumOptions<Gender>();
+            civilStatusOptions = EnumUtilities.GetEnumOptions<CivilStatus>();
+            bloodTypeOptions = EnumUtilities.GetEnumOptions<BloodType>();
+            educationalAttainmentOptions = EnumUtilities.GetEnumOptions<EducationalAttainment>();
+            employmentStatusOptions = EnumUtilities.GetEnumOptions<Status>();
+            credentialsOptions = EnumUtilities.GetEnumOptions<Credential>();
+
+            positions = GlobalService.Positions.ToList() ?? new List<PositionDTO>();
+            sections = GlobalService.Sections.ToList() ?? new List<SectionDTO>();
+            departments = GlobalService.Departments.ToList() ?? new List<DepartmentDTO>();
+            divisions = GlobalService.Divisions.ToList() ?? new List<DivisionDTO>();
+            chargings = GlobalService.Chargings.ToList() ?? new List<ChargingDTO>();
+            employeeTypes = GlobalService.EmployeeTypes.ToList() ?? new List<EmployeeTypeDTO>();
+            levels = GlobalService.Levels.ToList() ?? new List<LevelDTO>();
+        }
+        return Task.CompletedTask;
+    }
+}

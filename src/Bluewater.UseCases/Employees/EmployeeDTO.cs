@@ -4,7 +4,8 @@ namespace Bluewater.UseCases.Employees;
 public record EmployeeDTO()
 {
     public Guid Id { get; init; }
-    public string Name { get; set; } = null!;
+    public string FirstName { get; set; } = null!;
+    public string LastName { get; set; } = null!;
     public string? MiddleName { get; set; }
     public DateTime? DateOfBirth { get; set;}
     public Gender Gender { get; set; }
@@ -21,17 +22,18 @@ public record EmployeeDTO()
     public UserDTO? User { get; set; }
     public string? Position { get; set; }
     public string? Section { get; set; }
-    public string? Depratment { get; set; }
+    public string? Department { get; set; }
     public string? Division { get; set; }
     public string? Charging { get; set; }
     public PayDTO? Pay { get; set; }
     public string? Type { get; set; }
     public string? Level { get; set; }
     
-    public EmployeeDTO(Guid id, string name, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, ContactInfoDTO? contactInfo, EducationInfoDTO? educationInfo, EmploymentInfoDTO? employmentInfo, UserDTO? user, string? position, string? section, string? depratment, string? division, string? charging, PayDTO? pay, string? type, string? level) : this()
+    public EmployeeDTO(Guid id, string firstName, string lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, ContactInfoDTO? contactInfo, EducationInfoDTO? educationInfo, EmploymentInfoDTO? employmentInfo, UserDTO? user, string? position, string? section, string? department, string? division, string? charging, PayDTO? pay, string? type, string? level) : this()
     {
         Id = id;
-        Name = name;
+        FirstName = firstName;
+        LastName = lastName;
         MiddleName = middleName;
         DateOfBirth = dateOfBirth;
         Gender = gender;
@@ -48,7 +50,7 @@ public record EmployeeDTO()
         User = user;
         Position = position;
         Section = section;
-        Depratment = depratment;
+        Department = department;
         Division = division;
         Charging = charging;
         Pay = pay;

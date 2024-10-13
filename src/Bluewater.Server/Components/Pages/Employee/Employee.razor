@@ -1,21 +1,60 @@
 @page  "/employee"
 @rendermode InteractiveServer
+@using Bluewater.UseCases.Employees
+@using Bluewater.UseCases.Employees.Delete
+@using Bluewater.UseCases.Employees.List
 @using MediatR
 @using Microsoft.FluentUI.AspNetCore.Components.Extensions
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
+@inject IDialogService DialogService
 
-<FluentProgressRing IsVisible="@isBusy" />
+<FluentDialogProvider/>
+
+<PageTitle>Employee list</PageTitle>
+
+<h3>Employees</h3>
+<FluentButton Appearance="Appearance.Accent" Icon="@(new Icons.Regular.Size16.Add())" OnClick="@(async() => await CreateNewEmployeeAsync())">Create new employee</FluentButton>
+
+<FluentDataGrid Items="@Employees">
+    <PropertyColumn Title="Names" Property="@(p => $"{p.LastName}, {p.FirstName}")" />
+    <PropertyColumn Title="Middle Name" Property="@(p => p.MiddleName)" />
+    <PropertyColumn Title="Birth Date" Property="@(p => p.DateOfBirth)" />
+    <PropertyColumn Title="Gender" Property="@(p => p.Gender)" />
+    <PropertyColumn Title="Civil Status" Property="@(p => p.CivilStatus)" />
+    <PropertyColumn Title="Status" Property="@(p => p.Status)" />
+    <PropertyColumn Title="Type" Property="@(p => p.Type)" />
+    <PropertyColumn Title="Level" Property="@(p => p.Level)" />
+    <PropertyColumn Title="Position" Property="@(p => p.Position)" />
+    <PropertyColumn Title="Section" Property="@(p => p.Section)" />
+    <PropertyColumn Title="Department" Property="@(p => p.Department)" />
+    <PropertyColumn Title="Division" Property="@(p => p.Division)" />
+    <PropertyColumn Title="Charging" Property="@((p) => p.Charging)" />
+    <TemplateColumn Title="Actions" Align="@Align.End">
+        <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteEmployee(context))"/>
+    </TemplateColumn>    
+</FluentDataGrid>
+
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
 
 @code{
     private bool isBusy = false;
+    public IQueryable<EmployeeDTO> Employees { get; set; } = default!;
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        try
+        try 
         {
             isBusy = true;
-            await LoadEmployeesAsync();
+            if (firstRender)
+            {
+                await LoadEmployeesAsync();
+            }
         }
         catch (Exception)
         {
@@ -23,6 +62,7 @@
         }
         finally
         {
+            await base.OnAfterRenderAsync(firstRender);
             isBusy = false;
         }
     }
@@ -34,10 +74,9 @@
             using (var scope = ServiceScopeFactory.CreateScope())
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                await Task.Delay(1000);
-                @* var result = await mediator.Send(new ListEmployeeQuery(null, null));
+                var result = await mediator.Send(new ListEmployeeQuery(null, null));
                 if (result.IsSuccess)
-                    Employees = result.Value.AsQueryable(); *@
+                    Employees = result.Value.AsQueryable();
             }
         }
         catch (Exception)
@@ -45,4 +84,53 @@
             throw;
         }
     }
-}    using MediatR;
+
+    async Task DeleteEmployee(EmployeeDTO employee)
+    {
+        try
+        {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteEmployeeCommand(employee.Id));
+                if (result.IsSuccess)
+                    await LoadEmployeesAsync();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    async Task CreateNewEmployeeAsync()
+    {
+         EmployeeDTO employee = new EmployeeDTO(
+            Guid.NewGuid(),
+            "John",
+            "Doe",
+            "Smith",
+            new DateTime(1990, 1, 1),
+            Core.EmployeeAggregate.Enum.Gender.NotSet,
+            Core.EmployeeAggregate.Enum.CivilStatus.NotSet,
+            Core.EmployeeAggregate.Enum.BloodType.NotSet,
+            Core.EmployeeAggregate.Enum.Status.NotSet,
+            0,0,null,string.Empty,null,null,null,null,null,null,null,null,null,null,null,null);
+
+        IDialogReference dialogReference = await DialogService.ShowPanelAsync<EmployeeForm>(employee, new DialogParameters<EmployeeDTO>
+        {
+            Title = "Create new employee",
+            Alignment = HorizontalAlignment.Right,
+            Modal = true,
+            ShowDismiss = false,
+            PrimaryAction = "Add",
+            SecondaryAction = "Cancel",
+            Width = "650px",
+        });
+    }
+}

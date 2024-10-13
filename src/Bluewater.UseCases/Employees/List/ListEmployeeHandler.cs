@@ -17,7 +17,6 @@ using Bluewater.UseCases.Sections;
 using Bluewater.UseCases.Sections.Get;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using static Bluewater.UseCases.Employees.EmployeeDTO;
 
 namespace Bluewater.UseCases.Employees.List;
 
@@ -161,7 +160,8 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
 
         _employees.Append(new EmployeeDTO(
             entity.Id,
-            $"{entity.LastName} {entity.FirstName}",
+            entity.FirstName,
+            entity.LastName,
             entity.MiddleName,
             entity.DateOfBirth,
             entity.Gender,
