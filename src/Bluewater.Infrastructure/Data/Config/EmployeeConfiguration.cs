@@ -128,33 +128,41 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
     // Value Object Configuration for EducationInfo
     builder.OwnsOne(e => e.EducationInfo, edu =>
     {
-      edu.Property(e => e.PrimarySchool)
-          .IsRequired()
-          .HasMaxLength(200);
+        edu.Property(e => e.EducationalAttainment)
+            .HasConversion<int>(); // Assuming EducationalAttainment is an enum
 
-      edu.Property(e => e.SecondarySchool)
-          .IsRequired()
-          .HasMaxLength(200);
+        edu.Property(e => e.CourseGraduated)
+            .HasMaxLength(200);
 
-      edu.Property(e => e.TertiarySchool)
-          .IsRequired()
-          .HasMaxLength(200);
+        edu.Property(e => e.UniversityGraduated)
+            .HasMaxLength(200);
+    //   edu.Property(e => e.PrimarySchool)
+    //       .IsRequired()
+    //       .HasMaxLength(200);
 
-      edu.Property(e => e.VocationalSchool)
-          .IsRequired()
-          .HasMaxLength(200);
+    //   edu.Property(e => e.SecondarySchool)
+    //       .IsRequired()
+    //       .HasMaxLength(200);
 
-      edu.Property(e => e.PrimaryDegree)
-          .HasMaxLength(200);
+    //   edu.Property(e => e.TertiarySchool)
+    //       .IsRequired()
+    //       .HasMaxLength(200);
 
-      edu.Property(e => e.SecondaryDegree)
-          .HasMaxLength(200);
+    //   edu.Property(e => e.VocationalSchool)
+    //       .IsRequired()
+    //       .HasMaxLength(200);
 
-      edu.Property(e => e.TertiaryDegree)
-          .HasMaxLength(200);
+    //   edu.Property(e => e.PrimaryDegree)
+    //       .HasMaxLength(200);
 
-      edu.Property(e => e.VocationalDegree)
-          .HasMaxLength(200);
+    //   edu.Property(e => e.SecondaryDegree)
+    //       .HasMaxLength(200);
+
+    //   edu.Property(e => e.TertiaryDegree)
+    //       .HasMaxLength(200);
+
+    //   edu.Property(e => e.VocationalDegree)
+    //       .HasMaxLength(200);
     });
 
     // Foreign Key and Relationship Configuration

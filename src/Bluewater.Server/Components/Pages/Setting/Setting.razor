@@ -338,28 +338,25 @@
     public IQueryable<LevelDTO> Levels { get; set; } = default!;
 
     #region Initialize
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
         try
         {
             isBusy = true;
-            if (firstRender)
-            {
-                await Task.Delay(100);
-                Divisions = GlobalService.Divisions.ToList().AsQueryable();
-                Departments = GlobalService.Departments.ToList().AsQueryable();
-                Sections = GlobalService.Sections.ToList().AsQueryable();
-                Positions = GlobalService.Positions.ToList().AsQueryable();
-                Chargings = GlobalService.Chargings.ToList().AsQueryable();
-                Holidays = GlobalService.Holidays.ToList().AsQueryable();
-                EmployeeTypes = GlobalService.EmployeeTypes.ToList().AsQueryable();
-                Levels = GlobalService.Levels.ToList().AsQueryable();
-            }
+            await Task.Delay(100);
+            Divisions = GlobalService.Divisions.ToList().AsQueryable();
+            Departments = GlobalService.Departments.ToList().AsQueryable();
+            Sections = GlobalService.Sections.ToList().AsQueryable();
+            Positions = GlobalService.Positions.ToList().AsQueryable();
+            Chargings = GlobalService.Chargings.ToList().AsQueryable();
+            Holidays = GlobalService.Holidays.ToList().AsQueryable();
+            EmployeeTypes = GlobalService.EmployeeTypes.ToList().AsQueryable();
+            Levels = GlobalService.Levels.ToList().AsQueryable();
         }
-        catch(Exception)
+        catch (Exception)
         {
             throw;
-        } 
+        }
         finally
         {
             isBusy = false;

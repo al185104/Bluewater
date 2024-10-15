@@ -22,14 +22,6 @@ namespace Bluewater.Server.Global;
 public class GlobalService : IGlobalService
 {
     public string ErrorMessage { get; set; } = "WEEEEE";
-    // public IQueryable<DivisionDTO> Divisions { get; set; } = default!;
-    // public IQueryable<DepartmentDTO> Departments { get; set; } = default!;
-    // public IQueryable<SectionDTO> Sections { get; set; } = default!;
-    // public IQueryable<PositionDTO> Positions { get; set; } = default!;
-    // public IQueryable<ChargingDTO> Chargings { get; set; } = default!;
-    // public IQueryable<HolidayDTO> Holidays { get; set; } = default!;
-    // public IQueryable<EmployeeTypeDTO> EmployeeTypes { get; set; } = default!;
-    // public IQueryable<LevelDTO> Levels { get; set; } = default!;
     public List<DivisionDTO> Divisions { get; set; } = new();
     public List<DepartmentDTO> Departments { get; set; } = new();
     public List<SectionDTO> Sections { get; set; } = new();
@@ -51,6 +43,8 @@ public class GlobalService : IGlobalService
     {
         try
         {
+            if (Divisions.Count > 0) return;
+
             List<Task> tasks = new();
             await LoadDivisions();
             await LoadDepartments();

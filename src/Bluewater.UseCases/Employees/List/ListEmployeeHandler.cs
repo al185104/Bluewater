@@ -46,14 +46,9 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
         );
 
         var educationInfo = new EducationInfoDTO(
-            entity.EducationInfo!.PrimarySchool,
-            entity.EducationInfo!.SecondarySchool,
-            entity.EducationInfo!.TertiarySchool,
-            entity.EducationInfo!.VocationalSchool,
-            entity.EducationInfo!.PrimaryDegree,
-            entity.EducationInfo!.SecondaryDegree,
-            entity.EducationInfo!.TertiaryDegree,
-            entity.EducationInfo!.VocationalDegree
+            entity.EducationInfo!.EducationalAttainment,
+            entity.EducationInfo!.CourseGraduated,
+            entity.EducationInfo!.UniversityGraduated
         );
 
         var employeeInfo = new EmploymentInfoDTO(

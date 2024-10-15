@@ -75,14 +75,9 @@ public class Employee(string firstName, string lastName, string? middleName, Dat
 
   public void SetEducationInfo(EducationInfo educationInfo)
   {
-    EducationInfo = new EducationInfo(educationInfo.PrimarySchool,
-                                      educationInfo.SecondarySchool,
-                                      educationInfo.TertiarySchool,
-                                      educationInfo.VocationalSchool,
-                                      educationInfo.PrimaryDegree,
-                                      educationInfo.SecondaryDegree,
-                                      educationInfo.TertiaryDegree,
-                                      educationInfo.VocationalDegree);
+    EducationInfo = new EducationInfo(educationInfo.EducationalAttainment,
+                                      educationInfo.CourseGraduated,
+                                      educationInfo.UniversityGraduated);
   }
 
   public void SetEmploymentInfo(EmploymentInfo employmentInfo)
@@ -257,44 +252,28 @@ public class EmploymentInfo : ValueObject
 [Owned]
 public class EducationInfo : ValueObject
 {
-  public string? PrimarySchool { get; private set; }
-  public string? SecondarySchool { get; private set; }
-  public string? TertiarySchool { get; private set; }
-  public string? VocationalSchool { get; private set; }
-  public string? PrimaryDegree { get; private set; }
-  public string? SecondaryDegree { get; private set; }
-  public string? TertiaryDegree { get; private set; }
-  public string? VocationalDegree { get; private set; }
+    public EducationalAttainment EducationalAttainment { get; private set; }
+    public string? CourseGraduated { get; private set; }
+    public string? UniversityGraduated { get; private set; }  
 
-  public EducationInfo(string? primarySchool, string? secondarySchool, string? tertiarySchool, string? vocationalSchool, string? primaryDegree = null, string? secondaryDegree = null, string? tertiaryDegree = null, string? vocationalDegree = null)
+  public EducationInfo(EducationalAttainment educationalAttainment, string? courseGraduated, string? universityGraduated)
   {
-      PrimarySchool = primarySchool;
-      SecondarySchool = secondarySchool;
-      TertiarySchool = tertiarySchool;
-      VocationalSchool = vocationalSchool;
-      PrimaryDegree = primaryDegree;
-      SecondaryDegree = secondaryDegree;
-      TertiaryDegree = tertiaryDegree;
-      VocationalDegree = vocationalDegree;
+    EducationalAttainment = educationalAttainment;
+    CourseGraduated = courseGraduated;
+    UniversityGraduated = universityGraduated;
   }
 
   private EducationInfo() {
-    PrimarySchool = string.Empty;
-    SecondarySchool = string.Empty;
-    TertiarySchool = string.Empty;
-    VocationalSchool = string.Empty;
+    EducationalAttainment = EducationalAttainment.NotSet;
+    CourseGraduated = string.Empty;
+    UniversityGraduated = string.Empty;
   }
 
   protected override IEnumerable<object> GetEqualityComponents()
   {
-      yield return PrimarySchool ?? string.Empty;
-      yield return SecondarySchool ?? string.Empty;
-      yield return TertiarySchool ?? string.Empty;
-      yield return VocationalSchool ?? string.Empty;
-      yield return PrimaryDegree ?? string.Empty;
-      yield return SecondaryDegree ?? string.Empty;
-      yield return TertiaryDegree ?? string.Empty;
-      yield return VocationalDegree ?? string.Empty;
+    yield return EducationalAttainment;
+    yield return CourseGraduated ?? string.Empty;
+    yield return UniversityGraduated ?? string.Empty;
   }
 }
 #endregion

@@ -16,31 +16,34 @@
 @using Bluewater.Server.Global;
 @inject IGlobalService GlobalService
 
-@implements IDialogContentComponent<EmployeeDTO>
+@implements IDialogContentComponent<EmployeeFormDTO>
 
 <FluentDialogBody OnAfterRenderAsync="@InitializeDialogAsync()">
     <FluentGrid Spacing="2">
         <FluentGridItem xs="12"><h4>Personal information</h4></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Style="width: 100%" Label="First Name" Value="@Content.FirstName" required /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Style="width: 100%" Label="Last Name" Value="@Content.LastName" required /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Style="width: 100%" Label="First Name" @bind-Value="@Content.FirstName" required /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Style="width: 100%" Label="Last Name" @bind-Value="@Content.LastName" required /></FluentGridItem>
         
-        <FluentGridItem xs="6"><FluentTextField Style="width: 100%" Label="Middle Name" Value="@Content.MiddleName" /></FluentGridItem>
-        <FluentGridItem xs="6"></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Style="width: 100%" Label="Middle Name" @bind-Value="@Content.MiddleName" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentDatePicker Label="Date of Birth" @bind-Value="@Content.DateOfBirth" Style="width: 100%"/></FluentGridItem>
         
         <FluentGridItem xs="6">
             <FluentSelect TOption="EnumOption"
                 Label="Gender"
                 Items="@genderOptions"
                 OptionText="@(o => o.Description)"
-                Style="width: 100%" >
+                Style="width: 100%" 
+                @onchange=HandleGenderSelected>
             </FluentSelect>
         </FluentGridItem>
+
         <FluentGridItem xs="6">
             <FluentSelect TOption="EnumOption"
                 Label="Civil Status"
                 Items="@civilStatusOptions"
                 OptionText="@(o => o.Description)"
-                Style="width: 100%" >
+                Style="width: 100%" 
+                @onchange=HandleCivilStatusSelected>
             </FluentSelect>
         </FluentGridItem>
 
@@ -49,15 +52,8 @@
                 Label="Blood Type"
                 Items="@bloodTypeOptions"
                 OptionText="@(o => o.Description)"
-                Style="width: 100%" >
-            </FluentSelect>
-        </FluentGridItem>
-        <FluentGridItem xs="6">
-            <FluentSelect TOption="EnumOption"
-                Label="Educational Attainment"
-                Items="@educationalAttainmentOptions"
-                OptionText="@(o => o.Description)"
-                Style="width: 100%" >
+                Style="width: 100%" 
+                @onchange=HandleBloodTypeSelected>
             </FluentSelect>
         </FluentGridItem>
 
@@ -66,54 +62,118 @@
                 Label="Employment Status"
                 Items="@employmentStatusOptions"
                 OptionText="@(o => o.Description)"
-                Style="width: 100%" >
+                Style="width: 100%" 
+                @onchange=HandleEmploymentStatusSelected>
+            </FluentSelect>
+        </FluentGridItem>
+
+        <FluentGridItem xs="6"><FluentNumberField Label="Height (cm)" @bind-Value="@Content.Height" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentNumberField Label="Weight (kg)" @bind-Value="@Content.Weight" Style="width: 100%" /></FluentGridItem>
+
+
+        <FluentGridItem xs="12"><h4>Contact information</h4></FluentGridItem>
+
+        <FluentGridItem xs="6"><FluentTextField Label="Landline Number" @bind-Value="@Content.TelNumber" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Mobile Number" @bind-Value="@Content.MobileNumber" Style="width: 100%" /></FluentGridItem>        
+        <FluentGridItem xs="6"><FluentTextField Label="Address" @bind-Value="@Content.Address" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Provincial Address" @bind-Value="@Content.ProvincialAddress" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Email" @bind-Value="@Content.Email" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Mother's Maiden Name" @bind-Value="@Content.MothersMaidenName" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Father's Name" @bind-Value="@Content.FathersName" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Emergency Contact" @bind-Value="@Content.EmergencyContact" Style="width: 100%"/></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Relationship with Contact" @bind-Value="@Content.RelationshipContact" Style="width: 100%"/></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Contact's Landline Number" @bind-Value="@Content.TelNoContact" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Contact's Mobile Number" @bind-Value="@Content.MobileNoContact" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Contact's Address" @bind-Value="@Content.AddressContact" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"></FluentGridItem>
+
+        <FluentGridItem xs="12"><h4>Educational information</h4></FluentGridItem>
+
+        <FluentGridItem xs="6"><FluentTextField Label="Course Graudated" @bind-Value="@Content.CourseGraduated" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="University Graduated" @bind-Value="@Content.UniversityGraduated" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="EnumOption"
+                Label="Educational Attainment"
+                Items="@educationalAttainmentOptions"
+                OptionText="@(o => o.Description)"
+                Style="width: 100%" 
+                @onchange=HandleEducationalAttainmentSelected>
             </FluentSelect>
         </FluentGridItem>
         <FluentGridItem xs="6"></FluentGridItem>
 
-        <FluentGridItem xs="6"><FluentTextField Label="Height (cm)" Value="@Content.Height.ToString()" Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Weight (kg)" Value="@Content.Weight.ToString()" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="12"><h4>Employment information</h4></FluentGridItem>
 
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="EmployeeTypeDTO"
+                Label="Type"
+                Items="@employeeTypes"
+                OptionText="@(o => o.Name)"
+                Style="width: 100%" 
+                @onchange=HandleEmployeeTypesSelected>
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="LevelDTO"
+                Label="Levels"
+                Items="@levels"
+                OptionText="@(o => o.Name)"
+                Style="width: 100%" 
+                @onchange=HandleLevelsSelected>
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="PositionDTO"
+                Label="Positions"
+                Items="@positions"
+                OptionText="@(o => o.Name)"
+                Style="width: 100%" 
+                @onchange=HandlePositionsSelected>
+            </FluentSelect>
+        </FluentGridItem>  
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="ChargingDTO"
+                Label="Chargings"
+                Items="@chargings"
+                OptionText="@(o => o.Name)"
+                Style="width: 100%" 
+                @onchange=HandleChargingsSelected>
+            </FluentSelect>
+        </FluentGridItem>                
 
-        <FluentGridItem xs="12"><h4>Contact information</h4></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Landline Number" Value="@Content.ContactInfo!.TelNumber" required Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Mobile Number" Value="@Content.ContactInfo!.MobileNumber" required Style="width: 100%" /></FluentGridItem>        
-        <FluentGridItem xs="6"><FluentTextField Label="Address" Value="@Content.ContactInfo!.Address" required Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Provincial Address" Value="@Content.ContactInfo!.ProvincialAddress" required Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Email" Value="@Content.ContactInfo!.Email" required Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Mother's Maiden Name" Value="@Content.ContactInfo!.MothersMaidenName" required Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Father's Name" Value="@Content.ContactInfo!.FathersName" required Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Emergency Contact" Value="@Content.ContactInfo!.EmergencyContact"/></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Relationship with Contact" Value="@Content.ContactInfo!.RelationshipContact"/></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Contact's Landline Number" Value="@Content.ContactInfo!.TelNoContact" required Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Contact's Mobile Number" Value="@Content.ContactInfo!.MobileNoContact" required Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Contact's Address" Value="@Content.ContactInfo!.AddressContact" required Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"></FluentGridItem>
+        <FluentGridItem xs="6"><FluentDatePicker Label="Date Hired" @bind-Value="@Content.DateHired" Style="width: 100%"/></FluentGridItem>
+        <FluentGridItem xs="6"><FluentDatePicker Label="Date Regularized" @bind-Value="@Content.DateRegularized" Style="width: 100%"/></FluentGridItem>
+        <FluentGridItem xs="6"><FluentDatePicker Label="Date Resigned" @bind-Value="@Content.DateResigned" Style="width: 100%"/></FluentGridItem>
+        <FluentGridItem xs="6"><FluentDatePicker Label="Date Terminated" @bind-Value="@Content.DateTerminated" Style="width: 100%"/></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="TIN No" @bind-Value="@Content.TinNo" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="SSS No" @bind-Value="@Content.SssNo" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Pagibig No" @bind-Value="@Content.HdmfNo" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="PhilHealth No" @bind-Value="@Content.PhicNo" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Bank Account" @bind-Value="@Content.BankAccount" Style="width: 100%" /></FluentGridItem>
 
-        <FluentGridItem xs="12"><h4>Educational information</h4></FluentGridItem>
-        <FluentGridItem xs="12"><h4>Employement information</h4></FluentGridItem>
 
         <FluentGridItem xs="12"><h4>Login credentials</h4></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Username" Value="@Content.User!.Username" required Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Password" Value="@Content.User!.Password" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Username" @bind-Value="@Content.Username" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Password" @bind-Value="@Content.Password" required Style="width: 100%" /></FluentGridItem>
 
         <FluentGridItem xs="6">
             <FluentSelect TOption="EnumOption"
                 Label="Credentials"
                 Items="@credentialsOptions"
                 OptionText="@(o => o.Description)"
-                Style="width: 100%" >
+                Style="width: 100%" 
+                @onchange=HandleCredentialsSelected>
             </FluentSelect>
         </FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Supervised Group" Value="@Content.User!.SupervisedGroup.ToString()" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentTextField Label="Supervised Group" Value="@Content.SupervisedGroup.ToString()" Style="width: 100%" disabled/></FluentGridItem>
 
     </FluentGrid>
 </FluentDialogBody>
 
 @code{
     [Parameter]
-    public EmployeeDTO Content { get; set; } = default!;
+    public EmployeeFormDTO Content { get; set; } = default!;
 
     private List<EnumOption> genderOptions = new();
     private List<EnumOption> civilStatusOptions = new();
@@ -137,8 +197,10 @@
         if(!isFirstLoad)
         {
             isFirstLoad = true;
-            Content.User ??= new UserDTO(null, null, null, null);
+            @* Content.User ??= new UserDTO(null, null, null, null);
             Content.ContactInfo ??= new ContactInfoDTO(null,null,null,null,null,null,null,null,null,null,null,null);
+            Content.EducationInfo ??= new EducationInfoDTO(EducationalAttainment.NotSet,null,null);
+            Content.EmploymentInfo ??= new EmploymentInfoDTO(null,null,null,null,null,null,null,null); *@
             genderOptions = EnumUtilities.GetEnumOptions<Gender>();
             civilStatusOptions = EnumUtilities.GetEnumOptions<CivilStatus>();
             bloodTypeOptions = EnumUtilities.GetEnumOptions<BloodType>();
@@ -155,5 +217,140 @@
             levels = GlobalService.Levels.ToList() ?? new List<LevelDTO>();
         }
         return Task.CompletedTask;
+    }
+
+    public void HandleGenderSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+
+        if(string.IsNullOrWhiteSpace(stringValue) || stringValue == "-1" || stringValue == "Not Set")
+            Content.Gender = Gender.NotSet;
+        else
+            Content.Gender = Enum.Parse<Gender>(stringValue);
+    }
+
+    public void HandleCivilStatusSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+
+        if(string.IsNullOrWhiteSpace(stringValue) || stringValue == "-1" || stringValue == "Not Set")
+            Content.CivilStatus = CivilStatus.NotSet;
+        else
+            Content.CivilStatus = Enum.Parse<CivilStatus>(stringValue);
+    }
+
+    public void HandleBloodTypeSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString();
+
+        if(string.IsNullOrWhiteSpace(stringValue) || stringValue == "-1")
+            Content.BloodType = BloodType.NotSet;
+        else{
+            switch(stringValue)
+            {
+                case "A+":
+                    Content.BloodType = BloodType.APositive;
+                    break;
+                case "A-":
+                    Content.BloodType = BloodType.ANegative;
+                    break;
+                case "B+":
+                    Content.BloodType = BloodType.BPositive;
+                    break;
+                case "B-":
+                    Content.BloodType = BloodType.BNegative;
+                    break;
+                case "AB+":
+                    Content.BloodType = BloodType.ABPositive;
+                    break;
+                case "AB-":
+                    Content.BloodType = BloodType.ABNegative;
+                    break;
+                case "O+":
+                    Content.BloodType = BloodType.OPositive;
+                    break;
+                case "O-":
+                    Content.BloodType = BloodType.ONegative;
+                    break;
+                case "Not Set":
+                default:
+                    Content.BloodType = BloodType.NotSet;
+                    break;                    
+            }
+        }
+    }
+
+    public void HandleEducationalAttainmentSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim().Replace(" ", "").Replace("/", "_");
+
+        if(string.IsNullOrWhiteSpace(stringValue) || stringValue == "-1" || stringValue == "Not Set")
+            Content.EducationalAttainment = EducationalAttainment.NotSet;
+        else
+            Content.EducationalAttainment = Enum.Parse<EducationalAttainment>(stringValue);
+    }
+
+    public void HandleEmploymentStatusSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+
+        if(string.IsNullOrWhiteSpace(stringValue) || stringValue == "-1" || stringValue == "Not Set")
+            Content.Status = Status.NotSet;
+        else
+            Content.Status = Enum.Parse<Status>(stringValue);
+    }
+
+    public void HandleCredentialsSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+
+        if(string.IsNullOrWhiteSpace(stringValue) || stringValue == "-1" || stringValue == "Not Set")
+            Content.Credential = Credential.None;
+        else
+            Content.Credential = Enum.Parse<Credential>(stringValue);
+    }
+
+    public void HandleEmployeeTypesSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+
+        var employeeType = employeeTypes.FirstOrDefault(x => x.Name == stringValue);
+        if(employeeType != null)
+        {
+            Content.TypeId = employeeType.Id;
+        }
+    }
+
+    public void HandleLevelsSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+
+        var level = levels.FirstOrDefault(x => x.Name == stringValue);
+        if(level != null)
+        {
+            Content.LevelId = level.Id;
+        }
+    }
+
+    public void HandlePositionsSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+
+        var position = positions.FirstOrDefault(x => x.Name == stringValue);
+        if(position != null)
+        {
+            Content.PositionId = position.Id;
+        }
+    }
+
+    public void HandleChargingsSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+
+        var charging = chargings.FirstOrDefault(x => x.Name == stringValue);
+        if(charging != null)
+        {
+            Content.ChargingId = charging.Id;
+        }
     }
 }

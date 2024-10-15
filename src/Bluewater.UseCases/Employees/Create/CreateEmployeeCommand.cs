@@ -41,14 +41,9 @@ namespace Bluewater.UseCases.Employees.Create;
   );
 
   public record EducationInfo(
-      string? PrimarySchool,
-      string? SecondarySchool,
-      string? TertiarySchool,
-      string? VocationalSchool,
-      string? PrimaryDegree,
-      string? SecondaryDegree,
-      string? TertiaryDegree,
-      string? VocationalDegree
+    EducationalAttainment EducationalAttainment,
+    string? CourseGraduated,
+    string? UniversityGraduated
   );
 
   public record EmploymentInfo(

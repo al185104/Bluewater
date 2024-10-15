@@ -74,16 +74,19 @@ public record ContactInfoDTO(
     string? MobileNoContact
 );
 
-public record EducationInfoDTO(
-    string? PrimarySchool,
-    string? SecondarySchool,
-    string? TertiarySchool,
-    string? VocationalSchool,
-    string? PrimaryDegree,
-    string? SecondaryDegree,
-    string? TertiaryDegree,
-    string? VocationalDegree
-);
+public record EducationInfoDTO()
+{
+    public EducationalAttainment EducationalAttainment { get; set; }
+    public string? CourseGraduated { get; set; }
+    public string? UniversityGraduated { get; set; }
+
+    public EducationInfoDTO(EducationalAttainment educationalAttainment, string? courseGraduated, string? universityGraduated) : this()
+    {
+        EducationalAttainment = educationalAttainment;
+        CourseGraduated = courseGraduated;
+        UniversityGraduated = universityGraduated;
+    }
+}
 
 public record EmploymentInfoDTO(
     DateTime? DateHired,
@@ -96,12 +99,20 @@ public record EmploymentInfoDTO(
     string? PhilHealthNo
 );
 
-public record UserDTO(
-    string? Username,
-    string? Password,
-    string? Credential,
-    Guid? SupervisedGroup
-);
+public record UserDTO(){
+    public string? Username { get; set; }
+    public string? Password { get; set; }
+    public string? Credential { get; set; }
+    public Guid? SupervisedGroup { get; set; }
+
+    public UserDTO(string? username, string? password, string? credential, Guid? supervisedGroup) : this()
+    {
+        Username = username;
+        Password = password;
+        Credential = credential;
+        SupervisedGroup = supervisedGroup;
+    }
+};
 
 public record PayDTO(
     decimal? BasicPay,

@@ -48,21 +48,18 @@ Welcome to your new Fluent Blazor app.
     public IQueryable<EmployeeTypeDTO> EmployeeTypes { get; set; } = default!;
     public IQueryable<LevelDTO> Levels { get; set; } = default!;    
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
         try
         {
-            Console.WriteLine("OnAfterRenderAsync Done");
             isBusy = true;
-            if (firstRender)
-                await GlobalService.LoadDataAsync();
+            await GlobalService.LoadDataAsync();
         }
         catch (Exception)
         {
             throw;
         }
         finally{
-            await base.OnAfterRenderAsync(firstRender);
             isBusy = false;
         }
     }

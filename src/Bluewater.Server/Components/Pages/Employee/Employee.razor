@@ -1,10 +1,14 @@
 @page  "/employee"
 @rendermode InteractiveServer
 @using Bluewater.UseCases.Employees
+@using Bluewater.UseCases.Employees.Create
 @using Bluewater.UseCases.Employees.Delete
 @using Bluewater.UseCases.Employees.List
 @using MediatR
 @using Microsoft.FluentUI.AspNetCore.Components.Extensions
+@using Bluewater.Core.EmployeeAggregate.Enum;
+@using Bluewater.Core.UserAggregate.Enum;
+
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
 @inject IDialogService DialogService
@@ -110,27 +114,67 @@
 
     async Task CreateNewEmployeeAsync()
     {
-         EmployeeDTO employee = new EmployeeDTO(
-            Guid.NewGuid(),
-            "John",
-            "Doe",
-            "Smith",
-            new DateTime(1990, 1, 1),
-            Core.EmployeeAggregate.Enum.Gender.NotSet,
-            Core.EmployeeAggregate.Enum.CivilStatus.NotSet,
-            Core.EmployeeAggregate.Enum.BloodType.NotSet,
-            Core.EmployeeAggregate.Enum.Status.NotSet,
-            0,0,null,string.Empty,null,null,null,null,null,null,null,null,null,null,null,null);
+            EmployeeFormDTO employee = new EmployeeFormDTO(
+                null,null,null,null,Gender.NotSet,CivilStatus.NotSet,BloodType.NotSet,Status.NotSet,0,0,null,null,
+                null,null,null,null,null,null,null,null,null,null,null,null,
+                EducationalAttainment.NotSet,null,null,
+                null,null,null,null,null,null,null,null,null,false,
+                null,null,Credential.None,null,
+                Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty
+            );
 
-        IDialogReference dialogReference = await DialogService.ShowPanelAsync<EmployeeForm>(employee, new DialogParameters<EmployeeDTO>
+        IDialogReference _dialog = await DialogService.ShowPanelAsync<EmployeeForm>(employee, new DialogParameters<EmployeeFormDTO>
         {
             Title = "Create new employee",
             Alignment = HorizontalAlignment.Right,
-            Modal = true,
-            ShowDismiss = false,
-            PrimaryAction = "Add",
+            Modal = false,
+            ShowDismiss = true,
+            PrimaryAction = "Create",
             SecondaryAction = "Cancel",
             Width = "650px",
         });
+
+        DialogResult result = await _dialog.Result;
+        await HandlePanelAsync(result);
     }
+
+    async Task HandlePanelAsync(DialogResult result)
+    {
+        try
+        {
+            isBusy = true;
+            if (result.Cancelled) return;
+            if (result.Data is not null)
+            {
+                var e = result.Data as EmployeeFormDTO;
+                Console.WriteLine(e!.ToString());
+
+                if(e != null){
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var ret = await mediator.Send(new CreateEmployeeCommand(
+                            e.FirstName ?? string.Empty, e.LastName ?? string.Empty, e.MiddleName, e.DateOfBirth, e.Gender, e.CivilStatus, e.BloodType, e.Status, e.Height, e.Weight, e.ImageUrl, e.Remarks,
+                            new ContactInfo(e.Email, e.TelNumber, e.MobileNumber, e.Address, e.ProvincialAddress, e.MothersMaidenName, e.FathersName, e.EmergencyContact, e.RelationshipContact, e.AddressContact, e.TelNoContact, e.MobileNoContact),
+                            new EducationInfo(e.EducationalAttainment, e.CourseGraduated, e.UniversityGraduated),
+                            new EmploymentInfo(e.DateHired, e.DateRegularized, e.DateResigned, e.DateTerminated, e.TinNo, e.SssNo, e.HdmfNo, e.PhicNo, e.BankAccount, e.HasServiceCharge),
+                            Guid.Empty, Guid.Empty, Guid.Empty, Guid.Empty, Guid.Empty));
+                        if (ret.IsSuccess)
+                            await LoadEmployeesAsync();
+                    }
+                }
+            }
+
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+
+
+    }    
 }

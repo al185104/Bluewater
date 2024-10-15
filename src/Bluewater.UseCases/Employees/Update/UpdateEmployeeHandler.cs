@@ -49,14 +49,9 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
     if(request.EducationInfo != null)
     {
         existingEmployee.SetEducationInfo(new Core.EmployeeAggregate.EducationInfo(
-            request.EducationInfo.PrimarySchool,
-            request.EducationInfo.SecondarySchool,
-            request.EducationInfo.TertiarySchool,
-            request.EducationInfo.VocationalSchool,
-            request.EducationInfo.PrimaryDegree,
-            request.EducationInfo.SecondaryDegree,
-            request.EducationInfo.TertiaryDegree,
-            request.EducationInfo.VocationalDegree
+            request.EducationInfo.EducationalAttainment,
+            request.EducationInfo.CourseGraduated,
+            request.EducationInfo.UniversityGraduated
         ));
     }
 
@@ -97,14 +92,10 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
     );
 
     var educationInfo = new EducationInfoDTO(
-        existingEmployee.EducationInfo!.PrimarySchool,
-        existingEmployee.EducationInfo!.SecondarySchool,
-        existingEmployee.EducationInfo!.TertiarySchool,
-        existingEmployee.EducationInfo!.VocationalSchool,
-        existingEmployee.EducationInfo!.PrimaryDegree,
-        existingEmployee.EducationInfo!.SecondaryDegree,
-        existingEmployee.EducationInfo!.TertiaryDegree,
-        existingEmployee.EducationInfo!.VocationalDegree
+        existingEmployee.EducationInfo!.EducationalAttainment,
+        existingEmployee.EducationInfo!.CourseGraduated,
+        existingEmployee.EducationInfo!.UniversityGraduated
+
     );
 
     var employeeInfo = new EmploymentInfoDTO(

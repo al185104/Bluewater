@@ -44,14 +44,9 @@ public class CreateEmployeeHandler(IRepository<Employee> _repository) : ICommand
     if (request.EducationInfo != null)
     {
       newEmployee.SetEducationInfo(new Core.EmployeeAggregate.EducationInfo(
-          request.EducationInfo.PrimarySchool,
-          request.EducationInfo.SecondarySchool,
-          request.EducationInfo.TertiarySchool,
-          request.EducationInfo.VocationalSchool,
-          request.EducationInfo.PrimaryDegree,
-          request.EducationInfo.SecondaryDegree,
-          request.EducationInfo.TertiaryDegree,
-          request.EducationInfo.VocationalDegree
+        request.EducationInfo.EducationalAttainment,
+        request.EducationInfo.CourseGraduated,
+        request.EducationInfo.UniversityGraduated
       ));
     }
 
