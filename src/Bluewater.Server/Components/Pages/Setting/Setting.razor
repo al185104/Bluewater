@@ -373,8 +373,10 @@
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListEmployeeTypeQuery(null, null));
-                if (result.IsSuccess)
-                    EmployeeTypes = result.Value.AsQueryable();
+                if (result.IsSuccess){
+                    EmployeeTypes = result.Value.AsQueryable(); 
+                    GlobalService.EmployeeTypes = new(result.Value.ToList());
+                }
             }
         }
         catch (Exception)
@@ -391,8 +393,10 @@
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListLevelQuery(null, null));
-                if (result.IsSuccess)
+                if (result.IsSuccess){
                     Levels = result.Value.AsQueryable();
+                    GlobalService.Levels = new(result.Value.ToList());
+                }
             }
         }
         catch (Exception)
@@ -409,8 +413,10 @@
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListHolidayQuery(null, null));
-                if (result.IsSuccess)
+                if (result.IsSuccess) {
                     Holidays = result.Value.AsQueryable();
+                    GlobalService.Holidays = new(result.Value.ToList());
+                }
             }
         }
         catch (Exception)
@@ -427,8 +433,10 @@
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListChargingQuery(null, null));
-                if (result.IsSuccess)
+                if (result.IsSuccess) {
                     Chargings = result.Value.AsQueryable();
+                    GlobalService.Chargings = new(result.Value.ToList());
+                }
             }
         }
         catch (Exception)
@@ -445,8 +453,10 @@
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListPositionsQuery(null, null));
-                if (result.IsSuccess)
+                if (result.IsSuccess) {
                     Positions = result.Value.AsQueryable();
+                    GlobalService.Positions = new(result.Value.ToList());
+                }
             }
         }
         catch (Exception)
@@ -463,8 +473,10 @@
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListSectionsQuery(null, null));
-                if (result.IsSuccess)
+                if (result.IsSuccess) {
                     Sections = result.Value.AsQueryable();
+                    GlobalService.Sections = new(result.Value.ToList());
+                }
             }
         }
         catch (Exception)
@@ -481,8 +493,10 @@
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListDepartmentsQuery(null, null));
-                if (result.IsSuccess)
+                if (result.IsSuccess) {
                     Departments = result.Value.AsQueryable();
+                    GlobalService.Departments = new(result.Value.ToList());
+                }
             }
         }
         catch(Exception)
@@ -501,6 +515,7 @@
                 var result = await mediator.Send(new ListDivisionsQuery(null, null));
                 if (result.IsSuccess){
                     Divisions = result.Value.AsQueryable();
+                    GlobalService.Divisions = new(result.Value.ToList());
                 }
             }
         }
@@ -607,6 +622,10 @@
             btnLoading = true;
             using (var scope = ServiceScopeFactory.CreateScope())
             {
+                if(Divisions == null || Divisions.Count() == 0) return;
+                if(selectedDivisionId == Guid.Empty)
+                    selectedDivisionId = Divisions.First().Id;
+
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new CreateDepartmentCommand(InputDepartment.Name, InputDepartment.Description, selectedDivisionId));
                 if (result.IsSuccess)
@@ -629,6 +648,11 @@
             btnLoading = true;
             using (var scope = ServiceScopeFactory.CreateScope())
             {
+                if(Departments == null || Departments.Count() == 0) return;
+
+                if(selectedDepartmentId == Guid.Empty)
+                    selectedDepartmentId = Departments.First().Id;
+
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new CreateSectionCommand(InputSection.Name, InputSection.Description, string.Empty, string.Empty, string.Empty, selectedDepartmentId));
                 if (result.IsSuccess)
@@ -651,6 +675,10 @@
             btnLoading = true;
             using (var scope = ServiceScopeFactory.CreateScope())
             {
+                if(Sections == null || Sections.Count() == 0) return;
+                if(selectedSectionId == Guid.Empty)
+                    selectedSectionId = Sections.First().Id;
+
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new CreatePositionCommand(InputPosition.Name, InputPosition.Description, selectedSectionId));
                 if (result.IsSuccess)

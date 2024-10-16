@@ -39,11 +39,11 @@ public class Employee(string firstName, string lastName, string? middleName, Dat
   public Guid UpdateBy { get; private set; } = Guid.Empty;
 
   // Foreign Keys
-  public Guid PositionId { get; private set; }
-  public Guid PayId { get; private set; }
-  public Guid TypeId { get; private set; }
-  public Guid LevelId { get; private set; }
-  public Guid ChargingId { get; private set; }
+  public Guid? PositionId { get; private set; }
+  public Guid? PayId { get; private set; }
+  public Guid? TypeId { get; private set; }
+  public Guid? LevelId { get; private set; }
+  public Guid? ChargingId { get; private set; }
 
   // Navigation Properties
   public virtual User? User { get; private set; }  

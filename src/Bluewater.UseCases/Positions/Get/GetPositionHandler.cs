@@ -8,7 +8,7 @@ public class GetPositionHandler(IRepository<Position> _repository) : IQueryHandl
 {
   public async Task<Result<PositionDTO>> Handle(GetPositionQuery request, CancellationToken cancellationToken)
   {
-    var spec = new PositionByIdSpec(request.PositionId);
+    var spec = new PositionByIdSpec(request.PositionId ?? Guid.Empty);
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (entity == null) return Result.NotFound();
 

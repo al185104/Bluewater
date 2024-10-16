@@ -49,6 +49,13 @@ public record EmployeeFormDTO()
     public string? BankAccount { get; set; }
     public bool HasServiceCharge { get; set; }
 
+    //pay info
+    public decimal? BasicPay { get; set; }
+    public decimal? DailyRate { get; set; }
+    public decimal? HourlyRate { get; set; }
+    public decimal? HDMF_Con { get; set; } = 200;
+    public decimal? HDMF_Er { get; set; } = 200;
+
     //user info
     public string? Username { get; set; }
     public string? Password { get; set; }
@@ -57,6 +64,10 @@ public record EmployeeFormDTO()
 
     //external info
     public Guid PositionId { get; set; }
+    public Guid SectionId { get; set; }
+    public Guid DepartmentId { get; set; }
+    public Guid DivisionId { get; set; }
+
     public Guid PayId { get; set; }
     public Guid TypeId { get; set; }
     public Guid LevelId { get; set; }
@@ -65,9 +76,10 @@ public record EmployeeFormDTO()
     public EmployeeFormDTO(string? firstName, string? lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, 
         string? email, string? telNumber, string? mobileNumber, string? address, string? provincialAddress, string? mothersMaidenName, string? fathersName, string? emergencyContact, string? relationshipContact, string? addressContact, string? telNoContact, string? mobileNoContact, 
         EducationalAttainment educationalAttainment, string? courseGraduated, string? universityGraduated, 
-        DateTime? dateHired, DateTime? dateRegularized, DateTime? dateResigned, DateTime? dateTerminated, string? tinNo, string? sssNo, string? hdmfNo, string? phicNo, string? bankAccount, bool hasServiceCharge, 
+        DateTime? dateHired, DateTime? dateRegularized, DateTime? dateResigned, DateTime? dateTerminated, string? tinNo, string? sssNo, string? hdmfNo, string? phicNo, string? bankAccount, bool hasServiceCharge,
+        decimal? basicPay, decimal? dailyRate, decimal? hourlyRate, decimal? hdmf_con, decimal? hdmf_er, 
         string? username, string? password, Credential credential, Guid? supervisedGroup, 
-        Guid positionId, Guid payId, Guid typeId, Guid levelId, Guid chargingId) : this()
+        Guid positionId, Guid sectionId, Guid departmentId, Guid divisionId, Guid payId, Guid typeId, Guid levelId, Guid chargingId) : this()
     {
         FirstName = firstName;
         LastName = lastName;
@@ -106,11 +118,19 @@ public record EmployeeFormDTO()
         PhicNo = phicNo;
         BankAccount = bankAccount;
         HasServiceCharge = hasServiceCharge;
+        BasicPay = basicPay;
+        DailyRate = dailyRate;
+        HourlyRate = hourlyRate;        
+        HDMF_Con = hdmf_con;
+        HDMF_Er = hdmf_er;
         Username = username;
         Password = password;
         Credential = credential;
         SupervisedGroup = supervisedGroup;
         PositionId = positionId;
+        SectionId = sectionId;
+        DepartmentId = departmentId;
+        DivisionId = divisionId;
         PayId = payId;
         TypeId = typeId;
         LevelId = levelId;

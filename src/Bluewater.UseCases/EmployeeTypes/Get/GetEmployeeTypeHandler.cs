@@ -8,7 +8,7 @@ public class GetEmployeeTypeHandler(IRepository<EmployeeType> _repository) : IQu
 {
   public async Task<Result<EmployeeTypeDTO>> Handle(GetEmployeeTypeQuery request, CancellationToken cancellationToken)
   {
-    var spec = new EmployeeTypeByIdSpec(request.EmployeeTypeId);
+    var spec = new EmployeeTypeByIdSpec(request.EmployeeTypeId ?? Guid.Empty);
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (entity == null) return Result.NotFound();
 

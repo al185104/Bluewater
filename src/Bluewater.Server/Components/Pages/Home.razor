@@ -24,12 +24,35 @@
 @inject IGlobalService GlobalService
 
 
+<style>
+    .welcome-container {
+        text-align: center;
+        padding: 20px;
+        max-width: 100%;
+    }
+    h1 {
+        color: #0077be;
+        margin-bottom: 20px;
+    }
+    p {
+        font-size: 18px;
+        line-height: 1.6;
+    }
+</style>
+
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new Fluent Blazor app.
-
+    <div class="welcome-container">
+        <h1>Welcome to Bluewater Maribago HRMS</h1>
+        <p>
+            Welcome to the Human Resource Management System of Bluewater Maribago. 
+            This platform is designed to streamline our HR processes and provide 
+            you with easy access to important information and resources. We're 
+            committed to supporting your professional journey and enhancing your 
+            experience as a valued member of our team.
+        </p>
+    </div>
+    
 @if (isBusy)
 {
     <div class="overlay">

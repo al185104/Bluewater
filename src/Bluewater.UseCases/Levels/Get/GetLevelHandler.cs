@@ -8,7 +8,7 @@ public class GetLevelHandler(IRepository<Level> _repository) : IQueryHandler<Get
 {
   public async Task<Result<LevelDTO>> Handle(GetLevelQuery request, CancellationToken cancellationToken)
   {
-    var spec = new LevelByIdSpec(request.LevelId);
+    var spec = new LevelByIdSpec(request.LevelId ?? Guid.Empty);
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (entity == null) return Result.NotFound();
 

@@ -8,7 +8,7 @@ public class GetChargingHandler(IRepository<Charging> _repository) : IQueryHandl
 {
   public async Task<Result<ChargingDTO>> Handle(GetChargingQuery request, CancellationToken cancellationToken)
   {
-    var spec = new ChargingByIdSpec(request.ChargingId);
+    var spec = new ChargingByIdSpec(request.ChargingId ?? Guid.Empty);
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (entity == null) return Result.NotFound();
 

@@ -2,4 +2,4 @@
 using Ardalis.SharedKernel;
 
 namespace Bluewater.UseCases.Chargings.Get;
-public record GetChargingQuery(Guid ChargingId) : IQuery<Result<ChargingDTO>>;
+public record GetChargingQuery(Guid? ChargingId) : IQuery<Result<ChargingDTO>>;

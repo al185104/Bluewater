@@ -110,8 +110,9 @@
                 Label="Type"
                 Items="@employeeTypes"
                 OptionText="@(o => o.Name)"
+                OptionValue="@(o => o.Id.ToString())"
                 Style="width: 100%" 
-                @onchange=HandleEmployeeTypesSelected>
+                bind-SelectedOption="@Content.TypeId">
             </FluentSelect>
         </FluentGridItem>
         <FluentGridItem xs="6">
@@ -119,8 +120,9 @@
                 Label="Levels"
                 Items="@levels"
                 OptionText="@(o => o.Name)"
+                OptionValue="@(o => o.Id.ToString())"
                 Style="width: 100%" 
-                @onchange=HandleLevelsSelected>
+                bind-SelectedOption="@Content.LevelId">
             </FluentSelect>
         </FluentGridItem>
         <FluentGridItem xs="6">
@@ -128,8 +130,9 @@
                 Label="Positions"
                 Items="@positions"
                 OptionText="@(o => o.Name)"
+                OptionValue="@(o => o.Id.ToString())"
                 Style="width: 100%" 
-                @onchange=HandlePositionsSelected>
+                bind-SelectedOption="@Content.PositionId">
             </FluentSelect>
         </FluentGridItem>  
         <FluentGridItem xs="6">
@@ -137,8 +140,9 @@
                 Label="Chargings"
                 Items="@chargings"
                 OptionText="@(o => o.Name)"
+                OptionValue="@(o => o.Id.ToString())"
                 Style="width: 100%" 
-                @onchange=HandleChargingsSelected>
+                bind-SelectedOption="@Content.ChargingId">
             </FluentSelect>
         </FluentGridItem>                
 
@@ -151,7 +155,13 @@
         <FluentGridItem xs="6"><FluentTextField Label="Pagibig No" @bind-Value="@Content.HdmfNo" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"><FluentTextField Label="PhilHealth No" @bind-Value="@Content.PhicNo" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"><FluentTextField Label="Bank Account" @bind-Value="@Content.BankAccount" Style="width: 100%" /></FluentGridItem>
-
+        <FluentGridItem xs="6"></FluentGridItem>
+        <FluentGridItem xs="6"><FluentNumberField Label="Basic Pay" @bind-Value="@Content.BasicPay" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentNumberField Label="Daily Rate" @bind-Value="@Content.BasicPay" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentNumberField Label="Hourly Rate" @bind-Value="@Content.BasicPay" Style="width: 100%" /></FluentGridItem>        
+        <FluentGridItem xs="6"><FluentNumberField Label="HDMF Con" @bind-Value="@Content.HDMF_Con" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentNumberField Label="HDMF Er" @bind-Value="@Content.HDMF_Er" Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"></FluentGridItem>
 
         <FluentGridItem xs="12"><h4>Login credentials</h4></FluentGridItem>
         <FluentGridItem xs="6"><FluentTextField Label="Username" @bind-Value="@Content.Username" required Style="width: 100%" /></FluentGridItem>
@@ -197,10 +207,7 @@
         if(!isFirstLoad)
         {
             isFirstLoad = true;
-            @* Content.User ??= new UserDTO(null, null, null, null);
-            Content.ContactInfo ??= new ContactInfoDTO(null,null,null,null,null,null,null,null,null,null,null,null);
-            Content.EducationInfo ??= new EducationInfoDTO(EducationalAttainment.NotSet,null,null);
-            Content.EmploymentInfo ??= new EmploymentInfoDTO(null,null,null,null,null,null,null,null); *@
+
             genderOptions = EnumUtilities.GetEnumOptions<Gender>();
             civilStatusOptions = EnumUtilities.GetEnumOptions<CivilStatus>();
             bloodTypeOptions = EnumUtilities.GetEnumOptions<BloodType>();
@@ -215,6 +222,14 @@
             chargings = GlobalService.Chargings.ToList() ?? new List<ChargingDTO>();
             employeeTypes = GlobalService.EmployeeTypes.ToList() ?? new List<EmployeeTypeDTO>();
             levels = GlobalService.Levels.ToList() ?? new List<LevelDTO>();
+
+            Content.PositionId = positions.FirstOrDefault()?.Id ?? Guid.Empty;
+            Content.SectionId = sections.FirstOrDefault(i => i.Id == Content.PositionId)?.Id ?? Guid.Empty;
+            Content.DepartmentId = departments.FirstOrDefault(i => i.Id == Content.SectionId)?.Id ?? Guid.Empty;
+            Content.DivisionId = divisions.FirstOrDefault(i => i.Id == Content.DepartmentId)?.Id ?? Guid.Empty;
+            Content.ChargingId = chargings.FirstOrDefault()?.Id ?? Guid.Empty;
+            Content.TypeId = employeeTypes.FirstOrDefault()?.Id ?? Guid.Empty;
+            Content.LevelId = levels.FirstOrDefault()?.Id ?? Guid.Empty;
         }
         return Task.CompletedTask;
     }
