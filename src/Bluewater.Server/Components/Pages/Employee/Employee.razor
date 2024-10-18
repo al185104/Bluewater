@@ -5,6 +5,7 @@
 @using Bluewater.UseCases.Employees.Delete
 @using Bluewater.UseCases.Employees.List
 @using Bluewater.UseCases.Pays.Create
+@using Bluewater.UseCases.Users.Create
 @using MediatR
 @using Microsoft.FluentUI.AspNetCore.Components.Extensions
 @using Bluewater.Core.EmployeeAggregate.Enum;
@@ -153,6 +154,14 @@
 
                 if(e != null){
                     // create user
+                    Guid userId = Guid.Empty;
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var ret = await mediator.Send(new CreateUserCommand(e.Username ?? string.Empty, e.Password ?? string.Empty, e.Credential, e.SupervisedGroup));
+                        if (ret.IsSuccess)
+                            userId = ret.Value;
+                    }
 
                     // create pay
                     Guid payId = Guid.Empty;
@@ -173,7 +182,7 @@
                             new ContactInfo(e.Email, e.TelNumber, e.MobileNumber, e.Address, e.ProvincialAddress, e.MothersMaidenName, e.FathersName, e.EmergencyContact, e.RelationshipContact, e.AddressContact, e.TelNoContact, e.MobileNoContact),
                             new EducationInfo(e.EducationalAttainment, e.CourseGraduated, e.UniversityGraduated),
                             new EmploymentInfo(e.DateHired, e.DateRegularized, e.DateResigned, e.DateTerminated, e.TinNo, e.SssNo, e.HdmfNo, e.PhicNo, e.BankAccount, e.HasServiceCharge),
-                            Guid.Empty, e.PositionId, payId, e.TypeId, e.LevelId, e.ChargingId));
+                            userId, e.PositionId, payId, e.TypeId, e.LevelId, e.ChargingId));
                         if (ret.IsSuccess)
                             await LoadEmployeesAsync();
                     }
