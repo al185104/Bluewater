@@ -1,6 +1,8 @@
 using Bluewater.Core.EmployeeAggregate.Enum;
+using Bluewater.UseCases.Pays;
 
 namespace Bluewater.UseCases.Employees;
+
 public record EmployeeDTO()
 {
     public Guid Id { get; init; }
@@ -114,10 +116,10 @@ public record UserDTO(){
     }
 };
 
-public record PayDTO(
-    decimal? BasicPay,
-    decimal? DailyRate,
-    decimal? HourlyRate,
-    decimal? HDMF_Con,
-    decimal? HDMF_Er
-);
+// public record PayDTO(
+//     decimal? BasicPay,
+//     decimal? DailyRate,
+//     decimal? HourlyRate,
+//     decimal? HDMF_Con,
+//     decimal? HDMF_Er
+// );

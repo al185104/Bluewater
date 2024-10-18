@@ -20,6 +20,7 @@ public record UpdateEmployeeCommand(
       ContactInfo? ContactInfo,
       EducationInfo? EducationInfo,
       EmploymentInfo? EmploymentInfo,
+      Guid UserId,
       Guid PositionId,
       Guid PayId,
       Guid TypeId,

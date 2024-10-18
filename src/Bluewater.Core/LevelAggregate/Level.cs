@@ -22,5 +22,6 @@ public class Level(string name, string value, bool isActive) : EntityBase<Guid>,
     Name = name;
     Value = value;
     IsActive = isActive;
+    UpdatedDate = DateTime.Now;
   }
 }

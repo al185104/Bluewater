@@ -23,5 +23,6 @@ public class EmployeeType(string name, string value, bool isActive) : EntityBase
     Name = name;
     Value = value;
     IsActive = isActive;
+    UpdatedDate = DateTime.Now;
   }
 }

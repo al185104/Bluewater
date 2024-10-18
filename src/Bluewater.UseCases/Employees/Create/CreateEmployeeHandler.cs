@@ -66,7 +66,7 @@ public class CreateEmployeeHandler(IRepository<Employee> _repository) : ICommand
       ));
     }
 
-    newEmployee.SetExternalKeys(request.PositionId, request.PayId, request.TypeId, request.LevelId, request.ChargingId);
+    newEmployee.SetExternalKeys(request.UserId, request.PositionId, request.PayId, request.TypeId, request.LevelId, request.ChargingId);
 
     var createdItem = await _repository.AddAsync(newEmployee, cancellationToken);
     return createdItem.Id;

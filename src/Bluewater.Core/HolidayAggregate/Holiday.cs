@@ -21,5 +21,6 @@ public class Holiday(string name, string? description, DateTime date, bool isReg
     Description = description;
     Date = date;
     IsRegular = isRegular;
+    UpdatedDate = DateTime.Now;
   }
 }

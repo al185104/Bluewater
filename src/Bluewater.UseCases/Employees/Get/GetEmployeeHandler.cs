@@ -16,6 +16,8 @@ using Bluewater.UseCases.Positions;
 using Bluewater.UseCases.Positions.Get;
 using Bluewater.UseCases.Sections;
 using Bluewater.UseCases.Sections.Get;
+using Bluewater.UseCases.Pays;
+using Bluewater.UseCases.Pays.Get;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -122,13 +124,16 @@ public class GetEmployeeHandler(IRepository<Employee> _repository, IServiceScope
             charging = new ChargingDTO(Guid.Empty, string.Empty, string.Empty);
     }
 
-    var pay = new PayDTO(
-        entity.Pay!.BasicPay,
-        entity.Pay!.DailyRate,
-        entity.Pay!.HourlyRate,
-        entity.Pay!.HDMF_Con,
-        entity.Pay!.HDMF_Er
-    );
+    PayDTO? pay = null;
+    using (var scope = _serviceScopeFactory.CreateScope())
+    {
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+        var result = await mediator.Send(new GetPayQuery(entity.PayId), cancellationToken);
+        if (result.IsSuccess)
+            pay = new PayDTO(result.Value.Id, result.Value.BasicPay, result.Value.DailyRate, result.Value.HourlyRate, result.Value.HDMF_Con, result.Value.HDMF_Er);
+        else
+            pay = new PayDTO(Guid.Empty, 0, 0, 0, 0, 0);
+    }
 
     EmployeeTypeDTO? type = null;
     using (var scope = _serviceScopeFactory.CreateScope())

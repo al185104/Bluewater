@@ -4,6 +4,7 @@
 @using Bluewater.UseCases.Employees.Create
 @using Bluewater.UseCases.Employees.Delete
 @using Bluewater.UseCases.Employees.List
+@using Bluewater.UseCases.Pays.Create
 @using MediatR
 @using Microsoft.FluentUI.AspNetCore.Components.Extensions
 @using Bluewater.Core.EmployeeAggregate.Enum;
@@ -151,6 +152,19 @@
                 Console.WriteLine(e!.ToString());
 
                 if(e != null){
+                    // create user
+
+                    // create pay
+                    Guid payId = Guid.Empty;
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var ret = await mediator.Send(new CreatePayCommand(e.BasicPay ?? 0, e.DailyRate ?? 0, e.HourlyRate ?? 0, e.HDMF_Con ?? 200, e.HDMF_Er ?? 200));
+                        if (ret.IsSuccess)
+                            payId = ret.Value;
+
+                    }
+
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -159,7 +173,7 @@
                             new ContactInfo(e.Email, e.TelNumber, e.MobileNumber, e.Address, e.ProvincialAddress, e.MothersMaidenName, e.FathersName, e.EmergencyContact, e.RelationshipContact, e.AddressContact, e.TelNoContact, e.MobileNoContact),
                             new EducationInfo(e.EducationalAttainment, e.CourseGraduated, e.UniversityGraduated),
                             new EmploymentInfo(e.DateHired, e.DateRegularized, e.DateResigned, e.DateTerminated, e.TinNo, e.SssNo, e.HdmfNo, e.PhicNo, e.BankAccount, e.HasServiceCharge),
-                            e.PositionId, Guid.Empty, e.TypeId, e.LevelId, e.ChargingId));
+                            Guid.Empty, e.PositionId, payId, e.TypeId, e.LevelId, e.ChargingId));
                         if (ret.IsSuccess)
                             await LoadEmployeesAsync();
                     }

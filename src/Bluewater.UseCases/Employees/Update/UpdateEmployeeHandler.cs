@@ -15,6 +15,9 @@ using Bluewater.UseCases.Positions;
 using Bluewater.UseCases.Positions.Get;
 using Bluewater.UseCases.Sections;
 using Bluewater.UseCases.Sections.Get;
+using Bluewater.UseCases.Pays;
+using Bluewater.UseCases.Pays.Get;
+
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -71,8 +74,8 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
         ));
     }
 
-    if(request.PositionId != Guid.Empty && request.PayId != Guid.Empty && request.TypeId != Guid.Empty && request.LevelId != Guid.Empty && request.ChargingId != Guid.Empty)
-        existingEmployee.SetExternalKeys(request.PositionId, request.PayId, request.TypeId, request.LevelId, request.ChargingId);
+    if(request.UserId != Guid.Empty && request.PositionId != Guid.Empty && request.PayId != Guid.Empty && request.TypeId != Guid.Empty && request.LevelId != Guid.Empty && request.ChargingId != Guid.Empty)
+        existingEmployee.SetExternalKeys(request.UserId, request.PositionId, request.PayId, request.TypeId, request.LevelId, request.ChargingId);
 
     await _repository.UpdateAsync(existingEmployee, cancellationToken);
 
@@ -114,6 +117,17 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
         existingEmployee.User.PasswordHash, 
         existingEmployee.User!.Credential.ToString(),
         existingEmployee.User!.SupervisedGroup);
+
+    // UserDTO? user = null;
+    // using (var scope = _serviceScopeFactory.CreateScope())
+    // {
+    //     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+    //     var result = await mediator.Send(new GetUserQuery(existingEmployee.UserId), cancellationToken);
+    //     if (result.IsSuccess)
+    //         user = new UserDTO(result.Value.Username, result.Value.PasswordHash, result.Value.Credential.ToString(), result.Value.SupervisedGroup);
+    //     else
+    //         user = new UserDTO(string.Empty, string.Empty, string.Empty, string.Empty);
+    // }
 
     PositionDTO? position = null;
     using (var scope = _serviceScopeFactory.CreateScope())
@@ -170,13 +184,23 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
             charging = new ChargingDTO(Guid.Empty, string.Empty, string.Empty);
     }
 
-    var pay = new PayDTO(
-        existingEmployee.Pay!.BasicPay,
-        existingEmployee.Pay!.DailyRate,
-        existingEmployee.Pay!.HourlyRate,
-        existingEmployee.Pay!.HDMF_Con,
-        existingEmployee.Pay!.HDMF_Er
-    );
+    // var pay = new PayDTO(
+    //     existingEmployee.Pay!.BasicPay,
+    //     existingEmployee.Pay!.DailyRate,
+    //     existingEmployee.Pay!.HourlyRate,
+    //     existingEmployee.Pay!.HDMF_Con,
+    //     existingEmployee.Pay!.HDMF_Er
+    // );
+    PayDTO? pay = null;
+    using (var scope = _serviceScopeFactory.CreateScope())
+    {
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+        var result = await mediator.Send(new GetPayQuery(existingEmployee.PayId), cancellationToken);
+        if (result.IsSuccess)
+            pay = new PayDTO(result.Value.Id, result.Value.BasicPay, result.Value.DailyRate, result.Value.HourlyRate, result.Value.HDMF_Con, result.Value.HDMF_Er);
+        else
+            pay = new PayDTO(Guid.Empty, 0, 0, 0, 0, 0);
+    }
 
     EmployeeTypeDTO? type = null;
     using (var scope = _serviceScopeFactory.CreateScope())

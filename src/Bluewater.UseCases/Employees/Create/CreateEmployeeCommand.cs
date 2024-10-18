@@ -18,6 +18,7 @@ namespace Bluewater.UseCases.Employees.Create;
       ContactInfo? ContactInfo,
       EducationInfo? EducationInfo,
       EmploymentInfo? EmploymentInfo,
+      Guid UserId,
       Guid PositionId,
       Guid PayId,
       Guid TypeId,

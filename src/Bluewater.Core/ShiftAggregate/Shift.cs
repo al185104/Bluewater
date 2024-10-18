@@ -25,5 +25,6 @@ public class Shift(string name, TimeOnly? start, TimeOnly? breakStart, TimeOnly?
       ShiftBreakEndTime = breakend;
       ShiftEndTime = end;
       BreakHours = breakhours;
+      UpdatedDate = DateTime.Now;
     }
 }
