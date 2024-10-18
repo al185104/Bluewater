@@ -21,4 +21,13 @@ public class User(string username, string passwordHash, Credential? credential, 
   public virtual Employee Employee { get; set; } = null!;
 
   public User() : this(string.Empty, string.Empty, Credential.None, null) { }
+
+  public void UpdateUser(string username, string passwordHash, Credential? credential, Guid? supervisedGroup)
+  {
+    Username = username;
+    PasswordHash = passwordHash;
+    Credential = credential ?? Credential.None;
+    SupervisedGroup = credential >= Credential.Manager ? supervisedGroup : null;
+    UpdatedDate = DateTime.Now;
+  }
 }
