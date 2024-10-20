@@ -16,6 +16,8 @@ using Bluewater.UseCases.Levels;
 using Bluewater.UseCases.Levels.List;
 
 using MediatR;
+using Bluewater.UseCases.Shifts.List;
+using Bluewater.UseCases.Shifts;
 
 namespace Bluewater.Server.Global;
 
@@ -30,6 +32,7 @@ public class GlobalService : IGlobalService
     public List<HolidayDTO> Holidays { get; set; } = new();
     public List<EmployeeTypeDTO> EmployeeTypes { get; set; } = new();
     public List<LevelDTO> Levels { get; set; } = new();
+    public List<ShiftDTO> Shifts { get; set; } = new();
 
     private readonly IServiceScopeFactory ServiceScopeFactory;
     private readonly IMediator Mediator;
@@ -45,15 +48,17 @@ public class GlobalService : IGlobalService
         {
             if (Divisions.Count > 0) return;
 
-            List<Task> tasks = new();
-            await LoadDivisions();
-            await LoadDepartments();
-            await LoadSections();
-            await LoadPositions();
-            await LoadChargings();
-            await LoadHolidays();
-            await LoadEmployeeTypes();
-            await LoadLevels();
+            List<Task> tasks = new(){
+                LoadDivisions(),
+                LoadDepartments(),
+                LoadSections(),
+                LoadPositions(),
+                LoadChargings(),
+                LoadHolidays(),
+                LoadEmployeeTypes(),
+                LoadLevels(),
+                LoadShifts()
+            };
 
             await Task.WhenAll(tasks);            
         }
@@ -64,6 +69,24 @@ public class GlobalService : IGlobalService
     }
 
     #region Load Data
+    private async Task LoadShifts()
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListShiftQuery(null, null));
+                if (result.IsSuccess)
+                    Shifts = result.Value.ToList();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
     private async Task LoadEmployeeTypes()
     {
         try

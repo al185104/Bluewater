@@ -15,20 +15,13 @@ using Bluewater.UseCases.EmployeeTypes.List;
 using Bluewater.UseCases.Levels;
 using Bluewater.UseCases.Levels.List;
 using MediatR;
+using Bluewater.UseCases.Shifts;
 
 namespace Bluewater.Server.Global;
 
 public interface IGlobalService
 {
     string ErrorMessage { get; set; }
-    // IQueryable<DivisionDTO> Divisions { get; set; } 
-    // IQueryable<DepartmentDTO> Departments { get; set; } 
-    // IQueryable<SectionDTO> Sections { get; set; } 
-    // IQueryable<PositionDTO> Positions { get; set; } 
-    // IQueryable<ChargingDTO> Chargings { get; set; } 
-    // IQueryable<HolidayDTO> Holidays { get; set; } 
-    // IQueryable<EmployeeTypeDTO> EmployeeTypes { get; set; } 
-    // IQueryable<LevelDTO> Levels { get; set; } 
     public List<DivisionDTO> Divisions { get; set; }
     public List<DepartmentDTO> Departments { get; set; }
     public List<SectionDTO> Sections { get; set; }
@@ -37,6 +30,7 @@ public interface IGlobalService
     public List<HolidayDTO> Holidays { get; set; } 
     public List<EmployeeTypeDTO> EmployeeTypes { get; set; } 
     public List<LevelDTO> Levels { get; set; } 
+    public List<ShiftDTO> Shifts { get; set; }
 
     Task LoadDataAsync();
 }

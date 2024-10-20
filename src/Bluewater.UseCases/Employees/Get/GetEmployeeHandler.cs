@@ -20,6 +20,7 @@ using Bluewater.UseCases.Pays;
 using Bluewater.UseCases.Pays.Get;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Bluewater.UseCases.Users;
 
 namespace Bluewater.UseCases.Employees.Get;
 
@@ -60,13 +61,16 @@ public class GetEmployeeHandler(IRepository<Employee> _repository, IServiceScope
         entity.EmploymentInfo!.TINNo,
         entity.EmploymentInfo!.SSSNo,
         entity.EmploymentInfo!.HDMFNo,
-        entity.EmploymentInfo!.PHICNo
+        entity.EmploymentInfo!.PHICNo,
+        entity.EmploymentInfo!.BankAccount,
+        entity.EmploymentInfo!.HasServiceCharge
     );
 
     var user = new UserDTO(
+        entity.User!.Id,
         entity.User!.Username, 
         entity.User.PasswordHash, 
-        entity.User!.Credential.ToString(),
+        entity.User!.Credential,
         entity.User!.SupervisedGroup);
 
     PositionDTO? position = null;

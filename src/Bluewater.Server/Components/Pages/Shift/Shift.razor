@@ -10,14 +10,14 @@
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
 
-<PageTitle>Shifts and Schedules</PageTitle>
+<PageTitle>Shifts</PageTitle>
 
-<h3>Shifts and Schedules</h3>
+<h3>Shifts</h3>
 
 
 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Bottom">
     <div>
-        <FluentTextField @bind-Value="InputShift!.Name" Name="shiftName" Label="Shift name" Required />
+        <FluentTextField @bind-Value="InputShift!.Name" Name="shiftName" Label="Shift name" Required Style="width: 300px" />
     </div>
     <div>
         <FluentTimePicker Value="@InputShift.ShiftStartTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftStartTime = e.ToTimeOnly())" Name="shiftStart" Label="Shift start time" Required />

@@ -1,5 +1,6 @@
 using Bluewater.Core.EmployeeAggregate.Enum;
 using Bluewater.Core.UserAggregate.Enum;
+using Bluewater.UseCases.Shifts;
 
 namespace Bluewater.Server.Components.Pages.Employee;
 
@@ -67,11 +68,19 @@ public record EmployeeFormDTO()
     public Guid SectionId { get; set; }
     public Guid DepartmentId { get; set; }
     public Guid DivisionId { get; set; }
-
-    public Guid PayId { get; set; }
     public Guid TypeId { get; set; }
     public Guid LevelId { get; set; }
     public Guid ChargingId { get; set; }
+
+    // weekly schedule
+    public ShiftDTO? SundayShift { get; set; }
+    public  ShiftDTO? MondayShift { get; set; }
+    public ShiftDTO? TuesdayShift { get; set; }
+    public ShiftDTO? WednesdayShift { get; set; }
+    public ShiftDTO? ThursdayShift { get; set; }
+    public ShiftDTO? FridayShift { get; set; }
+    public ShiftDTO? SaturdayShift { get; set; }
+    public IEnumerable<ShiftDTO> DefaultShifts { get { return new List<ShiftDTO> { SundayShift!, MondayShift!, TuesdayShift!, WednesdayShift!, ThursdayShift!, FridayShift!, SaturdayShift! }; } }
 
     public EmployeeFormDTO(string? firstName, string? lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, 
         string? email, string? telNumber, string? mobileNumber, string? address, string? provincialAddress, string? mothersMaidenName, string? fathersName, string? emergencyContact, string? relationshipContact, string? addressContact, string? telNoContact, string? mobileNoContact, 
@@ -79,7 +88,8 @@ public record EmployeeFormDTO()
         DateTime? dateHired, DateTime? dateRegularized, DateTime? dateResigned, DateTime? dateTerminated, string? tinNo, string? sssNo, string? hdmfNo, string? phicNo, string? bankAccount, bool hasServiceCharge,
         decimal? basicPay, decimal? dailyRate, decimal? hourlyRate, decimal? hdmf_con, decimal? hdmf_er, 
         string? username, string? password, Credential credential, Guid? supervisedGroup, 
-        Guid positionId, Guid sectionId, Guid departmentId, Guid divisionId, Guid payId, Guid typeId, Guid levelId, Guid chargingId) : this()
+        Guid positionId, Guid sectionId, Guid departmentId, Guid divisionId, Guid typeId, Guid levelId, Guid chargingId,
+        ShiftDTO? sunday = null, ShiftDTO? monday = null, ShiftDTO? tuesday = null, ShiftDTO? wednesday = null, ShiftDTO? thursday = null, ShiftDTO? friday = null, ShiftDTO? saturday = null) : this()
     {
         FirstName = firstName;
         LastName = lastName;
@@ -131,9 +141,15 @@ public record EmployeeFormDTO()
         SectionId = sectionId;
         DepartmentId = departmentId;
         DivisionId = divisionId;
-        PayId = payId;
         TypeId = typeId;
         LevelId = levelId;
         ChargingId = chargingId;
+        SundayShift = sunday;
+        MondayShift = monday;
+        TuesdayShift = tuesday;
+        WednesdayShift = wednesday;
+        ThursdayShift = thursday;
+        FridayShift = friday;
+        SaturdayShift = saturday;
     }
 }

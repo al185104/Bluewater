@@ -14,6 +14,7 @@
 @using Bluewater.UseCases.Levels;
 
 @using Bluewater.Server.Global;
+@using Bluewater.UseCases.Shifts
 @inject IGlobalService GlobalService
 
 @implements IDialogContentComponent<EmployeeFormDTO>
@@ -32,6 +33,7 @@
                 Label="Gender"
                 Items="@genderOptions"
                 OptionText="@(o => o.Description)"
+                @bind-SelectedOption="@selectedGender"
                 Style="width: 100%" 
                 @onchange=HandleGenderSelected>
             </FluentSelect>
@@ -42,6 +44,7 @@
                 Label="Civil Status"
                 Items="@civilStatusOptions"
                 OptionText="@(o => o.Description)"
+                @bind-SelectedOption="@selectedCivilStatus"
                 Style="width: 100%" 
                 @onchange=HandleCivilStatusSelected>
             </FluentSelect>
@@ -52,6 +55,7 @@
                 Label="Blood Type"
                 Items="@bloodTypeOptions"
                 OptionText="@(o => o.Description)"
+                @bind-SelectedOption="@selectedBloodType"
                 Style="width: 100%" 
                 @onchange=HandleBloodTypeSelected>
             </FluentSelect>
@@ -62,6 +66,7 @@
                 Label="Employment Status"
                 Items="@employmentStatusOptions"
                 OptionText="@(o => o.Description)"
+                @bind-SelectedOption="@selectedEmploymentStatus"
                 Style="width: 100%" 
                 @onchange=HandleEmploymentStatusSelected>
             </FluentSelect>
@@ -110,9 +115,9 @@
                 Label="Type"
                 Items="@employeeTypes"
                 OptionText="@(o => o.Name)"
-                OptionValue="@(o => o.Id.ToString())"
+                @bind-SelectedOption="@selectedEmployeeType"
                 Style="width: 100%" 
-                bind-SelectedOption="@Content.TypeId">
+                @onchange=HandleEmployeeTypesSelected>
             </FluentSelect>
         </FluentGridItem>
         <FluentGridItem xs="6">
@@ -120,9 +125,9 @@
                 Label="Levels"
                 Items="@levels"
                 OptionText="@(o => o.Name)"
-                OptionValue="@(o => o.Id.ToString())"
+                @bind-SelectedOption="@selectedLevel"
                 Style="width: 100%" 
-                bind-SelectedOption="@Content.LevelId">
+                @onchange=HandleLevelsSelected>
             </FluentSelect>
         </FluentGridItem>
         <FluentGridItem xs="6">
@@ -130,9 +135,9 @@
                 Label="Positions"
                 Items="@positions"
                 OptionText="@(o => o.Name)"
-                OptionValue="@(o => o.Id.ToString())"
+                @bind-SelectedOption="@selectedPosition"
                 Style="width: 100%" 
-                bind-SelectedOption="@Content.PositionId">
+                @onchange=HandlePositionsSelected>
             </FluentSelect>
         </FluentGridItem>  
         <FluentGridItem xs="6">
@@ -140,9 +145,9 @@
                 Label="Chargings"
                 Items="@chargings"
                 OptionText="@(o => o.Name)"
-                OptionValue="@(o => o.Id.ToString())"
+                @bind-SelectedOption="@selectedCharging"
                 Style="width: 100%" 
-                bind-SelectedOption="@Content.ChargingId">
+                @onchange=HandleChargingsSelected>
             </FluentSelect>
         </FluentGridItem>                
 
@@ -163,6 +168,79 @@
         <FluentGridItem xs="6"><FluentNumberField Label="HDMF Er" @bind-Value="@Content.HDMF_Er" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"></FluentGridItem>
 
+        <FluentGridItem xs="12"><h4>Default Schedule</h4></FluentGridItem>
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Sunday Shift"
+                Items="@shifts"
+                Placeholder="Select default Sunday shift"
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.SundayShift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Monday Shift"
+                Items="@shifts"
+                Placeholder="Select default Monday shift"                
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.MondayShift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Tuesday Shift"
+                Items="@shifts"
+                Placeholder="Select default Tuesday shift"
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.TuesdayShift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>   
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Wednesday Shift"
+                Items="@shifts"
+                Placeholder="Select default Wednesday shift"
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.WednesdayShift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>   
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Thursday Shift"
+                Items="@shifts"
+                Placeholder="Select default Thursday shift"
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.ThursdayShift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Friday Shift"
+                Items="@shifts"
+                Placeholder="Select default Friday shift"
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.FridayShift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Saturday Shift"
+                Items="@shifts"
+                Placeholder="Select default Saturday shift"
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.SaturdayShift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>
+
+
         <FluentGridItem xs="12"><h4>Login credentials</h4></FluentGridItem>
         <FluentGridItem xs="6"><FluentTextField Label="Username" @bind-Value="@Content.Username" required Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"><FluentTextField Label="Password" @bind-Value="@Content.Password" required Style="width: 100%" /></FluentGridItem>
@@ -172,6 +250,7 @@
                 Label="Credentials"
                 Items="@credentialsOptions"
                 OptionText="@(o => o.Description)"
+                @bind-SelectedOption="@selectedCredential"
                 Style="width: 100%" 
                 @onchange=HandleCredentialsSelected>
             </FluentSelect>
@@ -184,21 +263,32 @@
 @code{
     [Parameter]
     public EmployeeFormDTO Content { get; set; } = default!;
-
     private List<EnumOption> genderOptions = new();
+    private EnumOption selectedGender = new(null, null);
     private List<EnumOption> civilStatusOptions = new();
+    private EnumOption selectedCivilStatus = new(null, null);
     private List<EnumOption> bloodTypeOptions = new();
+    private EnumOption selectedBloodType = new(null, null);
     private List<EnumOption> educationalAttainmentOptions = new();
+    private EnumOption selectedEducationalAttainment = new(null, null);
     private List<EnumOption> employmentStatusOptions = new();
+    private EnumOption selectedEmploymentStatus = new(null, null);
     private List<EnumOption> credentialsOptions = new();
+    private EnumOption selectedCredential = new(null, null);
 
     private List<PositionDTO> positions = new();
+    private PositionDTO selectedPosition = new();
     private List<SectionDTO> sections = new();
     private List<DepartmentDTO> departments = new();
     private List<DivisionDTO> divisions = new();
     private List<ChargingDTO> chargings = new();
+    private ChargingDTO selectedCharging = new();
     private List<EmployeeTypeDTO> employeeTypes = new();
+    private EmployeeTypeDTO selectedEmployeeType = new();
     private List<LevelDTO> levels = new();
+    private LevelDTO selectedLevel = new();
+    private List<ShiftDTO> shifts = new();
+
 
     bool isFirstLoad = false;
 
@@ -222,14 +312,39 @@
             chargings = GlobalService.Chargings.ToList() ?? new List<ChargingDTO>();
             employeeTypes = GlobalService.EmployeeTypes.ToList() ?? new List<EmployeeTypeDTO>();
             levels = GlobalService.Levels.ToList() ?? new List<LevelDTO>();
+            shifts = GlobalService.Shifts.ToList() ?? new List<ShiftDTO>();
 
-            Content.PositionId = positions.FirstOrDefault()?.Id ?? Guid.Empty;
-            Content.SectionId = sections.FirstOrDefault(i => i.Id == Content.PositionId)?.Id ?? Guid.Empty;
-            Content.DepartmentId = departments.FirstOrDefault(i => i.Id == Content.SectionId)?.Id ?? Guid.Empty;
-            Content.DivisionId = divisions.FirstOrDefault(i => i.Id == Content.DepartmentId)?.Id ?? Guid.Empty;
-            Content.ChargingId = chargings.FirstOrDefault()?.Id ?? Guid.Empty;
-            Content.TypeId = employeeTypes.FirstOrDefault()?.Id ?? Guid.Empty;
-            Content.LevelId = levels.FirstOrDefault()?.Id ?? Guid.Empty;
+            if(Content.PositionId == Guid.Empty)
+                Content.PositionId = positions.FirstOrDefault()?.Id ?? Guid.Empty;
+            selectedPosition = positions.FirstOrDefault(i => i.Id == Content.PositionId) ?? new PositionDTO();
+            
+            if(Content.SectionId == Guid.Empty)
+                Content.SectionId = sections.FirstOrDefault(i => i.Id == Content.PositionId)?.Id ?? Guid.Empty;
+            if(Content.DepartmentId == Guid.Empty)
+                Content.DepartmentId = departments.FirstOrDefault(i => i.Id == Content.SectionId)?.Id ?? Guid.Empty;
+            if(Content.DivisionId == Guid.Empty)
+                Content.DivisionId = divisions.FirstOrDefault(i => i.Id == Content.DepartmentId)?.Id ?? Guid.Empty;
+            
+            if(Content.ChargingId == Guid.Empty)
+                Content.ChargingId = chargings.FirstOrDefault()?.Id ?? Guid.Empty;
+            selectedCharging = chargings.FirstOrDefault(i => i.Id == Content.ChargingId) ?? new ChargingDTO();
+
+            if(Content.TypeId == Guid.Empty)
+                Content.TypeId = employeeTypes.FirstOrDefault()?.Id ?? Guid.Empty;
+            selectedEmployeeType = employeeTypes.FirstOrDefault(i => i.Id == Content.TypeId) ?? new EmployeeTypeDTO();
+
+            if(Content.LevelId == Guid.Empty)
+                Content.LevelId = levels.FirstOrDefault()?.Id ?? Guid.Empty;
+            selectedLevel = levels.FirstOrDefault(i => i.Id == Content.LevelId) ?? new LevelDTO();
+
+            selectedGender = genderOptions.FirstOrDefault(i => (Gender)(i.Value ?? Gender.NotSet)  == Content.Gender) ?? new EnumOption(null, null);
+            selectedCivilStatus = civilStatusOptions.FirstOrDefault(i => (CivilStatus)(i.Value ?? CivilStatus.NotSet) == Content.CivilStatus) ?? new EnumOption(null, null);
+            selectedBloodType = bloodTypeOptions.FirstOrDefault(i => (BloodType)(i.Value ?? BloodType.NotSet) == Content.BloodType) ?? new EnumOption(null, null);
+            selectedEducationalAttainment = educationalAttainmentOptions.FirstOrDefault(i => (EducationalAttainment)(i.Value ?? EducationalAttainment.NotSet) == Content.EducationalAttainment) ?? new EnumOption(null, null);
+            selectedEmploymentStatus = employmentStatusOptions.FirstOrDefault(i => (Status)(i.Value ?? Status.NotSet) == Content.Status) ?? new EnumOption(null, null);
+            selectedCredential = credentialsOptions.FirstOrDefault(i => (Credential)(i.Value ?? Credential.None) == Content.Credential) ?? new EnumOption(null, null);
+
+            // need to setup the week shifts
         }
         return Task.CompletedTask;
     }
@@ -307,7 +422,7 @@
 
     public void HandleEmploymentStatusSelected(ChangeEventArgs changeEventArgs)
     {
-        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim().Replace(" ", "").Replace("/", "_");
 
         if(string.IsNullOrWhiteSpace(stringValue) || stringValue == "-1" || stringValue == "Not Set")
             Content.Status = Status.NotSet;
@@ -329,43 +444,35 @@
     {
         var stringValue = changeEventArgs.Value?.ToString()!.Trim();
 
-        var employeeType = employeeTypes.FirstOrDefault(x => x.Name == stringValue);
+        var employeeType = employeeTypes.FirstOrDefault(x => x.Name.Equals(stringValue, StringComparison.InvariantCultureIgnoreCase));
         if(employeeType != null)
-        {
             Content.TypeId = employeeType.Id;
-        }
     }
 
     public void HandleLevelsSelected(ChangeEventArgs changeEventArgs)
     {
         var stringValue = changeEventArgs.Value?.ToString()!.Trim();
 
-        var level = levels.FirstOrDefault(x => x.Name == stringValue);
+        var level = levels.FirstOrDefault(x => x.Name.Equals(stringValue, StringComparison.InvariantCultureIgnoreCase));
         if(level != null)
-        {
             Content.LevelId = level.Id;
-        }
     }
 
     public void HandlePositionsSelected(ChangeEventArgs changeEventArgs)
     {
         var stringValue = changeEventArgs.Value?.ToString()!.Trim();
 
-        var position = positions.FirstOrDefault(x => x.Name == stringValue);
+        var position = positions.FirstOrDefault(x => x.Name.Equals(stringValue, StringComparison.InvariantCultureIgnoreCase));
         if(position != null)
-        {
             Content.PositionId = position.Id;
-        }
     }
 
     public void HandleChargingsSelected(ChangeEventArgs changeEventArgs)
     {
         var stringValue = changeEventArgs.Value?.ToString()!.Trim();
 
-        var charging = chargings.FirstOrDefault(x => x.Name == stringValue);
+        var charging = chargings.FirstOrDefault(x => x.Name.Equals(stringValue, StringComparison.InvariantCultureIgnoreCase)); 
         if(charging != null)
-        {
             Content.ChargingId = charging.Id;
-        }
     }
 }

@@ -205,9 +205,13 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
         .OnDelete(DeleteBehavior.Restrict);
 
     // User Relationship (Assuming one-to-one with User entity)
+    // builder.HasOne(e => e.User)
+    //     .WithOne(u => u.Employee)
+    //     .HasForeignKey<User>(u => u.EmployeeId)
+    //     .OnDelete(DeleteBehavior.Restrict);
     builder.HasOne(e => e.User)
-        .WithOne(u => u.Employee)
-        .HasForeignKey<User>(u => u.EmployeeId)
+        .WithMany()
+        .HasForeignKey("UserId") // Shadow property if UserId is not in Employee
         .OnDelete(DeleteBehavior.Restrict);
 
     // Collections Configuration

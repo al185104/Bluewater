@@ -1,5 +1,6 @@
 using Bluewater.Core.EmployeeAggregate.Enum;
 using Bluewater.UseCases.Pays;
+using Bluewater.UseCases.Users;
 
 namespace Bluewater.UseCases.Employees;
 
@@ -98,28 +99,22 @@ public record EmploymentInfoDTO(
     string? TinNo,
     string? SssNo,
     string? PagibigNo,
-    string? PhilHealthNo
+    string? PhilHealthNo,
+    string? BankAccount,
+    bool HasServiceCharge
 );
 
-public record UserDTO(){
-    public string? Username { get; set; }
-    public string? Password { get; set; }
-    public string? Credential { get; set; }
-    public Guid? SupervisedGroup { get; set; }
+// public record UserDTO(){
+//     public string? Username { get; set; }
+//     public string? Password { get; set; }
+//     public string? Credential { get; set; }
+//     public Guid? SupervisedGroup { get; set; }
 
-    public UserDTO(string? username, string? password, string? credential, Guid? supervisedGroup) : this()
-    {
-        Username = username;
-        Password = password;
-        Credential = credential;
-        SupervisedGroup = supervisedGroup;
-    }
-};
-
-// public record PayDTO(
-//     decimal? BasicPay,
-//     decimal? DailyRate,
-//     decimal? HourlyRate,
-//     decimal? HDMF_Con,
-//     decimal? HDMF_Er
-// );
+//     public UserDTO(string? username, string? password, string? credential, Guid? supervisedGroup) : this()
+//     {
+//         Username = username;
+//         Password = password;
+//         Credential = credential;
+//         SupervisedGroup = supervisedGroup;
+//     }
+// };

@@ -15,10 +15,9 @@ public class User(string username, string passwordHash, Credential? credential, 
   public DateTime UpdatedDate { get; private set; } = DateTime.Now;
   public Guid UpdateBy { get; private set; } = Guid.Empty;
 
-  // Foreign Key
-  public Guid EmployeeId { get; set; }
   // Navigation Property
-  public virtual Employee Employee { get; set; } = null!;
+  // public virtual Employee Employee { get; set; } = null!;
+  public virtual ICollection<Employee>? Employees { get; private set; }
 
   public User() : this(string.Empty, string.Empty, Credential.None, null) { }
 

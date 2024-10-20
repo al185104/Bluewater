@@ -1,0 +1,121 @@
+@page "/schedule"
+@rendermode InteractiveServer
+
+@using Bluewater.UseCases.Schedules
+@using Bluewater.UseCases.Schedules.List
+@using MediatR
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+
+<PageTitle>Schedules</PageTitle>
+
+<h3>Schedules</h3>
+
+<FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
+    <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadScheduleAsync(searchDate = searchDate.AddDays(-7)))"/>
+    <FluentStack VerticalAlignment="VerticalAlignment.Center" HorizontalAlignment="HorizontalAlignment.Left">
+        <h5 style="margin: 0;">from  @startDate.ToString("MMM-dd")  to  @endDate.ToString("MMM-dd")</h5>
+    </FluentStack>
+    <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadScheduleAsync(searchDate = searchDate.AddDays(7)))"/>
+</FluentStack>
+
+<FluentDataGrid Items="@EmployeeSchedules">
+    <PropertyColumn Title="Employee" Property="@(p => p.Name)" />
+
+    @foreach(var day in Enumerable.Range(0, 7))
+    {
+        <PropertyColumn Title="@GetColumnTitle(day)" Property="@(p => p.Shifts[day].Shift.Name)" />
+    }
+    <TemplateColumn Title="Actions" Align="@Align.End">
+        <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteScheduleAsync(context))"/>
+    </TemplateColumn>
+</FluentDataGrid>
+
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
+
+@code{
+    private bool isBusy = false;
+    public IQueryable<EmployeeScheduleDTO> EmployeeSchedules { get; set; } = default!;
+    private DateTime searchDate = DateTime.Now;
+    private DateOnly startDate;
+    private DateOnly endDate;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            isBusy = true;
+            await LoadScheduleAsync(searchDate);
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    async Task LoadScheduleAsync(DateTime date)
+    {
+        try 
+        {
+            isBusy = true;
+            var (_startDate, _endDate) = GetStartDateAndEndDateOfCurrentWeek(date);
+            startDate = _startDate;
+            endDate = _endDate;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListScheduleQuery(null, null, _startDate, _endDate));
+                if (result.IsSuccess){
+                    EmployeeSchedules = default!;
+                    EmployeeSchedules = result.Value.AsQueryable();
+                }
+            }
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfCurrentWeek(DateTime date)
+    {
+        var today = DateOnly.FromDateTime(date);
+        var dayOfWeek = (int)today.DayOfWeek;
+        var startDate = today.AddDays(-dayOfWeek);
+        var endDate = startDate.AddDays(6);
+        return (startDate, endDate);
+    }
+
+    private string GetColumnTitle(int day)
+    {
+        DateTime today = searchDate;
+        // Calculate the start of the week (Sunday)
+        DateTime startOfWeek = today.AddDays(-(int)today.DayOfWeek);
+        DateTime targetDate = startOfWeek.AddDays(day);
+
+        return $"{targetDate.ToString("MM/dd")} ({targetDate.DayOfWeek.ToString()[..3]})";
+    }    
+
+
+    private async Task EditScheduleAsync(EmployeeScheduleDTO context)
+    {
+        //await NavigationManager.NavigateTo($"/employee/{context.Id}");
+        await Task.Delay(100);
+    }
+
+    private async Task DeleteScheduleAsync(EmployeeScheduleDTO context)
+    {
+        //await NavigationManager.NavigateTo($"/employee/{context.Id}");
+        await Task.Delay(100);
+    }
+}
+

@@ -20,6 +20,7 @@ using Bluewater.UseCases.Pays.Get;
 
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Bluewater.UseCases.Users;
 
 namespace Bluewater.UseCases.Employees.Update;
 public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceScopeFactory _serviceScopeFactory) : ICommandHandler<UpdateEmployeeCommand, Result<EmployeeDTO>>
@@ -109,25 +110,17 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
         existingEmployee.EmploymentInfo!.TINNo,
         existingEmployee.EmploymentInfo!.SSSNo,
         existingEmployee.EmploymentInfo!.HDMFNo,
-        existingEmployee.EmploymentInfo!.PHICNo
+        existingEmployee.EmploymentInfo!.PHICNo,
+        existingEmployee.EmploymentInfo!.BankAccount,
+        existingEmployee.EmploymentInfo!.HasServiceCharge
     );
 
     var user = new UserDTO(
+        existingEmployee.User!.Id,
         existingEmployee.User!.Username, 
         existingEmployee.User.PasswordHash, 
-        existingEmployee.User!.Credential.ToString(),
+        existingEmployee.User!.Credential,
         existingEmployee.User!.SupervisedGroup);
-
-    // UserDTO? user = null;
-    // using (var scope = _serviceScopeFactory.CreateScope())
-    // {
-    //     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-    //     var result = await mediator.Send(new GetUserQuery(existingEmployee.UserId), cancellationToken);
-    //     if (result.IsSuccess)
-    //         user = new UserDTO(result.Value.Username, result.Value.PasswordHash, result.Value.Credential.ToString(), result.Value.SupervisedGroup);
-    //     else
-    //         user = new UserDTO(string.Empty, string.Empty, string.Empty, string.Empty);
-    // }
 
     PositionDTO? position = null;
     using (var scope = _serviceScopeFactory.CreateScope())

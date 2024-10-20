@@ -17,6 +17,9 @@ using Bluewater.UseCases.Sections;
 using Bluewater.UseCases.Sections.Get;
 using Bluewater.UseCases.Pays;
 using Bluewater.UseCases.Pays.Get;
+using Bluewater.UseCases.Users;
+using Bluewater.UseCases.Users.Get;
+
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,7 +31,7 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
   {
     var employees = await _repository.ListAsync(cancellationToken);
 
-    IEnumerable<EmployeeDTO> _employees = new List<EmployeeDTO>();
+    List<EmployeeDTO> _employees = new List<EmployeeDTO>();
 
     foreach(var entity in employees)
     {
@@ -61,14 +64,21 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
             entity.EmploymentInfo!.TINNo,
             entity.EmploymentInfo!.SSSNo,
             entity.EmploymentInfo!.HDMFNo,
-            entity.EmploymentInfo!.PHICNo
+            entity.EmploymentInfo!.PHICNo,
+            entity.EmploymentInfo!.BankAccount,
+            entity.EmploymentInfo!.HasServiceCharge
         );
 
-        var user = new UserDTO(
-            entity.User!.Username, 
-            entity.User.PasswordHash, 
-            entity.User!.Credential.ToString(),
-            entity.User!.SupervisedGroup);
+        UserDTO? user = null;
+        using (var scope = _serviceScopeFactory.CreateScope())
+        {
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            var result = await mediator.Send(new GetUserQuery(entity.UserId), cancellationToken);
+            if (result.IsSuccess)
+                user = new UserDTO(result.Value.Id, result.Value.Username, result.Value.PasswordHash, result.Value.Credential, result.Value.SupervisedGroup);
+            else
+                user = new UserDTO(Guid.Empty, string.Empty, string.Empty, Core.UserAggregate.Enum.Credential.None, Guid.Empty);
+        }
 
         PositionDTO? position = null;
         using (var scope = _serviceScopeFactory.CreateScope())
@@ -125,13 +135,6 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
                 charging = new ChargingDTO(Guid.Empty, string.Empty, string.Empty);
         }
 
-        // var pay = new PayDTO(
-        //     entity.Pay!.BasicPay,
-        //     entity.Pay!.DailyRate,
-        //     entity.Pay!.HourlyRate,
-        //     entity.Pay!.HDMF_Con,
-        //     entity.Pay!.HDMF_Er
-        // );
         PayDTO? pay = null;
         using (var scope = _serviceScopeFactory.CreateScope())
         {
@@ -165,7 +168,7 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
                 level = new LevelDTO(Guid.Empty, string.Empty, string.Empty);
         }
 
-        _employees.Append(new EmployeeDTO(
+        _employees.Add(new EmployeeDTO(
             entity.Id,
             entity.FirstName,
             entity.LastName,
@@ -194,6 +197,6 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
         ));
     }
 
-    return Result.Success(_employees);
+    return Result.Success(_employees.AsEnumerable());
   }
 }
