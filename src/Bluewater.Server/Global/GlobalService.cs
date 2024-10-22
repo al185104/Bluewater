@@ -23,7 +23,6 @@ namespace Bluewater.Server.Global;
 
 public class GlobalService : IGlobalService
 {
-    public string ErrorMessage { get; set; } = "WEEEEE";
     public List<DivisionDTO> Divisions { get; set; } = new();
     public List<DepartmentDTO> Departments { get; set; } = new();
     public List<SectionDTO> Sections { get; set; } = new();
@@ -42,6 +41,7 @@ public class GlobalService : IGlobalService
         Mediator = mediator;
     }
 
+    # region Public Methods
     public async Task LoadDataAsync()
     {
         try
@@ -67,6 +67,16 @@ public class GlobalService : IGlobalService
             throw;
         }
     }
+
+    public (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfWeekByDate(DateTime date)
+    {
+        var today = DateOnly.FromDateTime(date);
+        var dayOfWeek = (int)today.DayOfWeek;
+        var startDate = today.AddDays(-dayOfWeek);
+        var endDate = startDate.AddDays(6);
+        return (startDate, endDate);
+    }    
+    #endregion
 
     #region Load Data
     private async Task LoadShifts()

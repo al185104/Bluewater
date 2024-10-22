@@ -1,11 +1,23 @@
 using Bluewater.UseCases.Shifts;
 
 namespace Bluewater.UseCases.Schedules;
-public record EmployeeScheduleDTO(Guid EmployeeId, string Name, List<ShiftInfo> Shifts);
+public record EmployeeScheduleDTO()
+{
+    public Guid EmployeeId { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public List<ShiftInfo> Shifts { get; set; } = new();
+    public EmployeeScheduleDTO(Guid employeeId, string name, List<ShiftInfo> shifts) : this()
+    {
+        EmployeeId = employeeId;
+        Name = name;
+        Shifts = shifts;
+    }
+}
 
 public class ShiftInfo
 {
+    public Guid ScheduleId { get; set; }
     public ShiftDTO Shift { get; set; } = null!;
     public DateOnly ScheduleDate { get; set; }
-    public bool IsDefault { get; set; }
+    public bool IsDefault { get; set; } = false;
 }

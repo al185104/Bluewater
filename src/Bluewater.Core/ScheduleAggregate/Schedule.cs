@@ -18,8 +18,8 @@ public class Schedule(Guid employeeId, Guid shiftId, DateOnly scheduleDate, bool
     public Guid UpdateBy { get; private set; } = Guid.Empty;
 
     // virtual properties
-    public virtual Employee Employee { get; private set; } = null!;
-    public virtual Shift Shift { get; private set; } = null!;
+    public virtual Employee Employee { get; set; } = null!;
+    public virtual Shift Shift { get; set; } = null!;
     public Schedule() : this(Guid.Empty, Guid.Empty, DateOnly.MinValue, false) {}
 
     public void UpdateSchedule(Guid employeeId, Guid shiftId, DateOnly scheduleDate, bool isDefault)

@@ -1,0 +1,109 @@
+@using Bluewater.Server.Components.Pages.Schedule;
+
+@using Bluewater.Server.Global;
+@using Bluewater.UseCases.Schedules;
+@using Bluewater.UseCases.Shifts;
+@inject IGlobalService GlobalService;
+@implements IDialogContentComponent<ScheduleFormDTO>
+
+<FluentDialogBody OnAfterRenderAsync="@InitializeDialogAsync()">
+    <FluentGrid Spacing="2">
+        <FluentGridItem xs="12"><h4>Override Schedule</h4></FluentGridItem> 
+        <FluentGridItem xs="6"><h5 style="text-align: left;">@Content.Name</h5></FluentGridItem>
+        <FluentGridItem xs="6"><h5 style="text-align: right;">@GetWeekString()</h5></FluentGridItem>
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Sunday Shift"
+                Items="@shifts"
+                Placeholder="Select override Sunday shift"
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.SundayShift!.Shift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Monday Shift"
+                Items="@shifts"
+                Placeholder="Select override Monday shift"                
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.MondayShift!.Shift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Tuesday Shift"
+                Items="@shifts"
+                Placeholder="Select override Tuesday shift"
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.TuesdayShift!.Shift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>   
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Wednesday Shift"
+                Items="@shifts"
+                Placeholder="Select override Wednesday shift"
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.WednesdayShift!.Shift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>   
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Thursday Shift"
+                Items="@shifts"
+                Placeholder="Select override Thursday shift"
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.ThursdayShift!.Shift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Friday Shift"
+                Items="@shifts"
+                Placeholder="Select override Friday shift"
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.FridayShift!.Shift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="12">
+            <FluentSelect TOption="ShiftDTO"
+                Label="Saturday Shift"
+                Items="@shifts"
+                Placeholder="Select override Saturday shift"
+                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                @bind-SelectedOption="@Content.SaturdayShift!.Shift"
+                Style="width: 100%">
+            </FluentSelect>
+        </FluentGridItem>
+    </FluentGrid>
+</FluentDialogBody>
+
+
+@code{
+    [Parameter]
+    public ScheduleFormDTO Content { get; set; } = default!;
+    private List<ShiftDTO> shifts = new();
+    bool isFirstLoad = false;
+
+    private Task InitializeDialogAsync()
+    {
+        if (!isFirstLoad)
+        {
+            isFirstLoad = true;
+            shifts = GlobalService.Shifts.ToList() ?? new List<ShiftDTO>();
+        }
+        return Task.CompletedTask;
+    }
+
+    private string GetWeekString()
+    {
+        var (startDate, endDate) = GlobalService.GetStartDateAndEndDateOfWeekByDate(new DateTime(Content.SundayShift!.ScheduleDate.Year, Content.SundayShift!.ScheduleDate.Month, Content.SundayShift!.ScheduleDate.Day));
+        return $"{startDate.ToString("MMM/dd")} - {endDate.ToString("MMM/dd")}";
+    }
+}

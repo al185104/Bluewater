@@ -1,3 +1,6 @@
+using Bluewater.Core.ShiftAggregate;
+using Bluewater.UseCases.Shifts;
+
 namespace Bluewater.UseCases.Schedules;
 public record ScheduleDTO()
 {
@@ -8,7 +11,10 @@ public record ScheduleDTO()
     public DateOnly ScheduleDate { get; private set; }
     public bool IsDefault { get; private set; }
 
-  public ScheduleDTO(Guid id, string name, Guid employeeId, Guid shiftId, DateOnly scheduleDate, bool isDefault) : this()
+    // virtual properties
+    public ShiftDTO? Shift { get; private set; }
+
+  public ScheduleDTO(Guid id, string name, Guid employeeId, Guid shiftId, DateOnly scheduleDate, bool isDefault, ShiftDTO? shift = null) : this()
   {
     Id = id;
     EmployeeId = employeeId;
@@ -16,5 +22,6 @@ public record ScheduleDTO()
     ShiftId = shiftId;
     ScheduleDate = scheduleDate;
     IsDefault = isDefault;
+    Shift = shift;
   }
 }

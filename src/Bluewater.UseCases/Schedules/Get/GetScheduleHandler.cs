@@ -2,13 +2,15 @@ using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.EmployeeAggregate;
 using Bluewater.Core.ScheduleAggregate;
+using Bluewater.Core.ScheduleAggregate.Specifications;
 
 namespace Bluewater.UseCases.Schedules.Get;
 public class GetScheduleHandler(IRepository<Schedule> _schedRepository, IRepository<Employee> _empRepository) : IQueryHandler<GetScheduleQuery, Result<ScheduleDTO>>
 {
   public async Task<Result<ScheduleDTO>> Handle(GetScheduleQuery request, CancellationToken cancellationToken)
   {
-    var schedResult = await _schedRepository.GetByIdAsync(request.ScheduleId, cancellationToken);
+    var spec = new ScheduleByIdSpec(request.ScheduleId);
+    var schedResult = await _schedRepository.FirstOrDefaultAsync(spec, cancellationToken);
     if (schedResult == null) Result.NotFound();
 
     var empResult = await _empRepository.GetByIdAsync(schedResult!.EmployeeId, cancellationToken);

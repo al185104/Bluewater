@@ -1,11 +1,15 @@
 using Bluewater.Core.EmployeeAggregate.Enum;
 using Bluewater.Core.UserAggregate.Enum;
+using Bluewater.UseCases.Schedules;
 using Bluewater.UseCases.Shifts;
 
 namespace Bluewater.Server.Components.Pages.Employee;
 
 public record EmployeeFormDTO()
 {
+    public Guid Id { get; init; }
+    
+    //personal info
     public string? FirstName { get; set; }
     public string? LastName { get; set; }
     public string? MiddleName { get; set; }
@@ -51,6 +55,7 @@ public record EmployeeFormDTO()
     public bool HasServiceCharge { get; set; }
 
     //pay info
+    public Guid? PayId { get; set; }
     public decimal? BasicPay { get; set; }
     public decimal? DailyRate { get; set; }
     public decimal? HourlyRate { get; set; }
@@ -58,6 +63,7 @@ public record EmployeeFormDTO()
     public decimal? HDMF_Er { get; set; } = 200;
 
     //user info
+    public Guid? UserId { get; set; }
     public string? Username { get; set; }
     public string? Password { get; set; }
     public Credential Credential { get; set; }
@@ -73,24 +79,69 @@ public record EmployeeFormDTO()
     public Guid ChargingId { get; set; }
 
     // weekly schedule
-    public ShiftDTO? SundayShift { get; set; }
-    public  ShiftDTO? MondayShift { get; set; }
-    public ShiftDTO? TuesdayShift { get; set; }
-    public ShiftDTO? WednesdayShift { get; set; }
-    public ShiftDTO? ThursdayShift { get; set; }
-    public ShiftDTO? FridayShift { get; set; }
-    public ShiftDTO? SaturdayShift { get; set; }
-    public IEnumerable<ShiftDTO> DefaultShifts { get { return new List<ShiftDTO> { SundayShift!, MondayShift!, TuesdayShift!, WednesdayShift!, ThursdayShift!, FridayShift!, SaturdayShift! }; } }
+    public ScheduleDTO? SundaySchedule { get; set; } 
+    public ScheduleDTO? MondaySchedule { get; set; }
+    public ScheduleDTO? TuesdaySchedule { get; set; }
+    public ScheduleDTO? WednesdaySchedule { get; set; }
+    public ScheduleDTO? ThursdaySchedule { get; set; }
+    public ScheduleDTO? FridaySchedule { get; set; }
+    public ScheduleDTO? SaturdaySchedule { get; set; }
+    private ShiftDTO? _sundayShift;
+    public ShiftDTO? SundayShift
+    {
+        get => SundaySchedule?.Shift ?? _sundayShift;
+        set => _sundayShift = value;
+    }
+    private ShiftDTO? _mondayShift;
+    public ShiftDTO? MondayShift
+    {
+        get => MondaySchedule?.Shift ?? _mondayShift;
+        set => _mondayShift = value;
+    }
+    private ShiftDTO? _tuesdayShift;
+    public ShiftDTO? TuesdayShift
+    {
+        get => TuesdaySchedule?.Shift ?? _tuesdayShift;
+        set => _tuesdayShift = value;
+    }
+    private ShiftDTO? _wednesdayShift;
+    public ShiftDTO? WednesdayShift
+    {
+        get => WednesdaySchedule?.Shift ?? _wednesdayShift;
+        set => _wednesdayShift = value;
+    }
+    private ShiftDTO? _thursdayShift;
+    public ShiftDTO? ThursdayShift
+    {
+        get => ThursdaySchedule?.Shift ?? _thursdayShift;
+        set => _thursdayShift = value;
+    }
+    private ShiftDTO? _fridayShift;
+    public ShiftDTO? FridayShift
+    {
+        get => FridaySchedule?.Shift ?? _fridayShift;
+        set => _fridayShift = value;
+    }
+    private ShiftDTO? _saturdayShift;
+    public ShiftDTO? SaturdayShift
+    {
+        get => SaturdaySchedule?.Shift ?? _saturdayShift;
+        set => _saturdayShift = value;
+    }
 
-    public EmployeeFormDTO(string? firstName, string? lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, 
+    public IEnumerable<ShiftDTO> DefaultShifts { get { return new List<ShiftDTO> { SundayShift!, MondayShift!, TuesdayShift!, WednesdayShift!, ThursdayShift!, FridayShift!, SaturdayShift! }; } }
+    public IEnumerable<ScheduleDTO> DefaultSchedules { get { return new List<ScheduleDTO> { SundaySchedule!, MondaySchedule!, TuesdaySchedule!, WednesdaySchedule!, ThursdaySchedule!, FridaySchedule!, SaturdaySchedule! }; } }
+
+    public EmployeeFormDTO(Guid id, string? firstName, string? lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, 
         string? email, string? telNumber, string? mobileNumber, string? address, string? provincialAddress, string? mothersMaidenName, string? fathersName, string? emergencyContact, string? relationshipContact, string? addressContact, string? telNoContact, string? mobileNoContact, 
         EducationalAttainment educationalAttainment, string? courseGraduated, string? universityGraduated, 
         DateTime? dateHired, DateTime? dateRegularized, DateTime? dateResigned, DateTime? dateTerminated, string? tinNo, string? sssNo, string? hdmfNo, string? phicNo, string? bankAccount, bool hasServiceCharge,
-        decimal? basicPay, decimal? dailyRate, decimal? hourlyRate, decimal? hdmf_con, decimal? hdmf_er, 
-        string? username, string? password, Credential credential, Guid? supervisedGroup, 
+        Guid? payId, decimal? basicPay, decimal? dailyRate, decimal? hourlyRate, decimal? hdmf_con, decimal? hdmf_er, 
+        Guid? userId, string? username, string? password, Credential credential, Guid? supervisedGroup, 
         Guid positionId, Guid sectionId, Guid departmentId, Guid divisionId, Guid typeId, Guid levelId, Guid chargingId,
-        ShiftDTO? sunday = null, ShiftDTO? monday = null, ShiftDTO? tuesday = null, ShiftDTO? wednesday = null, ShiftDTO? thursday = null, ShiftDTO? friday = null, ShiftDTO? saturday = null) : this()
+        ScheduleDTO? sunday = null, ScheduleDTO? monday = null, ScheduleDTO? tuesday = null, ScheduleDTO? wednesday = null, ScheduleDTO? thursday = null, ScheduleDTO? friday = null, ScheduleDTO? saturday = null) : this()
     {
+        Id = id;
         FirstName = firstName;
         LastName = lastName;
         MiddleName = middleName;
@@ -128,11 +179,13 @@ public record EmployeeFormDTO()
         PhicNo = phicNo;
         BankAccount = bankAccount;
         HasServiceCharge = hasServiceCharge;
+        PayId = payId;
         BasicPay = basicPay;
         DailyRate = dailyRate;
         HourlyRate = hourlyRate;        
         HDMF_Con = hdmf_con;
         HDMF_Er = hdmf_er;
+        UserId = userId;
         Username = username;
         Password = password;
         Credential = credential;
@@ -144,12 +197,19 @@ public record EmployeeFormDTO()
         TypeId = typeId;
         LevelId = levelId;
         ChargingId = chargingId;
-        SundayShift = sunday;
-        MondayShift = monday;
-        TuesdayShift = tuesday;
-        WednesdayShift = wednesday;
-        ThursdayShift = thursday;
-        FridayShift = friday;
-        SaturdayShift = saturday;
+        // SundayShift = sunday;
+        // MondayShift = monday;
+        // TuesdayShift = tuesday;
+        // WednesdayShift = wednesday;
+        // ThursdayShift = thursday;
+        // FridayShift = friday;
+        // SaturdayShift = saturday;
+        SundaySchedule = sunday;
+        MondaySchedule = monday;
+        TuesdaySchedule = tuesday;
+        WednesdaySchedule = wednesday;
+        ThursdaySchedule = thursday;
+        FridaySchedule = friday;
+        SaturdaySchedule = saturday;
     }
 }

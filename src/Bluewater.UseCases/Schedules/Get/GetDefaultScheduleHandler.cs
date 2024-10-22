@@ -2,13 +2,12 @@ using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.ScheduleAggregate;
 using Bluewater.Core.ScheduleAggregate.Specifications;
-using Bluewater.Core.ShiftAggregate;
 using Bluewater.UseCases.Shifts;
 
 namespace Bluewater.UseCases.Schedules.Get;
-public class GetDefaultScheduleHandler(IRepository<Schedule> _schedRepository, IRepository<Shift> _shiftRepository) : IQueryHandler<GetDefaultScheduleQuery, Result<IEnumerable<ShiftDTO>>>
+public class GetDefaultScheduleHandler(IRepository<Schedule> _schedRepository) : IQueryHandler<GetDefaultScheduleQuery, Result<IEnumerable<ScheduleDTO>>>
 {
-  public async Task<Result<IEnumerable<ShiftDTO>>> Handle(GetDefaultScheduleQuery request, CancellationToken cancellationToken)
+  public async Task<Result<IEnumerable<ScheduleDTO>>> Handle(GetDefaultScheduleQuery request, CancellationToken cancellationToken)
   {
     var spec = new DefaultShiftByEmpIdSpec(request.empId);
     var defaultSched = await _schedRepository.ListAsync(spec, cancellationToken);
@@ -24,20 +23,12 @@ public class GetDefaultScheduleHandler(IRepository<Schedule> _schedRepository, I
       if (dayDiff < 0) dayDiff += 7;
       var dayOfTheWeekDate = today.AddDays(dayDiff);
 
-      var defaultShift = new Schedule(request.empId, Guid.Empty, DateOnly.FromDateTime(dayOfTheWeekDate), true);
+      var defaultShift = new Schedule(request.empId, Guid.Empty, DateOnly.FromDateTime(dayOfTheWeekDate), false);
       defaultSched.Add(defaultShift);
     }
-
-    List<ShiftDTO> shifts = new();
-    foreach (var sched in defaultSched)
-    {
-      var shiftResult = await _shiftRepository.GetByIdAsync(sched.ShiftId, cancellationToken);
-      if (shiftResult != null)
-        shifts.Add(new ShiftDTO(shiftResult!.Id, shiftResult.Name, shiftResult.ShiftStartTime, shiftResult.ShiftBreakTime, shiftResult.ShiftBreakEndTime, shiftResult.ShiftEndTime, shiftResult.BreakHours));
-      else
-        shifts.Add(new ShiftDTO(Guid.Empty, "No Shift", null, null, null, null, 0));
-    }
     
-    return shifts;
+    // get the name based on the first none null Shift
+    return Result.Success(defaultSched.Select(s => new ScheduleDTO(s.Id, string.Empty, s.EmployeeId, s.ShiftId, s.ScheduleDate, s.IsDefault, 
+    s.Shift == null ? null : new ShiftDTO(s.Shift.Id, s.Shift.Name, s.Shift.ShiftStartTime, s.Shift.ShiftBreakTime, s.Shift.ShiftBreakEndTime, s.Shift.ShiftEndTime, s.Shift.BreakHours))));
   }
 }

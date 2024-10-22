@@ -27,7 +27,7 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
     // get all schedules per employee and per date. If no schedule, create a default schedule
     foreach (var emp in employees)
     {
-        var spec = new ScheduleByIdSpec(emp.Id, request.startDate, request.endDate);
+        var spec = new ScheduleByEmpIdSpec(emp.Id, request.startDate, request.endDate);
         var scheds = await _schedRepository.ListAsync(spec, cancellationToken);
         if(scheds == null) continue;
 
@@ -45,15 +45,17 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
                 if(defaultSched == null) {
                     var defaultShift = new ShiftDTO(Guid.Empty, string.Empty, null, null, null, null, 0);
                     shifts.Add(new ShiftInfo(){
+                        ScheduleId = Guid.Empty,
                         Shift = defaultShift,
                         ScheduleDate = date,
-                        IsDefault = true
+                        IsDefault = false
                     });
                 } 
                 else 
                 {
                     var shift = new ShiftDTO(defaultSched.Shift.Id, defaultSched.Shift.Name, defaultSched.Shift.ShiftStartTime, defaultSched.Shift.ShiftBreakTime, defaultSched.Shift.ShiftBreakEndTime, defaultSched.Shift.ShiftEndTime, defaultSched.Shift.BreakHours);
                     shifts.Add(new ShiftInfo(){
+                        ScheduleId = defaultSched.Id,
                         Shift = shift,
                         ScheduleDate = date,
                         IsDefault = defaultSched.IsDefault
@@ -64,6 +66,7 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
             {
                 var shift = new ShiftDTO(sched.Shift!.Id, sched.Shift.Name, sched.Shift.ShiftStartTime, sched.Shift.ShiftBreakTime, sched.Shift.ShiftBreakEndTime, sched.Shift.ShiftEndTime, sched.Shift.BreakHours);
                 shifts.Add(new ShiftInfo(){
+                    ScheduleId = sched.Id,
                     Shift = shift,
                     ScheduleDate = date,
                     IsDefault = sched.IsDefault

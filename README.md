@@ -168,7 +168,7 @@ In Visual Studio, open the Package Manager Console, and run `Add-Migration Initi
 In a terminal with the CLI, the command is similar. Run this from the Web project directory:
 
 ```powershell
-dotnet ef migrations add MIGRATIONNAME -c AppDbContext -p ../Your.ProjectName.Infrastructure/Your.ProjectName.Infrastructure.csproj -s Your.ProjectName.Web.csproj -o Data/Migrations
+dotnet ef migrations add "AddSomething" --project ./src/Bluewater.Infrastructure --startup-project src/Bluewater.Server;
 ```
 
 To use SqlServer, change `options.UseSqlite(connectionString));` to `options.UseSqlServer(connectionString));` in the `Your.ProjectName.Infrastructure.StartupSetup` file. Also remember to replace the `SqliteConnection` with `DefaultConnection` in the `Your.ProjectName.Web.Program` file, which points to your Database Server.
@@ -176,7 +176,7 @@ To use SqlServer, change `options.UseSqlite(connectionString));` to `options.Use
 To update the database use this command from the Web project folder (replace `Bluewater` with your project's name):
 
 ```powershell
-dotnet ef database update -c AppDbContext -p ../Bluewater.Infrastructure/Bluewater.Infrastructure.csproj -s Bluewater.Web.csproj
+dotnet ef database update --project src/Bluewater.Infrastructure --startup-project src/Bluewater.Server
 ```
 
 # Goals

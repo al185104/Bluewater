@@ -21,7 +21,6 @@ namespace Bluewater.Server.Global;
 
 public interface IGlobalService
 {
-    string ErrorMessage { get; set; }
     public List<DivisionDTO> Divisions { get; set; }
     public List<DepartmentDTO> Departments { get; set; }
     public List<SectionDTO> Sections { get; set; }
@@ -33,4 +32,5 @@ public interface IGlobalService
     public List<ShiftDTO> Shifts { get; set; }
 
     Task LoadDataAsync();
+    (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfWeekByDate(DateTime date);
 }

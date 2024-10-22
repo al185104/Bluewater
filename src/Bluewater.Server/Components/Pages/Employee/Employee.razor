@@ -5,9 +5,13 @@
 @using Bluewater.UseCases.Employees.Create
 @using Bluewater.UseCases.Employees.Delete
 @using Bluewater.UseCases.Employees.List
+@using Bluewater.UseCases.Employees.Update
 @using Bluewater.UseCases.Pays.Create
+@using Bluewater.UseCases.Pays.Update
+@using Bluewater.UseCases.Schedules
 @using Bluewater.UseCases.Schedules.Create
 @using Bluewater.UseCases.Schedules.Get
+@using Bluewater.UseCases.Schedules.Update
 @using Bluewater.UseCases.Shifts
 @using Bluewater.UseCases.Users.Create
 @using Bluewater.UseCases.Users.Update
@@ -128,30 +132,30 @@
         Credential credential = employee.User!.Credential;
 
         // get shift default schedule
-        List<ShiftDTO> defaultShifts = new();
+        List<ScheduleDTO> defaultSchedules = new();
         using (var scope = ServiceScopeFactory.CreateScope())
         {
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
             var ret = await mediator.Send(new GetDefaultScheduleQuery(employee.Id));
             if (ret.IsSuccess)
-                defaultShifts = ret.Value.ToList();
+                defaultSchedules = ret.Value.ToList();
         }
 
         EmployeeFormDTO employeeForm = new EmployeeFormDTO(
-            employee.FirstName, employee.LastName, employee.MiddleName, employee.DateOfBirth, employee.Gender, employee.CivilStatus, employee.BloodType, employee.Status, employee.Height, employee.Weight, employee.ImageUrl, employee.Remarks,
+            employee.Id, employee.FirstName, employee.LastName, employee.MiddleName, employee.DateOfBirth, employee.Gender, employee.CivilStatus, employee.BloodType, employee.Status, employee.Height, employee.Weight, employee.ImageUrl, employee.Remarks,
             employee.ContactInfo!.Email, employee.ContactInfo!.TelNumber, employee.ContactInfo!.MobileNumber, employee.ContactInfo!.Address, employee.ContactInfo!.ProvincialAddress, employee.ContactInfo!.MothersMaidenName, employee.ContactInfo!.FathersName, employee.ContactInfo!.EmergencyContact, employee.ContactInfo!.RelationshipContact, employee.ContactInfo!.AddressContact, employee.ContactInfo!.TelNoContact, employee.ContactInfo!.MobileNoContact,
             employee.EducationInfo!.EducationalAttainment, employee.EducationInfo!.CourseGraduated, employee.EducationInfo!.UniversityGraduated,
             employee.EmploymentInfo!.DateHired, employee.EmploymentInfo!.DateRegularized, employee.EmploymentInfo!.DateResigned, employee.EmploymentInfo!.DateTerminated, employee.EmploymentInfo!.TinNo, employee.EmploymentInfo!.SssNo, employee.EmploymentInfo!.PagibigNo, employee.EmploymentInfo!.PhilHealthNo, employee.EmploymentInfo!.BankAccount, employee.EmploymentInfo!.HasServiceCharge,
-            employee.Pay!.BasicPay, employee.Pay!.DailyRate, employee.Pay!.HourlyRate, employee.Pay!.HDMF_Con, employee.Pay!.HDMF_Er,
-            employee.User!.Username, employee.User!.PasswordHash, credential, employee.User!.SupervisedGroup,
+            employee.Pay!.Id, employee.Pay!.BasicPay, employee.Pay!.DailyRate, employee.Pay!.HourlyRate, employee.Pay!.HDMF_Con, employee.Pay!.HDMF_Er,
+            employee.User!.Id, employee.User!.Username, employee.User!.PasswordHash, credential, employee.User!.SupervisedGroup,
             positionId, sectionId, departmentId, divisionId, typeId, levelId, chargingId,
-            defaultShifts[0].Id == Guid.Empty ? null : defaultShifts[0], 
-            defaultShifts[1].Id == Guid.Empty ? null : defaultShifts[1],
-            defaultShifts[2].Id == Guid.Empty ? null : defaultShifts[2],
-            defaultShifts[3].Id == Guid.Empty ? null : defaultShifts[3],
-            defaultShifts[4].Id == Guid.Empty ? null : defaultShifts[4],
-            defaultShifts[5].Id == Guid.Empty ? null : defaultShifts[5],
-            defaultShifts[6].Id == Guid.Empty ? null : defaultShifts[6]
+            defaultSchedules[0].Id == Guid.Empty ? null : defaultSchedules[0], 
+            defaultSchedules[1].Id == Guid.Empty ? null : defaultSchedules[1],
+            defaultSchedules[2].Id == Guid.Empty ? null : defaultSchedules[2],
+            defaultSchedules[3].Id == Guid.Empty ? null : defaultSchedules[3],
+            defaultSchedules[4].Id == Guid.Empty ? null : defaultSchedules[4],
+            defaultSchedules[5].Id == Guid.Empty ? null : defaultSchedules[5],
+            defaultSchedules[6].Id == Guid.Empty ? null : defaultSchedules[6]
         );
         
         IDialogReference _dialog = await DialogService.ShowPanelAsync<EmployeeForm>(employeeForm, new DialogParameters<EmployeeFormDTO>
@@ -173,7 +177,6 @@
     {
         try{
             isBusy = true;
-            await Task.Delay(100);
 
             if (result.Cancelled) return;
             if (result.Data is not null)
@@ -182,6 +185,38 @@
 
                 if(e != null){
                     // update user
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        await mediator.Send(new UpdateUserCommand(e.UserId ?? Guid.Empty, e.Username ?? string.Empty, e.Password ?? string.Empty, e.Credential, e.SupervisedGroup));
+                    }
+
+                    // update pay
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        await mediator.Send(new UpdatePayCommand(e.PayId ?? Guid.Empty, e.BasicPay ?? 0, e.DailyRate ?? 0, e.HourlyRate ?? 0, e.HDMF_Con ?? 200, e.HDMF_Er ?? 200));
+                    }
+
+                    // update employee
+                    var empId = Guid.Empty;
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var ret = await mediator.Send(new UpdateEmployeeCommand(
+                            e.Id, e.FirstName ?? string.Empty, e.LastName ?? string.Empty, e.MiddleName, e.DateOfBirth, e.Gender, e.CivilStatus, e.BloodType, e.Status, e.Height, e.Weight, e.ImageUrl, e.Remarks,
+                            new Bluewater.UseCases.Employees.Update.ContactInfo(e.Email, e.TelNumber, e.MobileNumber, e.Address, e.ProvincialAddress, e.MothersMaidenName, e.FathersName, e.EmergencyContact, e.RelationshipContact, e.AddressContact, e.TelNoContact, e.MobileNoContact),
+                            new Bluewater.UseCases.Employees.Update.EducationInfo(e.EducationalAttainment, e.CourseGraduated, e.UniversityGraduated),
+                            new Bluewater.UseCases.Employees.Update.EmploymentInfo(e.DateHired, e.DateRegularized, e.DateResigned, e.DateTerminated, e.TinNo, e.SssNo, e.HdmfNo, e.PhicNo, e.BankAccount, e.HasServiceCharge),
+                            e.UserId ?? Guid.Empty, e.PositionId, e.PayId ?? Guid.Empty, e.TypeId, e.LevelId, e.ChargingId));
+                        if (ret.IsSuccess) {
+                            empId = ret.Value.Id;
+                            await LoadEmployeesAsync();
+                        }
+                    }
+
+                    // update schedule
+                    await UpdateSchedules(empId, e.DefaultSchedules);
                 }
             }
         }
@@ -191,18 +226,17 @@
         finally{
             isBusy = false;
         }
-
     }
 
     async Task CreateNewEmployeeAsync()
     {
         EmployeeFormDTO employee = new EmployeeFormDTO(
-            null,null,null,null,Gender.NotSet,CivilStatus.NotSet,BloodType.NotSet,Status.NotSet,0,0,null,null,
+            Guid.Empty, null,null,null,null,Gender.NotSet,CivilStatus.NotSet,BloodType.NotSet,Status.NotSet,0,0,null,null,
             null,null,null,null,null,null,null,null,null,null,null,null,
             EducationalAttainment.NotSet,null,null,
             null,null,null,null,null,null,null,null,null,false,
-            null,null,null,null,null,
-            null,null,Credential.None,null,
+            null,null,null,null,null,null,
+            null,null,null,Credential.None,null,
             Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty
         );
 
@@ -231,15 +265,7 @@
             {
                 var e = result.Data as EmployeeFormDTO;
 
-                Console.WriteLine($"==================== 1 {e!.SundayShift} =====================");
-                Console.WriteLine($"==================== 2 {e!.MondayShift} =====================");
-                Console.WriteLine($"==================== 3 {e!.TuesdayShift} =====================");
-                Console.WriteLine($"==================== 4 {e!.WednesdayShift} =====================");
-                Console.WriteLine($"==================== 5 {e!.ThursdayShift} =====================");
-                Console.WriteLine($"==================== 6 {e!.FridayShift} =====================");
-                Console.WriteLine($"==================== 7 {e!.SaturdayShift} =====================");
-
-                if(e != null){
+                if(e != null) {
                     // create user
                     Guid userId = Guid.Empty;
                     using (var scope = ServiceScopeFactory.CreateScope())
@@ -258,7 +284,6 @@
                         var ret = await mediator.Send(new CreatePayCommand(e.BasicPay ?? 0, e.DailyRate ?? 0, e.HourlyRate ?? 0, e.HDMF_Con ?? 200, e.HDMF_Er ?? 200));
                         if (ret.IsSuccess)
                             payId = ret.Value;
-
                     }
 
                     var empId = Guid.Empty;
@@ -267,9 +292,9 @@
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                         var ret = await mediator.Send(new CreateEmployeeCommand(
                             e.FirstName ?? string.Empty, e.LastName ?? string.Empty, e.MiddleName, e.DateOfBirth, e.Gender, e.CivilStatus, e.BloodType, e.Status, e.Height, e.Weight, e.ImageUrl, e.Remarks,
-                            new ContactInfo(e.Email, e.TelNumber, e.MobileNumber, e.Address, e.ProvincialAddress, e.MothersMaidenName, e.FathersName, e.EmergencyContact, e.RelationshipContact, e.AddressContact, e.TelNoContact, e.MobileNoContact),
-                            new EducationInfo(e.EducationalAttainment, e.CourseGraduated, e.UniversityGraduated),
-                            new EmploymentInfo(e.DateHired, e.DateRegularized, e.DateResigned, e.DateTerminated, e.TinNo, e.SssNo, e.HdmfNo, e.PhicNo, e.BankAccount, e.HasServiceCharge),
+                            new Bluewater.UseCases.Employees.Create.ContactInfo(e.Email, e.TelNumber, e.MobileNumber, e.Address, e.ProvincialAddress, e.MothersMaidenName, e.FathersName, e.EmergencyContact, e.RelationshipContact, e.AddressContact, e.TelNoContact, e.MobileNoContact),
+                            new Bluewater.UseCases.Employees.Create.EducationInfo(e.EducationalAttainment, e.CourseGraduated, e.UniversityGraduated),
+                            new Bluewater.UseCases.Employees.Create.EmploymentInfo(e.DateHired, e.DateRegularized, e.DateResigned, e.DateTerminated, e.TinNo, e.SssNo, e.HdmfNo, e.PhicNo, e.BankAccount, e.HasServiceCharge),
                             userId, e.PositionId, payId, e.TypeId, e.LevelId, e.ChargingId));
                         if (ret.IsSuccess){
                             empId = ret.Value;
@@ -293,16 +318,16 @@
         }
     }    
 
+    // create default schedules for the employee
     private async Task CreateSchedules(Guid empId, IEnumerable<ShiftDTO> defaultShifts)
     {
         DateTime currentDate = DateTime.Now;
         DateTime startOfWeek = currentDate.AddDays(-(int)currentDate.DayOfWeek);
 
         List<DateOnly> weekDates = new();
-        // Loop through the days of the week, starting from Sunday
+
         foreach (DayOfWeek day in Enum.GetValues<DayOfWeek>())
         {
-            // Calculate the date for this day
             DateTime date = startOfWeek.AddDays((int)day);
             weekDates.Add(DateOnly.FromDateTime(date));
         }
@@ -321,4 +346,35 @@
             index++;
         }
     }
+
+    // update default schedules for the employee
+    private async Task UpdateSchedules(Guid empId, IEnumerable<ScheduleDTO> defaultSchedules)
+    {
+        DateTime currentDate = DateTime.Now;
+        DateTime startOfWeek = currentDate.AddDays(-(int)currentDate.DayOfWeek);
+
+        List<DateOnly> weekDates = new();
+        // Loop through the days of the week, starting from Sunday
+        foreach (DayOfWeek day in Enum.GetValues<DayOfWeek>())
+        {
+            // Calculate the date for this day
+            DateTime date = startOfWeek.AddDays((int)day);
+            weekDates.Add(DateOnly.FromDateTime(date));
+        }
+
+        int index = 0;
+        foreach (var schedule in defaultSchedules)
+        {
+            if(schedule != null && schedule.Id != Guid.Empty && empId != Guid.Empty)
+            {
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {   
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    await mediator.Send(new UpdateScheduleCommand(schedule.Id, empId, schedule.Shift!.Id, weekDates[index], IsDefault: true));
+                }
+            }
+            index++;
+        }
+    }
+
 }

@@ -1,5 +1,6 @@
 @using Bluewater.Core.EmployeeAggregate.Enum;
 @using Bluewater.Core.UserAggregate.Enum;
+@using Bluewater.Server.Components.Pages.Employee
 @using Bluewater.UseCases.Employees;
 @using Bluewater.UseCases.Helpers;
 @using System.ComponentModel;
@@ -14,8 +15,8 @@
 @using Bluewater.UseCases.Levels;
 
 @using Bluewater.Server.Global;
-@using Bluewater.UseCases.Shifts
-@inject IGlobalService GlobalService
+@using Bluewater.UseCases.Shifts;
+@inject IGlobalService GlobalService;
 
 @implements IDialogContentComponent<EmployeeFormDTO>
 
@@ -275,7 +276,6 @@
     private EnumOption selectedEmploymentStatus = new(null, null);
     private List<EnumOption> credentialsOptions = new();
     private EnumOption selectedCredential = new(null, null);
-
     private List<PositionDTO> positions = new();
     private PositionDTO selectedPosition = new();
     private List<SectionDTO> sections = new();
@@ -343,8 +343,6 @@
             selectedEducationalAttainment = educationalAttainmentOptions.FirstOrDefault(i => (EducationalAttainment)(i.Value ?? EducationalAttainment.NotSet) == Content.EducationalAttainment) ?? new EnumOption(null, null);
             selectedEmploymentStatus = employmentStatusOptions.FirstOrDefault(i => (Status)(i.Value ?? Status.NotSet) == Content.Status) ?? new EnumOption(null, null);
             selectedCredential = credentialsOptions.FirstOrDefault(i => (Credential)(i.Value ?? Credential.None) == Content.Credential) ?? new EnumOption(null, null);
-
-            // need to setup the week shifts
         }
         return Task.CompletedTask;
     }
