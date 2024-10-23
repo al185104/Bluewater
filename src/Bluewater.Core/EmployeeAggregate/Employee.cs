@@ -254,7 +254,7 @@ public class EmploymentInfo : ValueObject
 [Owned]
 public class EducationInfo : ValueObject
 {
-    public EducationalAttainment EducationalAttainment { get; private set; }
+    public EducationalAttainment EducationalAttainment { get; private set; } = EducationalAttainment.NotSet;
     public string? CourseGraduated { get; private set; }
     public string? UniversityGraduated { get; private set; }  
 

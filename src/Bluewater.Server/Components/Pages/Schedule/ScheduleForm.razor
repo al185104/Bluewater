@@ -12,12 +12,14 @@
         <FluentGridItem xs="6"><h5 style="text-align: left;">@Content.Name</h5></FluentGridItem>
         <FluentGridItem xs="6"><h5 style="text-align: right;">@GetWeekString()</h5></FluentGridItem>
         <FluentGridItem xs="12">
+            @* add a lambda function to update the isUpdated property when @onchange is executed *@
             <FluentSelect TOption="ShiftDTO"
                 Label="Sunday Shift"
                 Items="@shifts"
                 Placeholder="Select override Sunday shift"
                 OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.SundayShift!.Shift"
+                @onchange="@(e => Content.SundayShift!.IsUpdated = true)"
                 Style="width: 100%">
             </FluentSelect>
         </FluentGridItem>
@@ -28,6 +30,7 @@
                 Placeholder="Select override Monday shift"                
                 OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.MondayShift!.Shift"
+                @onchange="@(e => Content.MondayShift!.IsUpdated = true)"
                 Style="width: 100%">
             </FluentSelect>
         </FluentGridItem>
@@ -38,6 +41,7 @@
                 Placeholder="Select override Tuesday shift"
                 OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.TuesdayShift!.Shift"
+                @onchange="@(e => Content.TuesdayShift!.IsUpdated = true)"
                 Style="width: 100%">
             </FluentSelect>
         </FluentGridItem>   
@@ -48,6 +52,7 @@
                 Placeholder="Select override Wednesday shift"
                 OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.WednesdayShift!.Shift"
+                @onchange="@(e => Content.WednesdayShift!.IsUpdated = true)"
                 Style="width: 100%">
             </FluentSelect>
         </FluentGridItem>   
@@ -58,6 +63,7 @@
                 Placeholder="Select override Thursday shift"
                 OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.ThursdayShift!.Shift"
+                @onchange="@(e => Content.ThursdayShift!.IsUpdated = true)"
                 Style="width: 100%">
             </FluentSelect>
         </FluentGridItem>
@@ -68,6 +74,7 @@
                 Placeholder="Select override Friday shift"
                 OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.FridayShift!.Shift"
+                @onchange="@(e => Content.FridayShift!.IsUpdated = true)"
                 Style="width: 100%">
             </FluentSelect>
         </FluentGridItem>
@@ -78,6 +85,7 @@
                 Placeholder="Select override Saturday shift"
                 OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.SaturdayShift!.Shift"
+                @onchange="@(e => Content.SaturdayShift!.IsUpdated = true)"
                 Style="width: 100%">
             </FluentSelect>
         </FluentGridItem>

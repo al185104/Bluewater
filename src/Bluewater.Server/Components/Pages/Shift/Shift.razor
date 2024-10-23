@@ -9,6 +9,7 @@
 @using Microsoft.FluentUI.AspNetCore.Components.Extensions
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
+@inject IDialogService DialogService
 
 <PageTitle>Shifts</PageTitle>
 
@@ -35,7 +36,7 @@
         <FluentTextField Value="@InputShift.BreakHours.ToString()" Name="shiftBreakHours" Label="Break hours" Required />
     </div>
     <div>
-        <FluentButton aria-label="Delete item" Appearance="Appearance.Accent" Style="margin-bottom: 4px" OnClick="@(async() => await AddShiftAsync())">Add</FluentButton>
+        <FluentButton aria-label="Add item" Appearance="Appearance.Accent" Style="margin-bottom: 4px" OnClick="@(async() => await AddShiftAsync())">Add</FluentButton>
     </div>
 </FluentStack>
 
@@ -113,6 +114,10 @@ else
     {
         try
         {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to delete {item.Name}?", "Yes", "No", "Delete");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
             isBusy = true;
             using (var scope = ServiceScopeFactory.CreateScope())
             {

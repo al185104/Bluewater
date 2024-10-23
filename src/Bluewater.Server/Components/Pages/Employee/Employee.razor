@@ -34,25 +34,33 @@
 <h3>Employees</h3>
 <FluentButton Appearance="Appearance.Accent" Icon="@(new Icons.Regular.Size16.Add())" OnClick="@(async() => await CreateNewEmployeeAsync())">Create new employee</FluentButton>
 
-<FluentDataGrid Items="@Employees">
-    <PropertyColumn Title="Names" Property="@(p => $"{p.LastName}, {p.FirstName}")" />
+<FluentDataGrid Items="@FilteredItems" Pagination="@pagination"
+    GridTemplateColumns="1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.5fr"
+    Style="height: 550px;overflow:auto;">
+    <PropertyColumn Title="Names" Property="@(p => $"{p.LastName}, {p.FirstName}")" Sortable="true">
+        <ColumnOptions>
+            <div class="search-box">
+                <FluentSearch Autofocus=true @bind-Value=nameFilter @oninput="HandleEmployeeFilter" @bind-Value:after="HandleClear" Placeholder="Employee name..." Style="width: 100%;" Label="Filter" />
+            </div>
+        </ColumnOptions>
+    </PropertyColumn>
     <PropertyColumn Title="Middle Name" Property="@(p => p.MiddleName)" />
     <PropertyColumn Title="Birth Date" Property="@(p => p.DateOfBirth)" />
-    <PropertyColumn Title="Gender" Property="@(p => p.Gender)" />
-    <PropertyColumn Title="Civil Status" Property="@(p => p.CivilStatus)" />
-    <PropertyColumn Title="Status" Property="@(p => p.Status)" />
-    <PropertyColumn Title="Type" Property="@(p => p.Type)" />
-    <PropertyColumn Title="Level" Property="@(p => p.Level)" />
-    <PropertyColumn Title="Position" Property="@(p => p.Position)" />
-    <PropertyColumn Title="Section" Property="@(p => p.Section)" />
-    <PropertyColumn Title="Department" Property="@(p => p.Department)" />
-    <PropertyColumn Title="Division" Property="@(p => p.Division)" />
-    <PropertyColumn Title="Charging" Property="@((p) => p.Charging)" />
+    <PropertyColumn Title="Status" Property="@(p => p.Status)" Sortable="true"/>
+    <PropertyColumn Title="Type" Property="@(p => p.Type)" Sortable="true"/>
+    <PropertyColumn Title="Level" Property="@(p => p.Level)" Sortable="true"/>
+    <PropertyColumn Title="Position" Property="@(p => p.Position)" Sortable="true"/>
+    <PropertyColumn Title="Section" Property="@(p => p.Section)" Sortable="true"/>
+    <PropertyColumn Title="Department" Property="@(p => p.Department)" Sortable="true"/>
+    <PropertyColumn Title="Division" Property="@(p => p.Division)" Sortable="true"/>
+    <PropertyColumn Title="Charging" Property="@((p) => p.Charging)" Sortable="true"/>
     <TemplateColumn Title="Actions" Align="@Align.End">
         <FluentButton aria-label="Edit item" IconEnd="@(new Icons.Regular.Size16.Edit())" OnClick="@(async() => await EditEmployeeAsync(context))"/>
         <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteEmployeeAsync(context))"/>
     </TemplateColumn>    
 </FluentDataGrid>
+
+<FluentPaginator State="@pagination" />
 
 @if (isBusy)
 {
@@ -62,8 +70,21 @@
 }
 
 @code{
+    string nameFilter = string.Empty;    
     private bool isBusy = false;
     public IQueryable<EmployeeDTO> Employees { get; set; } = default!;
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+
+    IQueryable<EmployeeDTO>? FilteredItems
+    {
+        get
+        {
+            var result = Employees;
+            if (result is not null && !string.IsNullOrEmpty(nameFilter))
+                result = result.Where(c => $"{c.LastName}, {c.FirstName}".Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));
+            return result;
+        }
+    }        
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,7 +122,12 @@
     {
         try
         {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to delete {employee.LastName}, {employee.FirstName}?", "Yes", "No", "Delete");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+         
             isBusy = true;
+
             using (var scope = ServiceScopeFactory.CreateScope())
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -375,6 +401,18 @@
             }
             index++;
         }
+    }
+
+    private void HandleEmployeeFilter(ChangeEventArgs args)
+    {
+        if (args.Value is string value)
+            nameFilter = value;
+    }
+
+    private void HandleClear()
+    {
+        if (string.IsNullOrWhiteSpace(nameFilter))
+            nameFilter = string.Empty;
     }
 
 }

@@ -6,6 +6,7 @@ public class EmployeeByIdSpec : Specification<Employee>
   public EmployeeByIdSpec(Guid EmployeeId)
   {
     Query
-        .Where(Employee => Employee.Id == EmployeeId);
+        .Where(Employee => Employee.Id == EmployeeId)
+        .Include(Employee => Employee.User);
   }
 }

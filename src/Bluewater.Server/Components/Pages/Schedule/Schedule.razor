@@ -28,8 +28,19 @@
 </FluentStack>
 
 
-<FluentDataGrid Items="@EmployeeSchedules" GridTemplateColumns="1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.3fr">
-    <PropertyColumn Title="Employee" Property="@(p => p.Name)" Style="vertical-align: bottom;"/>
+<FluentDataGrid Items="@FilteredItems" Pagination="@pagination"
+    Style="height: 550px;overflow:auto;"
+    GridTemplateColumns="1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.3fr">
+    <PropertyColumn Title="Employee" Property="@(p => p.Name)" Style="vertical-align: bottom;" Sortable="true">
+        <ColumnOptions>
+            <div class="search-box">
+                <FluentSearch Autofocus=true @bind-Value=nameFilter @oninput="HandleEmployeeFilter" @bind-Value:after="HandleClear" Placeholder="Employee name..." Style="width: 100%;" Label="Filter" />
+            </div>
+        </ColumnOptions>        
+    </PropertyColumn>
+    <PropertyColumn Title="Section" Property="@(p => p.Section)" Style="vertical-align: bottom;" Sortable="true"/>
+    <PropertyColumn Title="Charging" Property="@(p => p.Charging)" Style="vertical-align: bottom;" Sortable="true"/>
+
 
     @foreach(var day in Enumerable.Range(0, 7))
     {
@@ -50,6 +61,8 @@
     </TemplateColumn>
 </FluentDataGrid>
 
+<FluentPaginator State="@pagination" />
+
 @if (isBusy)
 {
     <div class="overlay">
@@ -58,12 +71,24 @@
 }
 
 @code{
+    string nameFilter = string.Empty;        
     private bool isBusy = false;
     public IQueryable<EmployeeScheduleDTO> EmployeeSchedules { get; set; } = default!;
     private DateTime searchDate = DateTime.Now;
     private DateOnly startDate;
     private DateOnly endDate;
     private List<ShiftDTO> shifts = new();
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    IQueryable<EmployeeScheduleDTO>? FilteredItems
+    {
+        get
+        {
+            var result = EmployeeSchedules;
+            if (result is not null && !string.IsNullOrEmpty(nameFilter))
+                result = result.Where(c => c.Name.Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));
+            return result;
+        }
+    }                    
 
     protected override async Task OnInitializedAsync()
     {
@@ -196,43 +221,46 @@
         }
     }
 
+    // to update - this can be placed in a list of days
     async Task SetupDaysSchedulesAsync(ScheduleFormDTO e)
     {
         #region SUNDAY
         // evaluate sunday schedule
         // if there's an existing schedule, check if it's default or not
-        if(e.SundayShift!.ScheduleId != Guid.Empty) { 
-            // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
-            if(e.SundayShift!.Shift == null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new DeleteScheduleCommand(e.SundayShift.ScheduleId));
+        if(e.SundayShift!.IsUpdated) {
+            if(e.SundayShift!.ScheduleId != Guid.Empty) { 
+                // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
+                if(e.SundayShift!.Shift == null) {
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var ret = await mediator.Send(new DeleteScheduleCommand(e.SundayShift.ScheduleId));
+                    }
+                }
+                else{
+                    if(e.SundayShift!.IsDefault) { // if default is true, then create an override
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.SundayShift!.Shift!.Id, e.SundayShift!.ScheduleDate, IsDefault: false));
+                        }
+                    }
+                    else { // if default is false, then update the schedule
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new UpdateScheduleCommand(e.SundayShift.ScheduleId, e.EmployeeId, e.SundayShift!.Shift!.Id, e.SundayShift!.ScheduleDate, IsDefault: false));
+                        }
+                    }
                 }
             }
-            else{
-                if(e.SundayShift!.IsDefault) { // if default is true, then create an override
+            else { // if schedule id is empty, then create a new schedule
+                if(e.SundayShift!.Shift != null) {
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                         var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.SundayShift!.Shift!.Id, e.SundayShift!.ScheduleDate, IsDefault: false));
                     }
-                }
-                else { // if default is false, then update the schedule
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new UpdateScheduleCommand(e.SundayShift.ScheduleId, e.EmployeeId, e.SundayShift!.Shift!.Id, e.SundayShift!.ScheduleDate, IsDefault: false));
-                    }
-                }
-            }
-        }
-        else { // if schedule id is empty, then create a new schedule
-            if(e.SundayShift!.Shift != null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.SundayShift!.Shift!.Id, e.SundayShift!.ScheduleDate, IsDefault: false));
                 }
             }
         }
@@ -241,78 +269,82 @@
         #region MONDAY
         // evaluate monday schedule
         // if there's an existing schedule, check if it's default or not
-        if(e.MondayShift!.ScheduleId != Guid.Empty) { 
-            // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
-            if(e.MondayShift!.Shift == null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new DeleteScheduleCommand(e.MondayShift.ScheduleId));
+        if(e.MondayShift!.IsUpdated) {
+            if(e.MondayShift!.ScheduleId != Guid.Empty) { 
+                // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
+                if(e.MondayShift!.Shift == null) {
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var ret = await mediator.Send(new DeleteScheduleCommand(e.MondayShift.ScheduleId));
+                    }
+                }
+                else{
+                    if(e.MondayShift!.IsDefault) { // if default is true, then create an override
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.MondayShift!.Shift!.Id, e.MondayShift!.ScheduleDate, IsDefault: false));
+                        }
+                    }
+                    else { // if default is false, then update the schedule
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new UpdateScheduleCommand(e.MondayShift.ScheduleId, e.EmployeeId, e.MondayShift!.Shift!.Id, e.MondayShift!.ScheduleDate, IsDefault: false));
+                        }
+                    }
                 }
             }
-            else{
-                if(e.MondayShift!.IsDefault) { // if default is true, then create an override
+            else { // if schedule id is empty, then create a new schedule
+                if(e.MondayShift!.Shift != null) {
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                         var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.MondayShift!.Shift!.Id, e.MondayShift!.ScheduleDate, IsDefault: false));
                     }
                 }
-                else { // if default is false, then update the schedule
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new UpdateScheduleCommand(e.MondayShift.ScheduleId, e.EmployeeId, e.MondayShift!.Shift!.Id, e.MondayShift!.ScheduleDate, IsDefault: false));
-                    }
-                }
-            }
-        }
-        else { // if schedule id is empty, then create a new schedule
-            if(e.MondayShift!.Shift != null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.MondayShift!.Shift!.Id, e.MondayShift!.ScheduleDate, IsDefault: false));
-                }
             }
         }
         #endregion
 
-        #region TUESDAY
+        #region TUESDAY 
         // evaluate tuesday schedule
         // if there's an existing schedule, check if it's default or not
-        if(e.TuesdayShift!.ScheduleId != Guid.Empty) { 
-            // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
-            if(e.TuesdayShift!.Shift == null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new DeleteScheduleCommand(e.TuesdayShift.ScheduleId));
+        if(e.TuesdayShift!.IsUpdated ){
+            if(e.TuesdayShift!.ScheduleId != Guid.Empty) { 
+                // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
+                if(e.TuesdayShift!.Shift == null) {
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var ret = await mediator.Send(new DeleteScheduleCommand(e.TuesdayShift.ScheduleId));
+                    }
+                }
+                else{
+                    if(e.TuesdayShift!.IsDefault) { // if default is true, then create an override
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.TuesdayShift!.Shift!.Id, e.TuesdayShift!.ScheduleDate, IsDefault: false));
+                        }
+                    }
+                    else { // if default is false, then update the schedule
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new UpdateScheduleCommand(e.TuesdayShift.ScheduleId, e.EmployeeId, e.TuesdayShift!.Shift!.Id, e.TuesdayShift!.ScheduleDate, IsDefault: false));
+                        }
+                    }
                 }
             }
-            else{
-                if(e.TuesdayShift!.IsDefault) { // if default is true, then create an override
+            else { // if schedule id is empty, then create a new schedule
+                if(e.TuesdayShift!.Shift != null) {
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                         var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.TuesdayShift!.Shift!.Id, e.TuesdayShift!.ScheduleDate, IsDefault: false));
                     }
-                }
-                else { // if default is false, then update the schedule
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new UpdateScheduleCommand(e.TuesdayShift.ScheduleId, e.EmployeeId, e.TuesdayShift!.Shift!.Id, e.TuesdayShift!.ScheduleDate, IsDefault: false));
-                    }
-                }
-            }
-        }
-        else { // if schedule id is empty, then create a new schedule
-            if(e.TuesdayShift!.Shift != null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.TuesdayShift!.Shift!.Id, e.TuesdayShift!.ScheduleDate, IsDefault: false));
                 }
             }
         }
@@ -321,33 +353,34 @@
         #region WEDNESDAY
         // evaluate wednesday schedule
         // if there's an existing schedule, check if it's default or not
-        if(e.WednesdayShift!.ScheduleId != Guid.Empty) { 
-            // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
-            if(e.WednesdayShift!.Shift == null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new DeleteScheduleCommand(e.WednesdayShift.ScheduleId));
-                }
-            }
-            else{
-                if(e.WednesdayShift!.IsDefault) { // if default is true, then create an override
+        if(e.WednesdayShift!.IsUpdated) {   
+            if(e.WednesdayShift!.ScheduleId != Guid.Empty) { 
+                // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
+                if(e.WednesdayShift!.Shift == null) {
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.WednesdayShift!.Shift!.Id, e.WednesdayShift!.ScheduleDate, IsDefault: false));
+                        var ret = await mediator.Send(new DeleteScheduleCommand(e.WednesdayShift.ScheduleId));
                     }
                 }
-                else { // if default is false, then update the schedule
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new UpdateScheduleCommand(e.WednesdayShift.ScheduleId, e.EmployeeId, e.WednesdayShift!.Shift!.Id, e.WednesdayShift!.ScheduleDate, IsDefault: false));
+                else{
+                    if(e.WednesdayShift!.IsDefault) { // if default is true, then create an override
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.WednesdayShift!.Shift!.Id, e.WednesdayShift!.ScheduleDate, IsDefault: false));
+                        }
+                    }
+                    else { // if default is false, then update the schedule
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new UpdateScheduleCommand(e.WednesdayShift.ScheduleId, e.EmployeeId, e.WednesdayShift!.Shift!.Id, e.WednesdayShift!.ScheduleDate, IsDefault: false));
+                        }
                     }
                 }
             }
-        }
-        else { // if schedule id is empty, then create a new schedule
+            else { // if schedule id is empty, then create a new schedule
             if(e.WednesdayShift!.Shift != null) {
                 using (var scope = ServiceScopeFactory.CreateScope())
                 {
@@ -356,43 +389,46 @@
                 }
             }
         }
+        }
         #endregion
 
         #region THURSDAY
         // evaluate thursday schedule
         // if there's an existing schedule, check if it's default or not
-        if(e.ThursdayShift!.ScheduleId != Guid.Empty) { 
-            // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
-            if(e.ThursdayShift!.Shift == null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new DeleteScheduleCommand(e.ThursdayShift.ScheduleId));
+        if(e.ThursdayShift!.IsUpdated) {
+            if(e.ThursdayShift!.ScheduleId != Guid.Empty) { 
+                // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
+                if(e.ThursdayShift!.Shift == null) {
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var ret = await mediator.Send(new DeleteScheduleCommand(e.ThursdayShift.ScheduleId));
+                    }
+                }
+                else{
+                    if(e.ThursdayShift!.IsDefault) { // if default is true, then create an override
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.ThursdayShift!.Shift!.Id, e.ThursdayShift!.ScheduleDate, IsDefault: false));
+                        }
+                    }
+                    else { // if default is false, then update the schedule
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new UpdateScheduleCommand(e.ThursdayShift.ScheduleId, e.EmployeeId, e.ThursdayShift!.Shift!.Id, e.ThursdayShift!.ScheduleDate, IsDefault: false));
+                        }
+                    }
                 }
             }
-            else{
-                if(e.ThursdayShift!.IsDefault) { // if default is true, then create an override
+            else { // if schedule id is empty, then create a new schedule
+                if(e.ThursdayShift!.Shift != null) {
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                         var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.ThursdayShift!.Shift!.Id, e.ThursdayShift!.ScheduleDate, IsDefault: false));
                     }
-                }
-                else { // if default is false, then update the schedule
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new UpdateScheduleCommand(e.ThursdayShift.ScheduleId, e.EmployeeId, e.ThursdayShift!.Shift!.Id, e.ThursdayShift!.ScheduleDate, IsDefault: false));
-                    }
-                }
-            }
-        }
-        else { // if schedule id is empty, then create a new schedule
-            if(e.ThursdayShift!.Shift != null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.ThursdayShift!.Shift!.Id, e.ThursdayShift!.ScheduleDate, IsDefault: false));
                 }
             }
         }
@@ -401,33 +437,34 @@
         #region FRIDAY
         // evaluate friday schedule
         // if there's an existing schedule, check if it's default or not
-        if(e.FridayShift!.ScheduleId != Guid.Empty) { 
-            // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
-            if(e.FridayShift!.Shift == null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new DeleteScheduleCommand(e.FridayShift.ScheduleId));
-                }
-            }
-            else{
-                if(e.FridayShift!.IsDefault) { // if default is true, then create an override
+        if(e.FridayShift!.IsUpdated) {
+            if(e.FridayShift!.ScheduleId != Guid.Empty) { 
+                // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
+                if(e.FridayShift!.Shift == null) {
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.FridayShift!.Shift!.Id, e.FridayShift!.ScheduleDate, IsDefault: false));
+                        var ret = await mediator.Send(new DeleteScheduleCommand(e.FridayShift.ScheduleId));
                     }
                 }
-                else { // if default is false, then update the schedule
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new UpdateScheduleCommand(e.FridayShift.ScheduleId, e.EmployeeId, e.FridayShift!.Shift!.Id, e.FridayShift!.ScheduleDate, IsDefault: false));
+                else{
+                    if(e.FridayShift!.IsDefault) { // if default is true, then create an override
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.FridayShift!.Shift!.Id, e.FridayShift!.ScheduleDate, IsDefault: false));
+                        }
+                    }
+                    else { // if default is false, then update the schedule
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new UpdateScheduleCommand(e.FridayShift.ScheduleId, e.EmployeeId, e.FridayShift!.Shift!.Id, e.FridayShift!.ScheduleDate, IsDefault: false));
+                        }
                     }
                 }
             }
-        }
-        else { // if schedule id is empty, then create a new schedule
+            else { // if schedule id is empty, then create a new schedule
             if(e.FridayShift!.Shift != null) {
                 using (var scope = ServiceScopeFactory.CreateScope())
                 {
@@ -436,38 +473,40 @@
                 }
             }
         }
+        }
         #endregion
 
         #region SATURDAY
         // evaluate saturday schedule
         // if there's an existing schedule, check if it's default or not
-        if(e.SaturdayShift!.ScheduleId != Guid.Empty) { 
-            // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
-            if(e.SaturdayShift!.Shift == null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new DeleteScheduleCommand(e.SaturdayShift.ScheduleId));
-                }
-            }
-            else{
-                if(e.SaturdayShift!.IsDefault) { // if default is true, then create an override
+        if(e.SaturdayShift!.IsUpdated) {
+            if(e.SaturdayShift!.ScheduleId != Guid.Empty) { 
+                // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
+                if(e.SaturdayShift!.Shift == null) {
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.SaturdayShift!.Shift!.Id, e.SaturdayShift!.ScheduleDate, IsDefault: false));
+                        var ret = await mediator.Send(new DeleteScheduleCommand(e.SaturdayShift.ScheduleId));
                     }
                 }
-                else { // if default is false, then update the schedule
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new UpdateScheduleCommand(e.SaturdayShift.ScheduleId, e.EmployeeId, e.SaturdayShift!.Shift!.Id, e.SaturdayShift!.ScheduleDate, IsDefault: false));
+                else{
+                    if(e.SaturdayShift!.IsDefault) { // if default is true, then create an override
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.SaturdayShift!.Shift!.Id, e.SaturdayShift!.ScheduleDate, IsDefault: false));
+                        }
+                    }
+                    else { // if default is false, then update the schedule
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new UpdateScheduleCommand(e.SaturdayShift.ScheduleId, e.EmployeeId, e.SaturdayShift!.Shift!.Id, e.SaturdayShift!.ScheduleDate, IsDefault: false));
+                        }
                     }
                 }
             }
-        }
-        else { // if schedule id is empty, then create a new schedule
+            else { // if schedule id is empty, then create a new schedule
             if(e.SaturdayShift!.Shift != null) {
                 using (var scope = ServiceScopeFactory.CreateScope())
                 {
@@ -476,6 +515,21 @@
                 }
             }
         }
+        }
         #endregion
     }
+
+    private void HandleEmployeeFilter(ChangeEventArgs args)
+    {
+        if (args.Value is string value)
+            nameFilter = value;
+    }
+
+    private void HandleClear()
+    {
+        if (string.IsNullOrWhiteSpace(nameFilter))
+            nameFilter = string.Empty;
+    }
+
+
 }

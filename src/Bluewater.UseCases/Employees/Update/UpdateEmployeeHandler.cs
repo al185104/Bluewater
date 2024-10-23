@@ -21,13 +21,15 @@ using Bluewater.UseCases.Pays.Get;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Bluewater.UseCases.Users;
+using Bluewater.Core.EmployeeAggregate.Specifications;
 
 namespace Bluewater.UseCases.Employees.Update;
 public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceScopeFactory _serviceScopeFactory) : ICommandHandler<UpdateEmployeeCommand, Result<EmployeeDTO>>
 {
   public async Task<Result<EmployeeDTO>> Handle(UpdateEmployeeCommand request, CancellationToken cancellationToken)
   {
-    var existingEmployee = await _repository.GetByIdAsync(request.Id, cancellationToken);
+    var spec =  new EmployeeByIdSpec(request.Id);
+    var existingEmployee = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (existingEmployee == null) return Result.NotFound();
 
     existingEmployee.UpdateEmployee(request.FirstName, request.LastName, request.MiddleName, request.DateOfBirth, request.Gender, request.CivilStatus, request.BloodType, request.Status, request.Height, request.Weight, request.ImageUrl, request.Remarks);
@@ -177,13 +179,6 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
             charging = new ChargingDTO(Guid.Empty, string.Empty, string.Empty);
     }
 
-    // var pay = new PayDTO(
-    //     existingEmployee.Pay!.BasicPay,
-    //     existingEmployee.Pay!.DailyRate,
-    //     existingEmployee.Pay!.HourlyRate,
-    //     existingEmployee.Pay!.HDMF_Con,
-    //     existingEmployee.Pay!.HDMF_Er
-    // );
     PayDTO? pay = null;
     using (var scope = _serviceScopeFactory.CreateScope())
     {
