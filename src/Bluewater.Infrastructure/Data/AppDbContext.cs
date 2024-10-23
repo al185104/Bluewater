@@ -17,6 +17,7 @@ using Bluewater.Core.DivisionAggregate;
 using Bluewater.Core.ChargingAggregate;
 using Bluewater.Core.HolidayAggregate;
 using Bluewater.Core.ScheduleAggregate;
+using Bluewater.Core.TimesheetAggregate;
 
 namespace Bluewater.Infrastructure.Data;
 public class AppDbContext : DbContext
@@ -40,6 +41,7 @@ public class AppDbContext : DbContext
   public DbSet<Dependent> Dependents => Set<Dependent>();
   public DbSet<Holiday> Holidays => Set<Holiday>();
   public DbSet<Schedule> Schedules => Set<Schedule>();
+  public DbSet<Timesheet> Timesheets => Set<Timesheet>();
 
   public AppDbContext(DbContextOptions<AppDbContext> options,
     IDomainEventDispatcher? dispatcher)

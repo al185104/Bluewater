@@ -1,0 +1,2 @@
+namespace Bluewater.UseCases.Timesheets;
+public record TimesheetDTO(Guid Id, Guid EmployeeId, DateTime? TimeIn1, DateTime? TimeOut1, DateTime? TimeIn2, DateTime? TimeOut2, DateOnly? EntryDate, bool IsEdited = false);

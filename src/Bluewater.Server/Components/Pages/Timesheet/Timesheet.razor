@@ -1,0 +1,43 @@
+@page "/timesheet"
+@rendermode InteractiveServer
+
+@using Bluewater.Server.Global
+@using MediatR
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+@inject IGlobalService GlobalService
+@inject IDialogService DialogService
+
+<div class="center-message">
+    Migration in progress
+</div>
+
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
+
+@code{
+    private bool isBusy = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try {
+            isBusy = true;
+            await Task.Delay(100);
+            await LoadTimesheetAsync();
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    async Task LoadTimesheetAsync()
+    {
+        await Task.Delay(100);
+    }
+
+}

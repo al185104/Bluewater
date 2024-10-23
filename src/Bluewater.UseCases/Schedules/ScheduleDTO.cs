@@ -1,4 +1,3 @@
-using Bluewater.Core.ShiftAggregate;
 using Bluewater.UseCases.Shifts;
 
 namespace Bluewater.UseCases.Schedules;

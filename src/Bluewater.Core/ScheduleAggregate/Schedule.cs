@@ -1,4 +1,3 @@
-using System.Runtime.CompilerServices;
 using Ardalis.SharedKernel;
 using Bluewater.Core.EmployeeAggregate;
 using Bluewater.Core.ShiftAggregate;
