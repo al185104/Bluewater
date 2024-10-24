@@ -13,6 +13,6 @@ public class GetUserHandler(IRepository<User> _repository) : IQueryHandler<GetUs
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (entity == null) return Result.NotFound();
 
-    return new UserDTO(entity.Id, entity.Username, entity.PasswordHash, entity.Credential, entity.SupervisedGroup);
+    return new UserDTO(entity.Id, entity.Username, entity.PasswordHash, entity.Credential, entity.SupervisedGroup, entity.IsGlobalSupervisor);
   }
 }

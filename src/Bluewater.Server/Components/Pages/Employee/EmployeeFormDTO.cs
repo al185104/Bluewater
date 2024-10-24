@@ -68,6 +68,7 @@ public record EmployeeFormDTO()
     public string? Password { get; set; }
     public Credential Credential { get; set; }
     public Guid? SupervisedGroup { get; set; }
+    public bool IsGlobalSupervisor { get; set; }
 
     //external info
     public Guid PositionId { get; set; }
@@ -137,7 +138,7 @@ public record EmployeeFormDTO()
         EducationalAttainment educationalAttainment, string? courseGraduated, string? universityGraduated, 
         DateTime? dateHired, DateTime? dateRegularized, DateTime? dateResigned, DateTime? dateTerminated, string? tinNo, string? sssNo, string? hdmfNo, string? phicNo, string? bankAccount, bool hasServiceCharge,
         Guid? payId, decimal? basicPay, decimal? dailyRate, decimal? hourlyRate, decimal? hdmf_con, decimal? hdmf_er, 
-        Guid? userId, string? username, string? password, Credential credential, Guid? supervisedGroup, 
+        Guid? userId, string? username, string? password, Credential credential, Guid? supervisedGroup, bool isGlobalSupervisor,
         Guid positionId, Guid sectionId, Guid departmentId, Guid divisionId, Guid typeId, Guid levelId, Guid chargingId,
         ScheduleDTO? sunday = null, ScheduleDTO? monday = null, ScheduleDTO? tuesday = null, ScheduleDTO? wednesday = null, ScheduleDTO? thursday = null, ScheduleDTO? friday = null, ScheduleDTO? saturday = null) : this()
     {
@@ -190,6 +191,7 @@ public record EmployeeFormDTO()
         Password = password;
         Credential = credential;
         SupervisedGroup = supervisedGroup;
+        IsGlobalSupervisor = isGlobalSupervisor;
         PositionId = positionId;
         SectionId = sectionId;
         DepartmentId = departmentId;
@@ -197,13 +199,6 @@ public record EmployeeFormDTO()
         TypeId = typeId;
         LevelId = levelId;
         ChargingId = chargingId;
-        // SundayShift = sunday;
-        // MondayShift = monday;
-        // TuesdayShift = tuesday;
-        // WednesdayShift = wednesday;
-        // ThursdayShift = thursday;
-        // FridayShift = friday;
-        // SaturdayShift = saturday;
         SundaySchedule = sunday;
         MondaySchedule = monday;
         TuesdaySchedule = tuesday;

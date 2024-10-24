@@ -15,6 +15,7 @@ public class Timesheet(Guid employeeId, DateTime? timeIn1, DateTime? timeOut1, D
     public DateTime? TimeIn2Orig { get; set; } = timeIn2;
     public DateTime? TimeOut2Orig { get; set; } = timeOut2;
     public bool IsEdited { get; set; } = false;
+    public bool IsLocked { get; set; } = false;
     public DateOnly? EntryDate { get; set; } = entryDate;
 
     public DateTime CreatedDate { get; private set; } = DateTime.Now;
@@ -28,7 +29,7 @@ public class Timesheet(Guid employeeId, DateTime? timeIn1, DateTime? timeOut1, D
     public Timesheet() : this(Guid.Empty, null, null, null, null, null) { }
 
 
-    public void UpdateTimesheet(Guid employeeId, DateTime? timeIn1, DateTime? timeOut1, DateTime? timeIn2, DateTime? timeOut2, DateOnly? entryDate = null)
+    public void UpdateTimesheet(Guid employeeId, DateTime? timeIn1, DateTime? timeOut1, DateTime? timeIn2, DateTime? timeOut2, DateOnly? entryDate = null, bool isLocked = false)
     {
         EmployeeId = employeeId;
         TimeIn1 = timeIn1;
@@ -36,6 +37,7 @@ public class Timesheet(Guid employeeId, DateTime? timeIn1, DateTime? timeOut1, D
         TimeIn2 = timeIn2;
         TimeOut2 = timeOut2;
         EntryDate = entryDate ?? null;
+        IsLocked = isLocked;
 
         IsEdited = true;
         UpdatedDate = DateTime.Now;

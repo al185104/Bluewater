@@ -11,7 +11,7 @@ public class UpdateTimesheetHandler(IRepository<Timesheet> _repository) : IComma
     if (existingTimesheet == null)
       return Result.NotFound();
 
-    existingTimesheet.UpdateTimesheet(request.employeeId, request.timeIn1, request.timeOut1, request.timeIn2, request.timeOut2, request.entryDate);
+    existingTimesheet.UpdateTimesheet(request.employeeId, request.timeIn1, request.timeOut1, request.timeIn2, request.timeOut2, request.entryDate, request.isLocked);
 
     await _repository.UpdateAsync(existingTimesheet, cancellationToken);
 

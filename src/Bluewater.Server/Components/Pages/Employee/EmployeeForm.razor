@@ -150,7 +150,7 @@
                 Style="width: 100%" 
                 @onchange=HandleChargingsSelected>
             </FluentSelect>
-        </FluentGridItem>                
+        </FluentGridItem>
 
         <FluentGridItem xs="6"><FluentDatePicker Label="Date Hired" @bind-Value="@Content.DateHired" Style="width: 100%"/></FluentGridItem>
         <FluentGridItem xs="6"><FluentDatePicker Label="Date Regularized" @bind-Value="@Content.DateRegularized" Style="width: 100%"/></FluentGridItem>
@@ -256,7 +256,25 @@
                 @onchange=HandleCredentialsSelected>
             </FluentSelect>
         </FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Supervised Group" Value="@Content.SupervisedGroup.ToString()" Style="width: 100%" disabled/></FluentGridItem>
+        <FluentGridItem xs="5">
+            <FluentSelect TOption="SectionDTO"
+                Label="Supervised Group"
+                Items="@sections"
+                OptionText="@(o => o.Name)"
+                @bind-SelectedOption="@supervisedGroup"
+                Style="width: 100%" 
+                Disabled=IsDisableSupervisedGroup()
+                @onchange=HandleSupervisedGroupSelected>
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="1">
+            <FluentStack Orientation="Orientation.Vertical" 
+                        VerticalAlignment="VerticalAlignment.Center" 
+                        VerticalGap="5">
+                <FluentLabel>All</FluentLabel>
+                <FluentCheckbox @bind-Value="@Content.IsGlobalSupervisor"/>
+            </FluentStack>
+        </FluentGridItem>
 
     </FluentGrid>
 </FluentDialogBody>
@@ -288,6 +306,7 @@
     private List<LevelDTO> levels = new();
     private LevelDTO selectedLevel = new();
     private List<ShiftDTO> shifts = new();
+    private SectionDTO supervisedGroup = new();
 
 
     bool isFirstLoad = false;
@@ -343,6 +362,8 @@
             selectedEducationalAttainment = educationalAttainmentOptions.FirstOrDefault(i => (EducationalAttainment)(i.Value ?? EducationalAttainment.NotSet) == Content.EducationalAttainment) ?? new EnumOption(null, null);
             selectedEmploymentStatus = employmentStatusOptions.FirstOrDefault(i => (Status)(i.Value ?? Status.NotSet) == Content.Status) ?? new EnumOption(null, null);
             selectedCredential = credentialsOptions.FirstOrDefault(i => (Credential)(i.Value ?? Credential.None) == Content.Credential) ?? new EnumOption(null, null);
+
+            IsDisableSupervisedGroup();
         }
         return Task.CompletedTask;
     }
@@ -472,5 +493,19 @@
         var charging = chargings.FirstOrDefault(x => x.Name.Equals(stringValue, StringComparison.InvariantCultureIgnoreCase)); 
         if(charging != null)
             Content.ChargingId = charging.Id;
+    }
+
+    public void HandleSupervisedGroupSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+
+        var section = sections.FirstOrDefault(x => x.Name.Equals(stringValue, StringComparison.InvariantCultureIgnoreCase)); 
+        if(section != null)
+            Content.SupervisedGroup = section.Id;
+    }
+
+    public bool IsDisableSupervisedGroup(){
+
+        return Content.IsGlobalSupervisor || Content.Credential < Credential.Manager;
     }
 }

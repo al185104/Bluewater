@@ -18,6 +18,7 @@ using Bluewater.Core.ChargingAggregate;
 using Bluewater.Core.HolidayAggregate;
 using Bluewater.Core.ScheduleAggregate;
 using Bluewater.Core.TimesheetAggregate;
+using Bluewater.Core.AttendanceAggregate;
 
 namespace Bluewater.Infrastructure.Data;
 public class AppDbContext : DbContext
@@ -42,6 +43,7 @@ public class AppDbContext : DbContext
   public DbSet<Holiday> Holidays => Set<Holiday>();
   public DbSet<Schedule> Schedules => Set<Schedule>();
   public DbSet<Timesheet> Timesheets => Set<Timesheet>();
+  public DbSet<Attendance> Attendance => Set<Attendance>();
 
   public AppDbContext(DbContextOptions<AppDbContext> options,
     IDomainEventDispatcher? dispatcher)
@@ -58,8 +60,10 @@ public class AppDbContext : DbContext
 
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
-    optionsBuilder.UseSqlite("Data Source=localdatabase.db");
-    //base.OnConfiguring(optionsBuilder);
+    if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+      optionsBuilder.UseSqlite("Data Source=localdatabase.db");
+    else
+      base.OnConfiguring(optionsBuilder);
   }
 
   public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

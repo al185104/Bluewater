@@ -25,12 +25,29 @@ public static class InfrastructureServiceExtensions
     ConfigurationManager config,
     ILogger logger)
   {
-//    string? connectionString = config.GetConnectionString("DefaultConnection");
-    string? connectionString = config.GetConnectionString("SqliteConnection");        
-    Guard.Against.Null(connectionString);
-    services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(connectionString)
-    .LogTo(Console.WriteLine, LogLevel.None));
+    // if development use sqlite, else use sql server
+    string connectionString = string.Empty;
+    if (config.GetValue<string>("ASPNETCORE_ENVIRONMENT") == "Development"){
+      connectionString = config.GetConnectionString("SqliteConnection")!;
+      Guard.Against.Null(connectionString);
+
+      services.AddDbContext<AppDbContext>(options =>
+      options.UseSqlite(connectionString)
+      .LogTo(Console.WriteLine, LogLevel.None));
+
+    }
+    else{
+      connectionString = config.GetConnectionString("DefaultConnection")!;
+      Guard.Against.Null(connectionString);
+      services.AddDbContext<AppDbContext>(options =>
+      options.UseSqlServer(connectionString));
+    }
+
+    // string? connectionString = config.GetConnectionString("DefaultConnection");
+    // string? connectionString = config.GetConnectionString("SqliteConnection");        
+    // services.AddDbContext<AppDbContext>(options =>
+    // options.UseSqlite(connectionString)
+    // .LogTo(Console.WriteLine, LogLevel.None));
      //options.UseSqlServer(connectionString));
 
     services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));

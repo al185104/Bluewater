@@ -33,45 +33,46 @@ public class GetEmployeeHandler(IRepository<Employee> _repository, IServiceScope
     if (entity == null) return Result.NotFound();
 
     var contract = new ContactInfoDTO(
-        entity.ContactInfo!.Email,
-        entity.ContactInfo!.TelNumber,
-        entity.ContactInfo!.MobileNumber,
-        entity.ContactInfo!.Address,
-        entity.ContactInfo!.ProvincialAddress,
-        entity.ContactInfo!.MothersMaidenName,
-        entity.ContactInfo!.FathersName,
-        entity.ContactInfo!.EmergencyContact,
-        entity.ContactInfo!.RelationshipContact,
-        entity.ContactInfo!.AddressContact,
-        entity.ContactInfo!.TelNoContact,
-        entity.ContactInfo!.MobileNoContact
+        entity.ContactInfo?.Email,
+        entity.ContactInfo?.TelNumber,
+        entity.ContactInfo?.MobileNumber,
+        entity.ContactInfo?.Address,
+        entity.ContactInfo?.ProvincialAddress,
+        entity.ContactInfo?.MothersMaidenName,
+        entity.ContactInfo?.FathersName,
+        entity.ContactInfo?.EmergencyContact,
+        entity.ContactInfo?.RelationshipContact,
+        entity.ContactInfo?.AddressContact,
+        entity.ContactInfo?.TelNoContact,
+        entity.ContactInfo?.MobileNoContact
     );
 
     var educationInfo = new EducationInfoDTO(
-        entity.EducationInfo!.EducationalAttainment,
-        entity.EducationInfo!.CourseGraduated,
-        entity.EducationInfo!.UniversityGraduated
+        entity.EducationInfo?.EducationalAttainment ?? Core.EmployeeAggregate.Enum.EducationalAttainment.NotSet,
+        entity.EducationInfo?.CourseGraduated,
+        entity.EducationInfo?.UniversityGraduated
     );
 
     var employeeInfo = new EmploymentInfoDTO(
-        entity.EmploymentInfo!.DateHired,
-        entity.EmploymentInfo!.DateRegularized,
-        entity.EmploymentInfo!.DateResigned,
-        entity.EmploymentInfo!.DateTerminated,
-        entity.EmploymentInfo!.TINNo,
-        entity.EmploymentInfo!.SSSNo,
-        entity.EmploymentInfo!.HDMFNo,
-        entity.EmploymentInfo!.PHICNo,
-        entity.EmploymentInfo!.BankAccount,
-        entity.EmploymentInfo!.HasServiceCharge
+        entity.EmploymentInfo?.DateHired,
+        entity.EmploymentInfo?.DateRegularized,
+        entity.EmploymentInfo?.DateResigned,
+        entity.EmploymentInfo?.DateTerminated,
+        entity.EmploymentInfo?.TINNo,
+        entity.EmploymentInfo?.SSSNo,
+        entity.EmploymentInfo?.HDMFNo,
+        entity.EmploymentInfo?.PHICNo,
+        entity.EmploymentInfo?.BankAccount,
+        entity.EmploymentInfo?.HasServiceCharge ?? false
     );
 
     var user = new UserDTO(
-        entity.User!.Id,
+        entity.User?.Id ?? Guid.Empty,
         entity.User!.Username, 
-        entity.User.PasswordHash, 
-        entity.User!.Credential,
-        entity.User!.SupervisedGroup);
+        entity.User!.PasswordHash, 
+        entity.User?.Credential ?? Core.UserAggregate.Enum.Credential.None,
+        entity.User?.SupervisedGroup ?? Guid.Empty,
+        entity.User?.IsGlobalSupervisor ?? false);
 
     PositionDTO? position = null;
     using (var scope = _serviceScopeFactory.CreateScope())

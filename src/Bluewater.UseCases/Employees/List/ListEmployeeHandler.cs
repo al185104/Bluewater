@@ -77,9 +77,9 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new GetUserQuery(entity.UserId), cancellationToken);
                 if (result.IsSuccess)
-                    user = new UserDTO(result.Value.Id, result.Value.Username, result.Value.PasswordHash, result.Value.Credential, result.Value.SupervisedGroup);
+                    user = new UserDTO(result.Value.Id, result.Value.Username, result.Value.PasswordHash, result.Value.Credential, result.Value.SupervisedGroup, result.Value.IsGlobalSupervisor);
                 else
-                    user = new UserDTO(Guid.Empty, string.Empty, string.Empty, Core.UserAggregate.Enum.Credential.None, Guid.Empty);
+                    user = new UserDTO(Guid.Empty, string.Empty, string.Empty, Core.UserAggregate.Enum.Credential.None, Guid.Empty, isGlobalSupervisor: false);
             }
 
             PositionDTO? position = null;

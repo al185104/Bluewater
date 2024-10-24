@@ -35,11 +35,10 @@ internal class ListAllTimesheetHandler(IServiceScopeFactory serviceScopeFactory)
                 if (ret.IsSuccess){
                     var val = ret.Value;
 
-                    var totalWorkHours = 0;//val.Timesheets.Sum(x => x.TimeOut1?.Subtract((DateTime)x.TimeIn1).TotalHours ?? 0 + x.TimeOut2.Subtract(x.TimeIn2).TotalHours);
+                    var totalWorkHours = 0;
                     var totalBreak = 0;
                     var totalLates = 0;
                     var TotalAbsents = 0;
-
 
                     results.Add(new AllEmployeeTimesheetDTO(val.EmployeeId, val.Name, val.Department, val.Section, val.Charging, val.Timesheets, totalWorkHours, totalBreak, totalLates, TotalAbsents));
                 }

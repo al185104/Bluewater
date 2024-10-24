@@ -30,6 +30,10 @@ using Bluewater.Core.EmployeeTypeAggregate;
 using Bluewater.UseCases.EmployeeTypes.Create;
 using Bluewater.Core.EmployeeAggregate;
 using Bluewater.UseCases.Employees.Create;
+using Bluewater.Core.ScheduleAggregate;
+using Bluewater.UseCases.Schedules.Create;
+using Bluewater.Core.TimesheetAggregate;
+using Bluewater.UseCases.Timesheets.Create;
 
 internal class Program
 {
@@ -78,6 +82,7 @@ internal class Program
     }
 
     builder.Services.AddFluentUIComponents();
+
     builder.Services.AddDataGridEntityFrameworkAdapter();
 
     var app = builder.Build();
@@ -135,6 +140,13 @@ internal class Program
 
       Assembly.GetAssembly(typeof(Employee)),
       Assembly.GetAssembly(typeof(CreateEmployeeCommand)),
+
+      Assembly.GetAssembly(typeof(Schedule)),
+      Assembly.GetAssembly(typeof(CreateScheduleCommand)),
+
+      Assembly.GetAssembly(typeof(Timesheet)),
+      Assembly.GetAssembly(typeof(CreateTimesheetCommand))
+
     };
     builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(mediatRAssemblies!));
     builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));

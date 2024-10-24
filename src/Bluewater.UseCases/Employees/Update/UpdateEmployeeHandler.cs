@@ -122,7 +122,8 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
         existingEmployee.User!.Username, 
         existingEmployee.User.PasswordHash, 
         existingEmployee.User!.Credential,
-        existingEmployee.User!.SupervisedGroup);
+        existingEmployee.User!.SupervisedGroup,
+        existingEmployee.User!.IsGlobalSupervisor);
 
     PositionDTO? position = null;
     using (var scope = _serviceScopeFactory.CreateScope())

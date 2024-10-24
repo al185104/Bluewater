@@ -1,0 +1,4 @@
+{
+    "appService.defaultWebAppToDeploy": "/subscriptions/1cfe203b-1813-48d6-ac51-37d9b9a1c60b/resourceGroups/Bluewater_rg/providers/Microsoft.Web/sites/bluewater-maribago",
+    "appService.deploySubpath": "src/Bluewater.UseCases"
+}

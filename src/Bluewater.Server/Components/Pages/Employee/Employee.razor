@@ -173,7 +173,7 @@
             employee.EducationInfo!.EducationalAttainment, employee.EducationInfo!.CourseGraduated, employee.EducationInfo!.UniversityGraduated,
             employee.EmploymentInfo!.DateHired, employee.EmploymentInfo!.DateRegularized, employee.EmploymentInfo!.DateResigned, employee.EmploymentInfo!.DateTerminated, employee.EmploymentInfo!.TinNo, employee.EmploymentInfo!.SssNo, employee.EmploymentInfo!.PagibigNo, employee.EmploymentInfo!.PhilHealthNo, employee.EmploymentInfo!.BankAccount, employee.EmploymentInfo!.HasServiceCharge,
             employee.Pay!.Id, employee.Pay!.BasicPay, employee.Pay!.DailyRate, employee.Pay!.HourlyRate, employee.Pay!.HDMF_Con, employee.Pay!.HDMF_Er,
-            employee.User!.Id, employee.User!.Username, employee.User!.PasswordHash, credential, employee.User!.SupervisedGroup,
+            employee.User!.Id, employee.User!.Username, employee.User!.PasswordHash, credential, employee.User!.SupervisedGroup, employee.User!.IsGlobalSupervisor,
             positionId, sectionId, departmentId, divisionId, typeId, levelId, chargingId,
             defaultSchedules[0].Id == Guid.Empty ? null : defaultSchedules[0], 
             defaultSchedules[1].Id == Guid.Empty ? null : defaultSchedules[1],
@@ -214,7 +214,7 @@
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        await mediator.Send(new UpdateUserCommand(e.UserId ?? Guid.Empty, e.Username ?? string.Empty, e.Password ?? string.Empty, e.Credential, e.SupervisedGroup));
+                        await mediator.Send(new UpdateUserCommand(e.UserId ?? Guid.Empty, e.Username ?? string.Empty, e.Password ?? string.Empty, e.Credential, e.SupervisedGroup, e.IsGlobalSupervisor));
                     }
 
                     // update pay
@@ -262,7 +262,7 @@
             EducationalAttainment.NotSet,null,null,
             null,null,null,null,null,null,null,null,null,false,
             null,null,null,null,null,null,
-            null,null,null,Credential.None,null,
+            null,null,null,Credential.None,null,isGlobalSupervisor: false,
             Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty
         );
 
@@ -297,7 +297,7 @@
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new CreateUserCommand(e.Username ?? string.Empty, e.Password ?? string.Empty, e.Credential, e.SupervisedGroup));
+                        var ret = await mediator.Send(new CreateUserCommand(e.Username ?? string.Empty, e.Password ?? string.Empty, e.Credential, e.SupervisedGroup, e.IsGlobalSupervisor));
                         if (ret.IsSuccess)
                             userId = ret.Value;
                     }

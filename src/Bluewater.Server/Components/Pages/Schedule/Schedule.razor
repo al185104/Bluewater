@@ -16,6 +16,7 @@
 @inject IDialogService DialogService
 
 <FluentDialogProvider/>
+<FluentTooltipProvider />
 
 <PageTitle>Schedules</PageTitle>
 
@@ -52,7 +53,8 @@
                 else{
                     <FluentIcon Value="@(new Icons.Regular.Size16.Circle())" />
                 }
-                <h6 style="margin: 0; vertical-align: bottom;"><bold>@(GetSelectedShiftName(context, day))</bold></h6>
+                <FluentLabel id="@GetSelectedShiftID(context, day)">@(GetSelectedShiftName(context, day))</FluentLabel>
+                <FluentTooltip Anchor="@GetSelectedShiftID(context, day)" HideTooltipOnCursorLeave="true" Position=TooltipPosition.Top Delay=200>@GetSelectedShiftNameAndDescription(context,day)</FluentTooltip>
             </FluentStack>
         </TemplateColumn>
     }
@@ -71,13 +73,13 @@
 }
 
 @code{
-    string nameFilter = string.Empty;        
     private bool isBusy = false;
     public IQueryable<EmployeeScheduleDTO> EmployeeSchedules { get; set; } = default!;
     private DateTime searchDate = DateTime.Now;
     private DateOnly startDate;
     private DateOnly endDate;
     private List<ShiftDTO> shifts = new();
+    string nameFilter = string.Empty;
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     IQueryable<EmployeeScheduleDTO>? FilteredItems
     {
@@ -88,7 +90,7 @@
                 result = result.Where(c => c.Name.Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));
             return result;
         }
-    }                    
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -154,11 +156,25 @@
     private string? GetSelectedShiftName(EmployeeScheduleDTO employee, int day)
     {
         if(employee.Shifts.Count > day)
-        {
             return $"{employee.Shifts[day]?.Shift?.Name}";
-        }
         return null;
     }    
+
+    private  string? GetSelectedShiftNameAndDescription(EmployeeScheduleDTO employee, int day)
+    {
+        if(employee.Shifts.Count > day && employee.Shifts[day]?.Shift != null){
+            var o = employee.Shifts[day]?.Shift;
+            if(!string.IsNullOrEmpty(o?.Name) && o?.ShiftStartTime != null && o?.ShiftBreakTime != null && o?.ShiftBreakEndTime != null && o?.ShiftEndTime != null)
+                return $"{o?.Name}   :   [{o?.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o?.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o?.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o?.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o?.BreakHours} break hrs)";
+        }
+        return null;
+    }
+
+
+    private string GetSelectedShiftID(EmployeeScheduleDTO employee, int day)
+    {
+        return $"{employee.EmployeeId}_{day}";
+    }     
 
     private List<ShiftDTO> ListOfShifts()
     {
@@ -190,7 +206,7 @@
             ShowDismiss = true,
             PrimaryAction = anySchedId ? "Update" : "Create",
             SecondaryAction = "Cancel",
-            Width = "650px",
+            Width = "30%",
         });
 
         DialogResult result = await _dialog.Result;

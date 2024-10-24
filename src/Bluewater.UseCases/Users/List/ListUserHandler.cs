@@ -8,7 +8,7 @@ internal class ListUserHandler(IRepository<User> _repository) : IQueryHandler<Li
 {
   public async Task<Result<IEnumerable<UserDTO>>> Handle(ListUserQuery request, CancellationToken cancellationToken)
   {
-    var result = (await _repository.ListAsync(cancellationToken)).Select(s => new UserDTO(s.Id, s.Username, s.PasswordHash, s.Credential, s.SupervisedGroup));
+    var result = (await _repository.ListAsync(cancellationToken)).Select(s => new UserDTO(s.Id, s.Username, s.PasswordHash, s.Credential, s.SupervisedGroup, s.IsGlobalSupervisor));
     return Result.Success(result);
   }
 }

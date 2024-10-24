@@ -14,10 +14,10 @@ public class UpdateUserHandler(IRepository<User> _repository) : ICommandHandler<
       return Result.NotFound();
     }
 
-    existingUser.UpdateUser(request.Username, request.PasswordHash, request.Credential, request.SupervisedGroup);
+    existingUser.UpdateUser(request.Username, request.PasswordHash, request.Credential, request.SupervisedGroup, request.IsGlobalSupervisor);
 
     await _repository.UpdateAsync(existingUser, cancellationToken);
 
-    return Result.Success(new UserDTO(existingUser.Id, existingUser.Username, existingUser.PasswordHash, existingUser.Credential, existingUser.SupervisedGroup));
+    return Result.Success(new UserDTO(existingUser.Id, existingUser.Username, existingUser.PasswordHash, existingUser.Credential, existingUser.SupervisedGroup, existingUser.IsGlobalSupervisor));
   }
 }
