@@ -33,4 +33,5 @@ public interface IGlobalService
 
     Task LoadDataAsync();
     (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfWeekByDate(DateTime date);
+    (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfPayslip(DateOnly date);
 }

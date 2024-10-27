@@ -3,49 +3,77 @@
 
 @using Bluewater.Server.Global
 @using Bluewater.UseCases.Timesheets
+@using Bluewater.UseCases.Timesheets.Create
 @using Bluewater.UseCases.Timesheets.List
+@using Bluewater.UseCases.Timesheets.Update
 @using MediatR
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
 @inject IGlobalService GlobalService
 @inject IDialogService DialogService
 
-<FluentDialogProvider/>
+<PageTitle>Timesheet</PageTitle>
 
-<PageTitle>Schedules</PageTitle>
 
-<h3>Schedules</h3>
+<FluentGrid>
+    <FluentGridItem xs="6">
+        <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center" Orientation="Orientation.Vertical">
+            <h3>Timesheet</h3>
+            <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom" Orientation="Orientation.Horizontal">            
+                <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadTimesheetAsync(searchDate = searchDate.AddDays(-15)))"/>
+                <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
+                <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadTimesheetAsync(searchDate = searchDate.AddDays(15)))"/>
+            </FluentStack>
+        </FluentStack>
+    </FluentGridItem>
+    <FluentGridItem xs="6">
+        <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Top">
+            <FluentLabel Style="margin-top: 0px;"><strong>Employee: @EmployeeTimesheets?.Name</strong></FluentLabel>
+            <FluentLabel>Department: @EmployeeTimesheets?.Department</FluentLabel>
+            <FluentLabel>Section: @EmployeeTimesheets?.Section</FluentLabel>
+            <FluentLabel Style="margin-bottom: 0px;">Charging: @EmployeeTimesheets?.Charging</FluentLabel>
+        </FluentStack>
+    </FluentGridItem>
+</FluentGrid>
 
-<FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
-    <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadTimesheetAsync(searchDate = searchDate.AddDays(-7)))"/>
-    <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
-    <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadTimesheetAsync(searchDate = searchDate.AddDays(7)))"/>
-</FluentStack>
 
-<FluentDataGrid Items="@FilteredItems" Pagination="@pagination"
-    Style="height: 550px;overflow:auto;"
-    GridTemplateColumns="1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.3fr">
-    <PropertyColumn Title="Employee" Property="@(p => p.Name)" Sortable="true">
-        <ColumnOptions>
-            <div class="search-box">
-                <FluentSearch Autofocus=true @bind-Value=nameFilter @oninput="HandleEmployeeFilter" @bind-Value:after="HandleClear" Placeholder="Employee name..." Style="width: 100%;" Label="Filter" />
-            </div>
-        </ColumnOptions>
-    </PropertyColumn>
-    <PropertyColumn Title="Department" Property="@(p => p.Department)" Sortable="true"/>
-    <PropertyColumn Title="Section" Property="@(p => p.Section)" Sortable="true"/>
-    <PropertyColumn Title="Charging" Property="@(p => p.Charging)" Sortable="true"/>
-    <PropertyColumn Title="Total Work Hours" Property="@(p => p.TotalWorkHours)" Sortable="true"/>
-    <PropertyColumn Title="Total Break" Property="@(p => p.TotalBreak)" Sortable="true"/>
-    <PropertyColumn Title="Total Lates" Property="@(p => p.TotalLates)" Sortable="true"/>
-    <PropertyColumn Title="Total Absents" Property="@(p => p.TotalAbsents)" Sortable="true"/>
-    <TemplateColumn Title="Actions" Align="@Align.End">
-        <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size20.Edit())" OnClick="@(async() => await EditTimesheetAsync(context))"/>
+
+<FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Placeholder="Employee name..." Style="width: 100%;" Label="Enter employee name:" />
+
+<FluentDataGrid Items="@Timesheets" TGridItem=TimesheetInfo>
+    <PropertyColumn Title="Date" Property="@(p => p.EntryDate)" Format="MMM-dd" Sortable="true"/>
+    <PropertyColumn Title="Day of Week" Property="@(p => p.EntryDate)" Format="dddd" />
+    @* <TemplateColumn Title="Time in #1">
+        <FluentTimePicker Value="@context!.TimeIn1" ValueChanged="@(e => context!.TimeIn1 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" Style="@(context!.TimeIn1 == null ? "border: 1px solid lightcoral;" : "")" />
     </TemplateColumn>
+    <TemplateColumn Title="Time out #1">
+        <FluentTimePicker Value="@context!.TimeOut1" ValueChanged="@(e => context!.TimeOut1 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" Style="@(context!.TimeOut1 == null ? "border: 1px solid lightcoral;" : "")"/>
+    </TemplateColumn>
+    <TemplateColumn Title="Time in #2">
+        <FluentTimePicker Value="@context!.TimeIn2" ValueChanged="@(e => context!.TimeIn2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" Style="@(context!.TimeIn2 == null ? "border: 1px solid lightcoral;" : "")"/>
+    </TemplateColumn>
+    <TemplateColumn Title="Time out #2">
+        <FluentTimePicker Value="@context!.TimeOut2" ValueChanged="@(e => context!.TimeOut2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" Style="@(context!.TimeOut2 == null ? "border: 1px solid lightcoral;" : "")"/>
+    </TemplateColumn> *@
+    <TemplateColumn Title="Time in #1">
+        <FluentTimePicker Value="@context!.TimeIn1" ValueChanged="@(e => context!.TimeIn1 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" />
+    </TemplateColumn>
+    <TemplateColumn Title="Time out #1">
+        <FluentTimePicker Value="@context!.TimeOut1" ValueChanged="@(e => context!.TimeOut1 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" />
+    </TemplateColumn>
+    <TemplateColumn Title="Time in #2">
+        <FluentTimePicker Value="@context!.TimeIn2" ValueChanged="@(e => context!.TimeIn2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" />
+    </TemplateColumn>
+    <TemplateColumn Title="Time out #2">
+        <FluentTimePicker Value="@context!.TimeOut2" ValueChanged="@(e => context!.TimeOut2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" />
+    </TemplateColumn>    
+    <TemplateColumn Title="Actions" Align="@Align.End">
+        <FluentButton aria-label="Override item" IconEnd="@(new Icons.Regular.Size16.Edit())" OnClick="@(async() => await AllowEditTimesheetAsync(context))"/>
+        <FluentButton aria-label="Save item" IconEnd="@(new Icons.Regular.Size16.Save())" OnClick="@(async() => await SaveTimesheetAsync(context))"/>
+    </TemplateColumn>    
 </FluentDataGrid>
 
-<FluentPaginator State="@pagination" />
-
+<FluentDialogProvider/>
 
 @if (isBusy)
 {
@@ -55,56 +83,48 @@
 }
 
 @code{
+
     private bool isBusy = false;
     private DateTime searchDate = DateTime.Now;
     private DateOnly startDate, endDate;
-    private IQueryable<AllEmployeeTimesheetDTO> EmployeeSchedules = default!;
-
+    private EmployeeTimesheetDTO EmployeeTimesheets = default!;
+    private IQueryable<TimesheetInfo> Timesheets = default!;
     string nameFilter = string.Empty;
-    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
-    IQueryable<AllEmployeeTimesheetDTO>? FilteredItems
-    {
-        get
-        {
-            var result = EmployeeSchedules;
-            if (result is not null && !string.IsNullOrEmpty(nameFilter))
-                result = result.Where(c => c.Name.Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));
-            return result;
-        }
-    }
 
 
     protected override async Task OnInitializedAsync()
     {
-        try {
-            isBusy = true;
-            await Task.Delay(100);
-            await LoadTimesheetAsync(searchDate);
-        }
-        finally
-        {
-            isBusy = false;
-        }
+        await Task.Delay(100);
+        var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(searchDate));
+        startDate = _startDate;
+        endDate = _endDate;
     }
 
     async Task LoadTimesheetAsync(DateTime date)
     {
+        if(string.IsNullOrEmpty(nameFilter)) return;
+
+        var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(date));
+        startDate = _startDate;
+        endDate = _endDate;
+
         using (var scope = ServiceScopeFactory.CreateScope())
         {
-            var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfWeekByDate(date);
-            startDate = _startDate;
-            endDate = _endDate;            
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            var result = await mediator.Send(new ListAllTimesheetQuery(null, null, _startDate, _endDate));
-            if (result.IsSuccess)
-                EmployeeSchedules = result.Value.AsQueryable();
+            var result = await mediator.Send(new ListTimesheetQuery(null, null, nameFilter, _startDate, _endDate));
+            if (result.IsSuccess) {
+                EmployeeTimesheets = result.Value;
+                Timesheets = EmployeeTimesheets.Timesheets.AsQueryable();
+            }
         }
     }
 
-    private void HandleEmployeeFilter(ChangeEventArgs args)
+    private async Task HandleEmployeeFilter(ChangeEventArgs args)
     {
-        if (args.Value is string value)
+        if (args.Value is string value){
             nameFilter = value;
+            await LoadTimesheetAsync(searchDate);
+        }
     }
 
     private void HandleClear()
@@ -113,27 +133,46 @@
             nameFilter = string.Empty;
     }
 
-    async Task EditTimesheetAsync(AllEmployeeTimesheetDTO context)
+    private TimeOnly ToTimeOnly(DateTime? dateTime)
     {
-        await Task.Delay(100);
-        @* IDialogReference _dialog = await DialogService.ShowPanelAsync<ScheduleForm>(sched, new DialogParameters<ScheduleFormDTO>
-        {
-            Title = anySchedId ? "Update schedule" : "Create Schedule",
-            Alignment = HorizontalAlignment.Right,
-            Content = sched,
-            Modal = false,
-            ShowDismiss = true,
-            PrimaryAction = anySchedId ? "Update" : "Create",
-            SecondaryAction = "Cancel",
-            Width = "30%",
-        });
-
-        DialogResult result = await _dialog.Result;
-        await HandleUpdatePanelAsync(result); *@
+        return dateTime.HasValue ? TimeOnly.FromDateTime(dateTime.Value) : default;
     }
 
-    async Task HandleUpdatePanelAsync(DialogResult result) {
-        await Task.Delay(100);
+    private async Task AllowEditTimesheetAsync(TimesheetInfo context)
+    {
+        var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to edit a locked daily time record for {context.EntryDate?.ToString("MMMM - dd, dddd")}?", "Yes", "No", "Edit");
+        var conf = await dialog.Result;
+        if (conf.Cancelled) return;  
+
+        context.IsEdited = true;
     }
 
+    private async Task SaveTimesheetAsync(TimesheetInfo context) {
+        var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to override daily time record for {context.EntryDate?.ToString("MMMM - dd, dddd")}?", "Yes", "No", "Save");
+        var conf = await dialog.Result;
+        if (conf.Cancelled) return; 
+
+        if(context.TimesheetId == Guid.Empty) {
+            // create new timesheet
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateTimesheetCommand(EmployeeTimesheets.EmployeeId, context.TimeIn1, context.TimeOut1, context.TimeIn2, context.TimeOut2, context!.EntryDate));
+                if (result.IsSuccess) {
+                    context.IsEdited = false;
+                }
+            }            
+        }
+        else {
+            // update existing timesheet
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new UpdateTimesheetCommand(context.TimesheetId, EmployeeTimesheets.EmployeeId, context.TimeIn1, context.TimeOut1, context.TimeIn2, context.TimeOut2, context!.EntryDate, isLocked: true));
+                if (result.IsSuccess) {
+                    context.IsEdited = false;
+                }
+            }
+        }
+    }
 }

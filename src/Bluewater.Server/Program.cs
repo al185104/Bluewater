@@ -34,6 +34,10 @@ using Bluewater.Core.ScheduleAggregate;
 using Bluewater.UseCases.Schedules.Create;
 using Bluewater.Core.TimesheetAggregate;
 using Bluewater.UseCases.Timesheets.Create;
+using Bluewater.Core.UserAggregate;
+using Bluewater.UseCases.Users.Create;
+using Bluewater.Core.AttendanceAggregate;
+using Bluewater.UseCases.Attendances.Create;
 
 internal class Program
 {
@@ -145,7 +149,13 @@ internal class Program
       Assembly.GetAssembly(typeof(CreateScheduleCommand)),
 
       Assembly.GetAssembly(typeof(Timesheet)),
-      Assembly.GetAssembly(typeof(CreateTimesheetCommand))
+      Assembly.GetAssembly(typeof(CreateTimesheetCommand)),
+
+      Assembly.GetAssembly(typeof(User)),
+      Assembly.GetAssembly(typeof(CreateUserCommand)),
+
+      Assembly.GetAssembly(typeof(Attendance)),
+      Assembly.GetAssembly(typeof(CreateAttendanceCommand)),
 
     };
     builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(mediatRAssemblies!));

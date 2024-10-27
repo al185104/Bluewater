@@ -1,0 +1,148 @@
+@page "/attendance"
+@rendermode InteractiveServer
+
+@using Bluewater.UseCases.Attendances
+@using Bluewater.UseCases.Attendances.List
+@using Bluewater.UseCases.Timesheets
+@using Bluewater.UseCases.Timesheets.List
+@using MediatR
+
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+@using Bluewater.Server.Global
+@inject IGlobalService GlobalService
+@inject IDialogService DialogService
+@inject NavigationManager NavigationManager
+
+<FluentDialogProvider/>
+<FluentTooltipProvider />
+
+<PageTitle>Attendance</PageTitle>
+
+<h3>Attendance</h3>
+
+<FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
+    <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadAttendanceAsync(searchDate = searchDate.AddDays(-15)))"/>
+    <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
+    <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadAttendanceAsync(searchDate = searchDate.AddDays(15)))"/>
+</FluentStack>
+
+<FluentDataGrid Items="@FilteredItems" Pagination="@pagination"
+    Style="height: 550px;overflow:auto;"
+    GridTemplateColumns="1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.5fr">
+    <PropertyColumn Title="Employee" Property="@(p => p.Name)" Sortable="true">
+        <ColumnOptions>
+            <div class="search-box">
+                <FluentSearch Autofocus=true @bind-Value=nameFilter @oninput="HandleEmployeeFilter" @bind-Value:after="HandleClear" Placeholder="Employee name..." Style="width: 100%;" Label="Filter" />
+            </div>
+        </ColumnOptions>
+    </PropertyColumn>
+    <PropertyColumn Title="Department" Property="@(p => p.Department)" Sortable="true"/>
+    <PropertyColumn Title="Section" Property="@(p => p.Section)" Sortable="true"/>
+    <PropertyColumn Title="Charging" Property="@(p => p.Charging)" Sortable="true"/>
+    <PropertyColumn Title="Total Work" Property="@(p => p.TotalWorkHrs)" Sortable="true"/>
+    <PropertyColumn Title="Total Late" Property="@(p => p.TotalLateHrs)" Sortable="true"/>
+    <PropertyColumn Title="Total Undertime" Property="@(p => p.TotalUnderHrs)" Sortable="true"/>
+    <PropertyColumn Title="Total Leaves" Property="@(p => p.TotalLeaves)" Sortable="true"/>
+    <TemplateColumn Title="Actions" Align="@Align.End">
+        <FluentButton aria-label="view item" IconEnd="@(new Icons.Regular.Size20.Edit())" OnClick="@(async() => await ViewAttendanceAsync(context))"/>
+    </TemplateColumn>
+</FluentDataGrid>
+
+<FluentPaginator State="@pagination" />
+
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
+
+@code {
+    private bool isBusy = false;
+    private DateOnly searchDate = DateOnly.FromDateTime(DateTime.Now);
+    private DateOnly startDate, endDate;
+    string nameFilter = string.Empty;
+    PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private IQueryable<AllAttendancesDTO> EmployeeAttendance = default!;    
+    IQueryable<AllAttendancesDTO>? FilteredItems
+    {
+        get
+        {
+            var result = EmployeeAttendance;
+            if (result is not null && !string.IsNullOrEmpty(nameFilter))
+                result = result.Where(c => c.Name.Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));
+            return result;
+        }
+    }    
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAttendanceAsync(searchDate);
+    }
+
+    private async Task LoadAttendanceAsync(DateOnly searchDate)
+    {
+        try {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(searchDate);
+                startDate = _startDate;
+                endDate = _endDate;
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListAllAttendancesQuery(null, null, _startDate, _endDate));
+                if (result.IsSuccess)
+                    EmployeeAttendance = result.Value.AsQueryable();
+            }            
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }
+
+    private void HandleEmployeeFilter(ChangeEventArgs args)
+    {
+        if (args.Value is string value)
+            nameFilter = value;
+    }
+
+    private void HandleClear()
+    {
+        if (string.IsNullOrWhiteSpace(nameFilter))
+            nameFilter = string.Empty;
+    }
+
+    private async Task ViewAttendanceAsync(AllAttendancesDTO context)
+    {
+        @* IDialogReference _dialog = await DialogService.ShowPanelAsync<AttendanceForm>(context, new DialogParameters<AllAttendancesDTO>
+        {
+            Title = "Attendance",
+            Alignment = HorizontalAlignment.Right,
+            Content = context,
+            Modal = false,
+            ShowDismiss = true,
+            PrimaryAction = "Update",
+            SecondaryAction = "Cancel",
+            Width = "100%",
+        });
+
+        DialogResult result = await _dialog.Result;
+        await HandleUpdatePanelAsync(result); *@
+
+        // navigate to the attendance form
+        await Task.Delay(100);
+        NavigationManager.NavigateTo($"/attendance/details/{context.EmployeeId}/{searchDate.ToString("yyyy-MM-dd")}");
+    }
+
+    @* private async Task HandleUpdatePanelAsync(DialogResult result)
+    {
+        if (result.Cancelled) return;
+        await Task.Delay(100);
+    } *@
+
+}

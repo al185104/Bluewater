@@ -1,0 +1,197 @@
+@page "/attendance/details/{EmpId:guid}/{SearchDate:datetime}"
+@using Bluewater.Server.Global;
+@using Bluewater.UseCases.Attendances
+@using Bluewater.UseCases.Attendances.Create
+@using Bluewater.UseCases.Attendances.Get
+@using Bluewater.UseCases.Attendances.List
+@using Bluewater.UseCases.Attendances.Update
+@using Bluewater.UseCases.Employees
+@using Bluewater.UseCases.Timesheets;
+@using Bluewater.UseCases.Shifts;
+@using MediatR
+@rendermode InteractiveServer
+
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+@inject IGlobalService GlobalService;
+@inject IDialogService DialogService
+
+<FluentGrid>
+    <FluentGridItem xs="6">
+        <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadAttendanceAsync(SearchDate = SearchDate.AddDays(-15)))"/>
+            <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadAttendanceAsync(SearchDate = SearchDate.AddDays(15)))"/>
+        </FluentStack>
+    </FluentGridItem>
+    <FluentGridItem xs="6">
+        <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Center">
+            <FluentLabel Style="margin-top: 0px;"><strong>Employee: @($"{Employee?.LastName}, {Employee?.FirstName}")</strong></FluentLabel>
+            <FluentLabel>Department: @Employee?.Department</FluentLabel>
+            <FluentLabel>Section: @Employee?.Section</FluentLabel>
+            <FluentLabel Style="margin-bottom: 0px;">Charging: @Employee?.Charging</FluentLabel>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Save())" OnClick="@(async() => await UpdateAllAttendanceAsync())" Appearance="Appearance.Accent">Update</FluentButton>
+        </FluentStack>
+    </FluentGridItem>
+</FluentGrid>
+
+<FluentDataGrid Items="@EmployeeAttendance" TGridItem="AttendanceDTO">
+    <PropertyColumn Title="Date" Property="@(p => p.EntryDate)" Format="MMM-dd" Sortable="true"/>
+    <PropertyColumn Title="Day" Property="@(p => p.EntryDate)" Format="dddd" Sortable="true"/>
+    <TemplateColumn Title="Shift" Align="@Align.Center">
+        <FluentButton IconStart="@(new Icons.Regular.Size16.Edit())" OnClick="@(async() => await OnShiftButtonClickAsync(context))" Style="width: 100px">
+            @(context.Shift?.Name ?? "No shift")
+        </FluentButton>
+    </TemplateColumn>
+    <PropertyColumn Title="Start time" Property="@(p => p.Shift != null ? p.Shift.ShiftStartTime : default)" Format="HH:mm tt" />
+    <PropertyColumn Title="Break time" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakTime : default)" Format="HH:mm tt" />
+    <PropertyColumn Title="Break end time" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakEndTime : default)" Format="HH:mm tt" />        
+    <PropertyColumn Title="End time" Property="@(p => p.Shift != null ? p.Shift.ShiftEndTime : default)" Format="HH:mm tt" />
+    <TemplateColumn Title="In #1" Align="@Align.Center">
+        <FluentTimePicker Value="@(context.Timesheet?.TimeIn1 ?? DateTime.MinValue)" Format="HH:mm tt" />
+    </TemplateColumn>
+    <TemplateColumn Title="Out #1" Align="@Align.Center">
+        <FluentTimePicker Value="@(context.Timesheet?.TimeOut1 ?? DateTime.MinValue)" Format="HH:mm tt" />
+    </TemplateColumn>
+    <TemplateColumn Title="In #2" Align="@Align.Center">
+        <FluentTimePicker Value="@(context.Timesheet?.TimeIn2 ?? DateTime.MinValue)" Format="HH:mm tt" />
+    </TemplateColumn>
+    <TemplateColumn Title="Out #2" Align="@Align.Center">
+        <FluentTimePicker Value="@(context.Timesheet?.TimeOut2 ?? DateTime.MinValue)" Format="HH:mm tt" />
+    </TemplateColumn>
+    <PropertyColumn Title="Work Hrs" Property="@(p => p.WorkHrs)" />
+    <PropertyColumn Title="Late Hrs" Property="@(p => p.LateHrs)" />
+    <PropertyColumn Title="Under Hrs" Property="@(p => p.UnderHrs)" />
+</FluentDataGrid>
+
+
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
+
+<FluentDialogProvider/>
+
+@code {
+
+    [Parameter]
+    public Guid EmpId { get; set; }
+
+    [Parameter]
+    public DateTime SearchDate { get; set; }
+    private bool isBusy = false;
+    private DateOnly startDate, endDate;
+    private IQueryable<AttendanceDTO> EmployeeAttendance = default!;
+    private EmployeeDTO Employee = default!;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        List<Task> tasks = new List<Task>{
+            LoadAttendanceAsync(SearchDate),
+            LoadEmployeeAsync(EmpId)
+        };
+        await Task.WhenAll(tasks);
+    }
+
+    private async Task LoadEmployeeAsync(Guid id) {
+        try {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new GetEmployeeQuery(id));
+                if (result.IsSuccess)
+                    Employee = result.Value;
+            }
+        }
+        catch(Exception)
+        {
+            throw;
+        }
+    }
+
+    private async Task LoadAttendanceAsync(DateTime date)
+    {
+        try {
+            isBusy = true;
+
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(date));
+                startDate = _startDate;
+                endDate = _endDate;
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListAttendanceQuery(null, null, EmpId, _startDate, _endDate));
+                if (result.IsSuccess)
+                    EmployeeAttendance = result.Value.AsQueryable();
+            }      
+        }
+        catch(Exception)
+        {
+            throw;
+        }   
+        finally{
+            isBusy = false;
+        }
+    }
+
+    private async Task OnShiftButtonClickAsync(AttendanceDTO context)
+    {
+        DialogParameters parameters = new()
+        {
+            Title = "Select shift",
+            PrimaryAction = "Yes",
+            PrimaryActionEnabled = true,
+            SecondaryAction = "No",
+            Width = "600px",
+            Height = "500px",
+            Modal = true,
+        };
+
+        IDialogReference dialog = await DialogService.ShowDialogAsync<ShiftDialog>(context!.Shift ?? default!, parameters);
+        DialogResult? result = await dialog.Result;
+
+        if (!result.Cancelled && result.Data != null) {
+            var item = EmployeeAttendance.FirstOrDefault(x => x.EntryDate == context.EntryDate);
+            item!.Shift = (ShiftDTO)result.Data;
+            item!.ShiftId = item.Shift.Id;
+        }
+    }
+
+    private async Task UpdateAllAttendanceAsync()
+    {
+        try {
+            isBusy = true;
+
+            foreach(var attendance in EmployeeAttendance)
+            {
+                if(attendance.Id == Guid.Empty) { // create attendance
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var result = await mediator.Send(new CreateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, null, null, null));
+                        if (!result.IsSuccess)
+                            break;
+                    }
+                }
+                else { // update
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var result = await mediator.Send(new UpdateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate));
+                        if (!result.IsSuccess)
+                            break;
+                    }
+                }
+            }
+        }
+        catch(Exception)
+        {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }
+}

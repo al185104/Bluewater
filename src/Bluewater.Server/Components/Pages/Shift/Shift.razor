@@ -7,9 +7,11 @@
 @using Bluewater.UseCases.Shifts.List
 @using MediatR;
 @using Microsoft.FluentUI.AspNetCore.Components.Extensions
+@using Bluewater.Server.Global;
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
 @inject IDialogService DialogService
+@inject IGlobalService GlobalService
 
 <PageTitle>Shifts</PageTitle>
 
@@ -21,7 +23,7 @@
         <FluentTextField @bind-Value="InputShift!.Name" Name="shiftName" Label="Shift name" Required Style="width: 300px" />
     </div>
     <div>
-        <FluentTimePicker Value="@InputShift.ShiftStartTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftStartTime = e.ToTimeOnly())" Name="shiftStart" Label="Shift start time" Required />
+        <FluentTimePicker Value="@InputShift.ShiftStartTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftStartTime = e.ToTimeOnly())" Placeholder="00:00" Name="shiftStart" Label="Shift start time" Required />
     </div>
     <div>
         <FluentTimePicker Value="@InputShift.ShiftBreakTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftBreakTime = e.ToTimeOnly())" Name="breakStartTime" Label="Break start time" Required />
@@ -48,8 +50,8 @@ else
 {
     <FluentDataGrid Id="shiftsGrid" Items="@Shifts" GridTemplateColumns="1fr 1fr 1fr 1fr 1fr 1fr 1fr" TGridItem="ShiftDTO">
         <PropertyColumn Title="Name" Property="@(c => c!.Name)" Align="Align.Start" />
-        <PropertyColumn Title="Shift start time" Property="@(c => c!.ShiftStartTime!.ToString())" Align="Align.Center" />
-        <PropertyColumn Title="Break start time" Property="@(c => c!.ShiftBreakTime!.ToString())" Align="Align.Center" />
+        <PropertyColumn Title="Shift start time" Property="@(c => c!.ShiftStartTime)" Align="Align.Center" />
+        <PropertyColumn Title="Break start time" Property="@(c => c!.ShiftBreakTime)" Align="Align.Center" />
         <PropertyColumn Title="Break end time" Property="@(c => c!.ShiftBreakEndTime)" Align="Align.End" />
         <PropertyColumn Title="Shift end time" Property="@(c => c!.ShiftEndTime)" Align="Align.End" />
         <PropertyColumn Title="Break hours" Property="@(c => c!.BreakHours)" Align="Align.End" />
@@ -59,6 +61,7 @@ else
     </FluentDataGrid>
 }
 
+<FluentDialogProvider/>
 <FluentProgressRing style="width: 82px; height: 82px;" Visible="isBusy"/>
 
 @code {
@@ -98,8 +101,10 @@ else
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListShiftQuery(null, null));
-                if (result.IsSuccess)
+                if (result.IsSuccess){
                     Shifts = result.Value.AsQueryable();
+                    GlobalService.Shifts = Shifts.ToList();
+                }
             }
         }
         catch (Exception)
@@ -114,7 +119,7 @@ else
     {
         try
         {
-            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to delete {item.Name}?", "Yes", "No", "Delete");
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to delete {item.Name}? Be aware that this will remove any usage of this shift.", "Yes", "No", "Delete");
             var conf = await dialog.Result;
             if (conf.Cancelled) return;
 

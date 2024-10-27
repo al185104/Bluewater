@@ -28,16 +28,14 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
     public virtual Shift Shift { get; set; } = null!;
     public virtual Timesheet Timesheet { get; set; } = null!;
 
-    public void Update(Guid? shiftId, Guid? timesheetId, Guid? leaveId, DateOnly? entryDate, decimal? workHrs, decimal? lateHrs, decimal? underHrs, bool isLocked, string remarks)
+    public void Update(Guid? shiftId, Guid? timesheetId, Guid? leaveId, decimal? workHrs, decimal? lateHrs, decimal? underHrs, string? remarks)
     {
         ShiftId = shiftId;
         TimesheetId = timesheetId;
         LeaveId = leaveId;
-        EntryDate = entryDate;
         WorkHrs = workHrs;
         LateHrs = lateHrs;
         UnderHrs = underHrs;
-        IsLocked = isLocked;
         Remarks = remarks;
         IsEdited = true;
 

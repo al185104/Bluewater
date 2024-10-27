@@ -241,5 +241,38 @@ public class GlobalService : IGlobalService
             throw;
         }
     }
-    #endregion    
+    #endregion
+
+    public (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfPayslip(DateOnly date)
+    {
+        DateOnly start;
+        DateOnly end;
+
+        if (date.Day >= 11 && date.Day <= 25)
+        {
+            start = new DateOnly(date.Year, date.Month, 11);
+            end = new DateOnly(date.Year, date.Month, 25);
+        }
+        else if (date.Day < 11)
+        {
+            if (date.Month == 1)
+            {
+                start = new DateOnly(date.Year - 1, 12, 26);
+                end = new DateOnly(date.Year, date.Month, 10);
+            }
+            else
+            {
+                start = new DateOnly(date.Year, date.Month - 1, 26);
+                end = new DateOnly(date.Year, date.Month, 10);
+            }
+        }
+        else
+        {
+            start = new DateOnly(date.Year, date.Month, 26);
+            end = new DateOnly(date.Year, date.Month + 1, 10);
+        }
+
+        return (start, end);
+    }
+
 }

@@ -1,11 +1,14 @@
 using Ardalis.Specification;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bluewater.Core.EmployeeAggregate.Specifications;
 public class EmployeeShortByNameSpec : Specification<Employee>
 {
-  public EmployeeShortByNameSpec(string Name)
+  public EmployeeShortByNameSpec(string name)
   {
-    Query
-        .Where(Employee => $"{Employee.LastName}, {Employee.FirstName}".Contains(Name, StringComparison.InvariantCultureIgnoreCase));
+    Query.Where(employee => 
+        EF.Functions.Like(employee.LastName + ", " + employee.FirstName, $"%{name}%") ||
+        EF.Functions.Like(employee.FirstName + " " + employee.LastName, $"%{name}%")
+    );
   }
 }

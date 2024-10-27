@@ -1,0 +1,169 @@
+@using Bluewater.Server.Global;
+@using Bluewater.UseCases.Attendances
+@using Bluewater.UseCases.Attendances.Get
+@using Bluewater.UseCases.Timesheets;
+@using Bluewater.UseCases.Shifts;
+@using MediatR
+@rendermode InteractiveServer
+
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+@inject IGlobalService GlobalService;
+@inject IDialogService DialogService
+
+@implements IDialogContentComponent<AllAttendancesDTO>
+
+@if(Dialog != null) {
+
+
+<FluentDialogBody OnAfterRenderAsync="@InitializeDialogAsync()">
+    <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
+        <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadAttendanceAsync(searchDate = searchDate.AddDays(-15)))"/>
+        <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
+        <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadAttendanceAsync(searchDate = searchDate.AddDays(15)))"/>
+    </FluentStack>
+
+    <FluentDataGrid Items="@Content.Attendances.AsQueryable()" TGridItem="AttendanceDTO">
+        <PropertyColumn Title="Date" Property="@(p => p.EntryDate)" Format="MMM-dd" Sortable="true"/>
+        <PropertyColumn Title="Day" Property="@(p => p.EntryDate)" Format="dddd" Sortable="true"/>
+        <TemplateColumn Title="Shift" Align="@Align.Center">
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Edit())" OnClick="@(async() => await OnShiftButtonClickAsync(context.Shift))">
+                @(context.Shift?.Name ?? "No shift")
+            </FluentButton>
+
+        </TemplateColumn>
+        <PropertyColumn Title="Shift start time" Property="@(p => p.Shift != null ? p.Shift.ShiftStartTime : default)" Format="HH:mm" />
+        <PropertyColumn Title="Shift break time" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakTime : default)" Format="HH:mm" />
+        <PropertyColumn Title="Shift break end time" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakEndTime : default)" Format="HH:mm" />        
+        <PropertyColumn Title="Shift end time" Property="@(p => p.Shift != null ? p.Shift.ShiftEndTime : default)" Format="HH:mm" />
+        <TemplateColumn Title="Time in #1" Align="@Align.Center">
+            <FluentTimePicker Value="@(context.Timesheet?.TimeIn1 ?? DateTime.MinValue)" Format="HH:mm" />
+        </TemplateColumn>
+        <TemplateColumn Title="Time out #1" Align="@Align.Center">
+            <FluentTimePicker Value="@(context.Timesheet?.TimeOut1 ?? DateTime.MinValue)" Format="HH:mm" />
+        </TemplateColumn>
+        <TemplateColumn Title="Time in #2" Align="@Align.Center">
+            <FluentTimePicker Value="@(context.Timesheet?.TimeIn2 ?? DateTime.MinValue)" Format="HH:mm" />
+        </TemplateColumn>
+        <TemplateColumn Title="Time out #2" Align="@Align.Center">
+            <FluentTimePicker Value="@(context.Timesheet?.TimeOut2 ?? DateTime.MinValue)" Format="HH:mm" />
+        </TemplateColumn>
+        <PropertyColumn Title="Work Hrs" Property="@(p => p.WorkHrs)" />
+        <PropertyColumn Title="Late Hrs" Property="@(p => p.LateHrs)" />
+        <PropertyColumn Title="Under Hrs" Property="@(p => p.UnderHrs)" />
+    </FluentDataGrid>
+
+</FluentDialogBody>
+
+<FluentDialogProvider/>
+
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
+
+}
+
+@code {
+    [Parameter]
+    public AllAttendancesDTO Content { get; set; } = default!;
+
+    [CascadingParameter]
+    public FluentDialog? Dialog { get; set;}
+
+    bool isFirstLoad = false;
+    private DateOnly searchDate = DateOnly.FromDateTime(DateTime.Now);
+    private DateOnly startDate, endDate;     
+    private bool isBusy = false;
+    private List<ShiftDTO> shifts => GlobalService.Shifts ?? new List<ShiftDTO>();
+
+    private Task InitializeDialogAsync()
+    {
+        if (!isFirstLoad)
+        {
+            isFirstLoad = true;
+
+            var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(searchDate);
+            startDate = _startDate;
+            endDate = _endDate;
+        }
+        return Task.CompletedTask;
+    }
+
+    private async Task LoadAttendanceAsync(DateOnly searchDate)
+    {
+        try {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(searchDate);
+                startDate = _startDate;
+                endDate = _endDate;
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new GetAllAttendanceQuery(Content.Name, startDate, endDate));
+                if (result.IsSuccess)
+                    Content = new AllAttendancesDTO(Content.EmployeeId, Content.Name, Content.Department, Content.Section, Content.Charging, result.Value.Attendances, result.Value.TotalWorkHrs, result.Value.TotalLateHrs, result.Value.TotalUnderHrs, result.Value.TotalLeaves);
+            }            
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }    
+
+    private void OnSearch(OptionsSearchEventArgs<ShiftDTO> e)
+    {
+        e.Items = shifts.Where(i => i.Name.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase));
+    }
+
+    @* private void HandleSelectedOption(ShiftDTO shift)
+    {
+        if (shift != null)
+        {
+            Console.WriteLine("Shift selected: " + shift.Name);
+        }
+        else
+            Console.WriteLine("Shift not found: " + shift!.Name);
+    } *@
+
+    @* bool HandleShiftSelected(ShiftDTO shift, AttendanceDTO context)
+    {
+        if (shift != null)
+        {
+            Console.WriteLine("Shift selected: " + shift.Name);
+            context.ShiftId = shift.Id;
+            context.Shift = shift;
+        }
+        else
+            Console.WriteLine("Shift not found: " + shift!.Name);
+        return true;
+    } *@
+
+    private void HandleShiftSelected(ChangeEventArgs e)
+    {
+        Console.WriteLine("233323423423");
+    }
+
+    private async Task OnShiftButtonClickAsync(ShiftDTO? context)
+    {
+        Console.WriteLine("Shift button clicked");
+        DialogParameters parameters = new()
+        {
+            Title = $"Hello",
+            PrimaryAction = "Yes",
+            PrimaryActionEnabled = true,
+            SecondaryAction = "No",
+            Width = "500px",
+            Height = "500px",
+            Modal = true,
+        };
+
+        IDialogReference dialog = await DialogService.ShowDialogAsync<ShiftDialog>(context ?? default!, parameters);
+        DialogResult? result = await dialog.Result;
+    }
+}

@@ -10,7 +10,7 @@ public class CreateTimesheetHandler(IRepository<Timesheet> _repository) : IComma
   public async Task<Result<Guid>> Handle(CreateTimesheetCommand request, CancellationToken cancellationToken)
   {
     // check first if there's entry already for the same entry date
-    var spec = new TimesheetByEmpIdAndEntryDate(request.employeeId, request.entryDate);
+    var spec = new TimesheetByEmpIdAndEntryDate(request.employeeId, request.entryDate ?? DateOnly.FromDateTime(DateTime.Now));
     var existingItem = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if(existingItem != null)
     {

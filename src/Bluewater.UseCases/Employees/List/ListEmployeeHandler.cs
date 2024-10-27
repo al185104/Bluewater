@@ -202,7 +202,6 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
         return Result.Success(_employees.AsEnumerable());
     }
     catch (Exception e) {
-        Console.WriteLine(e.Message);
         return Result.Error(e.Message);
     }
   }
