@@ -57,7 +57,6 @@ public class Employee(string firstName, string lastName, string? middleName, Dat
   public virtual ICollection<LeaveCredit>? LeaveCredits { get; private set; }
   public virtual ICollection<Dependent>? Dependents { get; private set; }
 
-  //public Employee() : this(string.Empty, string.Empty,  null, null, Gender.NotSet, CivilStatus.NotSet, BloodType.NotSet, Status.NotSet, null, null, null, null) { }
   public void SetContactInfo(ContactInfo contactInfo)
   {
     ContactInfo = new ContactInfo(contactInfo.Email,
@@ -182,15 +181,6 @@ public class ContactInfo : ValueObject
         yield return TelNoContact ?? string.Empty;
         yield return MobileNoContact ?? string.Empty;
     }
-
-    private ContactInfo()
-    {
-        Email = string.Empty;
-        TelNumber = string.Empty;
-        MobileNumber = string.Empty;
-        Address = string.Empty;
-        ProvincialAddress = string.Empty;
-    }
 }
 #endregion
 
@@ -210,7 +200,6 @@ public class EmploymentInfo : ValueObject
   public bool HasServiceCharge { get; private set; }
 
   private EmploymentInfo(){}
-
   public EmploymentInfo(DateTime? dateHired,
                         DateTime? dateRegularized,
                         DateTime? dateResigned,
@@ -263,12 +252,6 @@ public class EducationInfo : ValueObject
     EducationalAttainment = educationalAttainment;
     CourseGraduated = courseGraduated;
     UniversityGraduated = universityGraduated;
-  }
-
-  private EducationInfo() {
-    EducationalAttainment = EducationalAttainment.NotSet;
-    CourseGraduated = string.Empty;
-    UniversityGraduated = string.Empty;
   }
 
   protected override IEnumerable<object> GetEqualityComponents()

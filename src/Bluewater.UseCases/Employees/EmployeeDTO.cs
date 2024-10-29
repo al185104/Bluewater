@@ -103,18 +103,3 @@ public record EmploymentInfoDTO(
     string? BankAccount,
     bool HasServiceCharge
 );
-
-// public record UserDTO(){
-//     public string? Username { get; set; }
-//     public string? Password { get; set; }
-//     public string? Credential { get; set; }
-//     public Guid? SupervisedGroup { get; set; }
-
-//     public UserDTO(string? username, string? password, string? credential, Guid? supervisedGroup) : this()
-//     {
-//         Username = username;
-//         Password = password;
-//         Credential = credential;
-//         SupervisedGroup = supervisedGroup;
-//     }
-// };

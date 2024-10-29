@@ -120,38 +120,8 @@
     {
         e.Items = shifts.Where(i => i.Name.StartsWith(e.Text, StringComparison.OrdinalIgnoreCase));
     }
-
-    @* private void HandleSelectedOption(ShiftDTO shift)
-    {
-        if (shift != null)
-        {
-            Console.WriteLine("Shift selected: " + shift.Name);
-        }
-        else
-            Console.WriteLine("Shift not found: " + shift!.Name);
-    } *@
-
-    @* bool HandleShiftSelected(ShiftDTO shift, AttendanceDTO context)
-    {
-        if (shift != null)
-        {
-            Console.WriteLine("Shift selected: " + shift.Name);
-            context.ShiftId = shift.Id;
-            context.Shift = shift;
-        }
-        else
-            Console.WriteLine("Shift not found: " + shift!.Name);
-        return true;
-    } *@
-
-    private void HandleShiftSelected(ChangeEventArgs e)
-    {
-        Console.WriteLine("233323423423");
-    }
-
     private async Task OnShiftButtonClickAsync(ShiftDTO? context)
     {
-        Console.WriteLine("Shift button clicked");
         DialogParameters parameters = new()
         {
             Title = $"Hello",

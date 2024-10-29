@@ -44,8 +44,8 @@
         </FluentButton>
     </TemplateColumn>
     <PropertyColumn Title="Start time" Property="@(p => p.Shift != null ? p.Shift.ShiftStartTime : default)" Format="HH:mm tt" />
-    <PropertyColumn Title="Break time" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakTime : default)" Format="HH:mm tt" />
-    <PropertyColumn Title="Break end time" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakEndTime : default)" Format="HH:mm tt" />        
+    <PropertyColumn Title="Break start" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakTime : default)" Format="HH:mm tt" />
+    <PropertyColumn Title="Break end" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakEndTime : default)" Format="HH:mm tt" />        
     <PropertyColumn Title="End time" Property="@(p => p.Shift != null ? p.Shift.ShiftEndTime : default)" Format="HH:mm tt" />
     <TemplateColumn Title="In #1" Align="@Align.Center">
         <FluentTimePicker Value="@(context.Timesheet?.TimeIn1 ?? DateTime.MinValue)" Format="HH:mm tt" />
@@ -123,8 +123,14 @@
                 endDate = _endDate;
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListAttendanceQuery(null, null, EmpId, _startDate, _endDate));
-                if (result.IsSuccess)
+                if (result.IsSuccess) {
                     EmployeeAttendance = result.Value.AsQueryable();
+                    foreach(var attendance in EmployeeAttendance) {
+                        Console.WriteLine($"---- {attendance.EntryDate} ----");
+                        Console.WriteLine($"Shift: {attendance.Shift?.Name}");
+                        Console.WriteLine($"ShiftId: {attendance.ShiftId}");
+                    }
+                }
             }      
         }
         catch(Exception)

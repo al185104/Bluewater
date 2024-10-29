@@ -38,23 +38,11 @@
 
 
 
-<FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Placeholder="Employee name..." Style="width: 100%;" Label="Enter employee name:" />
+<FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Placeholder="Employee name..." Style="width: 100%;" />
 
 <FluentDataGrid Items="@Timesheets" TGridItem=TimesheetInfo>
     <PropertyColumn Title="Date" Property="@(p => p.EntryDate)" Format="MMM-dd" Sortable="true"/>
     <PropertyColumn Title="Day of Week" Property="@(p => p.EntryDate)" Format="dddd" />
-    @* <TemplateColumn Title="Time in #1">
-        <FluentTimePicker Value="@context!.TimeIn1" ValueChanged="@(e => context!.TimeIn1 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" Style="@(context!.TimeIn1 == null ? "border: 1px solid lightcoral;" : "")" />
-    </TemplateColumn>
-    <TemplateColumn Title="Time out #1">
-        <FluentTimePicker Value="@context!.TimeOut1" ValueChanged="@(e => context!.TimeOut1 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" Style="@(context!.TimeOut1 == null ? "border: 1px solid lightcoral;" : "")"/>
-    </TemplateColumn>
-    <TemplateColumn Title="Time in #2">
-        <FluentTimePicker Value="@context!.TimeIn2" ValueChanged="@(e => context!.TimeIn2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" Style="@(context!.TimeIn2 == null ? "border: 1px solid lightcoral;" : "")"/>
-    </TemplateColumn>
-    <TemplateColumn Title="Time out #2">
-        <FluentTimePicker Value="@context!.TimeOut2" ValueChanged="@(e => context!.TimeOut2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" Style="@(context!.TimeOut2 == null ? "border: 1px solid lightcoral;" : "")"/>
-    </TemplateColumn> *@
     <TemplateColumn Title="Time in #1">
         <FluentTimePicker Value="@context!.TimeIn1" ValueChanged="@(e => context!.TimeIn1 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" />
     </TemplateColumn>

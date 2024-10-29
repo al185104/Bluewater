@@ -8,7 +8,7 @@ public class GetShiftHandler(IRepository<Shift> _repository) : IQueryHandler<Get
   public async Task<Result<ShiftDTO>> Handle(GetShiftQuery request, CancellationToken cancellationToken)
   {
     var result = await _repository.GetByIdAsync(request.shiftId, cancellationToken);
-    if (result == null) Result.NotFound();
+    if (result == null) return Result.NotFound();
 
     return new ShiftDTO(result!.Id, result.Name, result.ShiftStartTime, result.ShiftBreakTime, result.ShiftBreakEndTime, result.ShiftEndTime, result.BreakHours);
   }

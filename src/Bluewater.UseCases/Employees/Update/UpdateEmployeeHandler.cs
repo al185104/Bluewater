@@ -82,7 +82,7 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
 
     await _repository.UpdateAsync(existingEmployee, cancellationToken);
 
-    var contract = new ContactInfoDTO(
+    var contact = new ContactInfoDTO(
         existingEmployee.ContactInfo!.Email,
         existingEmployee.ContactInfo!.TelNumber,
         existingEmployee.ContactInfo!.MobileNumber,
@@ -228,7 +228,7 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
             existingEmployee.Weight,
             existingEmployee.ImageUrl,
             existingEmployee.Remarks,
-            contract,
+            contact,
             educationInfo,
             employeeInfo,
             user,

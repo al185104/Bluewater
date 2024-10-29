@@ -3,6 +3,11 @@ using Ardalis.SharedKernel;
 using Bluewater.Core.AttendanceAggregate;
 using Bluewater.Core.AttendanceAggregate.Specifications;
 using Bluewater.UseCases.Employees;
+using Bluewater.UseCases.Schedules;
+using Bluewater.UseCases.Schedules.Get;
+using Bluewater.UseCases.Shifts;
+using Bluewater.UseCases.Timesheets;
+using Bluewater.UseCases.Timesheets.Get;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -29,13 +34,46 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
     List<AttendanceDTO> results = new();
     for (var date = request.startDate; date <= request.endDate; date = date.AddDays(1))
     {
-      var attendance = attendances!.FirstOrDefault(s => s.EntryDate == date);
-      if(attendance == null)
-        results.Add(new AttendanceDTO(Guid.Empty, emp.Id, null, null, null, date, null, null, null, isLocked: false));
+      var attendance = attendances!.FirstOrDefault(s => s.EntryDate == date);      
+      if(attendance == null) {
+        // compose attendance based on the shift and timesheet
+        // check for timesheet first by date
+        TimesheetDTO timesheet = default!;
+        using(var scope = serviceScopeFactory.CreateScope())
+        {
+          var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+          var ret = await mediator.Send(new GetTimesheetByEmpIdAndDateQuery(request.empId, date));
+          if(ret.IsSuccess)
+            timesheet = ret.Value;
+        }
+
+        // get shift by schedule
+        ScheduleDTO schedule = default!;
+        using(var scope = serviceScopeFactory.CreateScope())
+        {
+          var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+          var ret = await mediator.Send(new GetScheduleByEmpIdAndDateQuery(request.empId, date));
+          if(ret.IsSuccess)
+            schedule = ret.Value;
+        }
+
+        if(schedule == null || schedule.Id == Guid.Empty) // if no schedule found, then try the default schedule.
+        {
+          using(var scope = serviceScopeFactory.CreateScope())
+          {
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            var ret = await mediator.Send(new GetDefaultScheduleByEmpIdAndDayQuery(request.empId, date.DayOfWeek));
+            if(ret.IsSuccess)
+              schedule = ret.Value;
+          }
+        }
+
+        results.Add(new AttendanceDTO(Guid.Empty, emp.Id, schedule?.ShiftId, timesheet?.Id, null, date, null, null, null, isLocked: false, schedule?.Shift, timesheet));
+      }
       else
         results.Add(new AttendanceDTO(attendance.Id, emp.Id, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, attendance.WorkHrs, attendance.LateHrs, attendance.UnderHrs, attendance.IsLocked, 
-        new Shifts.ShiftDTO(attendance.Shift.Id, attendance.Shift.Name, attendance.Shift.ShiftStartTime, attendance.Shift.ShiftBreakTime, attendance.Shift.ShiftBreakEndTime, attendance.Shift.ShiftEndTime, attendance.Shift.BreakHours), 
-        new Timesheets.TimesheetDTO(attendance.Timesheet.Id, emp.Id, attendance.Timesheet.TimeIn1, attendance.Timesheet.TimeOut1, attendance.Timesheet.TimeIn2, attendance.Timesheet.TimeOut2, attendance.Timesheet.EntryDate, attendance.Timesheet.IsEdited)));
+        new ShiftDTO(attendance.Shift.Id, attendance.Shift.Name, attendance.Shift.ShiftStartTime, attendance.Shift.ShiftBreakTime, attendance.Shift.ShiftBreakEndTime, attendance.Shift.ShiftEndTime, attendance.Shift.BreakHours), 
+        new TimesheetDTO(attendance.Timesheet.Id, emp.Id, attendance.Timesheet.TimeIn1, attendance.Timesheet.TimeOut1, attendance.Timesheet.TimeIn2, attendance.Timesheet.TimeOut2, attendance.Timesheet.EntryDate, attendance.Timesheet.IsEdited)));
     }
     
     return Result<IEnumerable<AttendanceDTO>>.Success(results.OrderByDescending(i => i.EntryDate));

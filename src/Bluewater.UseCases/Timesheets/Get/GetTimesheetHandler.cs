@@ -10,7 +10,7 @@ public class GetTimesheetHandler(IRepository<Timesheet> _repository) : IQueryHan
   {
     var spec = new TimesheetByIdSpec(request.TimesheetId);
     var result = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
-    if (result == null) Result.NotFound();
+    if (result == null) return Result.NotFound();
 
     return Result<TimesheetDTO>.Success(new TimesheetDTO(result!.Id, result.EmployeeId, result.TimeIn1, result.TimeOut1, result.TimeIn2, result.TimeOut2, result.EntryDate, result.IsEdited));
   }

@@ -22,6 +22,7 @@ using Bluewater.UseCases.Users.Get;
 
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Bluewater.Core.EmployeeAggregate.Specifications;
 
 namespace Bluewater.UseCases.Employees.List;
 
@@ -31,13 +32,14 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
   {
     try {
 
-        var employees = await _repository.ListAsync(cancellationToken);
+        var employees = await _repository
+            .ListAsync(cancellationToken);
 
         List<EmployeeDTO> _employees = new List<EmployeeDTO>();
 
         foreach(var entity in employees)
         {
-            var contract = new ContactInfoDTO(
+            var contact = new ContactInfoDTO(
                 entity.ContactInfo?.Email,
                 entity.ContactInfo?.TelNumber,
                 entity.ContactInfo?.MobileNumber,
@@ -184,7 +186,7 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
                 entity.Weight,
                 entity.ImageUrl,
                 entity.Remarks,
-                contract,
+                contactInfo: contact,
                 educationInfo,
                 employeeInfo,
                 user,

@@ -32,7 +32,7 @@ public class GetEmployeeHandler(IRepository<Employee> _repository, IServiceScope
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (entity == null) return Result.NotFound();
 
-    var contract = new ContactInfoDTO(
+    var contact = new ContactInfoDTO(
         entity.ContactInfo?.Email,
         entity.ContactInfo?.TelNumber,
         entity.ContactInfo?.MobileNumber,
@@ -176,7 +176,7 @@ public class GetEmployeeHandler(IRepository<Employee> _repository, IServiceScope
         entity.Weight,
         entity.ImageUrl,
         entity.Remarks,
-        contract,
+        contact,
         educationInfo,
         employeeInfo,
         user,

@@ -1,5 +1,6 @@
 ﻿@page "/setting"
 @rendermode InteractiveServer
+@using Bluewater.Core.EmployeeAggregate.Enum
 @using Bluewater.UseCases.Chargings.Delete
 @using Bluewater.UseCases.Departments.Delete
 @using Bluewater.UseCases.Divisions
@@ -9,8 +10,12 @@
 @using Bluewater.UseCases.Departments;
 @using Bluewater.UseCases.Departments.List;
 @using Bluewater.UseCases.Departments.Create;
+@using Bluewater.UseCases.Employees.Create
+@using Bluewater.UseCases.Employees.List
 @using Bluewater.UseCases.Holidays.Delete
+@using Bluewater.UseCases.Pays.Create
 @using Bluewater.UseCases.Positions.Delete
+@using Bluewater.UseCases.Schedules.Create
 @using Bluewater.UseCases.Sections;
 @using Bluewater.UseCases.Sections.Delete
 @using Bluewater.UseCases.Sections.List;
@@ -32,19 +37,30 @@
 @using Bluewater.UseCases.Levels.Delete;
 @using Bluewater.UseCases.Levels.List;
 @using Bluewater.UseCases.Levels.Create;
+@using Bluewater.UseCases.Shifts;
+@using Bluewater.UseCases.Shifts.Create;
 
 @using Bluewater.Server.Global;
 
+@using Bluewater.UseCases.Shifts.List
+@using Bluewater.UseCases.Timesheets.Create
+@using Bluewater.UseCases.Users.Create
 @using MediatR;
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
 @inject IGlobalService GlobalService
+@inject IDialogService DialogService
 
 <PageTitle>System Settings</PageTitle>
 
 <h3>Team Settings</h3>
 
 <FluentStack Orientation="Orientation.Vertical">
+
+    <FluentButton OnClick="@(async () => await CreateDummyEmployees())">Create Dummy Employees</FluentButton>
+    <FluentButton OnClick="@(async () => await CreateDummyShifts())">Create Dummy Shifts</FluentButton>
+    <FluentButton OnClick="@(async () => await CreateDummyTimesheet())">Create Dummy Timesheet</FluentButton>
+    <FluentButton OnClick="@(async () => await CreateDummySchedule())">Create Dummy Schedule</FluentButton>
 
     <FluentGrid Spacing="2">
         @* division *@
@@ -313,6 +329,8 @@
     </div>
 }
 
+<FluentDialogProvider/>
+
 @code {
     bool btnLoading = false;
     bool isBusy = false;
@@ -362,6 +380,14 @@
             isBusy = false;
         }
     }
+
+    // generic method that gets a list and selects a random index
+    private Guid GetRandomId<T>(List<T> list) where T : class
+    {
+        var random = new Random();
+        return list.OrderBy(p => random.Next()).FirstOrDefault()?.GetType().GetProperty("Id")?.GetValue(list.FirstOrDefault()) as Guid? ?? Guid.Empty;
+    }
+
     #endregion
 
     #region Load Data
@@ -856,6 +882,284 @@
     #endregion
 
     #region Private Methods
+    private async Task CreateDummyEmployees()
+    {
+        int dummyCount = 0;
+        try
+        {
+            isBusy = true;
+            // Create sample employees
+            for (int i = 0; i < 100; i++)
+            {
+                var payId = Guid.Empty;
+                using(var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    // Generate dummy PayId using CreatePayCommand
+                    var payCommand = new CreatePayCommand(
+                        basicPay: 1500 + (i * 100), // Example variation
+                        dailyRate: 200 + (i * 10),
+                        hourlyRate: 25 + (i * 5),
+                        hdmfCon: 100,
+                        hdmfEr: 50
+                    );
+                    var result = await mediator.Send(payCommand);
+                    if (result.IsSuccess) {
+                        payId = result.Value;
+                    }
+                }
+                if (payId == Guid.Empty) continue;
+
+                var userId = Guid.Empty;
+                using(var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    // Generate dummy UserId using CreateUserCommand
+                    var userCommand = new CreateUserCommand(
+                        Username: $"user{i + 1}",
+                        PasswordHash: "1234",
+                        Credential: Bluewater.Core.UserAggregate.Enum.Credential.Employee, // Set as needed
+                        SupervisedGroup: null,
+                        isGlobalSupervisor: i % 2 == 0
+                    );
+                    var result = await mediator.Send(userCommand);
+                    if (result.IsSuccess) {
+                        userId = result.Value;
+                    }
+                }
+
+                // Create CreateEmployeeCommand with dummy data
+                var employee = new CreateEmployeeCommand(
+                    FirstName: $"FirstName{i + 1}",
+                    LastName: $"LastName{i + 1}",
+                    MiddleName: null,
+                    DateOfBirth: new DateTime(1990, 1, 1).AddYears(i),
+                    Gender: Gender.Male,
+                    CivilStatus: CivilStatus.Single,
+                    BloodType: BloodType.ABNegative,
+                    Status: Status.Active,
+                    Height: 170 + i,
+                    Weight: 70 + i,
+                    ImageUrl: null,
+                    Remarks: $"Employee {i + 1} is a sample entry.",
+                    ContactInfo: new ContactInfo(
+                        Email: $"employee{i + 1}@example.com",
+                        TelNumber: null,
+                        MobileNumber: $"0917123456{i}",
+                        Address: $"123 Street {i + 1}",
+                        ProvincialAddress: $"Province {i + 1}",
+                        MothersMaidenName: $"Mother{i + 1}",
+                        FathersName: $"Father{i + 1}",
+                        EmergencyContact: $"Emergency{i + 1}",
+                        RelationshipContact: "Friend",
+                        addressContact: $"Contact Address {i + 1}",
+                        TelNoContact: "1234567890",
+                        MobileNoContact: $"0917890123{i}"
+                    ),
+                    EducationInfo: new EducationInfo(
+                        EducationalAttainment: EducationalAttainment.College,
+                        CourseGraduated: $"Course {i + 1}",
+                        UniversityGraduated: $"University {i + 1}"
+                    ),
+                    EmploymentInfo: new EmploymentInfo(
+                        DateHired: DateTime.Now.AddYears(-2).AddMonths(i),
+                        DateRegularized: DateTime.Now.AddYears(-1).AddMonths(i),
+                        DateResigned: null,
+                        DateTerminated: null,
+                        TinNo: $"123456789{i}",
+                        SssNo: $"987654321{i}",
+                        HdmfNo: $"11223344{i}",
+                        PhicNo: $"55667788{i}",
+                        BankAccount: $"123456789{i}",
+                        HasServiceCharge: i % 2 == 0
+                    ),
+                    UserId: userId,
+                    PositionId: GetRandomId(Positions.ToList()),
+                    PayId: payId,
+                    TypeId: GetRandomId(EmployeeTypes.ToList()),
+                    LevelId: GetRandomId(Levels.ToList()),
+                    ChargingId: GetRandomId(Chargings.ToList())
+                );
+
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    var result = await mediator.Send(employee);
+                    if (result.IsSuccess) {
+                        dummyCount++;
+                    }
+                }
+            }
+        }
+        finally
+        {
+            isBusy = false;
+            await DialogService.ShowSuccessAsync($"{dummyCount} dummy employees were created successfully.");
+        }
+    }
+    private async Task CreateDummyShifts() {
+        int dummyCount = 0;
+        try{
+            isBusy = true;
+            var shifts = new List<CreateShiftCommand>();
+            var random = new Random();
+            for (int i = 1; i <= 20; i++)
+            {
+                // Vary start times slightly
+                var shiftStartTime = new TimeOnly(7 + (i % 3), 30);  // Start times vary between 7:30 AM, 8:30 AM, and 9:30 AM
+                var shiftEndTime = shiftStartTime.AddHours(8);        // Assuming 8-hour shifts for simplicity
+
+                // Generate break times with variation within each shift
+                var breakStartHour = shiftStartTime.Hour + 3 + (i % 2);  // Break starts 3-4 hours after shift start
+                var breakStartMinute = random.Next(0, 60);               // Random minute within the hour
+                var shiftBreakTime = new TimeOnly(breakStartHour, breakStartMinute);
+
+                var breakEndHour = breakStartHour + 1;                   // Break is typically 1 hour
+                var breakEndMinute = (breakStartMinute + random.Next(10, 50)) % 60;
+                var shiftBreakEndTime = new TimeOnly(breakEndHour, breakEndMinute);
+
+                // Create the command for each shift with a unique name and 1-hour break
+                var shift = new CreateShiftCommand(
+                    Name: $"A{i}",                     // Shift name, e.g., A1, A2, etc.
+                    ShiftStartTime: shiftStartTime,
+                    ShiftBreakTime: shiftBreakTime,
+                    ShiftBreakEndTime: shiftBreakEndTime,
+                    ShiftEndTime: shiftEndTime,
+                    BreakHours: 1.0m                   // 1-hour break as specified
+                );
+
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    var result = await mediator.Send(shift);
+                    if (result.IsSuccess) {
+                        dummyCount++;
+                    }
+                }
+            }
+        }
+        finally {
+            isBusy = false;
+            await DialogService.ShowSuccessAsync($"{dummyCount} dummy shifts were created successfully.");
+        }
+    }
+
+    private async Task CreateDummyTimesheet() {
+        int dummyCount = 0;
+        try {
+            isBusy = true;
+
+            // get all employees
+            List<Guid> employeeIds = new();
+            using(var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListEmployeeQuery(null, null));
+                if (result.IsSuccess) {
+                    employeeIds = result.Value.Select(e => e.Id).ToList();
+                }
+            }
+
+            var random = new Random();
+            foreach (var employeeId in employeeIds)
+            {
+                for (DateTime date = new DateTime(2024, 9, 1); date <= new DateTime(2024, 11, 10); date = date.AddDays(1))
+                {
+                    // Generate random times for TimeIn and TimeOut
+                    var timeIn1 = date.AddHours(8).AddMinutes(random.Next(0, 30)); // 8:00 - 8:30 AM
+                    var timeOut1 = timeIn1.AddHours(4).AddMinutes(random.Next(0, 15)); // 4 hours later with slight variation
+
+                    // Optional afternoon session
+                    DateTime? timeIn2 = timeOut1.AddHours(1).AddMinutes(random.Next(0, 30)); // 1-hour lunch break, then 1:00 - 1:30 PM
+                    DateTime? timeOut2 = timeIn2?.AddHours(4).AddMinutes(random.Next(0, 15)); // 4 hours after timeIn2
+
+                    // Create a timesheet command for the current date
+                    var timesheet = new CreateTimesheetCommand(
+                        employeeId: employeeId,
+                        timeIn1: timeIn1,
+                        timeOut1: timeOut1,
+                        timeIn2: timeIn2,
+                        timeOut2: timeOut2,
+                        entryDate: DateOnly.FromDateTime(date)
+                    );
+
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var result = await mediator.Send(timesheet);
+                        if (result.IsSuccess) {
+                            dummyCount++;
+                        }
+                    }
+                }
+            }            
+        }
+        finally {
+            isBusy = false;
+            await DialogService.ShowSuccessAsync($"{dummyCount} dummy timesheets were created successfully.");
+        }
+    }
+    
+    private async Task CreateDummySchedule() {
+        int dummyCount = 0;
+        try {
+            isBusy = true;
+
+            // get all employees
+            List<Guid> employeeIds = new();
+            using(var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListEmployeeQuery(null, null));
+                if (result.IsSuccess) {
+                    employeeIds = result.Value.Select(e => e.Id).ToList();
+                }
+            }
+
+            // get all shifts
+            List<Guid> shiftIds = new();
+            using(var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListShiftQuery(null, null));
+                if (result.IsSuccess) {
+                    shiftIds = result.Value.Select(e => e.Id).ToList();
+                }
+            }
+
+            var random = new Random();
+            foreach (var employeeId in employeeIds)
+            {
+                // loop through days of the week and add shifts on 5 out of 7 days
+                for (int i = 1; i <= 5; i++)
+                {
+                    // Generate random shift for the employee
+                    var shiftId = shiftIds[random.Next(0, shiftIds.Count)];
+
+                    // Create a schedule command for the current date
+                    var schedule = new CreateScheduleCommand(
+                        EmployeeId: employeeId,
+                        ShiftId: shiftId,
+                        ScheduleDate: DateOnly.FromDateTime(new DateTime(2024, 1, i)),
+                        IsDefault: true
+                    );
+
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var result = await mediator.Send(schedule);
+                        if (result.IsSuccess)
+                            dummyCount++;
+                    }
+                }
+            }            
+        }
+        finally {
+            isBusy = false;
+            await DialogService.ShowSuccessAsync($"{dummyCount} dummy schedules were created successfully.");
+        }
+    }
+
     private string GetDivisionName(Guid divisionId)
     {
         var division = Divisions.FirstOrDefault(d => d.Id == divisionId);

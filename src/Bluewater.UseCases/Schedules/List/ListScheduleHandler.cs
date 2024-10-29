@@ -28,7 +28,7 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
     // get all schedules per employee and per date. If no schedule, create a default schedule
     foreach (var emp in employees)
     {
-        var spec = new ScheduleByEmpIdSpec(emp.Id, request.startDate, request.endDate);
+        var spec = new ScheduleByEmpIdAndDatesSpec(emp.Id, request.startDate, request.endDate);
         var scheds = await _schedRepository.ListAsync(spec, cancellationToken);
         if(scheds == null) continue;
 
