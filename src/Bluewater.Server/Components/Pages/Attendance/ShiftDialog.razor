@@ -7,6 +7,7 @@
 
 <FluentDialogBody OnAfterRenderAsync="@InitializeDialogAsync()">
     <FluentListbox TOption="ShiftDTO"
+        Height="300px"
         Items="@shifts"
         OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
         @bind-SelectedOption="@Content">

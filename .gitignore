@@ -97,7 +97,6 @@ StyleCopReport.xml
 *.pidb
 *.svclog
 *.scc
-*.db
 
 # Chutzpah Test files
 _Chutzpah*
@@ -364,5 +363,7 @@ MigrationBackup/
 FodyWeavers.xsd
 
 # DB files
-localdatabase_2.db
-localdatabase.db
+/src/Bluewater.Server/localdatabase.db
+/src/Bluewater.Server/localdatabase_2.db
+/src/Bluewater.Server/localdatabase_2.db-wal
+/src/Bluewater.Server/localdatabase_2.db-shm

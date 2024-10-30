@@ -6,8 +6,12 @@
 @using Bluewater.UseCases.Attendances.List
 @using Bluewater.UseCases.Attendances.Update
 @using Bluewater.UseCases.Employees
+@using Bluewater.UseCases.Schedules.Create
+@using Bluewater.UseCases.Schedules.Update
 @using Bluewater.UseCases.Timesheets;
 @using Bluewater.UseCases.Shifts;
+@using Bluewater.UseCases.Timesheets.Create
+@using Bluewater.UseCases.Timesheets.Update
 @using MediatR
 @rendermode InteractiveServer
 
@@ -62,6 +66,9 @@
     <PropertyColumn Title="Work Hrs" Property="@(p => p.WorkHrs)" />
     <PropertyColumn Title="Late Hrs" Property="@(p => p.LateHrs)" />
     <PropertyColumn Title="Under Hrs" Property="@(p => p.UnderHrs)" />
+    <TemplateColumn Title="Action">
+        <FluentButton IconStart="@(new Icons.Regular.Size16.Save())" OnClick="@(async() => await UpdateAttendanceAsync(context))" Appearance="Appearance.Accent"/>
+    </TemplateColumn>    
 </FluentDataGrid>
 
 
@@ -125,11 +132,6 @@
                 var result = await mediator.Send(new ListAttendanceQuery(null, null, EmpId, _startDate, _endDate));
                 if (result.IsSuccess) {
                     EmployeeAttendance = result.Value.AsQueryable();
-                    foreach(var attendance in EmployeeAttendance) {
-                        Console.WriteLine($"---- {attendance.EntryDate} ----");
-                        Console.WriteLine($"Shift: {attendance.Shift?.Name}");
-                        Console.WriteLine($"ShiftId: {attendance.ShiftId}");
-                    }
                 }
             }      
         }
@@ -162,6 +164,62 @@
             var item = EmployeeAttendance.FirstOrDefault(x => x.EntryDate == context.EntryDate);
             item!.Shift = (ShiftDTO)result.Data;
             item!.ShiftId = item.Shift.Id;
+
+            if(item.ShiftId != null && item.EntryDate != null){
+                // update schedule
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    //Guid EmployeeId, Guid ShiftId, DateOnly ScheduleDate, bool IsDefault
+                    var scheduleResult = await mediator.Send(new CreateScheduleCommand(item.EmployeeId, item!.ShiftId ?? Guid.Empty, item!.EntryDate ?? DateOnly.MinValue, false));
+                }
+            }
+        }
+    }
+
+    private async Task UpdateAttendanceAsync(AttendanceDTO attendance) {
+        try {
+            // check first if there's timesheet input
+            if(attendance.Timesheet == null || attendance.TimesheetId == Guid.Empty) {
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    var result = await mediator.Send(new CreateTimesheetCommand(attendance.EmployeeId, attendance.Timesheet!.TimeIn1, attendance.Timesheet!.TimeOut1, attendance.Timesheet!.TimeIn2, attendance.Timesheet!.TimeOut2, attendance.EntryDate));
+                    if (result.IsSuccess)
+                        attendance.TimesheetId = result.Value;
+                }
+            }
+            else {
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    var result = await mediator.Send(new UpdateTimesheetCommand(attendance.TimesheetId ?? Guid.Empty, attendance.EmployeeId, attendance.Timesheet!.TimeIn1, attendance.Timesheet!.TimeOut1, attendance.Timesheet!.TimeIn2, attendance.Timesheet!.TimeOut2, attendance.EntryDate, false));
+                }
+            }
+
+            // if timesheetId is null, create attendance
+            if(attendance.Id == Guid.Empty) {
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    var result = await mediator.Send(new CreateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, null, null, null));
+                    if (result.IsSuccess)
+                        await LoadAttendanceAsync(SearchDate);
+                }
+            }
+            else {
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    var result = await mediator.Send(new UpdateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate));
+                    if (result.IsSuccess)
+                        await LoadAttendanceAsync(SearchDate);
+                }
+            }
+        }
+        catch(Exception)
+        {
+            throw;
         }
     }
 

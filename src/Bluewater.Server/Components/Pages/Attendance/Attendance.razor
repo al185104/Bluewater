@@ -119,30 +119,8 @@
 
     private async Task ViewAttendanceAsync(AllAttendancesDTO context)
     {
-        @* IDialogReference _dialog = await DialogService.ShowPanelAsync<AttendanceForm>(context, new DialogParameters<AllAttendancesDTO>
-        {
-            Title = "Attendance",
-            Alignment = HorizontalAlignment.Right,
-            Content = context,
-            Modal = false,
-            ShowDismiss = true,
-            PrimaryAction = "Update",
-            SecondaryAction = "Cancel",
-            Width = "100%",
-        });
-
-        DialogResult result = await _dialog.Result;
-        await HandleUpdatePanelAsync(result); *@
-
-        // navigate to the attendance form
         await Task.Delay(100);
         NavigationManager.NavigateTo($"/attendance/details/{context.EmployeeId}/{searchDate.ToString("yyyy-MM-dd")}");
     }
-
-    @* private async Task HandleUpdatePanelAsync(DialogResult result)
-    {
-        if (result.Cancelled) return;
-        await Task.Delay(100);
-    } *@
 
 }
