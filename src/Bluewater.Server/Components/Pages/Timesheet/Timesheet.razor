@@ -14,19 +14,16 @@
 
 <PageTitle>Timesheet</PageTitle>
 
-
+<h3>Timesheet</h3>
 <FluentGrid>
-    <FluentGridItem xs="6">
-        <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center" Orientation="Orientation.Vertical">
-            <h3>Timesheet</h3>
-            <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom" Orientation="Orientation.Horizontal">            
-                <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadTimesheetAsync(searchDate = searchDate.AddDays(-15)))"/>
-                <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
-                <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadTimesheetAsync(searchDate = searchDate.AddDays(15)))"/>
-            </FluentStack>
+    <FluentGridItem xs="4">
+        <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center" Orientation="Orientation.Horizontal">            
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadTimesheetAsync(searchDate = searchDate.AddDays(-15)))"/>
+            <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadTimesheetAsync(searchDate = searchDate.AddDays(15)))"/>
         </FluentStack>
     </FluentGridItem>
-    <FluentGridItem xs="6">
+    <FluentGridItem xs="8">
         <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Top">
             <FluentLabel Style="margin-top: 0px;"><strong>Employee: @EmployeeTimesheets?.Name</strong></FluentLabel>
             <FluentLabel>Department: @EmployeeTimesheets?.Department</FluentLabel>
@@ -56,7 +53,7 @@
         <FluentTimePicker Value="@context!.TimeOut2" ValueChanged="@(e => context!.TimeOut2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" />
     </TemplateColumn>    
     <TemplateColumn Title="Actions" Align="@Align.End">
-        <FluentButton aria-label="Override item" IconEnd="@(new Icons.Regular.Size16.Edit())" OnClick="@(async() => await AllowEditTimesheetAsync(context))"/>
+        @* <FluentButton aria-label="Override item" IconEnd="@(new Icons.Regular.Size16.Edit())" OnClick="@(async() => await AllowEditTimesheetAsync(context))"/> *@
         <FluentButton aria-label="Save item" IconEnd="@(new Icons.Regular.Size16.Save())" OnClick="@(async() => await SaveTimesheetAsync(context))"/>
     </TemplateColumn>    
 </FluentDataGrid>

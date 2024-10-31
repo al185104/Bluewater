@@ -11,9 +11,14 @@
             <FluentNavLink Href="schedule" Icon="@(new Icons.Regular.Size24.CalendarArrowRepeatAll())" IconColor="Color.Accent">Schedules</FluentNavLink>
             <FluentNavLink Href="timesheet" Icon="@(new Icons.Regular.Size24.Timer())" IconColor="Color.Accent">Timesheet</FluentNavLink>
             <FluentNavLink Href="attendance" Icon="@(new Icons.Regular.Size24.CalendarLtr())" IconColor="Color.Accent">Attendance</FluentNavLink>
-            <FluentNavLink Href="inprogress" Icon="@(new Icons.Regular.Size24.Document())" IconColor="Color.Accent">Forms</FluentNavLink>
-            <FluentNavLink Href="inprogress" Icon="@(new Icons.Regular.Size24.DocumentArrowDown())" IconColor="Color.Accent">Deductions</FluentNavLink>
-            <FluentNavLink Href="inprogress" Icon="@(new Icons.Regular.Size24.Wallet())" IconColor="Color.Accent">Other Earnings</FluentNavLink>
+            <FluentNavGroup Title="Forms" Tooltip="Form submissions" Icon="@(new Icons.Regular.Size24.Folder())" >
+                <FluentNavLink Href="overtime" Icon="@(new Icons.Regular.Size24.CalendarStar())" Tooltip="Overtime form submissions">Overtime</FluentNavLink>
+                <FluentNavLink Href="undertime" Icon="@(new Icons.Regular.Size24.Timer3())" Tooltip="Undertime form submissions">Undertime</FluentNavLink>
+                <FluentNavLink Href="failureinout" Icon="@(new Icons.Regular.Size24.TimerOff())" Tooltip="Failure to time in/out submissions">Failure in/out</FluentNavLink>
+                <FluentNavLink Href="deduction" Icon="@(new Icons.Regular.Size24.MoneyOff())" Tooltip="Deduction form submissions">Deduction</FluentNavLink>
+                <FluentNavLink Href="otherearning" Icon="@(new Icons.Regular.Size24.Wallet())" Tooltip="Other earning form submissions">Other earning</FluentNavLink>
+                <FluentNavLink Href="leave" Icon="@(new Icons.Regular.Size24.BookContacts())" Tooltip="Leaves form submissions">Leaves</FluentNavLink>
+            </FluentNavGroup>            
             <FluentNavLink Href="inprogress" Icon="@(new Icons.Regular.Size24.Money())" IconColor="Color.Accent">Payroll</FluentNavLink>
             <FluentNavLink Href="inprogress" Icon="@(new Icons.Regular.Size24.DocumentPrint())" IconColor="Color.Accent">Reports</FluentNavLink>
             <FluentNavLink Href="inprogress" Icon="@(new Icons.Regular.Size24.ContactCard())" IconColor="Color.Accent">Contact</FluentNavLink>

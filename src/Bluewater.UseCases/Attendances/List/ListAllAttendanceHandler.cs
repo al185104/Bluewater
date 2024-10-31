@@ -32,17 +32,23 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
               if(ret.IsSuccess) {
                 var val = ret.Value.OrderByDescending(i => i.EntryDate).ToList();
         
-                var (totalWorkHours, totalLateHours, totalUnderHours, totalLocked) = ProcessAttendance(val);
-                results.Add(new AllAttendancesDTO(employee.Id, $"{employee.LastName}, {employee.FirstName}", employee.Department, employee.Section, employee.Charging, val, totalWorkHours, totalLateHours, totalUnderHours, totalLocked));
+                var (totalWorkHours, totalLateHours, totalUnderHours, totalLeaves) = ProcessAttendance(val);
+                results.Add(new AllAttendancesDTO(employee.Id, $"{employee.LastName}, {employee.FirstName}", employee.Department, employee.Section, employee.Charging, val, totalWorkHours, totalLateHours, totalUnderHours, totalLeaves));
               }
             }
         }
         return Result<IEnumerable<AllAttendancesDTO>>.Success(results);
   }
 
-  private (decimal totalWorkHours, decimal totalLateHours, decimal totalUnderHours, decimal totalLocked) ProcessAttendance(List<AttendanceDTO> val)
+  private (decimal totalWorkHours, decimal totalLateHours, decimal totalUnderHours, decimal totalLeaves) ProcessAttendance(List<AttendanceDTO> val)
   {
-    return (0, 0, 0, 0);
+    //sum of all work hours
+    var _totalWorkHours = val.Sum(i => i.WorkHrs);
+    var _totalLateHours = val.Sum(i => i.LateHrs);
+    var _totalUnderHours = val.Sum(i => i.UnderHrs);
+    var _totalLeaves = val.Count(i => i.LeaveId != null && i.LeaveId != Guid.Empty);
+
+    return (_totalLateHours ?? 0, _totalLateHours ?? 0, _totalUnderHours ?? 0, _totalLeaves);
   }
 
 }

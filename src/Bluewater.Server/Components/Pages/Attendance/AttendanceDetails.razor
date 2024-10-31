@@ -21,29 +21,30 @@
 @inject IDialogService DialogService
 
 <FluentGrid>
-    <FluentGridItem xs="6">
+    <FluentGridItem xs="4">
         <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
             <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadAttendanceAsync(SearchDate = SearchDate.AddDays(-15)))"/>
             <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
             <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadAttendanceAsync(SearchDate = SearchDate.AddDays(15)))"/>
         </FluentStack>
     </FluentGridItem>
-    <FluentGridItem xs="6">
+    <FluentGridItem xs="8">
         <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Center">
             <FluentLabel Style="margin-top: 0px;"><strong>Employee: @($"{Employee?.LastName}, {Employee?.FirstName}")</strong></FluentLabel>
             <FluentLabel>Department: @Employee?.Department</FluentLabel>
             <FluentLabel>Section: @Employee?.Section</FluentLabel>
             <FluentLabel Style="margin-bottom: 0px;">Charging: @Employee?.Charging</FluentLabel>
-            <FluentButton IconStart="@(new Icons.Regular.Size16.Save())" OnClick="@(async() => await UpdateAllAttendanceAsync())" Appearance="Appearance.Accent">Update</FluentButton>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Save())" OnClick="@(async() => await SubmitAllAttendanceAsync())" Appearance="Appearance.Accent">Save & Submit</FluentButton>
         </FluentStack>
     </FluentGridItem>
 </FluentGrid>
 
-<FluentDataGrid Items="@EmployeeAttendance" TGridItem="AttendanceDTO">
+<FluentDataGrid Items="@EmployeeAttendance" TGridItem="AttendanceDTO"
+    GridTemplateColumns="1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 0.8fr 0.8fr 0.8fr 0.6fr">
     <PropertyColumn Title="Date" Property="@(p => p.EntryDate)" Format="MMM-dd" Sortable="true"/>
-    <PropertyColumn Title="Day" Property="@(p => p.EntryDate)" Format="dddd" Sortable="true"/>
+    <PropertyColumn Title="Day" Property="@(p => p.EntryDate)" Format="dddd"/>
     <TemplateColumn Title="Shift" Align="@Align.Center">
-        <FluentButton IconStart="@(new Icons.Regular.Size16.Edit())" OnClick="@(async() => await OnShiftButtonClickAsync(context))" Style="width: 100px">
+        <FluentButton IconStart="@(new Icons.Regular.Size16.Edit())" OnClick="@(async() => await OnShiftButtonClickAsync(context))" Style="width: 100px" Disabled=@context.IsLocked>
             @(context.Shift?.Name ?? "No shift")
         </FluentButton>
     </TemplateColumn>
@@ -52,22 +53,25 @@
     <PropertyColumn Title="Break end" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakEndTime : default)" Format="HH:mm tt" />        
     <PropertyColumn Title="End time" Property="@(p => p.Shift != null ? p.Shift.ShiftEndTime : default)" Format="HH:mm tt" />
     <TemplateColumn Title="In #1" Align="@Align.Center">
-        <FluentTimePicker Value="@(context.Timesheet?.TimeIn1 ?? DateTime.MinValue)" Format="HH:mm tt" />
+        <FluentTimePicker Value="@(context.Timesheet?.TimeIn1 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeIn1 = e)" Format="HH:mm tt" Disabled=@context.IsLocked/>
     </TemplateColumn>
     <TemplateColumn Title="Out #1" Align="@Align.Center">
-        <FluentTimePicker Value="@(context.Timesheet?.TimeOut1 ?? DateTime.MinValue)" Format="HH:mm tt" />
+        @* <FluentTimePicker Value="@(context.Timesheet?.TimeOut1 ?? DateTime.MinValue)" Format="HH:mm tt" /> *@
+        <FluentTimePicker Value="@(context.Timesheet?.TimeOut1 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeOut1 = e)" Format="HH:mm tt" Disabled=@context.IsLocked/>        
     </TemplateColumn>
     <TemplateColumn Title="In #2" Align="@Align.Center">
-        <FluentTimePicker Value="@(context.Timesheet?.TimeIn2 ?? DateTime.MinValue)" Format="HH:mm tt" />
+        @* <FluentTimePicker Value="@(context.Timesheet?.TimeIn2 ?? DateTime.MinValue)" Format="HH:mm tt" /> *@
+        <FluentTimePicker Value="@(context.Timesheet?.TimeIn2 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeIn2 = e)" Format="HH:mm tt" Disabled=@context.IsLocked/>        
     </TemplateColumn>
     <TemplateColumn Title="Out #2" Align="@Align.Center">
-        <FluentTimePicker Value="@(context.Timesheet?.TimeOut2 ?? DateTime.MinValue)" Format="HH:mm tt" />
+        @* <FluentTimePicker Value="@(context.Timesheet?.TimeOut2 ?? DateTime.MinValue)" Format="HH:mm tt" /> *@
+        <FluentTimePicker Value="@(context.Timesheet?.TimeOut2 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeOut2 = e)" Format="HH:mm tt" Disabled=@context.IsLocked/>        
     </TemplateColumn>
     <PropertyColumn Title="Work Hrs" Property="@(p => p.WorkHrs)" />
     <PropertyColumn Title="Late Hrs" Property="@(p => p.LateHrs)" />
     <PropertyColumn Title="Under Hrs" Property="@(p => p.UnderHrs)" />
     <TemplateColumn Title="Action">
-        <FluentButton IconStart="@(new Icons.Regular.Size16.Save())" OnClick="@(async() => await UpdateAttendanceAsync(context))" Appearance="Appearance.Accent"/>
+        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowSync())" OnClick="@(async() => await UpdateAttendanceAsync(context))" Appearance="Appearance.Accent" Disabled=@context.IsLocked/>
     </TemplateColumn>    
 </FluentDataGrid>
 
@@ -197,6 +201,11 @@
                 }
             }
 
+            if(attendance.ShiftId == null || attendance.ShiftId == Guid.Empty) {
+                await DialogService.ShowWarningAsync("Timesheet successfully saved but no shift selected. Please select a shift.", "Warning");
+                return;
+            }
+
             // if timesheetId is null, create attendance
             if(attendance.Id == Guid.Empty) {
                 using (var scope = ServiceScopeFactory.CreateScope())
@@ -223,18 +232,26 @@
         }
     }
 
-    private async Task UpdateAllAttendanceAsync()
+    private async Task SubmitAllAttendanceAsync()
     {
         try {
+
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to Save and Submit this attendance sheet? Please note that you won't be able to edit after submission.", "Yes", "No", "Save and Submit");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
             isBusy = true;
 
             foreach(var attendance in EmployeeAttendance)
             {
+                if(attendance.Shift == null || attendance.ShiftId == null || attendance.ShiftId == Guid.Empty)
+                    continue;
+
                 if(attendance.Id == Guid.Empty) { // create attendance
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var result = await mediator.Send(new CreateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, null, null, null));
+                        var result = await mediator.Send(new CreateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, null, null, null, IsLocked: true));
                         if (!result.IsSuccess)
                             break;
                     }
@@ -243,12 +260,14 @@
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var result = await mediator.Send(new UpdateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate));
+                        var result = await mediator.Send(new UpdateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, IsLocked: true));
                         if (!result.IsSuccess)
                             break;
                     }
                 }
             }
+
+            await LoadAttendanceAsync(SearchDate);
         }
         catch(Exception)
         {

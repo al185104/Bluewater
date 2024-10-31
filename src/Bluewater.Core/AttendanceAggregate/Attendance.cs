@@ -28,7 +28,7 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
     public virtual Shift Shift { get; set; } = null!;
     public virtual Timesheet Timesheet { get; set; } = null!;
 
-    public void Update(Guid? shiftId, Guid? timesheetId, Guid? leaveId, decimal? workHrs, decimal? lateHrs, decimal? underHrs, string? remarks)
+    public void Update(Guid? shiftId, Guid? timesheetId, Guid? leaveId, decimal? workHrs, decimal? lateHrs, decimal? underHrs, string? remarks, bool isLocked = false)
     {
         ShiftId = shiftId;
         TimesheetId = timesheetId;
@@ -38,6 +38,7 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
         UnderHrs = underHrs;
         Remarks = remarks;
         IsEdited = true;
+        IsLocked = isLocked;
 
         UpdatedDate = DateTime.Now;
     }

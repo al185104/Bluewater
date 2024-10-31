@@ -50,17 +50,21 @@
 @inject IMediator Mediator
 @inject IGlobalService GlobalService
 @inject IDialogService DialogService
+@inject IWebHostEnvironment env
 
 <PageTitle>System Settings</PageTitle>
 
 <h3>Team Settings</h3>
 
 <FluentStack Orientation="Orientation.Vertical">
-
-    <FluentButton OnClick="@(async () => await CreateDummyEmployees())">Create Dummy Employees</FluentButton>
-    <FluentButton OnClick="@(async () => await CreateDummyShifts())">Create Dummy Shifts</FluentButton>
-    <FluentButton OnClick="@(async () => await CreateDummyTimesheet())">Create Dummy Timesheet</FluentButton>
-    <FluentButton OnClick="@(async () => await CreateDummySchedule())">Create Dummy Schedule</FluentButton>
+    
+    @if (env.IsDevelopment())
+    {
+        <FluentButton OnClick="@(async () => await CreateDummyEmployees())">Create Dummy Employees</FluentButton>
+        <FluentButton OnClick="@(async () => await CreateDummyShifts())">Create Dummy Shifts</FluentButton>
+        <FluentButton OnClick="@(async () => await CreateDummyTimesheet())">Create Dummy Timesheet</FluentButton>
+        <FluentButton OnClick="@(async () => await CreateDummySchedule())">Create Dummy Schedule</FluentButton>
+    }
 
     <FluentGrid Spacing="2">
         @* division *@
@@ -889,7 +893,7 @@
         {
             isBusy = true;
             // Create sample employees
-            for (int i = 0; i < 100; i++)
+            for (int i = 0; i < 20; i++)
             {
                 var payId = Guid.Empty;
                 using(var scope = ServiceScopeFactory.CreateScope())

@@ -19,6 +19,12 @@ using Bluewater.Core.HolidayAggregate;
 using Bluewater.Core.ScheduleAggregate;
 using Bluewater.Core.TimesheetAggregate;
 using Bluewater.Core.AttendanceAggregate;
+using Bluewater.Core.Forms.OvertimeAggregate;
+using Bluewater.Core.Forms.UndertimeAggregate;
+using Bluewater.Core.Forms.LeaveAggregate;
+using Bluewater.Core.Forms.DeductionAggregate;
+using Bluewater.Core.Forms.FailureInOutAggregate;
+using Bluewater.Core.Forms.OtherEarningAggregate;
 
 namespace Bluewater.Infrastructure.Data;
 public class AppDbContext : DbContext
@@ -45,6 +51,14 @@ public class AppDbContext : DbContext
   public DbSet<Timesheet> Timesheets => Set<Timesheet>();
   public DbSet<Attendance> Attendance => Set<Attendance>();
 
+  // forms
+  public DbSet<Overtime> Overtimes => Set<Overtime>();
+  public DbSet<Undertime> Undertimes => Set<Undertime>();
+  public DbSet<Leave> Leaves => Set<Leave>();
+  public DbSet<Deduction> Deductions => Set<Deduction>();
+  public DbSet<FailureInOut> FailureInOuts => Set<FailureInOut>();
+  public DbSet<OtherEarning> OtherEarnings => Set<OtherEarning>();
+
   public AppDbContext(DbContextOptions<AppDbContext> options,
     IDomainEventDispatcher? dispatcher)
       : base(options)
@@ -61,7 +75,7 @@ public class AppDbContext : DbContext
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
     if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-      optionsBuilder.UseSqlite("Data Source=localdatabase_2.db");
+      optionsBuilder.UseSqlite("Data Source=localdatabase.db");
     else
       base.OnConfiguring(optionsBuilder);
   }

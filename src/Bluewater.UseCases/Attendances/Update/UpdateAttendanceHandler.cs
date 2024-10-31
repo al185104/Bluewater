@@ -14,7 +14,7 @@ public class UpdateAttendanceHandler(IRepository<Attendance> _repository) : ICom
     var existingAttendance = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (existingAttendance == null) return Result.NotFound();
 
-    existingAttendance.Update(request.ShiftId, request.TimesheetId, request.LeaveId, existingAttendance.WorkHrs, existingAttendance.LateHrs, existingAttendance.UnderHrs, existingAttendance.Remarks);
+    existingAttendance.Update(request.ShiftId, request.TimesheetId, request.LeaveId, existingAttendance.WorkHrs, existingAttendance.LateHrs, existingAttendance.UnderHrs, existingAttendance.Remarks, request.IsLocked);
 
     await _repository.UpdateAsync(existingAttendance, cancellationToken);
 
