@@ -18,12 +18,12 @@ namespace Bluewater.UseCases.Employees.Create;
       ContactInfo? ContactInfo,
       EducationInfo? EducationInfo,
       EmploymentInfo? EmploymentInfo,
-      Guid UserId,
-      Guid PositionId,
-      Guid PayId,
-      Guid TypeId,
-      Guid LevelId,
-      Guid ChargingId
+      Guid? UserId,
+      Guid? PositionId,
+      Guid? PayId,
+      Guid? TypeId,
+      Guid? LevelId,
+      Guid? ChargingId
   ) : Ardalis.SharedKernel.ICommand<Result<Guid>>;
 
   public record ContactInfo(

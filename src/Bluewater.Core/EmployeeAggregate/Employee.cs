@@ -94,7 +94,7 @@ public class Employee(string firstName, string lastName, string? middleName, Dat
                                         employmentInfo.HasServiceCharge);
   }
 
-  public void SetExternalKeys(Guid userId, Guid positionId, Guid payId, Guid typeId, Guid levelId, Guid chargingId)
+  public void SetExternalKeys(Guid? userId, Guid? positionId, Guid? payId, Guid? typeId, Guid? levelId, Guid? chargingId)
   {
     UserId = userId;
     PositionId = positionId;

@@ -924,7 +924,7 @@
                         PasswordHash: "1234",
                         Credential: Bluewater.Core.UserAggregate.Enum.Credential.Employee, // Set as needed
                         SupervisedGroup: null,
-                        isGlobalSupervisor: i % 2 == 0
+                        isGlobalSupervisor: false
                     );
                     var result = await mediator.Send(userCommand);
                     if (result.IsSuccess) {
@@ -978,11 +978,11 @@
                         HasServiceCharge: i % 2 == 0
                     ),
                     UserId: userId,
-                    PositionId: GetRandomId(Positions.ToList()),
+                    PositionId: Positions.Any() ? GetRandomId(Positions.ToList()) : null,
                     PayId: payId,
-                    TypeId: GetRandomId(EmployeeTypes.ToList()),
-                    LevelId: GetRandomId(Levels.ToList()),
-                    ChargingId: GetRandomId(Chargings.ToList())
+                    TypeId: EmployeeTypes.Any() ? GetRandomId(EmployeeTypes.ToList()) : null,
+                    LevelId: Levels.Any() ? GetRandomId(Levels.ToList()) : null,
+                    ChargingId: Chargings.Any() ? GetRandomId(Chargings.ToList()) : null
                 );
 
                 using (var scope = ServiceScopeFactory.CreateScope())
