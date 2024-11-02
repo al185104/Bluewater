@@ -1,7 +1,182 @@
 @page "/failureinout"
+@rendermode InteractiveServer
+@using Bluewater.UseCases.Employees
+@using Bluewater.UseCases.Forms.FailureInOuts
+@using Bluewater.UseCases.Forms.FailureInOuts.Create
+@using Bluewater.UseCases.Forms.FailureInOuts.Delete
+@using Bluewater.UseCases.Forms.FailureInOuts.List
+@using Bluewater.UseCases.Helpers
+@using Bluewater.UserCases.Forms.Enum
+@using MediatR
+
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+@using Bluewater.Server.Global
+@using Microsoft.FluentUI.AspNetCore.Components.Extensions
+@inject IGlobalService GlobalService
+@inject IDialogService DialogService
 
 <PageTitle>Failure In or Out</PageTitle>
 
-@code { 
+<FluentStack Orientation="Orientation.Horizontal" HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Top">
+    <FluentLabel Style="margin-top: 0px;"><strong>Employee: @Employee?.Name</strong></FluentLabel>
+    <FluentLabel>Department: @Employee?.Department</FluentLabel>
+    <FluentLabel>Section: @Employee?.Section</FluentLabel>
+    <FluentLabel Style="margin-bottom: 0px;">Charging: @Employee?.Charging</FluentLabel>
+</FluentStack>
 
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Bottom" HorizontalGap="10">
+    <div>
+        <FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Label="Search employee" Placeholder="Name..." Style="width: 250px;"/>
+    </div>
+    <div>
+        <FluentSelect TOption="EnumOption" Label="Reason" Items="@failureInOutTypes" OptionText="@(o => o.Description)" @onchange=HandleReasonSelected Style="width: 250px;"/>
+    </div>
+    <div>
+        <FluentDatePicker Label="Date" Value="@InputFailureInOut!.Date" ValueChanged="@(e => InputFailureInOut!.Date = e)"/>
+    </div>
+    <div>
+        <FluentTextField Label="Remarks" @bind-Value="InputFailureInOut!.Remarks" Style="width: 250px;"/>
+    </div>
+    <FluentButton Text="Add" Appearance="Appearance.Accent" OnClick="@(async() => await AddFailureInOutAsync())" >Add</FluentButton>
+</FluentStack>
+
+<FluentDataGrid Id="shiftsGrid" Items="@FailureInOuts" TGridItem="FailureInOutDTO">
+    <PropertyColumn Title="Date" Property="@(c => c!.Date)" Align="Align.Start" />
+    <PropertyColumn Title="Reason" Property="@(c => c!.Reason)" Align="Align.Start" />
+    <PropertyColumn Title="Remarks" Property="@(c => c!.Remarks)" Align="Align.Start" />
+    <PropertyColumn Title="Status" Property="@(c => c!.Status)" Align="Align.Start" />
+    <TemplateColumn Title="Actions" Align="@Align.End">
+        <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteFailureInOutsAsync(context))"/>
+    </TemplateColumn>
+</FluentDataGrid>
+
+
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
+
+@code { 
+    string nameFilter = string.Empty;
+    private EmployeeShortDTO? Employee = default!;
+    private List<EnumOption> failureInOutTypes = new();
+    private EnumOption selectedFailureInOutType = new(null, null);    
+    private bool isBusy = false;
+    private IQueryable<FailureInOutDTO> FailureInOuts = default!;
+    private FailureInOutDTO? InputFailureInOut = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFailureInOutAsync();
+        failureInOutTypes = EnumUtilities.GetEnumOptions<FailureInOutReasonDTO>();
+    }
+
+    async Task LoadFailureInOutAsync() {
+        try {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListFailureInOutQuery(null, null));
+                if (result.IsSuccess)
+                    FailureInOuts = result.Value.AsQueryable();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }
+
+    async Task DeleteFailureInOutsAsync(FailureInOutDTO context)
+    {
+        if(Employee == null || Employee.Id == Guid.Empty) {
+            await DialogService.ShowWarningAsync("There's no current employee searched yet. Please search an employee first.", "Warning");
+            return;
+        }
+        try
+        {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var deleteResult = await mediator.Send(new DeleteFailureInOutCommand(context.Id));
+                if (deleteResult.IsSuccess)
+                    await LoadFailureInOutAsync();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+
+    }
+
+    async Task AddFailureInOutAsync()
+    {
+        try
+        {
+            isBusy = true;
+
+            if(Employee == null || Employee.Id == Guid.Empty){
+                await DialogService.ShowWarningAsync("There's no current employee searched yet. Please search an employee first.", "Warning");
+                return;
+            }
+            
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateFailureInOutCommand(Employee!.Id, InputFailureInOut!.Date, InputFailureInOut.Remarks, InputFailureInOut.Reason));
+                if (result.IsSuccess)
+                {
+                    await LoadFailureInOutAsync();
+                    InputFailureInOut = new();
+                }
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private async Task HandleEmployeeFilter(ChangeEventArgs args)
+    {
+        if (args.Value is string value){
+            nameFilter = value;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new GetEmployeeShortQuery(nameFilter));
+                if (result.IsSuccess)
+                    Employee = result.Value;
+            }
+        }
+    }
+
+    private void HandleClear()
+    {
+        if (string.IsNullOrWhiteSpace(nameFilter)) {
+            nameFilter = string.Empty;
+            Employee = default!;
+        }
+    }    
+
+    public void HandleReasonSelected(ChangeEventArgs changeEventArgs)
+    {
+        InputFailureInOut!.Reason = EnumUtilities.GetEnumByDescription<FailureInOutReasonDTO>(changeEventArgs.Value?.ToString()!);
+    }    
 }

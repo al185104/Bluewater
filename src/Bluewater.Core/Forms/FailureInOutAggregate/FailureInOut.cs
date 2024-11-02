@@ -3,11 +3,11 @@ using Bluewater.Core.EmployeeAggregate;
 using Bluewater.Core.Forms.Enum;
 
 namespace Bluewater.Core.Forms.FailureInOutAggregate;
-public class FailureInOut(Guid empId, DateTime date, string remarks, FailureInOutReason reason) : EntityBase<Guid>, IAggregateRoot
+public class FailureInOut(Guid empId, DateTime? date, string? remarks, FailureInOutReason? reason) : EntityBase<Guid>, IAggregateRoot
 {
-    public DateTime Date { get; set; } = date;
-    public string Remarks { get; set; } = remarks;
-    public FailureInOutReason Reason { get; set; } = reason;
+    public DateTime? Date { get; set; } = date;
+    public string? Remarks { get; set; } = remarks;
+    public FailureInOutReason? Reason { get; set; } = reason;
     public ApplicationStatus Status { get; private set; } = ApplicationStatus.NotSet;
 
     // foreign key
@@ -21,11 +21,12 @@ public class FailureInOut(Guid empId, DateTime date, string remarks, FailureInOu
 
     public FailureInOut() : this(Guid.Empty, DateTime.Now, "", FailureInOutReason.NotSet) { }
 
-    public void UpdateFailureInOut(Guid empId, DateTime date, string remarks, ApplicationStatus status)
+    public void UpdateFailureInOut(Guid? empId, DateTime? date, string? remarks, FailureInOutReason? reason, ApplicationStatus status)
     {
         EmployeeId = empId;
         Date = date;
         Remarks = remarks;
+        Reason = reason;
         Status = status;
 
         UpdatedDate = DateTime.Now;

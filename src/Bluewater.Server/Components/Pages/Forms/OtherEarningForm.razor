@@ -1,7 +1,48 @@
 @page "/otherearning"
+@using Bluewater.UseCases.Forms.OtherEarnings
+@using Bluewater.UseCases.Forms.OtherEarnings.List
+@using MediatR
+
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+@using Bluewater.Server.Global
+@inject IGlobalService GlobalService
+@inject IDialogService DialogService
 
 <PageTitle>Other Earnings</PageTitle>
 
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
+
 @code {
-    
+    private bool isBusy = false;
+    private IQueryable<OtherEarningDTO> OtherEarnings = default!;
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDeductionsAsync();
+    }
+
+    async Task LoadDeductionsAsync() {
+        try {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListOtherEarningQuery(null, null));
+                if (result.IsSuccess)
+                    OtherEarnings = result.Value.AsQueryable();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }    
 }

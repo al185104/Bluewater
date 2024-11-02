@@ -2,7 +2,6 @@ using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.ScheduleAggregate;
 using Bluewater.Core.ScheduleAggregate.Specifications;
-using Bluewater.UseCases.Chargings.Get;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Employees.List;
 using Bluewater.UseCases.Shifts;

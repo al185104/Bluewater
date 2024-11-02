@@ -53,7 +53,6 @@
         <FluentTimePicker Value="@context!.TimeOut2" ValueChanged="@(e => context!.TimeOut2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" />
     </TemplateColumn>    
     <TemplateColumn Title="Actions" Align="@Align.End">
-        @* <FluentButton aria-label="Override item" IconEnd="@(new Icons.Regular.Size16.Edit())" OnClick="@(async() => await AllowEditTimesheetAsync(context))"/> *@
         <FluentButton aria-label="Save item" IconEnd="@(new Icons.Regular.Size16.Save())" OnClick="@(async() => await SaveTimesheetAsync(context))"/>
     </TemplateColumn>    
 </FluentDataGrid>

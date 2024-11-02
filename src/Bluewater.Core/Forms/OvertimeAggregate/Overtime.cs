@@ -3,12 +3,12 @@ using Bluewater.Core.EmployeeAggregate;
 using Bluewater.Core.Forms.Enum;
 
 namespace Bluewater.Core.Forms.OvertimeAggregate;
-public class Overtime(Guid empId, DateTime startDate, DateTime endDate, int approvedHours, string remarks) : EntityBase<Guid>, IAggregateRoot
+public class Overtime(Guid empId, DateTime? startDate, DateTime? endDate, int? approvedHours, string? remarks) : EntityBase<Guid>, IAggregateRoot
 {
-    public DateTime StartDate { get; private set; } = startDate;
-    public DateTime EndDate { get; private set; } = endDate;
-    public int ApprovedHours { get; private set; } = approvedHours;
-    public string Remarks { get; private set; } = remarks;
+    public DateTime? StartDate { get; private set; } = startDate;
+    public DateTime? EndDate { get; private set; } = endDate;
+    public int? ApprovedHours { get; private set; } = approvedHours;
+    public string? Remarks { get; private set; } = remarks;
     public ApplicationStatus Status { get; private set; } = ApplicationStatus.NotSet;
     // foreign key
     public Guid EmployeeId { get; private set; } = empId;

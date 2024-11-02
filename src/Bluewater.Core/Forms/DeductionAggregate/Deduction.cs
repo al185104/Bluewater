@@ -3,16 +3,16 @@ using Bluewater.Core.EmployeeAggregate;
 using Bluewater.Core.Forms.Enum;
 
 namespace Bluewater.Core.Forms.DeductionAggregate;
-public class Deduction (Guid empId, DeductionsType type, decimal totalAmount, decimal monthlyAmortization, decimal remainingBalance, int noOfMonths, DateOnly startDate, DateOnly endDate, string remarks) : EntityBase<Guid>, IAggregateRoot
+public class Deduction (Guid empId, DeductionsType? type, decimal? totalAmount, decimal? monthlyAmortization, decimal? remainingBalance, int? noOfMonths, DateOnly? startDate, DateOnly? endDate, string? remarks) : EntityBase<Guid>, IAggregateRoot
 {
-    public DeductionsType DeductionType { get; set; } = type;
-    public decimal TotalAmount { get; set; } = totalAmount;
-    public decimal MonthlyAmortization { get; set; } = monthlyAmortization;
-    public decimal RemainingBalance { get; set; } = remainingBalance;
-    public int NoOfMonths { get; set; } = noOfMonths;
-    public DateOnly StartDate { get; set; } = startDate;
-    public DateOnly EndDate { get; set; } = endDate;
-    public string Remarks { get; set; } = remarks;
+    public DeductionsType DeductionType { get; set; } = type ?? DeductionsType.NotSet;
+    public decimal? TotalAmount { get; set; } = totalAmount;
+    public decimal? MonthlyAmortization { get; set; } = monthlyAmortization;
+    public decimal? RemainingBalance { get; set; } = remainingBalance;
+    public int? NoOfMonths { get; set; } = noOfMonths;
+    public DateOnly? StartDate { get; set; } = startDate;
+    public DateOnly? EndDate { get; set; } = endDate;
+    public string? Remarks { get; set; } = remarks;
     public ApplicationStatus Status { get; private set; } = ApplicationStatus.NotSet;
 
     // foreign key
@@ -26,7 +26,7 @@ public class Deduction (Guid empId, DeductionsType type, decimal totalAmount, de
 
     public Deduction() : this(Guid.Empty, DeductionsType.NotSet, 0, 0, 0, 0, DateOnly.FromDateTime(DateTime.Now), DateOnly.FromDateTime(DateTime.Now), "") { }
 
-    public void UpdateDeduction(Guid empId, DeductionsType type, decimal totalAmount, decimal monthlyAmortization, decimal remainingBalance, int noOfMonths, DateOnly startDate, DateOnly endDate, string remarks, ApplicationStatus status)
+    public void UpdateDeduction(Guid empId, DeductionsType type, decimal? totalAmount, decimal? monthlyAmortization, decimal? remainingBalance, int? noOfMonths, DateOnly? startDate, DateOnly? endDate, string? remarks, ApplicationStatus status)
     {
         EmployeeId = empId;
         DeductionType = type;

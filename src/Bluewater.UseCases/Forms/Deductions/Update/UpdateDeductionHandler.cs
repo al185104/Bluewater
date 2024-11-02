@@ -1,8 +1,9 @@
 using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.Forms.DeductionAggregate;
+using Bluewater.UserCases.Forms.Enum;
 
-namespace Bluewater.UseCases.Deductions.Update;
+namespace Bluewater.UseCases.Forms.Deductions.Update;
 public class UpdateDeductionHandler(IRepository<Deduction> _repository) : ICommandHandler<UpdateDeductionCommand, Result<DeductionDTO>>
 {
   public async Task<Result<DeductionDTO>> Handle(UpdateDeductionCommand request, CancellationToken cancellationToken)
@@ -17,6 +18,6 @@ public class UpdateDeductionHandler(IRepository<Deduction> _repository) : IComma
 
     await _repository.UpdateAsync(existingDeduction, cancellationToken);
 
-    return Result.Success(new DeductionDTO(existingDeduction.Id, existingDeduction.EmployeeId, existingDeduction.DeductionType, existingDeduction.TotalAmount, existingDeduction.MonthlyAmortization, existingDeduction.RemainingBalance, existingDeduction.NoOfMonths, existingDeduction.StartDate, existingDeduction.EndDate, existingDeduction.Remarks, existingDeduction.Status));
+    return Result.Success(new DeductionDTO(existingDeduction.Id, existingDeduction.EmployeeId, $"{existingDeduction.Employee?.LastName}, {existingDeduction.Employee?.FirstName}", (DeductionsTypeDTO)existingDeduction.DeductionType, existingDeduction.TotalAmount, existingDeduction.MonthlyAmortization, existingDeduction.RemainingBalance, existingDeduction.NoOfMonths, existingDeduction.StartDate, existingDeduction.EndDate, existingDeduction.Remarks, (ApplicationStatusDTO)existingDeduction.Status));
   }
 }

@@ -1,7 +1,190 @@
 @page "/deduction"
+@rendermode InteractiveServer
+@using Bluewater.UseCases.Employees
+@using Bluewater.UseCases.Forms.Deductions
+@using Bluewater.UseCases.Forms.Deductions.Create
+@using Bluewater.UseCases.Forms.Deductions.Delete
+@using Bluewater.UseCases.Forms.Deductions.List
+@using Bluewater.UseCases.Helpers
+@using Bluewater.UserCases.Forms.Enum
+@using MediatR
+
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+@using Bluewater.Server.Global
+@using Microsoft.FluentUI.AspNetCore.Components.Extensions
+@inject IGlobalService GlobalService
+@inject IDialogService DialogService
 
 <PageTitle>Deductions</PageTitle>
 
+<FluentStack Orientation="Orientation.Horizontal" HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Top">
+    <FluentLabel Style="margin-top: 0px;"><strong>Employee: @Employee?.Name</strong></FluentLabel>
+    <FluentLabel>Department: @Employee?.Department</FluentLabel>
+    <FluentLabel>Section: @Employee?.Section</FluentLabel>
+    <FluentLabel Style="margin-bottom: 0px;">Charging: @Employee?.Charging</FluentLabel>
+</FluentStack>
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Bottom" HorizontalGap="10">
+    <div>
+        <FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Label="Search employee" Placeholder="Name..." />
+    </div>
+    <div>
+        <FluentSelect TOption="EnumOption" Label="Deduction Type" Items="@deductionTypes" OptionText="@(o => o.Description)" @onchange=HandleDeductionSelected/>
+    </div>
+    <div>
+        <FluentNumberField Label="Total Amount" @bind-Value="InputDeduction!.TotalAmount" />
+    </div>
+    <div>
+        <FluentNumberField Label="Monthly" @bind-Value="InputDeduction!.MonthlyAmortization" />
+    </div>
+    <div>
+        <FluentNumberField Label="Balance" @bind-Value="InputDeduction!.RemainingBalance" />
+    </div>
+    <div>
+        <FluentNumberField Label="No. of Months" @bind-Value="InputDeduction!.NoOfMonths" />
+    </div>
+    <div>
+        <FluentDatePicker Label="Start Date" Value="@InputDeduction!.StartDate.ToDateTimeNullable()" ValueChanged="@(e => InputDeduction!.StartDate = e.ToDateOnlyNullable())"/>
+    </div>
+    <div>
+        <FluentDatePicker Label="End Date" Value="@InputDeduction!.EndDate.ToDateTime()" ValueChanged="@(e => InputDeduction!.EndDate = e.ToDateOnly())"/>
+    </div>
+    <div>
+        <FluentTextField Label="Remarks" @bind-Value="InputDeduction!.Remarks" />
+    </div>
+    <FluentButton Text="Add" Appearance="Appearance.Accent" OnClick="@(async() => await AddDeductionAsync())" >Add</FluentButton>
+</FluentStack>
+
+<FluentDataGrid Id="deducionsGrid" Items="@Deductions" TGridItem="DeductionDTO">
+    <PropertyColumn Title="Name" Property="@(c => c!.Name)" Align="Align.Start" />
+    <PropertyColumn Title="Type" Property="@(c => c!.Type)" Align="Align.Start" />
+    <PropertyColumn Title="Total Amount" Property="@(c => c!.TotalAmount)" Align="Align.Start" />
+    <PropertyColumn Title="Monthly" Property="@(c => c!.MonthlyAmortization)" Align="Align.Start" />
+    <PropertyColumn Title="Balance" Property="@(c => c!.RemainingBalance)" Align="Align.Start" />
+    <PropertyColumn Title="No. of Months" Property="@(c => c!.NoOfMonths)" Align="Align.Start" />
+    <PropertyColumn Title="Start Date" Property="@(c => c!.StartDate)" Align="Align.Start" />
+    <PropertyColumn Title="End Date" Property="@(c => c!.EndDate)" Align="Align.Start" />
+    <PropertyColumn Title="Remarks" Property="@(c => c!.Remarks)" Align="Align.Start" />
+    <PropertyColumn Title="Status" Property="@(c => c!.Status)" Align="Align.Start" />
+    <TemplateColumn Title="Actions" Align="@Align.End">
+        <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteDeductionAsync(context))"/>
+    </TemplateColumn>
+</FluentDataGrid>
+
+<FluentDialogProvider/>
+
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
+
 @code {
-    
+    private bool isBusy = false;
+    string nameFilter = string.Empty;
+    private IQueryable<DeductionDTO> Deductions = default!;
+    private DeductionDTO? InputDeduction = new();
+    private EmployeeShortDTO? Employee = default!;
+    private List<EnumOption> deductionTypes = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDeductionsAsync();
+        deductionTypes = EnumUtilities.GetEnumOptions<DeductionsTypeDTO>();
+    }
+
+    async Task LoadDeductionsAsync() {
+        try {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListDeductionQuery(null, null));
+                if (result.IsSuccess)
+                    Deductions = result.Value.AsQueryable();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }
+
+    async Task DeleteDeductionAsync(DeductionDTO context) {
+        try {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteDeductionCommand(context.Id));
+                if (result.IsSuccess)
+                    await LoadDeductionsAsync();
+            }
+
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }
+
+    private async Task HandleEmployeeFilter(ChangeEventArgs args)
+    {
+        if (args.Value is string value){
+            nameFilter = value;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new GetEmployeeShortQuery(nameFilter));
+                if (result.IsSuccess)
+                    Employee = result.Value;
+            }
+        }
+    }
+
+    private void HandleClear()
+    {
+        if (string.IsNullOrWhiteSpace(nameFilter))
+            nameFilter = string.Empty;
+    }
+
+    public void HandleDeductionSelected(ChangeEventArgs changeEventArgs)
+    {
+        InputDeduction!.Type = EnumUtilities.GetEnumByDescription<DeductionsTypeDTO>(changeEventArgs.Value?.ToString()!);
+    }
+
+    async Task AddDeductionAsync() {
+        try {
+            isBusy = true;
+
+            if(Employee == null || Employee.Id == Guid.Empty){
+                await DialogService.ShowWarningAsync("There's no current employee searched yet. Please search an employee first.", "Warning");
+                return;
+            }
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateDeductionCommand(Employee.Id, InputDeduction!.Type, InputDeduction!.TotalAmount, InputDeduction!.MonthlyAmortization, InputDeduction!.RemainingBalance, InputDeduction!.NoOfMonths, InputDeduction!.StartDate, InputDeduction!.EndDate, InputDeduction!.Remarks));
+                if(result.IsSuccess){
+                    await LoadDeductionsAsync();
+                    InputDeduction = new();
+                }   
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }
 }

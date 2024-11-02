@@ -19,6 +19,20 @@ public static class EnumUtilities
         DescriptionAttribute? attribute = field?.GetCustomAttribute<DescriptionAttribute>();
         return attribute?.Description ?? enumValue.ToString();
     }
+
+    public static TEnum GetEnumByDescription<TEnum>(string description) where TEnum : Enum
+    {
+        foreach (TEnum enumValue in Enum.GetValues(typeof(TEnum)))
+        {
+            var fieldInfo = enumValue.GetType().GetField(enumValue.ToString());
+            var descriptionAttribute = fieldInfo?.GetCustomAttribute<DescriptionAttribute>();
+
+            if (descriptionAttribute != null && descriptionAttribute.Description == description)
+                return enumValue;
+        }
+
+        throw new ArgumentException($"No matching enum value found for description: {description}");
+    }    
 }
 
 public class EnumOption
