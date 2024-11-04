@@ -22,7 +22,6 @@ using Bluewater.UseCases.Users.Get;
 
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Bluewater.Core.EmployeeAggregate.Specifications;
 
 namespace Bluewater.UseCases.Employees.List;
 

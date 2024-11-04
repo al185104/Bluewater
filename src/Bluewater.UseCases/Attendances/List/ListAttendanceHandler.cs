@@ -38,8 +38,6 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
     {
       var attendance = attendances!.FirstOrDefault(s => s.EntryDate == date);      
       if(attendance == null) {
-        // compose attendance based on the shift and timesheet
-        // check for timesheet first by date
         TimesheetDTO timesheet = default!;
         using(var scope = serviceScopeFactory.CreateScope())
         {
@@ -71,7 +69,7 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
         }
 
         // new attendance to calculate
-        attendance = new Attendance(emp.Id, schedule?.ShiftId, timesheet?.Id, null, date, null, null, null, isLocked: false);
+        attendance = new Attendance(emp.Id, schedule?.ShiftId, timesheet?.Id, null, date, null, null, null, null, null, isLocked: false);
         if(schedule != null && schedule.Shift != null)
           attendance.Shift = new Shift("", schedule?.Shift.ShiftStartTime, schedule?.Shift.ShiftBreakTime, schedule?.Shift.ShiftBreakEndTime, schedule?.Shift.ShiftEndTime, schedule?.Shift.BreakHours);
         if(timesheet != null)
@@ -79,12 +77,12 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
         
         attendance.CalculateWorkHours();
 
-        results.Add(new AttendanceDTO(Guid.Empty, emp.Id, schedule?.ShiftId, timesheet?.Id, null, date, attendance.WorkHrs, attendance.LateHrs, attendance.UnderHrs, isLocked: false, schedule?.Shift, timesheet));
+        results.Add(new AttendanceDTO(Guid.Empty, emp.Id, schedule?.ShiftId, timesheet?.Id, null, date, attendance.WorkHrs, attendance.LateHrs, attendance.UnderHrs, attendance.OverbreakHrs, attendance.NightShiftHours, isLocked: false, schedule?.Shift, timesheet));
       }
       else{
         attendance.CalculateWorkHours();
 
-        results.Add(new AttendanceDTO(attendance.Id, emp.Id, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, attendance.WorkHrs, attendance.LateHrs, attendance.UnderHrs, attendance.IsLocked, 
+        results.Add(new AttendanceDTO(attendance.Id, emp.Id, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, attendance.WorkHrs, attendance.LateHrs, attendance.UnderHrs, attendance.OverbreakHrs, attendance.NightShiftHours, attendance.IsLocked, 
         new ShiftDTO(attendance.Shift.Id, attendance.Shift.Name, attendance.Shift.ShiftStartTime, attendance.Shift.ShiftBreakTime, attendance.Shift.ShiftBreakEndTime, attendance.Shift.ShiftEndTime, attendance.Shift.BreakHours), 
         new TimesheetDTO(attendance.Timesheet.Id, emp.Id, attendance.Timesheet.TimeIn1, attendance.Timesheet.TimeOut1, attendance.Timesheet.TimeIn2, attendance.Timesheet.TimeOut2, attendance.Timesheet.EntryDate, attendance.Timesheet.IsEdited)));
       }

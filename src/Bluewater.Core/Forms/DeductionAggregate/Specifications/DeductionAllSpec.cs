@@ -6,7 +6,6 @@ public class DeductionAllSpec : Specification<Deduction>
 {
   public DeductionAllSpec()
   {
-    // get all including employee
     Query.Include(Deduction => Deduction.Employee);
   }
 }

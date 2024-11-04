@@ -32,23 +32,27 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
               if(ret.IsSuccess) {
                 var val = ret.Value.OrderByDescending(i => i.EntryDate).ToList();
         
-                var (totalWorkHours, totalLateHours, totalUnderHours, totalLeaves) = ProcessAttendance(val);
-                results.Add(new AllAttendancesDTO(employee.Id, $"{employee.LastName}, {employee.FirstName}", employee.Department, employee.Section, employee.Charging, val, totalWorkHours, totalLateHours, totalUnderHours, totalLeaves));
+                var (totalWorkHours, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLeaves) = ProcessAttendance(val);
+                
+                results.Add(new AllAttendancesDTO(employee.Id, $"{employee.LastName}, {employee.FirstName}", employee.Department, employee.Section, employee.Charging, val, totalWorkHours, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLeaves));
               }
             }
         }
         return Result<IEnumerable<AllAttendancesDTO>>.Success(results);
   }
 
-  private (decimal totalWorkHours, decimal totalLateHours, decimal totalUnderHours, decimal totalLeaves) ProcessAttendance(List<AttendanceDTO> val)
+  private (decimal totalWorkHours, decimal totalLateHours, decimal totalUnderHours, decimal totalOverbreakHrs, decimal TotalNightShiftHours, decimal totalLeaves) ProcessAttendance(List<AttendanceDTO> val)
   {
     //sum of all work hours
     var _totalWorkHours = val.Sum(i => i.WorkHrs);
     var _totalLateHours = val.Sum(i => i.LateHrs);
     var _totalUnderHours = val.Sum(i => i.UnderHrs);
+    var _totalOverbreakHrs = val.Sum(i => i.OverbreakHrs);
+    var _totalNightShiftHours = val.Sum(i => i.NightShiftHours);
+
     var _totalLeaves = val.Count(i => i.LeaveId != null && i.LeaveId != Guid.Empty);
 
-    return (_totalLateHours ?? 0, _totalLateHours ?? 0, _totalUnderHours ?? 0, _totalLeaves);
+    return (_totalLateHours ?? 0, _totalLateHours ?? 0, _totalUnderHours ?? 0, _totalOverbreakHrs ?? 0, _totalNightShiftHours ?? 0, _totalLeaves);
   }
 
 }

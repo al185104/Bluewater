@@ -14,12 +14,12 @@ public class UpdateAttendanceHandler(IRepository<Attendance> _repository) : ICom
     var existingAttendance = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (existingAttendance == null) return Result.NotFound();
 
-    existingAttendance.Update(request.ShiftId, request.TimesheetId, request.LeaveId, existingAttendance.WorkHrs, existingAttendance.LateHrs, existingAttendance.UnderHrs, existingAttendance.Remarks, request.IsLocked);
+    existingAttendance.Update(request.ShiftId, request.TimesheetId, request.LeaveId, existingAttendance.WorkHrs, existingAttendance.LateHrs, existingAttendance.UnderHrs, existingAttendance.OverbreakHrs, existingAttendance.NightShiftHours, existingAttendance.Remarks, request.IsLocked);
 
     await _repository.UpdateAsync(existingAttendance, cancellationToken);
 
     return Result.Success(new AttendanceDTO(existingAttendance.Id, existingAttendance.EmployeeId, existingAttendance.ShiftId, existingAttendance.TimesheetId, existingAttendance.LeaveId, existingAttendance.EntryDate, 
-    existingAttendance.WorkHrs, existingAttendance.LateHrs, existingAttendance.UnderHrs, existingAttendance.IsLocked, 
+    existingAttendance.WorkHrs, existingAttendance.LateHrs, existingAttendance.UnderHrs, existingAttendance.OverbreakHrs, existingAttendance.NightShiftHours, existingAttendance.IsLocked, 
     new ShiftDTO(existingAttendance.Shift.Id, existingAttendance.Shift.Name, existingAttendance.Shift.ShiftStartTime, existingAttendance.Shift.ShiftBreakTime, existingAttendance.Shift.ShiftBreakEndTime, existingAttendance.Shift.ShiftEndTime, existingAttendance.Shift.BreakHours), 
     new TimesheetDTO(existingAttendance.Timesheet.Id, existingAttendance.EmployeeId, existingAttendance.Timesheet.TimeIn1, existingAttendance.Timesheet.TimeOut1, existingAttendance.Timesheet.TimeIn2, existingAttendance.Timesheet.TimeOut2, existingAttendance.Timesheet.EntryDate, existingAttendance.Timesheet.IsEdited)));
   }

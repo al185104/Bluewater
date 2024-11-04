@@ -4,12 +4,12 @@ using Bluewater.Core.Forms.Enum;
 
 namespace Bluewater.Core.Forms.OtherEarningAggregate;
 
-public class OtherEarning(Guid empId, OtherEarningType type, decimal totalAmount, bool isActive, DateOnly date) : EntityBase<Guid>, IAggregateRoot
+public class OtherEarning(Guid empId, OtherEarningType? type, decimal? totalAmount, bool isActive, DateOnly? date) : EntityBase<Guid>, IAggregateRoot
 {    
-    public OtherEarningType EarningType { get; set; } = type;
-    public decimal TotalAmount { get; set; } = totalAmount;
+    public OtherEarningType? EarningType { get; set; } = type;
+    public decimal? TotalAmount { get; set; } = totalAmount;
     public bool IsActive { get; set; } = isActive;
-    public DateOnly Date { get; set; } = date;
+    public DateOnly? Date { get; set; } = date;
     public ApplicationStatus Status { get; private set; } = ApplicationStatus.NotSet;
 
     public Guid? EmployeeId { get; set; } = empId;

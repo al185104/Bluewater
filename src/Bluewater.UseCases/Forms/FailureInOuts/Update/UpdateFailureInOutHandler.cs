@@ -18,6 +18,6 @@ public class UpdateFailureInOutHandler(IRepository<FailureInOut> _repository) : 
 
     await _repository.UpdateAsync(existingFailureInOut, cancellationToken);
 
-    return Result.Success(new FailureInOutDTO(existingFailureInOut.Id, existingFailureInOut.EmployeeId, existingFailureInOut.Date, existingFailureInOut.Remarks, (FailureInOutReasonDTO?)existingFailureInOut.Reason, (ApplicationStatusDTO?)existingFailureInOut.Status));
+    return Result.Success(new FailureInOutDTO(existingFailureInOut.Id, existingFailureInOut.EmployeeId, $"{existingFailureInOut.Employee?.LastName}, {existingFailureInOut.Employee?.FirstName}", existingFailureInOut.Date, existingFailureInOut.Remarks, (FailureInOutReasonDTO?)existingFailureInOut.Reason, (ApplicationStatusDTO?)existingFailureInOut.Status));
   }
 }

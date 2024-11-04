@@ -3,11 +3,11 @@ using Bluewater.Core.EmployeeAggregate;
 using Bluewater.Core.Forms.Enum;
 
 namespace Bluewater.Core.Forms.UndertimeAggregate;
-public class Undertime(Guid empId, decimal inclusiveTime, string reason, DateOnly date) : EntityBase<Guid>, IAggregateRoot
+public class Undertime(Guid empId, decimal? inclusiveTime, string? reason, DateOnly? date) : EntityBase<Guid>, IAggregateRoot
 {
-    public decimal InclusiveTime { get; private set; } = inclusiveTime;
-    public DateOnly Date { get; private set; } = date;
-    public string Reason { get; private set; } = reason;
+    public decimal? InclusiveTime { get; private set; } = inclusiveTime;
+    public DateOnly? Date { get; private set; } = date;
+    public string? Reason { get; private set; } = reason;
     public ApplicationStatus Status { get; private set; } = ApplicationStatus.NotSet;
     // foreign key
     public Guid EmployeeId { get; private set; } = empId;
@@ -20,7 +20,7 @@ public class Undertime(Guid empId, decimal inclusiveTime, string reason, DateOnl
 
     public Undertime() : this(Guid.Empty, 0, "", DateOnly.FromDateTime(DateTime.Now)) { }
 
-    public void UpdateUndertime(Guid empId, decimal inclusiveTime, string reason, DateOnly date, ApplicationStatus status)
+    public void UpdateUndertime(Guid empId, decimal? inclusiveTime, string? reason, DateOnly? date, ApplicationStatus status)
     {
         EmployeeId = empId;
         InclusiveTime = inclusiveTime;

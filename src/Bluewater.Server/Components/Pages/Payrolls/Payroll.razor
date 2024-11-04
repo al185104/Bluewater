@@ -1,0 +1,74 @@
+@page "/payroll"
+@rendermode InteractiveServer
+@using Bluewater.UseCases.Departments
+@using MediatR
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+@using Bluewater.Server.Global
+@inject IGlobalService GlobalService
+@inject IDialogService DialogService
+
+<FluentDialogProvider/>
+<FluentTooltipProvider />
+
+<PageTitle>Payroll</PageTitle>
+
+
+<FluentGrid>
+    <FluentGridItem xs="6">
+        <h3>Payroll</h3>
+        <FluentStack HorizontalGap="20" Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate = searchDate.AddDays(-7)))"/>
+            <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate = searchDate.AddDays(7)))"/>
+        </FluentStack>
+    </FluentGridItem>
+    <FluentGridItem xs="6">
+        <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Center">
+            <div>
+                <FluentSelect TOption="DepartmentDTO"
+                    Label="Select a department"
+                    Items="@Departments"
+                    Id="department-listbox"
+                    Placeholder="Make a selection..."
+                    OptionValue="@(p => p.Id.ToString())"
+                    OptionText="@(p => p.Name)"
+                    @bind-SelectedOption="@selectedDepartment" />
+            </div>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Search())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate))" Style="margin-top: 20px;">Calculate</FluentButton>
+        </FluentStack>        
+    </FluentGridItem>
+</FluentGrid>
+
+@code {
+    private DateTime searchDate = DateTime.Now;
+    private DateOnly startDate;
+    private DateOnly endDate;    
+    private IQueryable<DepartmentDTO> Departments { get; set; } = default!;
+    private DepartmentDTO? selectedDepartment = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Departments = GlobalService.Departments.ToList().AsQueryable();
+        var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(searchDate));
+        startDate = _startDate;
+        endDate = _endDate;
+        await Task.Delay(10);
+    }
+
+    private async Task LoadPayrollAsync(DateTime date)
+    {
+        searchDate = date;
+        var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(date));
+        startDate = _startDate;
+        endDate = _endDate;
+
+        if(selectedDepartment != null || selectedDepartment?.Id != Guid.Empty)
+        {
+            await DialogService.ShowWarningAsync("There's no current department selected yet. Please select a department first.", "Warning");
+            return;
+        }
+
+
+    }    
+}

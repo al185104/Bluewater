@@ -211,7 +211,7 @@
                 using (var scope = ServiceScopeFactory.CreateScope())
                 {
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var result = await mediator.Send(new CreateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, null, null, null));
+                    var result = await mediator.Send(new CreateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, null, null, null, null, null));
                     if (result.IsSuccess)
                         await LoadAttendanceAsync(SearchDate);
                 }
@@ -251,7 +251,7 @@
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var result = await mediator.Send(new CreateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, null, null, null, IsLocked: true));
+                        var result = await mediator.Send(new CreateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, null, null, null, null, null, IsLocked: true));
                         if (!result.IsSuccess)
                             break;
                     }

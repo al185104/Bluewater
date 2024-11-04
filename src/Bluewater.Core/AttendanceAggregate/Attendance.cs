@@ -4,7 +4,7 @@ using Bluewater.Core.ShiftAggregate;
 using Bluewater.Core.TimesheetAggregate;
 
 namespace Bluewater.Core.AttendanceAggregate;
-public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid? leaveId, DateOnly? entryDate, decimal? workHrs, decimal? lateHrs, decimal? underHrs, bool isLocked = false) : EntityBase<Guid>, IAggregateRoot
+public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid? leaveId, DateOnly? entryDate, decimal? workHrs, decimal? lateHrs, decimal? underHrs, decimal? overbreakHrs, decimal? nightShiftHours, bool isLocked = false) : EntityBase<Guid>, IAggregateRoot
 {
     public Guid EmployeeId { get; private set; } = employeeId;
     public Guid? ShiftId { get; private set; } = shiftId;
@@ -14,6 +14,8 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
     public decimal? WorkHrs { get; private set; } = workHrs;
     public decimal? LateHrs { get; private set; } = lateHrs;
     public decimal? UnderHrs { get; private set; } = underHrs;
+    public decimal? OverbreakHrs { get; private set; } = overbreakHrs;
+    public decimal? NightShiftHours { get; private set; } = nightShiftHours;
     public bool IsLocked { get; private set; } = isLocked;
     public bool IsEdited { get; private set; } = false;
     public string? Remarks { get; private set; } = string.Empty;
@@ -28,7 +30,7 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
     public virtual Shift Shift { get; set; } = null!;
     public virtual Timesheet Timesheet { get; set; } = null!;
 
-    public void Update(Guid? shiftId, Guid? timesheetId, Guid? leaveId, decimal? workHrs, decimal? lateHrs, decimal? underHrs, string? remarks, bool isLocked = false)
+    public void Update(Guid? shiftId, Guid? timesheetId, Guid? leaveId, decimal? workHrs, decimal? lateHrs, decimal? underHrs, decimal? overbreakHrs, decimal? nightShiftHours, string? remarks, bool isLocked = false)
     {
         ShiftId = shiftId;
         TimesheetId = timesheetId;
@@ -36,6 +38,8 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
         WorkHrs = workHrs;
         LateHrs = lateHrs;
         UnderHrs = underHrs;
+        OverbreakHrs = overbreakHrs;
+        NightShiftHours = nightShiftHours;
         Remarks = remarks;
         IsEdited = true;
         IsLocked = isLocked;
@@ -152,6 +156,8 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
             WorkHrs = (decimal)Math.Round(totalWorkHours,2);
             LateHrs = Math.Round(totalLateHours,2);
             UnderHrs = Math.Round(totalUndertimeHours,2);
+            OverbreakHrs = Math.Round(totalOverbreakHours,2);
+            NightShiftHours = Math.Round(totalNightShiftHours,2);
 
             return ((decimal)Math.Round(totalWorkHours,2), Math.Round(totalLateHours,2), Math.Round(totalUndertimeHours,2), Math.Round(totalOverbreakHours,2), Math.Round(totalNightShiftHours,2));
         }

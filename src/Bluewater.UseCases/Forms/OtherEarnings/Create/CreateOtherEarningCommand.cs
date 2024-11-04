@@ -1,5 +1,5 @@
 using Ardalis.Result;
-using Bluewater.Core.Forms.Enum;
+using Bluewater.UserCases.Forms.Enum;
 
 namespace Bluewater.UseCases.Forms.OtherEarnings.Create;
-public record CreateOtherEarningCommand(Guid empId, OtherEarningType type, decimal totalAmount, bool isActive, DateOnly date) : Ardalis.SharedKernel.ICommand<Result<Guid>>;
+public record CreateOtherEarningCommand(Guid empId, OtherEarningTypeDTO? type, decimal? totalAmount, bool isActive, DateOnly? date) : Ardalis.SharedKernel.ICommand<Result<Guid>>;

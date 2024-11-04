@@ -1,6 +1,7 @@
 using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.Forms.UndertimeAggregate;
+using Bluewater.UserCases.Forms.Enum;
 
 namespace Bluewater.UseCases.Forms.Undertimes.Update;
 public class UpdateUndertimeHandler(IRepository<Undertime> _repository) : ICommandHandler<UpdateUndertimeCommand, Result<UndertimeDTO>>
@@ -17,6 +18,6 @@ public class UpdateUndertimeHandler(IRepository<Undertime> _repository) : IComma
 
     await _repository.UpdateAsync(existingUndertime, cancellationToken);
 
-    return Result.Success(new UndertimeDTO(existingUndertime.Id, existingUndertime.EmployeeId, existingUndertime.InclusiveTime, existingUndertime.Reason, existingUndertime.Date, existingUndertime.Status));
+    return Result.Success(new UndertimeDTO(existingUndertime.Id, existingUndertime.EmployeeId, $"{existingUndertime.Employee!.LastName}, {existingUndertime.Employee!.FirstName}", existingUndertime.InclusiveTime, existingUndertime.Reason, existingUndertime.Date, (ApplicationStatusDTO)existingUndertime.Status));
   }
 }

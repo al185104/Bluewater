@@ -13,7 +13,7 @@ public static class EnumUtilities
             .ToList();
     }
 
-    private static string GetEnumDescription<T>(T enumValue) where T : Enum
+    public static string GetEnumDescription<T>(T enumValue) where T : Enum
     {
         FieldInfo? field = enumValue.GetType().GetField(enumValue.ToString());
         DescriptionAttribute? attribute = field?.GetCustomAttribute<DescriptionAttribute>();

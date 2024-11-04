@@ -22,7 +22,7 @@
     <FluentLabel Style="margin-top: 0px;"><strong>Employee: @Employee?.Name</strong></FluentLabel>
     <FluentLabel>Department: @Employee?.Department</FluentLabel>
     <FluentLabel>Section: @Employee?.Section</FluentLabel>
-    <FluentLabel Style="margin-bottom: 0px;">Charging: @Employee?.Charging</FluentLabel>
+    <FluentLabel Style="margin-bottom: 10px;">Charging: @Employee?.Charging</FluentLabel>
 </FluentStack>
 
 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Bottom" HorizontalGap="10">
@@ -41,16 +41,18 @@
     <FluentButton Text="Add" Appearance="Appearance.Accent" OnClick="@(async() => await AddFailureInOutAsync())" >Add</FluentButton>
 </FluentStack>
 
-<FluentDataGrid Id="shiftsGrid" Items="@FailureInOuts" TGridItem="FailureInOutDTO">
+<FluentDataGrid Id="failureInOutGrid" Items="@FailureInOuts" TGridItem="FailureInOutDTO">
+    <PropertyColumn Title="Name" Property="@(c => c!.Name)" Align="Align.Start" />
     <PropertyColumn Title="Date" Property="@(c => c!.Date)" Align="Align.Start" />
-    <PropertyColumn Title="Reason" Property="@(c => c!.Reason)" Align="Align.Start" />
+    <PropertyColumn Title="Reason" Property="@(c => EnumUtilities.GetEnumDescription(c!.Reason ?? FailureInOutReasonDTO.NotSet))" Align="Align.Start" />
     <PropertyColumn Title="Remarks" Property="@(c => c!.Remarks)" Align="Align.Start" />
-    <PropertyColumn Title="Status" Property="@(c => c!.Status)" Align="Align.Start" />
+    <PropertyColumn Title="Status" Property="@(c => EnumUtilities.GetEnumDescription(c!.Status ?? ApplicationStatusDTO.NotSet))" Align="Align.Start" />
     <TemplateColumn Title="Actions" Align="@Align.End">
         <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteFailureInOutsAsync(context))"/>
     </TemplateColumn>
 </FluentDataGrid>
 
+<FluentDialogProvider/>
 
 @if (isBusy)
 {
@@ -95,10 +97,10 @@
 
     async Task DeleteFailureInOutsAsync(FailureInOutDTO context)
     {
-        if(Employee == null || Employee.Id == Guid.Empty) {
-            await DialogService.ShowWarningAsync("There's no current employee searched yet. Please search an employee first.", "Warning");
-            return;
-        }
+        var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to delete this record?", "Yes", "No", "Delete");
+        var conf = await dialog.Result;
+        if (conf.Cancelled) return;
+        
         try
         {
             isBusy = true;
@@ -178,5 +180,5 @@
     public void HandleReasonSelected(ChangeEventArgs changeEventArgs)
     {
         InputFailureInOut!.Reason = EnumUtilities.GetEnumByDescription<FailureInOutReasonDTO>(changeEventArgs.Value?.ToString()!);
-    }    
+    }
 }

@@ -13,11 +13,13 @@ public record AttendanceDTO()
     public decimal? WorkHrs { get; set; }
     public decimal? LateHrs { get; set; }
     public decimal? UnderHrs { get; set; }
+    public decimal? OverbreakHrs { get; set; }
+    public decimal? NightShiftHours { get; set; }
     public bool IsLocked { get; set; }
     public ShiftDTO? Shift { get; set; } = null;
     public TimesheetDTO? Timesheet { get; set; } = null;
 
-    public AttendanceDTO(Guid id, Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid? leaveId, DateOnly? entryDate, decimal? workHrs, decimal? lateHrs, decimal? underHrs, bool isLocked = false, ShiftDTO? shift = null, TimesheetDTO? timesheet = null) : this()
+    public AttendanceDTO(Guid id, Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid? leaveId, DateOnly? entryDate, decimal? workHrs, decimal? lateHrs, decimal? underHrs, decimal? overbreakHrs, decimal? nightShiftHrs, bool isLocked = false, ShiftDTO? shift = null, TimesheetDTO? timesheet = null) : this()
     {
         Id = id;
         EmployeeId = employeeId;
@@ -28,6 +30,8 @@ public record AttendanceDTO()
         WorkHrs = workHrs;
         LateHrs = lateHrs;
         UnderHrs = underHrs;
+        OverbreakHrs = overbreakHrs;
+        NightShiftHours = nightShiftHrs;
         IsLocked = isLocked;
         Shift = shift;
         Timesheet = timesheet;

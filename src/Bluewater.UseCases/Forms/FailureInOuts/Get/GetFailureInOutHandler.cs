@@ -11,6 +11,6 @@ public class GetFailureInOutHandler(IRepository<FailureInOut> _repository) : IQu
     var result = await _repository.GetByIdAsync(request.FailureInOutId, cancellationToken);
     if (result == null) return Result.NotFound();
 
-    return new FailureInOutDTO(result.Id, result.EmployeeId, result.Date, result.Remarks, (FailureInOutReasonDTO?)result.Reason, (ApplicationStatusDTO?)result.Status);
+    return new FailureInOutDTO(result.Id, result.EmployeeId, $"{result.Employee?.LastName}, {result.Employee?.FirstName}", result.Date, result.Remarks, (FailureInOutReasonDTO?)result.Reason, (ApplicationStatusDTO?)result.Status);
   }
 }

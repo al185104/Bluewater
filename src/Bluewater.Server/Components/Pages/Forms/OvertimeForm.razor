@@ -6,6 +6,7 @@
 @using Bluewater.UseCases.Forms.Overtimes.Delete
 @using Bluewater.UseCases.Forms.Overtimes.List
 @using Bluewater.UseCases.Helpers
+@using Bluewater.UserCases.Forms.Enum
 @using MediatR
 
 @inject IServiceScopeFactory ServiceScopeFactory
@@ -21,9 +22,9 @@
     <FluentLabel Style="margin-top: 0px;"><strong>Employee: @Employee?.Name</strong></FluentLabel>
     <FluentLabel>Department: @Employee?.Department</FluentLabel>
     <FluentLabel>Section: @Employee?.Section</FluentLabel>
-    <FluentLabel Style="margin-bottom: 0px;">Charging: @Employee?.Charging</FluentLabel>
+    <FluentLabel Style="margin-bottom: 10px;">Charging: @Employee?.Charging</FluentLabel>
 </FluentStack>
-@* DateTime? startDate, DateTime? endDate, int? approvedHours, string? remarks *@
+
 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Bottom" HorizontalGap="10">
     <div>
         <FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Label="Search employee" Placeholder="Name..." Style="width: 250px;"/>
@@ -44,15 +45,18 @@
 </FluentStack>
 
 <FluentDataGrid Id="shiftsGrid" Items="@Overtimes" TGridItem="OvertimeDTO">
+    <PropertyColumn Title="Name" Property="@(c => c!.Name)" Align="Align.Start" />
     <PropertyColumn Title="Start Time" Property="@(c => c!.StartDate)" Align="Align.Start" />
     <PropertyColumn Title="End Time" Property="@(c => c!.EndDate)" Align="Align.Start" />
     <PropertyColumn Title="Approved Hours" Property="@(c => c!.ApprovedHours)" Align="Align.Start" />
     <PropertyColumn Title="Remarks" Property="@(c => c!.Remarks)" Align="Align.Start" />
-    <PropertyColumn Title="Status" Property="@(c => c!.Status)" Align="Align.Start" />
+    <PropertyColumn Title="Status" Property="@(c => EnumUtilities.GetEnumDescription(c!.Status))" Align="Align.Start" />
     <TemplateColumn Title="Actions" Align="@Align.End">
         <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteOvertimeAsync(context))"/>
     </TemplateColumn>
 </FluentDataGrid>
+
+<FluentDialogProvider/>
 
 @if (isBusy)
 {
@@ -96,10 +100,10 @@
 
     async Task DeleteOvertimeAsync(OvertimeDTO context)
     {
-        if(Employee == null || Employee.Id == Guid.Empty) {
-            await DialogService.ShowWarningAsync("There's no current employee searched yet. Please search an employee first.", "Warning");
-            return;
-        }        
+        var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to delete this record?", "Yes", "No", "Delete");
+        var conf = await dialog.Result;
+        if (conf.Cancelled) return;
+
         try
         {
             isBusy = true;

@@ -5,15 +5,17 @@ public record FailureInOutDTO()
 {
     public Guid Id { get; init; }
     public Guid? EmpId { get; set; }
+    public string? Name { get; set; }
     public DateTime? Date { get; set; } = DateTime.Now;
     public string? Remarks { get; set; }
     public FailureInOutReasonDTO? Reason { get; set; } = FailureInOutReasonDTO.NotSet;
     public ApplicationStatusDTO? Status { get; set; }
 
-    public FailureInOutDTO(Guid Id, Guid? EmpId, DateTime? Date, string? Remarks, FailureInOutReasonDTO? Reason, ApplicationStatusDTO? Status) : this()
+    public FailureInOutDTO(Guid Id, Guid? EmpId, string? Name, DateTime? Date, string? Remarks, FailureInOutReasonDTO? Reason, ApplicationStatusDTO? Status) : this()
     {
         this.Id = Id;
         this.EmpId = EmpId;
+        this.Name = Name;
         this.Date = Date;
         this.Remarks = Remarks;
         this.Reason = Reason;

@@ -1,15 +1,57 @@
 @page "/undertime"
+@rendermode InteractiveServer
+@using Bluewater.UseCases.Employees
 @using Bluewater.UseCases.Forms.Undertimes
+@using Bluewater.UseCases.Forms.Undertimes.Create
+@using Bluewater.UseCases.Forms.Undertimes.Delete
 @using Bluewater.UseCases.Forms.Undertimes.List
+@using Bluewater.UseCases.Helpers
 @using MediatR
 
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
 @using Bluewater.Server.Global
+@using Microsoft.FluentUI.AspNetCore.Components.Extensions
 @inject IGlobalService GlobalService
 @inject IDialogService DialogService
 
 <PageTitle>Undertimes</PageTitle>
+
+<FluentStack Orientation="Orientation.Horizontal" HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Top">
+    <FluentLabel Style="margin-top: 0px;"><strong>Employee: @Employee?.Name</strong></FluentLabel>
+    <FluentLabel>Department: @Employee?.Department</FluentLabel>
+    <FluentLabel>Section: @Employee?.Section</FluentLabel>
+    <FluentLabel Style="margin-bottom: 10px;">Charging: @Employee?.Charging</FluentLabel>
+</FluentStack>
+
+<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Bottom" HorizontalGap="10">
+    <div>
+        <FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Label="Search employee" Placeholder="Name..." Style="width: 250px;"/>
+    </div>
+    <div>
+        <FluentNumberField Label="Approved Hours" @bind-Value="InputUndertime!.InclusiveTime" Style="width: 250px;"/>
+    </div>
+    <div>
+        <FluentDatePicker Label="End Date" Value="@InputUndertime!.Date.ToDateTimeNullable()" ValueChanged="@(e => InputUndertime!.Date = e.ToDateOnly())"/>
+    </div>
+    <div>
+        <FluentTextField @bind-Value="InputUndertime!.Reason" Name="reason" Label="Reason" Required Style="width: 300px" />
+    </div>
+    <FluentButton Text="Add" Appearance="Appearance.Accent" OnClick="@(async() => await AddUndertimeAsync())" >Add</FluentButton>
+</FluentStack>
+
+<FluentDataGrid Id="shiftsGrid" Items="@Undertimes" TGridItem="UndertimeDTO">
+    <PropertyColumn Title="Name" Property="@(c => c!.Name)" Align="Align.Start" />
+    <PropertyColumn Title="Inclusive Time" Property="@(c => c!.InclusiveTime)" Align="Align.Start" />
+    <PropertyColumn Title="Reason" Property="@(c => c!.Reason)" Align="Align.Start" />
+    <PropertyColumn Title="Date" Property="@(c => c!.Date)" Align="Align.Start" />
+    <PropertyColumn Title="Status" Property="@(c => EnumUtilities.GetEnumDescription(c!.Status))" Align="Align.Start" />
+    <TemplateColumn Title="Actions" Align="@Align.End">
+        <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteUndertimeAsync(context))"/>
+    </TemplateColumn>
+</FluentDataGrid>
+
+<FluentDialogProvider/>
 
 @if (isBusy)
 {
@@ -20,7 +62,10 @@
 
 @code {
     private bool isBusy = false;
+    string nameFilter = string.Empty;
+    private EmployeeShortDTO? Employee = default!;
     private IQueryable<UndertimeDTO> Undertimes = default!;
+    private UndertimeDTO InputUndertime = new();
     protected override async Task OnInitializedAsync()
     {
         await LoadDeductionsAsync();
@@ -44,5 +89,83 @@
         finally {
             isBusy = false;
         }
-    }        
+    }    
+
+    private async Task HandleEmployeeFilter(ChangeEventArgs args)
+    {
+        if (args.Value is string value){
+            nameFilter = value;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new GetEmployeeShortQuery(nameFilter));
+                if (result.IsSuccess)
+                    Employee = result.Value;
+            }
+        }
+    }
+
+    private void HandleClear()
+    {
+        if (string.IsNullOrWhiteSpace(nameFilter)) {
+            nameFilter = string.Empty;
+            Employee = default!;
+        }
+    }
+
+    async Task AddUndertimeAsync()
+    {
+        if(Employee == null || Employee.Id == Guid.Empty) {
+            await DialogService.ShowWarningAsync("There's no current employee searched yet. Please search an employee first.", "Warning");
+            return;
+        }
+        try
+        {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateUndertimeCommand(Employee.Id, InputUndertime!.InclusiveTime, InputUndertime!.Reason, InputUndertime!.Date));
+                if (result.IsSuccess)
+                {
+                    await LoadDeductionsAsync();
+                }
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    async Task DeleteUndertimeAsync(UndertimeDTO undertime)
+    {
+        var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to delete this record?", "Yes", "No", "Delete");
+        var conf = await dialog.Result;
+        if (conf.Cancelled) return;
+                
+        try
+        {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteUndertimeCommand(undertime.Id));
+                if (result.IsSuccess)
+                    await LoadDeductionsAsync();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
 }

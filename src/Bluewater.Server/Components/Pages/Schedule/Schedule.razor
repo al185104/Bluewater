@@ -136,7 +136,6 @@
     private string GetColumnTitle(int day)
     {
         DateTime today = searchDate;
-        // Calculate the start of the week (Sunday)
         DateTime startOfWeek = today.AddDays(-(int)today.DayOfWeek);
         DateTime targetDate = startOfWeek.AddDays(day);
 

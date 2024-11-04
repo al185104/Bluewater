@@ -15,6 +15,6 @@ public class GetAttendanceHandler(IReadRepository<Attendance> _repository) : IQu
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (entity == null) return Result.NotFound();
 
-    return new AttendanceDTO(entity.Id, entity.EmployeeId, entity.ShiftId, entity.TimesheetId, entity.LeaveId, entity.EntryDate, entity.WorkHrs, entity.LateHrs, entity.UnderHrs, entity.IsLocked); 
+    return new AttendanceDTO(entity.Id, entity.EmployeeId, entity.ShiftId, entity.TimesheetId, entity.LeaveId, entity.EntryDate, entity.WorkHrs, entity.LateHrs, entity.UnderHrs, entity.OverbreakHrs, entity.NightShiftHours, entity.IsLocked); 
   }
 }

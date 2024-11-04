@@ -11,6 +11,6 @@ public class GetOvertimeHandler(IRepository<Overtime> _repository) : IQueryHandl
     var result = await _repository.GetByIdAsync(request.OvertimeId, cancellationToken);
     if (result == null) return Result.NotFound();
 
-    return new OvertimeDTO(result.Id, result.EmployeeId, result.StartDate, result.EndDate, result.ApprovedHours, result.Remarks, (ApplicationStatusDTO)result.Status);
+    return new OvertimeDTO(result.Id, result.EmployeeId, $"{result.Employee!.LastName}, {result.Employee!.FirstName}", result.StartDate, result.EndDate, result.ApprovedHours, result.Remarks, (ApplicationStatusDTO)result.Status);
   }
 }
