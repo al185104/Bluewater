@@ -8,7 +8,7 @@ internal class ListPayHandler(IRepository<Pay> _repository) : IQueryHandler<List
 {
   public async Task<Result<IEnumerable<PayDTO>>> Handle(ListPayQuery request, CancellationToken cancellationToken)
   {
-    var result = (await _repository.ListAsync(cancellationToken)).Select(s => new PayDTO(s.Id, s.BasicPay, s.DailyRate, s.HourlyRate, s.HDMF_Con, s.HDMF_Er));
+    var result = (await _repository.ListAsync(cancellationToken)).Select(s => new PayDTO(s.Id, s.BasicPay, s.DailyRate, s.HourlyRate, s.HDMF_Con, s.HDMF_Er, s.Cola));
     return Result.Success(result);
   }
 }

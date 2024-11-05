@@ -13,6 +13,6 @@ public class GetPayHandler(IRepository<Pay> _repository) : IQueryHandler<GetPayQ
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (entity == null) return Result.NotFound();
 
-    return new PayDTO(entity.Id, entity.BasicPay, entity.DailyRate, entity.HourlyRate, entity.HDMF_Con, entity.HDMF_Er);
+    return new PayDTO(entity.Id, entity.BasicPay, entity.DailyRate, entity.HourlyRate, entity.HDMF_Con, entity.HDMF_Er, entity.Cola);
   }
 }

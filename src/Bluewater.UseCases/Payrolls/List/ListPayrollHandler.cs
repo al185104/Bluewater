@@ -15,6 +15,11 @@ using Bluewater.UseCases.Holidays.List;
 using Bluewater.UseCases.Forms.Overtimes;
 using Bluewater.UseCases.Forms.Overtimes.List;
 using Bluewater.UserCases.Forms.Enum;
+using Microsoft.EntityFrameworkCore.Update.Internal;
+using Bluewater.UseCases.Forms.OtherEarnings;
+using Bluewater.UseCases.Forms.OtherEarnings.List;
+using Bluewater.UseCases.Forms.Deductions;
+using Bluewater.UseCases.Forms.Deductions.List;
 
 namespace Bluewater.UseCases.Payrolls.List;
 
@@ -60,6 +65,26 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
             overtimes = ret.Value.ToList();
     }
 
+    // get all other earnings.
+    List<OtherEarningDTO> otherEarnings = new();
+    using (var scope = serviceScopeFactory.CreateScope())
+    {
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+        var ret = await mediator.Send(new ListOtherEarningQuery(null, null));
+        if (ret.IsSuccess)
+            otherEarnings = ret.Value.ToList();
+    }
+
+    // get all deductions
+    List<DeductionDTO> deductions = new();
+    using (var scope = serviceScopeFactory.CreateScope())
+    {
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+        var ret = await mediator.Send(new ListDeductionQuery(null, null));
+        if (ret.IsSuccess)
+            deductions = ret.Value.ToList();
+    }
+    
     // find the holidays that are between the start and end date
     var regularHolidayDates = holidays.Where(s => DateOnly.FromDateTime(s.Date) >= request.start && DateOnly.FromDateTime(s.Date) <= request.end && s.IsRegular).Select(i => DateOnly.FromDateTime(i.Date)).ToList();
     var specialHolidayDates = holidays.Where(s => DateOnly.FromDateTime(s.Date) >= request.start && DateOnly.FromDateTime(s.Date) <= request.end && !s.IsRegular).Select(i => DateOnly.FromDateTime(i.Date)).ToList();
@@ -72,7 +97,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
       var type = emp.Item3;
 
       var attendance = attendances.FirstOrDefault(s => s.EmployeeId == id);
-      if (attendance == null) continue;
+      if (attendance == null) continue;      
 
       var restDayHrs = attendance.Attendances.Where(s => s.Shift!.Name.Equals("Rest Day", StringComparison.InvariantCultureIgnoreCase)).Sum(i => i.WorkHrs);
       var regularHolidayHrs = attendance.Attendances.Where(s => s.EntryDate.HasValue && regularHolidayDates.Contains(s.EntryDate.Value)).Sum(i => i.WorkHrs);
@@ -82,6 +107,14 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
       var nightRegHolHrs = attendance.Attendances.Where(s => s.EntryDate.HasValue && regularHolidayDates.Contains(s.EntryDate.Value)).Sum(i => i.NightShiftHours);
       var nightSpecHolHrs = attendance.Attendances.Where(s => s.EntryDate.HasValue && specialHolidayDates.Contains(s.EntryDate.Value)).Sum(i => i.NightShiftHours);
       
+      var totalMonthlyAmortization = deductions.Where(s => s.EmpId == id).Sum(i => i.MonthlyAmortization);
+
+      var monal = otherEarnings.Where(s => s.EmpId == id && s.EarningType == OtherEarningTypeDTO.MONAL).Sum(i => i.TotalAmount);
+      var salun = otherEarnings.Where(s => s.EmpId == id && s.EarningType == OtherEarningTypeDTO.SALUN).Sum(i => i.TotalAmount);
+      var refabs = otherEarnings.Where(s => s.EmpId == id && s.EarningType == OtherEarningTypeDTO.REFABS).Sum(i => i.TotalAmount);
+      var refut = otherEarnings.Where(s => s.EmpId == id && s.EarningType == OtherEarningTypeDTO.REFUT).Sum(i => i.TotalAmount);
+      var refot = otherEarnings.Where(s => s.EmpId == id && s.EarningType == OtherEarningTypeDTO.REFOT).Sum(i => i.TotalAmount);
+
       var otRestDayHrs = overtimes.Where(o => o.EmpId == id && o.Status == ApplicationStatusDTO.Approved 
           && attendance.Attendances.Any(s => s.Shift!.Name.Equals("Rest Day", StringComparison.InvariantCultureIgnoreCase) 
           && o.StartDate.HasValue && o.EndDate.HasValue 
@@ -103,7 +136,8 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
           && DateOnly.FromDateTime(o.EndDate.Value) <= s.EntryDate))
           .Sum(o => o.ApprovedHours);
 
-
+      // absences is counted when the attendance has ShiftId but no TimesheetId, and the Shift.Name is not "Rest Day"
+      var absences = attendance.Attendances.Where(s => s.ShiftId.HasValue && !s.TimesheetId.HasValue && !s.Shift!.Name.Equals("Rest Day", StringComparison.InvariantCultureIgnoreCase)).Count();
 
       var spec = new PayrollByIdSpec(id);
       var payroll = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
@@ -115,7 +149,9 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
           type: type ?? "Regular", 
           basicPay: pay?.BasicPay ?? 0, dailyRate: pay?.DailyRate ?? 0, hourlyRate: pay?.HourlyRate ?? 0, hdmfCon: pay?.HDMF_Con ?? 0, hdmfEr: pay?.HDMF_Er ?? 0, 
           totalWorkHours: attendance.TotalWorkHrs, totalLateHrs: attendance.TotalLateHrs, totalUnderHrs: attendance.TotalUnderHrs, attendance.TotalOverbreakHrs, attendance.TotalNightShiftHrs, totalLeaves: attendance.TotalLeaves,
-          restDayHrs: restDayHrs ?? 0, regularHolidayHrs: regularHolidayHrs ?? 0, specialHolidayHrs: specialHolidayHrs ?? 0, overtimeHrs: overtimeApprovedHrs ?? 0, nightOtHrs: nightOtHrs, nightRegHolHrs: nightRegHolHrs ?? 0, nightSpecHolHrs: nightSpecHolHrs ?? 0, otRestDayHrs: otRestDayHrs ?? 0, otRegHolHrs: otRegHolHrs ?? 0, otSpHolHrs: otSpHolHrs ?? 0);
+          restDayHrs: restDayHrs ?? 0, regularHolidayHrs: regularHolidayHrs ?? 0, specialHolidayHrs: specialHolidayHrs ?? 0, overtimeHrs: overtimeApprovedHrs ?? 0, nightOtHrs: nightOtHrs, nightRegHolHrs: nightRegHolHrs ?? 0, nightSpecHolHrs: nightSpecHolHrs ?? 0, otRestDayHrs: otRestDayHrs ?? 0, otRegHolHrs: otRegHolHrs ?? 0, otSpHolHrs: otSpHolHrs ?? 0,
+          /*other earnings*/ cola: pay?.Cola ?? 0, monal: monal ?? 0, salun: salun ?? 0, refabs: refabs ?? 0, refut: refut ?? 0, refot: refot ?? 0, 
+          /*deductions*/ absences: absences, totalMonthlyAmortization: totalMonthlyAmortization ?? 0);
       }
 
 

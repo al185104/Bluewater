@@ -186,9 +186,9 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         var result = await mediator.Send(new GetPayQuery(existingEmployee.PayId), cancellationToken);
         if (result.IsSuccess)
-            pay = new PayDTO(result.Value.Id, result.Value.BasicPay, result.Value.DailyRate, result.Value.HourlyRate, result.Value.HDMF_Con, result.Value.HDMF_Er);
+            pay = new PayDTO(result.Value.Id, result.Value.BasicPay, result.Value.DailyRate, result.Value.HourlyRate, result.Value.HDMF_Con, result.Value.HDMF_Er, result.Value.Cola);
         else
-            pay = new PayDTO(Guid.Empty, 0, 0, 0, 0, 0);
+            pay = new PayDTO(Guid.Empty, 0, 0, 0, 0, 0, 0);
     }
 
     EmployeeTypeDTO? type = null;

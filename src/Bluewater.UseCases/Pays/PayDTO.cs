@@ -8,8 +8,9 @@ public record PayDTO()
     public decimal? HourlyRate { get; set; } 
     public decimal? HDMF_Con { get; set; } 
     public decimal? HDMF_Er { get; set; } 
+    public decimal? Cola { get; set; } = 0;
 
-    public PayDTO(Guid id, decimal? basicPay, decimal? dailyRate, decimal? hourlyRate, decimal? hdmfCon, decimal? hdmfEr) : this()
+    public PayDTO(Guid id, decimal? basicPay, decimal? dailyRate, decimal? hourlyRate, decimal? hdmfCon, decimal? hdmfEr, decimal? cola) : this()
     {
         Id = id;
         BasicPay = basicPay;
@@ -17,5 +18,6 @@ public record PayDTO()
         HourlyRate = hourlyRate;
         HDMF_Con = hdmfCon;
         HDMF_Er = hdmfEr;
+        Cola = cola;
     }
 }

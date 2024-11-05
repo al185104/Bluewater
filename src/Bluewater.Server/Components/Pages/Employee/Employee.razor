@@ -219,11 +219,12 @@
                         await mediator.Send(new UpdateUserCommand(e.UserId ?? Guid.Empty, e.Username ?? string.Empty, e.Password ?? string.Empty, e.Credential, e.SupervisedGroup, e.IsGlobalSupervisor));
                     }
 
+                    // TODO add cola
                     // update pay
                     using (var scope = ServiceScopeFactory.CreateScope())
                     {
                         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        await mediator.Send(new UpdatePayCommand(e.PayId ?? Guid.Empty, e.BasicPay ?? 0, e.DailyRate ?? 0, e.HourlyRate ?? 0, e.HDMF_Con ?? 200, e.HDMF_Er ?? 200));
+                        await mediator.Send(new UpdatePayCommand(e.PayId ?? Guid.Empty, e.BasicPay ?? 0, e.DailyRate ?? 0, e.HourlyRate ?? 0, e.HDMF_Con ?? 200, e.HDMF_Er ?? 200, cola: 0));
                     }
 
                     // update employee

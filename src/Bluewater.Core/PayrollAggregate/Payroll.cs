@@ -1,5 +1,7 @@
 using Ardalis.SharedKernel;
 using Bluewater.Core.EmployeeAggregate;
+using Bluewater.Core.Forms.LeaveAggregate;
+using Bluewater.Core.PayrollAggregate.Helpers;
 
 namespace Bluewater.Core.PayrollAggregate;
 public class Payroll : EntityBase<Guid>, IAggregateRoot
@@ -225,7 +227,9 @@ public class Payroll : EntityBase<Guid>, IAggregateRoot
         string type, 
         decimal basicPay, decimal dailyRate, decimal hourlyRate, decimal hdmfCon, decimal hdmfEr, 
         decimal totalWorkHours, decimal totalLateHrs, decimal totalUnderHrs, decimal totalOverbreakHrs, decimal totalNightShiftHrs, decimal totalLeaves,
-        decimal restDayHrs, decimal regularHolidayHrs, decimal specialHolidayHrs, decimal overtimeHrs, decimal nightOtHrs, decimal nightRegHolHrs, decimal nightSpecHolHrs, decimal otRestDayHrs, decimal otRegHolHrs, decimal otSpHolHrs) 
+        decimal restDayHrs, decimal regularHolidayHrs, decimal specialHolidayHrs, decimal overtimeHrs, decimal nightOtHrs, decimal nightRegHolHrs, decimal nightSpecHolHrs, decimal otRestDayHrs, decimal otRegHolHrs, decimal otSpHolHrs,
+        decimal cola, decimal monal, decimal salun, decimal refabs, decimal refut, decimal refot,
+        int absences, decimal totalMonthlyAmortization)
     {
         var income = basicPay / 2; // semi-monthly
 
@@ -262,12 +266,48 @@ public class Payroll : EntityBase<Guid>, IAggregateRoot
         OvertimeSpecialHolidayHrs = otSpHolHrs;
         OvertimeSpecialHolidayAmount = Math.Round(otSpHolHrs * hourlyRate * 1.3m * 1.3m, 2);
 
-        var grossIncome = income
-        /*premiums*/ + RestDayAmount + RegularHolidayAmount + SpecialHolidayAmount + OvertimeAmount + NightDiffAmount + NightDiffOvertimeAmount + NightDiffRegularHolidayAmount + NightDiffSpecialHolidayAmount + OvertimeRestDayAmount + OvertimeRegularHolidayAmount + OvertimeSpecialHolidayAmount;
+        Undertime = totalUnderHrs;
+        UndertimeAmount = Math.Round(totalUnderHrs * hourlyRate, 2);
 
-        // var grossIncome = income 
-        // /*premiums*/ + restDayPay + regularHolidayPay + specialHolidayPay + overtimePay + nightDiffPay + nightDiffOTPay + nightDiffRegularHolidayPay + nightDiffSpecialHolidayPay + overtimeRestDayPay + overtimeRegularHolidayPay + overtimeSpecialHolidayPay
-        // /*other earnings*/ + _cola + _monal + _salun + _refabs + _refut + _refot;
+        Absences = absences;
+        AbsencesAmount = Math.Round(absences * dailyRate, 2);
+
+        Lates = totalLateHrs;
+        LatesAmount = Math.Round(totalLateHrs * hourlyRate, 2);
+
+        Overbreak = totalOverbreakHrs;
+        OverbreakAmount = Math.Round(totalOverbreakHrs * hourlyRate, 2);
+
+        Leaves = totalLeaves;
+        LeavesAmount = Math.Round(totalLeaves * dailyRate, 2);
+
+        GrossPayAmount = income
+        /*premiums*/ + RestDayAmount + RegularHolidayAmount + SpecialHolidayAmount + OvertimeAmount + NightDiffAmount + NightDiffOvertimeAmount + NightDiffRegularHolidayAmount + NightDiffSpecialHolidayAmount + OvertimeRestDayAmount + OvertimeRegularHolidayAmount + OvertimeSpecialHolidayAmount
+        /*other earnings*/ + cola + monal + salun + refabs + refut + refot;
+
+        // TODO leave without pay
+        UnionDues = string.Equals(type, "Regular", StringComparison.OrdinalIgnoreCase) ? 50 : 0;
+        var adjustedGrossIncome = GrossPayAmount - AbsencesAmount - LatesAmount - UndertimeAmount - OverbreakAmount - UnionDues;
+
+        // + contant deductions
+        PagibigAmount = Date.Day != 15 ? 0 : Math.Round(hdmfCon, 2);
+        PagibigERAmount = Date.Day != 15 ? 0 : Math.Round(hdmfEr, 2);
+        PhilhealthAmount = Math.Round(basicPay * 0.05m / 2, 2);
+        PhilhealthERAmount = PhilhealthAmount;
+        (decimal ER, decimal EE) = CompensationLookup.FindValuesByCompensation(basicPay);
+        SSSAmount = Date.Day == 15 ? 0 : Math.Round(EE);
+        SSSERAmount = Date.Day == 15 ? 0 : Math.Round(ER);
+        // - constant deductions
+
+        // TODO service charge.
+        var (taxDeduction, taxPercentage) = TaxCalculator.CalculateTax(adjustedGrossIncome /*+ employeeSC*/ - PagibigAmount - PhilhealthAmount - SSSAmount);
+        TaxDeductions = Math.Round(taxDeduction, 2);
+        TaxPercentage = Math.Round(taxPercentage, 2);
+
+        TotalConstantDeductions = Math.Round(TaxDeductions + PagibigAmount + PhilhealthAmount + SSSAmount + UndertimeAmount + LatesAmount + OverbreakAmount + AbsencesAmount + LeavesAmount + UnionDues, 2);
+        TotalLoanDeductions = Math.Round(totalMonthlyAmortization, 2);
+        TotalDeductions = Math.Round(TotalLoanDeductions + TotalConstantDeductions, 2);     
+
     }
 
 }

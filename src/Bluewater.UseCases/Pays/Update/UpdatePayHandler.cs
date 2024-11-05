@@ -13,10 +13,10 @@ public class UpdatePayHandler(IRepository<Pay> _repository) : ICommandHandler<Up
       return Result.NotFound();
     }
 
-    existingPay.UpdatePay(request.basicPay, request.dailyRate, request.hourlyRate, request.hdmfCon, request.hdmfEr);
+    existingPay.UpdatePay(request.basicPay, request.dailyRate, request.hourlyRate, request.hdmfCon, request.hdmfEr, request.cola);
 
     await _repository.UpdateAsync(existingPay, cancellationToken);
 
-    return Result.Success(new PayDTO(existingPay.Id, existingPay.BasicPay, existingPay.DailyRate, existingPay.HourlyRate, existingPay.HDMF_Con, existingPay.HDMF_Er));
+    return Result.Success(new PayDTO(existingPay.Id, existingPay.BasicPay, existingPay.DailyRate, existingPay.HourlyRate, existingPay.HDMF_Con, existingPay.HDMF_Er, existingPay.Cola));
   }
 }
