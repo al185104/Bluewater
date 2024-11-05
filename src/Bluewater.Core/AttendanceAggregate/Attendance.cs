@@ -238,6 +238,6 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
         }
 
         return nightShiftHours;
-    }    
+    }
 
 }

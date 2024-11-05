@@ -43,6 +43,7 @@
     <PropertyColumn Title="Total Work" Property="@(p => p.TotalWorkHrs)" Sortable="true"/>
     <PropertyColumn Title="Total Late" Property="@(p => p.TotalLateHrs)" Sortable="true"/>
     <PropertyColumn Title="Total Undertime" Property="@(p => p.TotalUnderHrs)" Sortable="true"/>
+    <PropertyColumn Title="Total Overbreak" Property="@(p => p.TotalOverbreakHrs)" Sortable="true"/>
     <PropertyColumn Title="Total Leaves" Property="@(p => p.TotalLeaves)" Sortable="true"/>
     <TemplateColumn Title="Actions" Align="@Align.End">
         <FluentButton aria-label="view item" IconEnd="@(new Icons.Regular.Size20.Edit())" OnClick="@(async() => await ViewAttendanceAsync(context))"/>

@@ -52,7 +52,7 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
 
     var _totalLeaves = val.Count(i => i.LeaveId != null && i.LeaveId != Guid.Empty);
 
-    return (_totalLateHours ?? 0, _totalLateHours ?? 0, _totalUnderHours ?? 0, _totalOverbreakHrs ?? 0, _totalNightShiftHours ?? 0, _totalLeaves);
+    return (_totalWorkHours ?? 0, _totalLateHours ?? 0, _totalUnderHours ?? 0, _totalOverbreakHrs ?? 0, _totalNightShiftHours ?? 0, _totalLeaves);
   }
 
 }

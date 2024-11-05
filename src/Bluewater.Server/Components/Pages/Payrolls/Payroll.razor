@@ -1,6 +1,8 @@
 @page "/payroll"
 @rendermode InteractiveServer
 @using Bluewater.UseCases.Departments
+@using Bluewater.UseCases.Payrolls
+@using Bluewater.UseCases.Payrolls.List
 @using MediatR
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
@@ -13,7 +15,6 @@
 
 <PageTitle>Payroll</PageTitle>
 
-
 <FluentGrid>
     <FluentGridItem xs="6">
         <h3>Payroll</h3>
@@ -24,7 +25,7 @@
         </FluentStack>
     </FluentGridItem>
     <FluentGridItem xs="6">
-        <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Center">
+        <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="10" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Center">
             <div>
                 <FluentSelect TOption="DepartmentDTO"
                     Label="Select a department"
@@ -35,17 +36,47 @@
                     OptionText="@(p => p.Name)"
                     @bind-SelectedOption="@selectedDepartment" />
             </div>
-            <FluentButton IconStart="@(new Icons.Regular.Size16.Search())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate))" Style="margin-top: 20px;">Calculate</FluentButton>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Calculator())" Appearance="Appearance.Outline" OnClick="@(async() => await LoadPayrollAsync(searchDate))" Style="margin-top: 20px;">Calculate</FluentButton>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Send())" Appearance="Appearance.Accent" OnClick="@(async() => await SaveAndSubmitAsync(searchDate))" Style="margin-top: 20px;">Save & Submit</FluentButton>
         </FluentStack>        
     </FluentGridItem>
 </FluentGrid>
 
+<FluentDataGrid Id="payrollsGrid" Items="@Payrolls" TGridItem="PayrollDTO">
+    <PropertyColumn Title="Name" Property="@(c => c!.Name)" Align="Align.Start" Sortable="true" />
+    <PropertyColumn Title="Absences" Property="@(c => c!.Absences)" Align="Align.Center" />
+    <PropertyColumn Title="Leaves" Property="@(c => c!.Leaves)" Align="Align.Center" />
+    <PropertyColumn Title="Lates" Property="@(c => c!.Lates)" Align="Align.Center" />
+    <PropertyColumn Title="Overbreak" Property="@(c => c!.Overbreak)" Align="Align.Center" />
+    <PropertyColumn Title="Undertime" Property="@(c => c!.Undertime)" Align="Align.Center" />
+    <PropertyColumn Title="SSS" Property="@(c => c!.SSSAmount)" Align="Align.Center" />
+    <PropertyColumn Title="Pagibig" Property="@(c => c!.PagibigAmount)" Align="Align.Center" />
+    <PropertyColumn Title="PhilHealth" Property="@(c => c!.PhilhealthAmount)" Align="Align.Center" />
+    <PropertyColumn Title="Tax" Property="@(c => c!.TaxDeductions)" Align="Align.Center" />
+    <PropertyColumn Title="Basic Pay" Property="@(c => c!.BasicPayAmount)" Align="Align.Center" />
+    <PropertyColumn Title="Gross" Property="@(c => c!.GrossPayAmount)" Align="Align.Center" />
+    <PropertyColumn Title="Deductions" Property="@(c => c!.TotalDeductions)" Align="Align.Center" />
+    <PropertyColumn Title="Net" Property="@(c => c!.NetAmount)" Align="Align.Center" />
+    <TemplateColumn Title="Actions" Align="@Align.End">
+        <FluentButton aria-label="view item" IconEnd="@(new Icons.Regular.Size16.Search())" OnClick="@(async() => await ViewPayrollAsync(context))"/>
+    </TemplateColumn>
+</FluentDataGrid>
+
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
+
 @code {
+    private bool isBusy;
     private DateTime searchDate = DateTime.Now;
     private DateOnly startDate;
     private DateOnly endDate;    
     private IQueryable<DepartmentDTO> Departments { get; set; } = default!;
     private DepartmentDTO? selectedDepartment = default!;
+    private IQueryable<PayrollDTO> Payrolls { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -56,19 +87,68 @@
         await Task.Delay(10);
     }
 
-    private async Task LoadPayrollAsync(DateTime date)
+    async Task LoadPayrollAsync(DateTime date)
     {
-        searchDate = date;
-        var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(date));
-        startDate = _startDate;
-        endDate = _endDate;
+        try {
+            searchDate = date;
+            var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(date));
+            startDate = _startDate;
+            endDate = _endDate;
 
-        if(selectedDepartment != null || selectedDepartment?.Id != Guid.Empty)
-        {
-            await DialogService.ShowWarningAsync("There's no current department selected yet. Please select a department first.", "Warning");
-            return;
+            if(selectedDepartment == null || selectedDepartment?.Id == Guid.Empty)
+            {
+                await DialogService.ShowWarningAsync("There's no current department selected yet. Please select a department first.", "Warning");
+                return;
+            }
+                        
+            isBusy = true;
+
+            // get list of payrolls
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListPayrollQuery(null, null, selectedDepartment!.Name, _startDate, _endDate));
+                if (result.IsSuccess)
+                    Payrolls = result.Value.AsQueryable();
+            }
+
+
+            foreach(var p in Payrolls){
+                Console.WriteLine("++ ===================================");
+                Console.WriteLine(p);
+                Console.WriteLine("-- ===================================");
+            }
+        } 
+        catch (Exception) {
+            throw;
         }
-
-
+        finally {
+            isBusy = false;
+        }
     }    
+
+    async Task SaveAndSubmitAsync(DateTime date)
+    {
+        try {
+            await DialogService.ShowWarningAsync("Save and Submit Payroll", "This feature is not yet implemented.");
+        } 
+        catch (Exception) {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }
+
+    async Task ViewPayrollAsync(PayrollDTO item)
+    {
+        try
+        {
+            await DialogService.ShowWarningAsync("View Payroll", "This feature is not yet implemented.");
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
 }

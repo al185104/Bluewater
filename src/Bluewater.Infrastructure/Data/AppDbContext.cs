@@ -25,6 +25,7 @@ using Bluewater.Core.Forms.LeaveAggregate;
 using Bluewater.Core.Forms.DeductionAggregate;
 using Bluewater.Core.Forms.FailureInOutAggregate;
 using Bluewater.Core.Forms.OtherEarningAggregate;
+using Bluewater.Core.PayrollAggregate;
 
 namespace Bluewater.Infrastructure.Data;
 public class AppDbContext : DbContext
@@ -58,6 +59,7 @@ public class AppDbContext : DbContext
   public DbSet<Deduction> Deductions => Set<Deduction>();
   public DbSet<FailureInOut> FailureInOuts => Set<FailureInOut>();
   public DbSet<OtherEarning> OtherEarnings => Set<OtherEarning>();
+  public DbSet<Payroll> Payrolls => Set<Payroll>();
 
   public AppDbContext(DbContextOptions<AppDbContext> options,
     IDomainEventDispatcher? dispatcher)

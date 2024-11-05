@@ -56,20 +56,18 @@
         <FluentTimePicker Value="@(context.Timesheet?.TimeIn1 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeIn1 = e)" Format="HH:mm tt" Disabled=@context.IsLocked/>
     </TemplateColumn>
     <TemplateColumn Title="Out #1" Align="@Align.Center">
-        @* <FluentTimePicker Value="@(context.Timesheet?.TimeOut1 ?? DateTime.MinValue)" Format="HH:mm tt" /> *@
         <FluentTimePicker Value="@(context.Timesheet?.TimeOut1 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeOut1 = e)" Format="HH:mm tt" Disabled=@context.IsLocked/>        
     </TemplateColumn>
     <TemplateColumn Title="In #2" Align="@Align.Center">
-        @* <FluentTimePicker Value="@(context.Timesheet?.TimeIn2 ?? DateTime.MinValue)" Format="HH:mm tt" /> *@
         <FluentTimePicker Value="@(context.Timesheet?.TimeIn2 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeIn2 = e)" Format="HH:mm tt" Disabled=@context.IsLocked/>        
     </TemplateColumn>
     <TemplateColumn Title="Out #2" Align="@Align.Center">
-        @* <FluentTimePicker Value="@(context.Timesheet?.TimeOut2 ?? DateTime.MinValue)" Format="HH:mm tt" /> *@
         <FluentTimePicker Value="@(context.Timesheet?.TimeOut2 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeOut2 = e)" Format="HH:mm tt" Disabled=@context.IsLocked/>        
     </TemplateColumn>
-    <PropertyColumn Title="Work Hrs" Property="@(p => p.WorkHrs)" />
-    <PropertyColumn Title="Late Hrs" Property="@(p => p.LateHrs)" />
-    <PropertyColumn Title="Under Hrs" Property="@(p => p.UnderHrs)" />
+    <PropertyColumn Title="Work" Property="@(p => p.WorkHrs)" />
+    <PropertyColumn Title="Late" Property="@(p => p.LateHrs)" />
+    <PropertyColumn Title="Under" Property="@(p => p.UnderHrs)" />
+    <PropertyColumn Title="Overbreak" Property="@(p => p.OverbreakHrs)" />
     <TemplateColumn Title="Action">
         <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowSync())" OnClick="@(async() => await UpdateAttendanceAsync(context))" Appearance="Appearance.Accent" Disabled=@context.IsLocked/>
     </TemplateColumn>    
