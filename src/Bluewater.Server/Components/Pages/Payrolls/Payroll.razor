@@ -1,12 +1,23 @@
 @page "/payroll"
 @rendermode InteractiveServer
+
+@using Bluewater.UseCases.Attendances
+@using Bluewater.UseCases.Attendances.Create
+@using Bluewater.UseCases.Attendances.List
+@using Bluewater.UseCases.Attendances.Update
 @using Bluewater.UseCases.Departments
 @using Bluewater.UseCases.Payrolls
+@using Bluewater.UseCases.Payrolls.Create
 @using Bluewater.UseCases.Payrolls.List
+@using Bluewater.UseCases.ServiceCharges
+@using Bluewater.UseCases.ServiceCharges.Create
+@using Bluewater.UseCases.ServiceCharges.List
 @using MediatR
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
 @using Bluewater.Server.Global
+@using Microsoft.CodeAnalysis.Elfie.Serialization
+@using System.Globalization
 @inject IGlobalService GlobalService
 @inject IDialogService DialogService
 
@@ -19,9 +30,9 @@
     <FluentGridItem xs="6">
         <h3>Payroll</h3>
         <FluentStack HorizontalGap="20" Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
-            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate = searchDate.AddDays(-7)))"/>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate = searchDate.AddDays(-15)))"/>
             <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
-            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate = searchDate.AddDays(7)))"/>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate = searchDate.AddDays(15)))"/>
         </FluentStack>
     </FluentGridItem>
     <FluentGridItem xs="6">
@@ -36,13 +47,35 @@
                     OptionText="@(p => p.Name)"
                     @bind-SelectedOption="@selectedDepartment" />
             </div>
+
+            <FluentInputFile @ref="@myFileUploader" 
+                 DragDropZoneVisible="false"
+                 Mode="InputFileMode.SaveToTemporaryFolder"
+                 Multiple="false"
+                 AnchorId="MyUploadButton"
+                 MaximumFileSize="@(100 * 1024 * 1024)"
+                 Accept=".csv"
+                 OnProgressChange="@(e =>
+                     {
+                         progressPercent = e.ProgressPercent; 
+                         progressTitle = e.ProgressTitle;
+                     })"
+                 OnCompleted="@OnCompletedAsync" />
+            <FluentProgress Min="0" Max="100" Visible="@(progressPercent > 0)" Value="@progressPercent" />
+
+            <div style="margin-top: 21px;">
+                <FluentCounterBadge BackgroundColor="@Color.Error" Color="Color.Fill" Dot="@(serviceChargeData.Count == 0)">
+                    <FluentButton Id="MyUploadButton" IconStart="@(new Icons.Regular.Size16.Attach())" Appearance="Appearance.Stealth"/>
+                </FluentCounterBadge>
+            </div>
+
             <FluentButton IconStart="@(new Icons.Regular.Size16.Calculator())" Appearance="Appearance.Outline" OnClick="@(async() => await LoadPayrollAsync(searchDate))" Style="margin-top: 20px;">Calculate</FluentButton>
-            <FluentButton IconStart="@(new Icons.Regular.Size16.Send())" Appearance="Appearance.Accent" OnClick="@(async() => await SaveAndSubmitAsync(searchDate))" Style="margin-top: 20px;">Save & Submit</FluentButton>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Send())" Appearance="Appearance.Accent" OnClick="@(async() => await SaveAndSubmitAllAsync(searchDate))" Style="margin-top: 20px;">Save & Submit</FluentButton>
         </FluentStack>        
     </FluentGridItem>
 </FluentGrid>
 
-<FluentDataGrid Id="payrollsGrid" Items="@Payrolls" TGridItem="PayrollDTO">
+<FluentDataGrid Id="payrollsGrid" Items="@Payrolls" TGridItem="PayrollDTO" GridTemplateColumns="1.5fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr 0.5fr 0.5fr 0.7fr 0.5fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr ">
     <PropertyColumn Title="Name" Property="@(c => c!.Name)" Align="Align.Start" Sortable="true" />
     <PropertyColumn Title="Absences" Property="@(c => c!.Absences)" Align="Align.Center" />
     <PropertyColumn Title="Leaves" Property="@(c => c!.Leaves)" Align="Align.Center" />
@@ -55,22 +88,24 @@
     <PropertyColumn Title="Tax" Property="@(c => c!.TaxDeductions)" Align="Align.Center" />
     <PropertyColumn Title="Basic Pay" Property="@(c => c!.BasicPayAmount)" Align="Align.Center" />
     <PropertyColumn Title="Gross" Property="@(c => c!.GrossPayAmount)" Align="Align.Center" />
+    using Bluewater.UseCases.ServiceCharges.List;
     <PropertyColumn Title="Deductions" Property="@(c => c!.TotalDeductions)" Align="Align.Center" />
     <PropertyColumn Title="Net" Property="@(c => c!.NetAmount)" Align="Align.Center" />
     <TemplateColumn Title="Actions" Align="@Align.End">
         <FluentButton aria-label="view item" IconEnd="@(new Icons.Regular.Size16.Search())" OnClick="@(async() => await ViewPayrollAsync(context))"/>
+        <FluentButton aria-label="view item" IconEnd="@(new Icons.Regular.Size16.Save())" Appearance="Appearance.Accent" OnClick="@(async() => await SavePayrollAsync(context))" Disabled="@(context.Id == Guid.Empty ? false : true)"/>
     </TemplateColumn>
 </FluentDataGrid>
 
-@if (isBusy)
+@if (isBusy == true)
 {
     <div class="overlay">
-        <FluentProgressRing />
+        <FluentProgressRing/>
     </div>
 }
 
 @code {
-    private bool isBusy;
+    private bool isBusy = false;
     private DateTime searchDate = DateTime.Now;
     private DateOnly startDate;
     private DateOnly endDate;    
@@ -78,13 +113,45 @@
     private DepartmentDTO? selectedDepartment = default!;
     private IQueryable<PayrollDTO> Payrolls { get; set; } = default!;
 
+    FluentInputFile? myFileUploader = default!;
+    int? progressPercent;
+    string? progressTitle;
+    FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
+    List<ServiceChargeDTO> serviceChargeData = default!;
     protected override async Task OnInitializedAsync()
     {
         Departments = GlobalService.Departments.ToList().AsQueryable();
         var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(searchDate));
         startDate = _startDate;
         endDate = _endDate;
-        await Task.Delay(10);
+
+        // get the current service charge
+        await LoadServiceChargeAsync(endDate);
+    }
+
+    async Task LoadServiceChargeAsync(DateOnly date)
+    {
+        try {
+            isBusy = true;
+
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListServiceChargeQuery(null, null, date));
+                if (result.IsSuccess) {
+                    // clear out serviceChargeData first
+                    if(serviceChargeData != null && serviceChargeData.Any())
+                        serviceChargeData.Clear();
+                    serviceChargeData = result.Value.ToList();
+                }
+            }
+        } 
+        catch (Exception) {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
     }
 
     async Task LoadPayrollAsync(DateTime date)
@@ -103,6 +170,8 @@
                         
             isBusy = true;
 
+            await LoadServiceChargeAsync(endDate);
+
             // get list of payrolls
             using (var scope = ServiceScopeFactory.CreateScope())
             {
@@ -110,13 +179,6 @@
                 var result = await mediator.Send(new ListPayrollQuery(null, null, selectedDepartment!.Name, _startDate, _endDate));
                 if (result.IsSuccess)
                     Payrolls = result.Value.AsQueryable();
-            }
-
-
-            foreach(var p in Payrolls){
-                Console.WriteLine("++ ===================================");
-                Console.WriteLine(p);
-                Console.WriteLine("-- ===================================");
             }
         } 
         catch (Exception) {
@@ -127,10 +189,44 @@
         }
     }    
 
-    async Task SaveAndSubmitAsync(DateTime date)
+    async Task SavePayrollAsync(PayrollDTO item)
     {
         try {
-            await DialogService.ShowWarningAsync("Save and Submit Payroll", "This feature is not yet implemented.");
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to save and submit this record? Please note that this will lock the submitted attendances.", "Yes", "No", "Save and Submit");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+            await CreatePayrollAsync(item);
+            await LoadPayrollAsync(searchDate);
+        } 
+        catch (Exception) {
+            throw;
+        }
+        finally {
+            isBusy = false;
+            await DialogService.ShowSuccessAsync("Payroll and Attendance has been successfully Udpated.", "Success");
+        }
+    }
+
+    async Task SaveAndSubmitAllAsync(DateTime date)
+    {
+        try {
+            if(Payrolls.Where(i => i.Id == Guid.Empty).Count() == 0) {
+                await DialogService.ShowWarningAsync("There's no record to save and submit.", "Warning");
+                return;
+            }
+
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to save and submit all {Payrolls.Where(i => i.Id == Guid.Empty).Count()} record? Please note that this will lock the submitted attendances.", "Yes", "No", "Save and Submit");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            var tasks = Payrolls.Select(p => CreatePayrollAsync(p));
+            await Task.WhenAll(tasks);
+
+            await LoadPayrollAsync(date);
         } 
         catch (Exception) {
             throw;
@@ -140,14 +236,131 @@
         }
     }
 
+    async Task CreatePayrollAsync(PayrollDTO item) {
+        if(item.Id != Guid.Empty) return;
+
+        using (var scope = ServiceScopeFactory.CreateScope())
+        {
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            var result = await mediator.Send(new CreatePayrollCommand(item.EmployeeId ?? Guid.Empty, item.Date, item.GrossPayAmount, item.NetAmount, item.BasicPayAmount, item.SSSAmount, item.SSSERAmount, item.PagibigAmount, item.PagibigERAmount, item.PhilhealthAmount, item.PhilhealthERAmount, item.RestDayAmount, item.RestDayHrs, item.RegularHolidayAmount, item.RegularHolidayHrs, item.SpecialHolidayAmount, item.SpecialHolidayHrs, item.OvertimeAmount, item.OvertimeHrs, item.NightDiffAmount, item.NightDiffHrs, item.NightDiffOvertimeAmount, item.NightDiffOvertimeHrs, item.NightDiffRegularHolidayAmount, item.NightDiffRegularHolidayHrs, item.NightDiffSpecialHolidayAmount, item.NightDiffSpecialHolidayHrs, item.OvertimeRestDayAmount, item.OvertimeRestDayHrs, item.OvertimeRegularHolidayAmount, item.OvertimeRegularHolidayHrs, item.OvertimeSpecialHolidayAmount, item.OvertimeSpecialHolidayHrs, item.UnionDues, item.Absences, item.AbsencesAmount, item.Leaves, item.LeavesAmount, item.Lates, item.LatesAmount, item.Undertime, item.UndertimeAmount, item.Overbreak, item.OverbreakAmount, item.SvcCharge, item.CostOfLivingAllowanceAmount, item.MonthlyAllowanceAmount, item.SalaryUnderpaymentAmount, item.RefundAbsencesAmount, item.RefundUndertimeAmount, item.RefundOvertimeAmount, item.LaborHoursIncome, item.LaborHrs, item.TaxDeductions, item.TotalConstantDeductions, item.TotalLoanDeductions, item.TotalDeductions));
+        }  
+
+        if(item.EmployeeId.HasValue) {
+            List<AttendanceDTO> attendances = new();
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListAttendanceQuery(null, null, item.EmployeeId ?? Guid.Empty, startDate, endDate));
+                if (result.IsSuccess)
+                    attendances = result.Value.ToList();
+            }
+
+            //var tasks = attendances.Select(a => UpdateAttendanceAsync(a));
+            foreach(var attendance in attendances)
+            {
+                if(attendance.Shift == null || attendance.ShiftId == null || attendance.ShiftId == Guid.Empty)
+                    continue;
+
+                if(attendance.Id == Guid.Empty) { // create attendance
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var result = await mediator.Send(new CreateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, null, null, null, null, null, IsLocked: true));
+                    }
+                }
+                else { // update
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var result = await mediator.Send(new UpdateAttendanceCommand(attendance.EmployeeId, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, IsLocked: true));
+                    }
+                }
+            }
+        }
+    }    
+
     async Task ViewPayrollAsync(PayrollDTO item)
     {
         try
         {
-            await DialogService.ShowWarningAsync("View Payroll", "This feature is not yet implemented.");
+            IDialogReference _dialog = await DialogService.ShowPanelAsync<PayrollPanel>(item, new DialogParameters<PayrollDTO>
+            {
+                Title = "Payroll Details",
+                Alignment = HorizontalAlignment.Right,
+                Modal = false,
+                PrimaryActionEnabled= item.Id == Guid.Empty,
+                PrimaryAction="Save",
+                ShowDismiss = true,
+                Width = "60%",
+            });            
         }
         catch (Exception)
         {
+            throw;
+        }
+    }
+
+    async Task OnCompletedAsync(IEnumerable<FluentInputFileEventArgs> files)
+    {
+        try {
+            // TODO confirmation should be moved to before the upload processing starts
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to upload this file?", "Yes", "No", "Upload");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            Files = files.ToArray();
+            progressPercent = myFileUploader!.ProgressPercent;
+            progressTitle = myFileUploader!.ProgressTitle;
+
+            // assume only one file is uploaded
+            List<(string, decimal)> csvData = new List<(string, decimal)>();
+            foreach (var file in Files)
+            {
+                // open the file as csv
+                using (var reader = new StreamReader(file.LocalFile!.FullName))
+                {
+                    string? line;
+                    bool isFirstRow = true;
+                    while ((line = await reader.ReadLineAsync()) != null)
+                    {
+                        if (isFirstRow)
+                        {
+                            isFirstRow = false;
+                            continue;
+                        }
+
+                        var values = line.Split(',');
+                        if (values.Length >= 2 && decimal.TryParse(values[1], out decimal amount))
+                            csvData.Add((values[0], amount));
+                    }
+                }
+                file.LocalFile?.Delete();
+            }
+
+            // create service charge
+            var tasks = csvData.Select(data => CreateServiceChargeAsync(data.Item1, data.Item2));
+            await Task.WhenAll(tasks);
+
+            // add show success message here
+            await DialogService.ShowSuccessAsync("Service charge has been successfully uploaded.", "Success");
+        }
+        finally {
+            isBusy = false;
+        }
+    }
+
+    async Task CreateServiceChargeAsync(string name, decimal amount)
+    {
+        try {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateServiceChargeCommand(name, amount, endDate));
+            }
+        } 
+        catch (Exception) {
             throw;
         }
     }

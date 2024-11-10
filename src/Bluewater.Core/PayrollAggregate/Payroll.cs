@@ -163,7 +163,7 @@ public class Payroll : EntityBase<Guid>, IAggregateRoot
         TotalDeductions = 0;        
     }
 
-    public Payroll(DateOnly date, decimal grossPayAmount, decimal netAmount, decimal basicPayAmount, decimal sssAmount, decimal sssERAmount, decimal pagibigAmount, decimal pagibigERAmount, decimal philhealthAmount, decimal philhealthERAmount, decimal restDayAmount, decimal restDayHrs, decimal regularHolidayAmount, decimal regularHolidayHrs, decimal specialHolidayAmount, decimal specialHolidayHrs, decimal overtimeAmount, decimal overtimeHrs, decimal nightDiffAmount, decimal nightDiffHrs, decimal nightDiffOvertimeAmount, decimal nightDiffOvertimeHrs, decimal nightDiffRegularHolidayAmount, decimal nightDiffRegularHolidayHrs, decimal nightDiffSpecialHolidayAmount, decimal nightDiffSpecialHolidayHrs, decimal overtimeRestDayAmount, decimal overtimeRestDayHrs, decimal overtimeRegularHolidayAmount, decimal overtimeRegularHolidayHrs, decimal overtimeSpecialHolidayAmount, decimal overtimeSpecialHolidayHrs, decimal unionDues, int absences, decimal absencesAmount, decimal leaves, decimal leavesAmount, decimal lates, decimal latesAmount, decimal undertime, decimal undertimeAmount, decimal overbreak, decimal overbreakAmount, decimal svcCharge, decimal costOfLivingAllowanceAmount, decimal monthlyAllowanceAmount, decimal salaryUnderpaymentAmount, decimal refundAbsencesAmount, decimal refundUndertimeAmount, decimal refundOvertimeAmount, decimal laborHoursIncome, decimal laborHrs, decimal taxDeductions, decimal totalConstantDeductions, decimal totalLoanDeductions, decimal totalDeductions, Guid employeeId)
+    public Payroll(Guid employeeId, DateOnly date, decimal grossPayAmount, decimal netAmount, decimal basicPayAmount, decimal sssAmount, decimal sssERAmount, decimal pagibigAmount, decimal pagibigERAmount, decimal philhealthAmount, decimal philhealthERAmount, decimal restDayAmount, decimal restDayHrs, decimal regularHolidayAmount, decimal regularHolidayHrs, decimal specialHolidayAmount, decimal specialHolidayHrs, decimal overtimeAmount, decimal overtimeHrs, decimal nightDiffAmount, decimal nightDiffHrs, decimal nightDiffOvertimeAmount, decimal nightDiffOvertimeHrs, decimal nightDiffRegularHolidayAmount, decimal nightDiffRegularHolidayHrs, decimal nightDiffSpecialHolidayAmount, decimal nightDiffSpecialHolidayHrs, decimal overtimeRestDayAmount, decimal overtimeRestDayHrs, decimal overtimeRegularHolidayAmount, decimal overtimeRegularHolidayHrs, decimal overtimeSpecialHolidayAmount, decimal overtimeSpecialHolidayHrs, decimal unionDues, int absences, decimal absencesAmount, decimal leaves, decimal leavesAmount, decimal lates, decimal latesAmount, decimal undertime, decimal undertimeAmount, decimal overbreak, decimal overbreakAmount, decimal svcCharge, decimal costOfLivingAllowanceAmount, decimal monthlyAllowanceAmount, decimal salaryUnderpaymentAmount, decimal refundAbsencesAmount, decimal refundUndertimeAmount, decimal refundOvertimeAmount, decimal laborHoursIncome, decimal laborHrs, decimal taxDeductions, decimal totalConstantDeductions, decimal totalLoanDeductions, decimal totalDeductions)
     {
         Date = date;
         GrossPayAmount = grossPayAmount;
@@ -224,7 +224,7 @@ public class Payroll : EntityBase<Guid>, IAggregateRoot
         EmployeeId = employeeId;
     }
 
-    //type, pay?.BasicPay ?? 0, pay?.DailyRate ?? 0, pay?.HourlyRate ?? 0, pay?.HDMF_Con ?? 0, pay?.HDMF_Er ?? 0, attendance.TotalWorkHrs, attendance.TotalLateHrs, attendance.TotalUnderHrs, attendance.TotalLeaves
+    // need to filter this. some parameters may be assigned directly.
     public void UpdatePayrollByAttendance(
         string type, 
         decimal basicPay, decimal dailyRate, decimal hourlyRate, decimal hdmfCon, decimal hdmfEr, 
@@ -303,8 +303,7 @@ public class Payroll : EntityBase<Guid>, IAggregateRoot
         SSSERAmount = Date.Day == 15 ? 0 : Math.Round(ER);
         // - constant deductions
 
-        // TODO service charge.
-        var (taxDeduction, taxPercentage) = TaxCalculator.CalculateTax(adjustedGrossIncome /*+ employeeSC*/ - PagibigAmount - PhilhealthAmount - SSSAmount);
+        var (taxDeduction, taxPercentage) = TaxCalculator.CalculateTax(adjustedGrossIncome + SvcCharge - PagibigAmount - PhilhealthAmount - SSSAmount);
         TaxDeductions = Math.Round(taxDeduction, 2);
         TaxPercentage = Math.Round(taxPercentage, 2);
 
@@ -316,13 +315,3 @@ public class Payroll : EntityBase<Guid>, IAggregateRoot
     }
 
 }
-
-//PayrollDTO { Id = 00000000-0000-0000-0000-000000000000, EmployeeId = f4b96778-999c-4ef2-b56c-efe7255549d1, Name = LastName15, FirstName15, Date = 11/6/2024,
-//GrossPayAmount = 1450.00, NetAmount = -892.50, BasicPayAmount = 2900.0, 
-//SSSAmount = 180, SSSERAmount = 390, PagibigAmount = 0, PagibigERAmount = 0, PhilhealthAmount = 72.50, PhilhealthERAmount = 72.50, RestDayAmount = 0.0, RestDayHrs = 0, RegularHolidayAmount = 0.0, RegularHolidayHrs = 0, SpecialHolidayAmount = 0.00, SpecialHolidayHrs = 0, OvertimeAmount = 0.00, OvertimeHrs = 0, NightDiffAmount = 0.00, NightDiffHrs = 0, NightDiffOvertimeAmount = 0.00, NightDiffOvertimeHrs = 0, NightDiffRegularHolidayAmount = 0.00, NightDiffRegularHolidayHrs = 0, NightDiffSpecialHolidayAmount = 0.00, NightDiffSpecialHolidayHrs = 0, OvertimeRestDayAmount = 0.00, OvertimeRestDayHrs = 0, OvertimeRegularHolidayAmount = 0.00, OvertimeRegularHolidayHrs = 0, OvertimeSpecialHolidayAmount = 0.00, OvertimeSpecialHolidayHrs = 0, UnionDues = 0, Absences = 0, AbsencesAmount = 0.0, Leaves = 0, LeavesAmount = 0.0, 
-//Lates = 4, LatesAmount = 380.0, Undertime = 0, UndertimeAmount = 0.0, 
-//Overbreak = 18, OverbreakAmount = 1710.0, SvcCharge = 0, CostOfLivingAllowanceAmount = 0, MonthlyAllowanceAmount = 0, SalaryUnderpaymentAmount = 0, RefundAbsencesAmount = 0, RefundUndertimeAmount = 0, RefundOvertimeAmount = 0, LaborHoursIncome = 1450.0, LaborHrs = 4, TaxDeductions = 0, TaxPercentage = 0, 
-//TotalConstantDeductions = 2342.50, TotalLoanDeductions = 0, TotalDeductions = 2342.50 }
-
-
-// 72.50 + 180 + 380 + 1710 + 

@@ -162,9 +162,9 @@
         <FluentGridItem xs="6"><FluentTextField Label="PhilHealth No" @bind-Value="@Content.PhicNo" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"><FluentTextField Label="Bank Account" @bind-Value="@Content.BankAccount" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"></FluentGridItem>
-        <FluentGridItem xs="6"><FluentNumberField Label="Basic Pay" @bind-Value="@Content.BasicPay" Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentNumberField Label="Daily Rate" @bind-Value="@Content.DailyRate" Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentNumberField Label="Hourly Rate" @bind-Value="@Content.HourlyRate" Style="width: 100%" /></FluentGridItem>        
+        <FluentGridItem xs="6"><FluentNumberField Label="Basic Pay" @bind-Value="@Content.BasicPay" Style="width: 100%" @onchange=HandleBasicPayUpdated /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentNumberField Label="Daily Rate" @bind-Value="@Content.DailyRate" Style="width: 100%" ReadOnly/></FluentGridItem>
+        <FluentGridItem xs="6"><FluentNumberField Label="Hourly Rate" @bind-Value="@Content.HourlyRate" Style="width: 100%" ReadOnly/></FluentGridItem>        
         <FluentGridItem xs="6"><FluentNumberField Label="HDMF Con" @bind-Value="@Content.HDMF_Con" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"><FluentNumberField Label="HDMF Er" @bind-Value="@Content.HDMF_Er" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"></FluentGridItem>
@@ -263,7 +263,7 @@
                 OptionText="@(o => o.Name)"
                 @bind-SelectedOption="@supervisedGroup"
                 Style="width: 100%" 
-                Disabled=IsDisableSupervisedGroup()
+                ReadOnly=IsDisableSupervisedGroup()
                 @onchange=HandleSupervisedGroupSelected>
             </FluentSelect>
         </FluentGridItem>
@@ -466,6 +466,16 @@
         var employeeType = employeeTypes.FirstOrDefault(x => x.Name.Equals(stringValue, StringComparison.InvariantCultureIgnoreCase));
         if(employeeType != null)
             Content.TypeId = employeeType.Id;
+
+        bool isRegular = false;
+        if(employeeType != null && employeeType.Name.Equals("Regular", StringComparison.InvariantCultureIgnoreCase))
+            isRegular = true;
+
+        if(Content.BasicPay != null) {
+            var (dailyRate, hourlyRate) = GlobalService.GetRatesByEmployeeType(Content.BasicPay.HasValue ? Content.BasicPay.Value : 0, isRegular);
+            Content.DailyRate = dailyRate;
+            Content.HourlyRate = hourlyRate;
+        }
     }
 
     public void HandleLevelsSelected(ChangeEventArgs changeEventArgs)
@@ -503,6 +513,23 @@
         if(section != null)
             Content.SupervisedGroup = section.Id;
     }
+
+    public void HandleBasicPayUpdated(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+        // convert stringValue to decimal
+        if(decimal.TryParse(stringValue, out var basicPay))
+        {
+            bool isRegular = false;
+            if(selectedEmployeeType != null && selectedEmployeeType.Name.Equals("Regular", StringComparison.InvariantCultureIgnoreCase))
+                isRegular = true;
+
+            var (dailyRate, hourlyRate) = GlobalService.GetRatesByEmployeeType(basicPay, isRegular);
+            Content.DailyRate = dailyRate;
+            Content.HourlyRate = hourlyRate;
+        }
+    }
+    
 
     public bool IsDisableSupervisedGroup(){
 

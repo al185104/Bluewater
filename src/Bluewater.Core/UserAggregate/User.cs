@@ -18,8 +18,6 @@ public class User(string username, string passwordHash, Credential? credential, 
 
   // Navigation Property
   // public virtual Employee Employee { get; set; } = null!;
-  public virtual ICollection<Employee>? Employees { get; private set; }
-
   public User() : this(string.Empty, string.Empty, Credential.None, null) { }
 
   public void UpdateUser(string username, string passwordHash, Credential? credential, Guid? supervisedGroup, bool isGlobalSupervisor)

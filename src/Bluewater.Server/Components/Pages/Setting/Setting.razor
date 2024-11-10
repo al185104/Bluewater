@@ -899,11 +899,13 @@
                 using(var scope = ServiceScopeFactory.CreateScope())
                 {
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    var _basicPay = 20500 + (i * 100);
+                    var (_dailyRate, _hourlyRate) = GlobalService.GetRatesByEmployeeType(_basicPay, true);
                     // Generate dummy PayId using CreatePayCommand
                     var payCommand = new CreatePayCommand(
-                        basicPay: 1500 + (i * 100), // Example variation
-                        dailyRate: 200 + (i * 10),
-                        hourlyRate: 25 + (i * 5),
+                        basicPay: _basicPay, // Example variation
+                        dailyRate: _dailyRate,
+                        hourlyRate: _hourlyRate,
                         hdmfCon: 100,
                         hdmfEr: 50
                     );

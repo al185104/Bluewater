@@ -1,20 +1,11 @@
 using Bluewater.UseCases.Positions;
-using Bluewater.UseCases.Positions.List;
 using Bluewater.UseCases.Sections;
-using Bluewater.UseCases.Sections.List;
 using Bluewater.UseCases.Departments;
-using Bluewater.UseCases.Departments.List;
 using Bluewater.UseCases.Divisions;
-using Bluewater.UseCases.Divisions.List;
 using Bluewater.UseCases.Chargings;
-using Bluewater.UseCases.Chargings.List;
 using Bluewater.UseCases.Holidays;
-using Bluewater.UseCases.Holidays.List;
 using Bluewater.UseCases.EmployeeTypes;
-using Bluewater.UseCases.EmployeeTypes.List;
 using Bluewater.UseCases.Levels;
-using Bluewater.UseCases.Levels.List;
-using MediatR;
 using Bluewater.UseCases.Shifts;
 
 namespace Bluewater.Server.Global;
@@ -34,4 +25,5 @@ public interface IGlobalService
     Task LoadDataAsync();
     (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfWeekByDate(DateTime date);
     (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfPayslip(DateOnly date);
+    (decimal dailyRate, decimal hourlyRate) GetRatesByEmployeeType(decimal basicRate, bool isRegular);
 }

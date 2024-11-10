@@ -1,0 +1,406 @@
+@using System.ComponentModel;
+@using System.Reflection;
+@using Bluewater.Server.Global;
+@using Bluewater.UseCases.Payrolls
+@using Bluewater.UseCases.Shifts;
+@inject IGlobalService GlobalService;
+
+@implements IDialogContentComponent<PayrollDTO>
+
+<FluentDialogBody>
+    <FluentLabel>Name: @Content.Name</FluentLabel>
+    <FluentLabel>End date: @Content.Date</FluentLabel>
+    <FluentLabel>Basic pay: @Content.BasicPayAmount</FluentLabel>
+    <FluentLabel>Semi-monthly income: @Content.LaborHoursIncome</FluentLabel>    
+
+    <FluentSpacer/>
+
+    <FluentStack Orientation="Orientation.Vertical" VerticalGap="10">
+        @* earnings *@
+        <FluentCard MinimalStyle="true" Style="height: auto;">
+            <FluentGrid Spacing="1">
+                @* title *@
+                <FluentGridItem xs="4">
+                    <FluentLabel Typo="Typography.H5">Earnings</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem Typo="Typography.H5" xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">Hours</FluentLabel>
+                </FluentGridItem>    
+                <FluentGridItem Typo="Typography.H5" xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">Amount</FluentLabel>
+                </FluentGridItem>   
+
+                @* labor hours *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Labor Hours</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.LaborHrs</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.LaborHoursIncome</FluentLabel>
+                </FluentGridItem>
+
+                @* restday *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Rest day</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.RestDayHrs</FluentLabel>
+                </FluentGridItem>    
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.RestDayAmount</FluentLabel>
+                </FluentGridItem>    
+
+                @* regular *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Regular Holiday</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.RegularHolidayHrs</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.RegularHolidayAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* special *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Special Holiday</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.SpecialHolidayHrs</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.SpecialHolidayAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* overtime *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Overtime</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.OvertimeHrs</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.OvertimeAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* night differential *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Night Differential</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.NightDiffHrs</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.NightDiffAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* night differential with overtime *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Night Diff with Overtime</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.NightDiffOvertimeHrs</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.NightDiffOvertimeAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* night differential on Regular holidays *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Night Diff on Regular Holidays</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.NightDiffRegularHolidayHrs</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.NightDiffRegularHolidayAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* night differential on Special holidays *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Night Diff on Special Holidays</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.NightDiffSpecialHolidayHrs</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.NightDiffSpecialHolidayAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* overtime on Rest day *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Overtime on Rest day premium</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.OvertimeRestDayHrs</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.OvertimeRestDayAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* overtime on Regular holidays *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Overtime on Regular Holidays</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.OvertimeRegularHolidayHrs</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.OvertimeRegularHolidayAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* overtime on Special holidays *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Overtime on Special Holidays</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.OvertimeSpecialHolidayHrs</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.OvertimeSpecialHolidayAmount</FluentLabel>
+                </FluentGridItem>
+            </FluentGrid>
+        </FluentCard>
+
+        @* other earnings *@
+        <FluentCard MinimalStyle="true" Style="height: auto;">
+            <FluentGrid Spacing="1">
+                @* title *@
+                <FluentGridItem xs="6">
+                    <FluentLabel Typo="Typography.H5">Other Earnings</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem Typo="Typography.H5" xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">Amount</FluentLabel>
+                </FluentGridItem>
+
+                @* service charge *@
+                <FluentGridItem xs="6">
+                    <FluentLabel>Service Charge</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.SvcCharge</FluentLabel>
+                </FluentGridItem>
+
+                @* cost of living allowance *@
+                <FluentGridItem xs="6">
+                    <FluentLabel>Cost of Living Allowance</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.CostOfLivingAllowanceAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* monthly allowance *@
+                <FluentGridItem xs="6">
+                    <FluentLabel>Monthly Allowance</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.MonthlyAllowanceAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* salary underpayment *@
+                <FluentGridItem xs="6">
+                    <FluentLabel>Salary Underpayment</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.SalaryUnderpaymentAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* refund absences *@
+                <FluentGridItem xs="6">
+                    <FluentLabel>Refund Absences</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.RefundAbsencesAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* refund undertime *@
+                <FluentGridItem xs="6">
+                    <FluentLabel>Refund Undertime</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.RefundUndertimeAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* refund overtime *@
+                <FluentGridItem xs="6">
+                    <FluentLabel>Refund Overtime</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.RefundOvertimeAmount</FluentLabel>
+                </FluentGridItem>
+            </FluentGrid>
+        </FluentCard>
+
+        @* constant deductions *@
+        <FluentCard MinimalStyle="true" Style="height: auto;">
+            <FluentGrid Spacing="1">
+                <FluentGridItem xs="6">
+                    <FluentLabel Typo="Typography.H5">Deductions</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem Typo="Typography.H5" xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">Amount</FluentLabel>
+                </FluentGridItem>                
+            </FluentGrid>
+
+            @* sss *@
+            <FluentGrid Spacing="1">
+                <FluentGridItem xs="6">
+                    <FluentLabel>SSS</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.SSSAmount</FluentLabel>
+                </FluentGridItem>
+            </FluentGrid>
+
+            @* pagibig *@
+            <FluentGrid Spacing="1">
+                <FluentGridItem xs="6">
+                    <FluentLabel>Pagibig</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.PagibigAmount</FluentLabel>
+                </FluentGridItem>
+            </FluentGrid>
+
+            @* philhealth *@
+            <FluentGrid Spacing="1">
+                <FluentGridItem xs="6">
+                    <FluentLabel>Philhealth</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.PhilhealthAmount</FluentLabel>
+                </FluentGridItem>
+            </FluentGrid>
+
+            @* union dues *@
+            <FluentGrid Spacing="1">
+                <FluentGridItem xs="6">
+                    <FluentLabel>Union Dues</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.UnionDues</FluentLabel>
+                </FluentGridItem>
+            </FluentGrid>
+
+            @* tax deduction *@
+            <FluentGrid Spacing="1">
+                <FluentGridItem xs="6">
+                    <FluentLabel>Tax Deduction</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.TaxDeductions</FluentLabel>
+                </FluentGridItem>
+            </FluentGrid>
+
+        </FluentCard>    
+
+        @* variable deductions *@
+        <FluentCard MinimalStyle="true" Style="height: auto;">
+            <FluentGrid Spacing="1">
+                <FluentGridItem xs="6">
+                    <FluentLabel Typo="Typography.H5">Variable Deductions</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem Typo="Typography.H5" xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">Amount</FluentLabel>
+                </FluentGridItem> 
+
+                <FluentGridItem xs="6">
+                    <FluentLabel>Loans</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.TotalLoanDeductions</FluentLabel>
+                </FluentGridItem>   
+
+                @* AbsencesAmount *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Absences</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.Absences</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.AbsencesAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* LatesAmount *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Lates</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.Lates</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.LatesAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* UndertimeAmount  *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Undertime</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.Undertime</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.UndertimeAmount</FluentLabel>
+                </FluentGridItem>                
+
+                @* OverbreakAmount *@
+                <FluentGridItem xs="4">
+                    <FluentLabel>Overbreak</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.Overbreak</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="4">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.OverbreakAmount</FluentLabel>
+                </FluentGridItem>
+            </FluentGrid>
+        </FluentCard>    
+
+        @* net pay *@
+        <FluentCard MinimalStyle="true" Style="height: auto;">
+            <FluentGrid Spacing="1">
+                <FluentGridItem xs="6">
+                    <FluentLabel Typo="Typography.H5">Total</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem Typo="Typography.H5" xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">Amount</FluentLabel>
+                </FluentGridItem>
+
+                @* Gross *@
+                <FluentGridItem xs="6">
+                    <FluentLabel>Gross Pay</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.GrossPayAmount</FluentLabel>
+                </FluentGridItem>
+
+                @* TotalDeductions *@
+                <FluentGridItem xs="6">
+                    <FluentLabel>Total Deductions</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.TotalDeductions</FluentLabel>
+                </FluentGridItem>
+
+                @* NetAmount *@
+                <FluentGridItem xs="6">
+                    <FluentLabel>Net Pay</FluentLabel>
+                </FluentGridItem>
+                <FluentGridItem xs="6">
+                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.NetAmount</FluentLabel>
+                </FluentGridItem>
+
+            </FluentGrid>
+        </FluentCard>    
+    
+    </FluentStack>
+
+</FluentDialogBody>
+
+@code {
+    [Parameter]
+    public PayrollDTO Content { get; set; } = default!;
+}

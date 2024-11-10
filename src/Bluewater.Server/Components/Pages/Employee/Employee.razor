@@ -109,9 +109,8 @@
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListEmployeeQuery(null, null));
-                if (result.IsSuccess) {
+                if (result.IsSuccess)
                     Employees = result.Value.AsQueryable();
-                }
             }
         }
         catch (Exception)

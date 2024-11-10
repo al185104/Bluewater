@@ -48,21 +48,21 @@
             @(context.Shift?.Name ?? "No shift")
         </FluentButton>
     </TemplateColumn>
-    <PropertyColumn Title="Start time" Property="@(p => p.Shift != null ? p.Shift.ShiftStartTime : default)" Format="HH:mm tt" />
-    <PropertyColumn Title="Break start" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakTime : default)" Format="HH:mm tt" />
-    <PropertyColumn Title="Break end" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakEndTime : default)" Format="HH:mm tt" />        
-    <PropertyColumn Title="End time" Property="@(p => p.Shift != null ? p.Shift.ShiftEndTime : default)" Format="HH:mm tt" />
+    <PropertyColumn Title="Start time" Property="@(p => p.Shift != null ? p.Shift.ShiftStartTime : default)" Format="hh:mm tt" />
+    <PropertyColumn Title="Break start" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakTime : default)" Format="hh:mm tt" />
+    <PropertyColumn Title="Break end" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakEndTime : default)" Format="hh:mm tt" />        
+    <PropertyColumn Title="End time" Property="@(p => p.Shift != null ? p.Shift.ShiftEndTime : default)" Format="hh:mm tt" />
     <TemplateColumn Title="In #1" Align="@Align.Center">
-        <FluentTimePicker Value="@(context.Timesheet?.TimeIn1 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeIn1 = e)" Format="HH:mm tt" Disabled=@context.IsLocked/>
+        <FluentTimePicker Value="@(context.Timesheet?.TimeIn1 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeIn1 = e)" Format="hh:mm tt" Disabled=@context.IsLocked/>
     </TemplateColumn>
     <TemplateColumn Title="Out #1" Align="@Align.Center">
-        <FluentTimePicker Value="@(context.Timesheet?.TimeOut1 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeOut1 = e)" Format="HH:mm tt" Disabled=@context.IsLocked/>        
+        <FluentTimePicker Value="@(context.Timesheet?.TimeOut1 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeOut1 = e)" Format="hh:mm tt" Disabled=@context.IsLocked/>        
     </TemplateColumn>
     <TemplateColumn Title="In #2" Align="@Align.Center">
-        <FluentTimePicker Value="@(context.Timesheet?.TimeIn2 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeIn2 = e)" Format="HH:mm tt" Disabled=@context.IsLocked/>        
+        <FluentTimePicker Value="@(context.Timesheet?.TimeIn2 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeIn2 = e)" Format="hh:mm tt" Disabled=@context.IsLocked/>        
     </TemplateColumn>
     <TemplateColumn Title="Out #2" Align="@Align.Center">
-        <FluentTimePicker Value="@(context.Timesheet?.TimeOut2 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeOut2 = e)" Format="HH:mm tt" Disabled=@context.IsLocked/>        
+        <FluentTimePicker Value="@(context.Timesheet?.TimeOut2 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeOut2 = e)" Format="hh:mm tt" Disabled=@context.IsLocked/>        
     </TemplateColumn>
     <PropertyColumn Title="Work" Property="@(p => p.WorkHrs)" />
     <PropertyColumn Title="Late" Property="@(p => p.LateHrs)" />

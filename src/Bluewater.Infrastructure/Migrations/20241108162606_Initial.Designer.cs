@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bluewater.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241031053718_Initial Migration")]
-    partial class InitialMigration
+    [Migration("20241108162606_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,6 +48,12 @@ namespace Bluewater.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("LeaveId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("NightShiftHours")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("OverbreakHrs")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Remarks")
@@ -286,6 +292,9 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Property<string>("Remarks")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("ServiceChargeId")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
@@ -313,6 +322,8 @@ namespace Bluewater.Infrastructure.Migrations
                     b.HasIndex("PayId");
 
                     b.HasIndex("PositionId");
+
+                    b.HasIndex("ServiceChargeId");
 
                     b.HasIndex("TypeId");
 
@@ -373,29 +384,28 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Property<Guid?>("EmployeeId")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateOnly>("EndDate")
+                    b.Property<DateOnly?>("EndDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("MonthlyAmortization")
+                    b.Property<decimal?>("MonthlyAmortization")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("NoOfMonths")
+                    b.Property<int?>("NoOfMonths")
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("RemainingBalance")
+                    b.Property<decimal?>("RemainingBalance")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Remarks")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateOnly>("StartDate")
+                    b.Property<DateOnly?>("StartDate")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("TotalAmount")
+                    b.Property<decimal?>("TotalAmount")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UpdateBy")
@@ -423,17 +433,16 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("Date")
+                    b.Property<DateTime?>("Date")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid?>("EmployeeId")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("Reason")
+                    b.Property<int?>("Reason")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Remarks")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
@@ -507,10 +516,10 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateOnly>("Date")
+                    b.Property<DateOnly?>("Date")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("EarningType")
+                    b.Property<int?>("EarningType")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("EmployeeId")
@@ -522,7 +531,7 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
-                    b.Property<decimal>("TotalAmount")
+                    b.Property<decimal?>("TotalAmount")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("UpdateBy")
@@ -544,7 +553,7 @@ namespace Bluewater.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ApprovedHours")
+                    b.Property<int?>("ApprovedHours")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid>("CreateBy")
@@ -556,14 +565,13 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("EndDate")
+                    b.Property<DateTime?>("EndDate")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Remarks")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime?>("StartDate")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
@@ -594,17 +602,16 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateOnly>("Date")
+                    b.Property<DateOnly?>("Date")
                         .HasColumnType("TEXT");
 
                     b.Property<Guid>("EmployeeId")
                         .HasColumnType("TEXT");
 
-                    b.Property<decimal>("InclusiveTime")
+                    b.Property<decimal?>("InclusiveTime")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Reason")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
@@ -750,6 +757,9 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Property<decimal>("BasicPay")
                         .HasColumnType("TEXT");
 
+                    b.Property<decimal>("Cola")
+                        .HasColumnType("TEXT");
+
                     b.Property<Guid>("CreateBy")
                         .HasColumnType("TEXT");
 
@@ -777,6 +787,205 @@ namespace Bluewater.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Pays");
+                });
+
+            modelBuilder.Entity("Bluewater.Core.PayrollAggregate.Payroll", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("Absences")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<decimal>("AbsencesAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("BasicPayAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("CostOfLivingAllowanceAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreateBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("EmployeeId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("GrossPayAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("LaborHoursIncome")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("LaborHrs")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Lates")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("LatesAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Leaves")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("LeavesAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("MonthlyAllowanceAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("NetAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("NightDiffAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("NightDiffHrs")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("NightDiffOvertimeAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("NightDiffOvertimeHrs")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("NightDiffRegularHolidayAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("NightDiffRegularHolidayHrs")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("NightDiffSpecialHolidayAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("NightDiffSpecialHolidayHrs")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Overbreak")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("OverbreakAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("OvertimeAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("OvertimeHrs")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("OvertimeRegularHolidayAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("OvertimeRegularHolidayHrs")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("OvertimeRestDayAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("OvertimeRestDayHrs")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("OvertimeSpecialHolidayAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("OvertimeSpecialHolidayHrs")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("PagibigAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("PagibigERAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("PhilhealthAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("PhilhealthERAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("RefundAbsencesAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("RefundOvertimeAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("RefundUndertimeAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("RegularHolidayAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("RegularHolidayHrs")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("RestDayAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("RestDayHrs")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("SSSAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("SSSERAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("SalaryUnderpaymentAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("SpecialHolidayAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("SpecialHolidayHrs")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("SvcCharge")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TaxDeductions")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TaxPercentage")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TotalConstantDeductions")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TotalDeductions")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("TotalLoanDeductions")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Undertime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("UndertimeAmount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("UnionDues")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UpdateBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("Payrolls");
                 });
 
             modelBuilder.Entity("Bluewater.Core.PositionAggregate.Position", b =>
@@ -895,6 +1104,39 @@ namespace Bluewater.Infrastructure.Migrations
                     b.HasIndex("DepartmentId");
 
                     b.ToTable("Sections");
+                });
+
+            modelBuilder.Entity("Bluewater.Core.ServiceChargeAggregate.ServiceCharge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreateBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UpdateBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServiceCharges");
                 });
 
             modelBuilder.Entity("Bluewater.Core.ShiftAggregate.Shift", b =>
@@ -1132,12 +1374,16 @@ namespace Bluewater.Infrastructure.Migrations
                         .WithMany("Employees")
                         .HasForeignKey("PositionId");
 
+                    b.HasOne("Bluewater.Core.ServiceChargeAggregate.ServiceCharge", null)
+                        .WithMany("Employees")
+                        .HasForeignKey("ServiceChargeId");
+
                     b.HasOne("Bluewater.Core.EmployeeTypeAggregate.EmployeeType", "Type")
                         .WithMany("Employees")
                         .HasForeignKey("TypeId");
 
                     b.HasOne("Bluewater.Core.UserAggregate.User", "User")
-                        .WithMany("Employees")
+                        .WithMany()
                         .HasForeignKey("UserId");
 
                     b.OwnsOne("Bluewater.Core.EmployeeAggregate.ContactInfo", "ContactInfo", b1 =>
@@ -1338,6 +1584,15 @@ namespace Bluewater.Infrastructure.Migrations
                         .HasForeignKey("EmployeeId");
                 });
 
+            modelBuilder.Entity("Bluewater.Core.PayrollAggregate.Payroll", b =>
+                {
+                    b.HasOne("Bluewater.Core.EmployeeAggregate.Employee", "Employee")
+                        .WithMany()
+                        .HasForeignKey("EmployeeId");
+
+                    b.Navigation("Employee");
+                });
+
             modelBuilder.Entity("Bluewater.Core.PositionAggregate.Position", b =>
                 {
                     b.HasOne("Bluewater.Core.SectionAggregate.Section", "Section")
@@ -1437,7 +1692,7 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Navigation("Positions");
                 });
 
-            modelBuilder.Entity("Bluewater.Core.UserAggregate.User", b =>
+            modelBuilder.Entity("Bluewater.Core.ServiceChargeAggregate.ServiceCharge", b =>
                 {
                     b.Navigation("Employees");
                 });

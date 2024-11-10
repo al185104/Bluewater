@@ -289,6 +289,9 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Property<string>("Remarks")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("ServiceChargeId")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER");
 
@@ -316,6 +319,8 @@ namespace Bluewater.Infrastructure.Migrations
                     b.HasIndex("PayId");
 
                     b.HasIndex("PositionId");
+
+                    b.HasIndex("ServiceChargeId");
 
                     b.HasIndex("TypeId");
 
@@ -1098,6 +1103,39 @@ namespace Bluewater.Infrastructure.Migrations
                     b.ToTable("Sections");
                 });
 
+            modelBuilder.Entity("Bluewater.Core.ServiceChargeAggregate.ServiceCharge", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("CreateBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UpdateBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ServiceCharges");
+                });
+
             modelBuilder.Entity("Bluewater.Core.ShiftAggregate.Shift", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1333,12 +1371,16 @@ namespace Bluewater.Infrastructure.Migrations
                         .WithMany("Employees")
                         .HasForeignKey("PositionId");
 
+                    b.HasOne("Bluewater.Core.ServiceChargeAggregate.ServiceCharge", null)
+                        .WithMany("Employees")
+                        .HasForeignKey("ServiceChargeId");
+
                     b.HasOne("Bluewater.Core.EmployeeTypeAggregate.EmployeeType", "Type")
                         .WithMany("Employees")
                         .HasForeignKey("TypeId");
 
                     b.HasOne("Bluewater.Core.UserAggregate.User", "User")
-                        .WithMany("Employees")
+                        .WithMany()
                         .HasForeignKey("UserId");
 
                     b.OwnsOne("Bluewater.Core.EmployeeAggregate.ContactInfo", "ContactInfo", b1 =>
@@ -1647,7 +1689,7 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Navigation("Positions");
                 });
 
-            modelBuilder.Entity("Bluewater.Core.UserAggregate.User", b =>
+            modelBuilder.Entity("Bluewater.Core.ServiceChargeAggregate.ServiceCharge", b =>
                 {
                     b.Navigation("Employees");
                 });

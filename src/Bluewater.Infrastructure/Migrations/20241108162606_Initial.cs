@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Bluewater.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -109,6 +109,7 @@ namespace Bluewater.Infrastructure.Migrations
                     HourlyRate = table.Column<decimal>(type: "TEXT", nullable: false),
                     HDMF_Con = table.Column<decimal>(type: "TEXT", nullable: false),
                     HDMF_Er = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Cola = table.Column<decimal>(type: "TEXT", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
                     CreateBy = table.Column<Guid>(type: "TEXT", nullable: false),
                     UpdatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -117,6 +118,24 @@ namespace Bluewater.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Pays", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ServiceCharges",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Username = table.Column<string>(type: "TEXT", nullable: false),
+                    Amount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Date = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreateBy = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdateBy = table.Column<Guid>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ServiceCharges", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -305,7 +324,8 @@ namespace Bluewater.Infrastructure.Migrations
                     PayId = table.Column<Guid>(type: "TEXT", nullable: true),
                     TypeId = table.Column<Guid>(type: "TEXT", nullable: true),
                     LevelId = table.Column<Guid>(type: "TEXT", nullable: true),
-                    ChargingId = table.Column<Guid>(type: "TEXT", nullable: true)
+                    ChargingId = table.Column<Guid>(type: "TEXT", nullable: true),
+                    ServiceChargeId = table.Column<Guid>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -331,6 +351,11 @@ namespace Bluewater.Infrastructure.Migrations
                         principalTable: "Positions",
                         principalColumn: "Id");
                     table.ForeignKey(
+                        name: "FK_Employees_ServiceCharges_ServiceChargeId",
+                        column: x => x.ServiceChargeId,
+                        principalTable: "ServiceCharges",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Employees_Types_TypeId",
                         column: x => x.TypeId,
                         principalTable: "Types",
@@ -348,13 +373,13 @@ namespace Bluewater.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     DeductionType = table.Column<int>(type: "INTEGER", nullable: false),
-                    TotalAmount = table.Column<decimal>(type: "TEXT", nullable: false),
-                    MonthlyAmortization = table.Column<decimal>(type: "TEXT", nullable: false),
-                    RemainingBalance = table.Column<decimal>(type: "TEXT", nullable: false),
-                    NoOfMonths = table.Column<int>(type: "INTEGER", nullable: false),
-                    StartDate = table.Column<DateOnly>(type: "TEXT", nullable: false),
-                    EndDate = table.Column<DateOnly>(type: "TEXT", nullable: false),
-                    Remarks = table.Column<string>(type: "TEXT", nullable: false),
+                    TotalAmount = table.Column<decimal>(type: "TEXT", nullable: true),
+                    MonthlyAmortization = table.Column<decimal>(type: "TEXT", nullable: true),
+                    RemainingBalance = table.Column<decimal>(type: "TEXT", nullable: true),
+                    NoOfMonths = table.Column<int>(type: "INTEGER", nullable: true),
+                    StartDate = table.Column<DateOnly>(type: "TEXT", nullable: true),
+                    EndDate = table.Column<DateOnly>(type: "TEXT", nullable: true),
+                    Remarks = table.Column<string>(type: "TEXT", nullable: true),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
                     EmployeeId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -399,9 +424,9 @@ namespace Bluewater.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Date = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    Remarks = table.Column<string>(type: "TEXT", nullable: false),
-                    Reason = table.Column<int>(type: "INTEGER", nullable: false),
+                    Date = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    Remarks = table.Column<string>(type: "TEXT", nullable: true),
+                    Reason = table.Column<int>(type: "INTEGER", nullable: true),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
                     EmployeeId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -477,10 +502,10 @@ namespace Bluewater.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    EarningType = table.Column<int>(type: "INTEGER", nullable: false),
-                    TotalAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    EarningType = table.Column<int>(type: "INTEGER", nullable: true),
+                    TotalAmount = table.Column<decimal>(type: "TEXT", nullable: true),
                     IsActive = table.Column<bool>(type: "INTEGER", nullable: false),
-                    Date = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    Date = table.Column<DateOnly>(type: "TEXT", nullable: true),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
                     EmployeeId = table.Column<Guid>(type: "TEXT", nullable: true),
                     CreatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -503,10 +528,10 @@ namespace Bluewater.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    StartDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    ApprovedHours = table.Column<int>(type: "INTEGER", nullable: false),
-                    Remarks = table.Column<string>(type: "TEXT", nullable: false),
+                    StartDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    EndDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    ApprovedHours = table.Column<int>(type: "INTEGER", nullable: true),
+                    Remarks = table.Column<string>(type: "TEXT", nullable: true),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
                     EmployeeId = table.Column<Guid>(type: "TEXT", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -523,6 +548,84 @@ namespace Bluewater.Infrastructure.Migrations
                         principalTable: "Employees",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Payrolls",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Date = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    GrossPayAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    NetAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    BasicPayAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    SSSAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    SSSERAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    PagibigAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    PagibigERAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    PhilhealthAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    PhilhealthERAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    RestDayAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    RestDayHrs = table.Column<decimal>(type: "TEXT", nullable: false),
+                    RegularHolidayAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    RegularHolidayHrs = table.Column<decimal>(type: "TEXT", nullable: false),
+                    SpecialHolidayAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    SpecialHolidayHrs = table.Column<decimal>(type: "TEXT", nullable: false),
+                    OvertimeAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    OvertimeHrs = table.Column<decimal>(type: "TEXT", nullable: false),
+                    NightDiffAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    NightDiffHrs = table.Column<decimal>(type: "TEXT", nullable: false),
+                    NightDiffOvertimeAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    NightDiffOvertimeHrs = table.Column<decimal>(type: "TEXT", nullable: false),
+                    NightDiffRegularHolidayAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    NightDiffRegularHolidayHrs = table.Column<decimal>(type: "TEXT", nullable: false),
+                    NightDiffSpecialHolidayAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    NightDiffSpecialHolidayHrs = table.Column<decimal>(type: "TEXT", nullable: false),
+                    OvertimeRestDayAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    OvertimeRestDayHrs = table.Column<decimal>(type: "TEXT", nullable: false),
+                    OvertimeRegularHolidayAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    OvertimeRegularHolidayHrs = table.Column<decimal>(type: "TEXT", nullable: false),
+                    OvertimeSpecialHolidayAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    OvertimeSpecialHolidayHrs = table.Column<decimal>(type: "TEXT", nullable: false),
+                    UnionDues = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Absences = table.Column<int>(type: "INTEGER", nullable: false),
+                    AbsencesAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Leaves = table.Column<decimal>(type: "TEXT", nullable: false),
+                    LeavesAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Lates = table.Column<decimal>(type: "TEXT", nullable: false),
+                    LatesAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Undertime = table.Column<decimal>(type: "TEXT", nullable: false),
+                    UndertimeAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    Overbreak = table.Column<decimal>(type: "TEXT", nullable: false),
+                    OverbreakAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    SvcCharge = table.Column<decimal>(type: "TEXT", nullable: false),
+                    CostOfLivingAllowanceAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    MonthlyAllowanceAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    SalaryUnderpaymentAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    RefundAbsencesAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    RefundUndertimeAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    RefundOvertimeAmount = table.Column<decimal>(type: "TEXT", nullable: false),
+                    LaborHoursIncome = table.Column<decimal>(type: "TEXT", nullable: false),
+                    LaborHrs = table.Column<decimal>(type: "TEXT", nullable: false),
+                    TaxDeductions = table.Column<decimal>(type: "TEXT", nullable: false),
+                    TaxPercentage = table.Column<decimal>(type: "TEXT", nullable: false),
+                    TotalConstantDeductions = table.Column<decimal>(type: "TEXT", nullable: false),
+                    TotalLoanDeductions = table.Column<decimal>(type: "TEXT", nullable: false),
+                    TotalDeductions = table.Column<decimal>(type: "TEXT", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreateBy = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdateBy = table.Column<Guid>(type: "TEXT", nullable: false),
+                    EmployeeId = table.Column<Guid>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Payrolls", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Payrolls_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -594,9 +697,9 @@ namespace Bluewater.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    InclusiveTime = table.Column<decimal>(type: "TEXT", nullable: false),
-                    Date = table.Column<DateOnly>(type: "TEXT", nullable: false),
-                    Reason = table.Column<string>(type: "TEXT", nullable: false),
+                    InclusiveTime = table.Column<decimal>(type: "TEXT", nullable: true),
+                    Date = table.Column<DateOnly>(type: "TEXT", nullable: true),
+                    Reason = table.Column<string>(type: "TEXT", nullable: true),
                     Status = table.Column<int>(type: "INTEGER", nullable: false),
                     EmployeeId = table.Column<Guid>(type: "TEXT", nullable: false),
                     CreatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
@@ -628,6 +731,8 @@ namespace Bluewater.Infrastructure.Migrations
                     WorkHrs = table.Column<decimal>(type: "TEXT", nullable: true),
                     LateHrs = table.Column<decimal>(type: "TEXT", nullable: true),
                     UnderHrs = table.Column<decimal>(type: "TEXT", nullable: true),
+                    OverbreakHrs = table.Column<decimal>(type: "TEXT", nullable: true),
+                    NightShiftHours = table.Column<decimal>(type: "TEXT", nullable: true),
                     IsLocked = table.Column<bool>(type: "INTEGER", nullable: false),
                     IsEdited = table.Column<bool>(type: "INTEGER", nullable: false),
                     Remarks = table.Column<string>(type: "TEXT", nullable: true),
@@ -708,6 +813,11 @@ namespace Bluewater.Infrastructure.Migrations
                 column: "PositionId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Employees_ServiceChargeId",
+                table: "Employees",
+                column: "ServiceChargeId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Employees_TypeId",
                 table: "Employees",
                 column: "TypeId");
@@ -740,6 +850,11 @@ namespace Bluewater.Infrastructure.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Overtimes_EmployeeId",
                 table: "Overtimes",
+                column: "EmployeeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Payrolls_EmployeeId",
+                table: "Payrolls",
                 column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
@@ -807,6 +922,9 @@ namespace Bluewater.Infrastructure.Migrations
                 name: "Overtimes");
 
             migrationBuilder.DropTable(
+                name: "Payrolls");
+
+            migrationBuilder.DropTable(
                 name: "Schedules");
 
             migrationBuilder.DropTable(
@@ -832,6 +950,9 @@ namespace Bluewater.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Positions");
+
+            migrationBuilder.DropTable(
+                name: "ServiceCharges");
 
             migrationBuilder.DropTable(
                 name: "Types");

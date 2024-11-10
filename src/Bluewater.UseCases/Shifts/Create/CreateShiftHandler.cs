@@ -1,6 +1,5 @@
 ﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
-using Bluewater.Core.ChargingAggregate;
 using Bluewater.Core.ShiftAggregate;
 
 namespace Bluewater.UseCases.Shifts.Create;

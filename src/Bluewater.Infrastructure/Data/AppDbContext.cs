@@ -26,6 +26,7 @@ using Bluewater.Core.Forms.DeductionAggregate;
 using Bluewater.Core.Forms.FailureInOutAggregate;
 using Bluewater.Core.Forms.OtherEarningAggregate;
 using Bluewater.Core.PayrollAggregate;
+using Bluewater.Core.ServiceChargeAggregate;
 
 namespace Bluewater.Infrastructure.Data;
 public class AppDbContext : DbContext
@@ -60,6 +61,7 @@ public class AppDbContext : DbContext
   public DbSet<FailureInOut> FailureInOuts => Set<FailureInOut>();
   public DbSet<OtherEarning> OtherEarnings => Set<OtherEarning>();
   public DbSet<Payroll> Payrolls => Set<Payroll>();
+  public DbSet<ServiceCharge> ServiceCharges => Set<ServiceCharge>();
 
   public AppDbContext(DbContextOptions<AppDbContext> options,
     IDomainEventDispatcher? dispatcher)
@@ -77,7 +79,7 @@ public class AppDbContext : DbContext
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
     if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-      optionsBuilder.UseSqlite("Data Source=localdatabase.db");
+      optionsBuilder.UseSqlite("Data Source=localdb.db");
     else
       base.OnConfiguring(optionsBuilder);
   }

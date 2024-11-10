@@ -4,10 +4,10 @@ using Ardalis.Specification;
 namespace Bluewater.Core.PayrollAggregate.Specifications;
 public class PayrollByIdSpec : Specification<Payroll>
 {
-  public PayrollByIdSpec(Guid PayrollId)
+  public PayrollByIdSpec(Guid? empId, DateOnly end)
   {
     Query
-        .Where(Payroll => Payroll.Id == PayrollId)
+        .Where(Payroll => Payroll.EmployeeId == empId && Payroll.Date == end)
         .Include(Payroll => Payroll.Employee);
   }
 }

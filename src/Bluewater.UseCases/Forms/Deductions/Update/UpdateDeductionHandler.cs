@@ -1,6 +1,7 @@
 using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.Forms.DeductionAggregate;
+using Bluewater.Core.Forms.Enum;
 using Bluewater.UserCases.Forms.Enum;
 
 namespace Bluewater.UseCases.Forms.Deductions.Update;
@@ -14,7 +15,7 @@ public class UpdateDeductionHandler(IRepository<Deduction> _repository) : IComma
       return Result.NotFound();
     }
 
-    existingDeduction.UpdateDeduction(request.empId, request.type, request.totalAmount, request.monthlyAmortization, request.remainingBalance, request.noOfMonths, request.startDate, request.endDate, request.remarks, request.status);
+    existingDeduction.UpdateDeduction(request.empId, (DeductionsType)request.type, request.totalAmount, request.monthlyAmortization, request.remainingBalance, request.noOfMonths, request.startDate, request.endDate, request.remarks, (ApplicationStatus)request.status);
 
     await _repository.UpdateAsync(existingDeduction, cancellationToken);
 
