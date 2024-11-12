@@ -5,6 +5,7 @@
 @using Bluewater.UseCases.Forms.OtherEarnings.Create
 @using Bluewater.UseCases.Forms.OtherEarnings.Delete
 @using Bluewater.UseCases.Forms.OtherEarnings.List
+@using Bluewater.UseCases.Forms.OtherEarnings.Update
 @using Bluewater.UseCases.Helpers
 @using Bluewater.UserCases.Forms.Enum
 @using MediatR
@@ -57,7 +58,9 @@
     </TemplateColumn>
     <PropertyColumn Title="Status" Property="@(c => EnumUtilities.GetEnumDescription(c!.Status ?? ApplicationStatusDTO.NotSet))" Align="Align.Start" />
     <TemplateColumn Title="Actions" Align="@Align.End">
-        <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteOtherEarningAsync(context))"/>
+        <FluentButton aria-label="Approve item" IconEnd="@(new Icons.Regular.Size16.CheckmarkCircle())" OnClick="@(async() => await ApproveOtherEarningAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending))/>
+        <FluentButton aria-label="Reject item" IconEnd="@(new Icons.Regular.Size16.DismissCircle())" OnClick="@(async() => await RejectOtherEarningAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending))/>        
+        <FluentButton Appearance=Appearance.Accent aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteOtherEarningAsync(context))"/>
     </TemplateColumn>
 </FluentDataGrid>
 
@@ -79,11 +82,11 @@
     private List<EnumOption> otherEarningTypes = new();
     protected override async Task OnInitializedAsync()
     {
-        await LoadDeductionsAsync();
+        await LoadOtherEarningsAsync();
         otherEarningTypes = EnumUtilities.GetEnumOptions<OtherEarningTypeDTO>();
     }
 
-    async Task LoadDeductionsAsync() {
+    async Task LoadOtherEarningsAsync() {
         try {
             isBusy = true;
             using (var scope = ServiceScopeFactory.CreateScope())
@@ -139,7 +142,7 @@
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var addResult = await mediator.Send(new CreateOtherEarningCommand(Employee.Id, InputOtherEarning!.EarningType, InputOtherEarning!.TotalAmount, InputOtherEarning!.IsActive, InputOtherEarning!.Date));
                 if (addResult.IsSuccess)
-                    await LoadDeductionsAsync();
+                    await LoadOtherEarningsAsync();
             }
         }
         catch (Exception)
@@ -150,6 +153,54 @@
             isBusy = false;
         }
     }
+
+    async Task ApproveOtherEarningAsync(OtherEarningDTO context) {
+        try {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to Approve this other earning record?", "Yes", "No", "Approve");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new UpdateOtherEarningCommand(context.Id, context.EmpId!.Value, context.EarningType!.Value, context.TotalAmount!.Value, context.IsActive, context.Date!.Value, ApplicationStatusDTO.Approved));
+                if (result.IsSuccess)
+                    await LoadOtherEarningsAsync();
+            }
+        }
+        catch (Exception) {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }                
+    }
+
+    async Task RejectOtherEarningAsync(OtherEarningDTO context) {
+        try {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to Reject this other earning record?", "Yes", "No", "Reject");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new UpdateOtherEarningCommand(context.Id, context.EmpId!.Value, context.EarningType!.Value, context.TotalAmount!.Value, context.IsActive, context.Date!.Value, ApplicationStatusDTO.Rejected));
+                if (result.IsSuccess)
+                    await LoadOtherEarningsAsync();
+            }
+        }
+        catch (Exception) {
+
+        }
+        finally {
+            isBusy = false;
+        }
+    }    
 
     async Task DeleteOtherEarningAsync(OtherEarningDTO context) {
         var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to delete this record?", "Yes", "No", "Delete");
@@ -163,7 +214,7 @@
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new DeleteOtherEarningCommand(context.Id));
                 if (result.IsSuccess)
-                    await LoadDeductionsAsync();
+                    await LoadOtherEarningsAsync();
             }
 
         }

@@ -133,7 +133,7 @@
         </FluentGridItem>
         <FluentGridItem xs="6">
             <FluentSelect TOption="PositionDTO"
-                Label="Positions"
+                Label="@positionLabel"
                 Items="@positions"
                 OptionText="@(o => o.Name)"
                 @bind-SelectedOption="@selectedPosition"
@@ -307,6 +307,7 @@
     private LevelDTO selectedLevel = new();
     private List<ShiftDTO> shifts = new();
     private SectionDTO supervisedGroup = new();
+    private string positionLabel = "Positions";
 
 
     bool isFirstLoad = false;
@@ -492,8 +493,21 @@
         var stringValue = changeEventArgs.Value?.ToString()!.Trim();
 
         var position = positions.FirstOrDefault(x => x.Name.Equals(stringValue, StringComparison.InvariantCultureIgnoreCase));
-        if(position != null)
+        if(position != null) {
             Content.PositionId = position.Id;
+
+            var pos = positions.FirstOrDefault(i => i.Id == position.Id); 
+            if(pos == null) return;
+            var sec = sections.FirstOrDefault(i => i.Id == pos.SectionId);
+            if(sec == null) return;
+            var dept = departments.FirstOrDefault(i => i.Id == sec.DepartmentId);
+            if(dept == null) return;
+            var div = divisions.FirstOrDefault(i => i.Id == dept.DivisionId);
+            if(div == null) return;
+
+            positionLabel = $"Positions > {sec.Name} > {dept.Name} > {div.Name}";
+            chargings = GlobalService.Chargings.Where(i => i.DepartmentId == dept.Id).ToList();
+        }
     }
 
     public void HandleChargingsSelected(ChangeEventArgs changeEventArgs)

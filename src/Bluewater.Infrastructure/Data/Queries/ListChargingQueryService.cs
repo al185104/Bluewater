@@ -10,7 +10,7 @@ public class ListChargingQueryService(AppDbContext _db) : IListChargingQueryServ
   {
     try
     {
-      return await _db.Chargings.Select(c => new ChargingDTO(c.Id, c.Name, c.Description ?? string.Empty)).ToListAsync();
+      return await _db.Chargings.Select(c => new ChargingDTO(c.Id, c.Name, c.Description ?? string.Empty, c.DepartmentId)).ToListAsync();
     }
     catch (DBConcurrencyException)
     {

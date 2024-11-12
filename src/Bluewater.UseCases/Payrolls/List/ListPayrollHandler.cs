@@ -33,7 +33,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
       var ret = await mediator.Send(new ListEmployeeQuery(null, null));
       if (ret.IsSuccess)
         employees = ret.Value
-        .Where(d => !string.IsNullOrEmpty(d.Department) && request.deptName.Equals(d.Department, StringComparison.InvariantCultureIgnoreCase))
+        .Where(c => !string.IsNullOrEmpty(c.Charging) && request.chargingName.Equals(c.Charging, StringComparison.InvariantCultureIgnoreCase))
         .Select(s => (s.Id, $"{s.LastName}, {s.FirstName}", s.Pay, s.Type, s.User?.Username)).ToList();
     }
 

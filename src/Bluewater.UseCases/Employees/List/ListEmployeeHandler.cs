@@ -133,9 +133,9 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new GetChargingQuery(entity.ChargingId), cancellationToken);
                 if (result.IsSuccess)
-                    charging = new ChargingDTO(result.Value.Id, result.Value.Name, result.Value.Description ?? string.Empty);
+                    charging = new ChargingDTO(result.Value.Id, result.Value.Name, result.Value.Description ?? string.Empty, result.Value.DepartmentId);
                 else
-                    charging = new ChargingDTO(Guid.Empty, string.Empty, string.Empty);
+                    charging = new ChargingDTO(Guid.Empty, string.Empty, string.Empty, null);
             }
 
             PayDTO? pay = null;

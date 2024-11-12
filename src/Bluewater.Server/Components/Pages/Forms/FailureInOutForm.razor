@@ -5,6 +5,7 @@
 @using Bluewater.UseCases.Forms.FailureInOuts.Create
 @using Bluewater.UseCases.Forms.FailureInOuts.Delete
 @using Bluewater.UseCases.Forms.FailureInOuts.List
+@using Bluewater.UseCases.Forms.FailureInOuts.Update
 @using Bluewater.UseCases.Helpers
 @using Bluewater.UserCases.Forms.Enum
 @using MediatR
@@ -48,7 +49,9 @@
     <PropertyColumn Title="Remarks" Property="@(c => c!.Remarks)" Align="Align.Start" />
     <PropertyColumn Title="Status" Property="@(c => EnumUtilities.GetEnumDescription(c!.Status ?? ApplicationStatusDTO.NotSet))" Align="Align.Start" />
     <TemplateColumn Title="Actions" Align="@Align.End">
-        <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteFailureInOutsAsync(context))"/>
+        <FluentButton aria-label="Approve item" IconEnd="@(new Icons.Regular.Size16.CheckmarkCircle())" OnClick="@(async() => await ApproveFailureInOutAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending))/>
+        <FluentButton aria-label="Reject item" IconEnd="@(new Icons.Regular.Size16.DismissCircle())" OnClick="@(async() => await RejectFailureInOutAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending))/>        
+        <FluentButton Appearance=Appearance.Accent aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteFailureInOutsAsync(context))"/>
     </TemplateColumn>
 </FluentDataGrid>
 
@@ -122,6 +125,54 @@
         }
 
     }
+
+    async Task ApproveFailureInOutAsync(FailureInOutDTO context) {
+        try {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to Approve this failure in-out record?", "Yes", "No", "Approve");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new UpdateFailureInOutCommand(context.Id, context.EmpId, context.Date!.Value, context.Remarks ?? string.Empty, context.Reason!.Value, ApplicationStatusDTO.Approved));
+                if (result.IsSuccess)
+                    await LoadFailureInOutAsync();
+            }
+        }
+        catch (Exception) {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }                
+    }
+
+    async Task RejectFailureInOutAsync(FailureInOutDTO context) {
+        try {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to Reject this failure in-out record?", "Yes", "No", "Reject");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new UpdateFailureInOutCommand(context.Id, context.EmpId, context.Date!.Value, context.Remarks ?? string.Empty, context.Reason!.Value, ApplicationStatusDTO.Rejected));
+                if (result.IsSuccess)
+                    await LoadFailureInOutAsync();
+            }
+        }
+        catch (Exception) {
+
+        }
+        finally {
+            isBusy = false;
+        }
+    }    
 
     async Task AddFailureInOutAsync()
     {

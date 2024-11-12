@@ -203,6 +203,9 @@
                         <div style="flex-grow: 1;">
                             <FluentTextField @bind-Value="InputCharging.Description" Name="chargingDescription" Label="Charging Description" Style="width: 100%;"/>
                         </div>
+                        <div style="margin-bottom: 4px">
+                            <FluentSelect Items="@Departments" TOption="DepartmentDTO" @onchange="SelectedDepartmentForChargingOptionChanged" OptionValue="@(i => i.Id.ToString())" OptionText="@(i => i.Name)" Label="Department Classification" Required />
+                        </div>                        
                         <FluentButton Loading="@btnLoading" OnClick="@AddCharging" Appearance="Appearance.Accent" Style="margin-bottom: 4px">Add</FluentButton>
                     </FluentStack>
                 </div>
@@ -210,6 +213,7 @@
                     <FluentDataGrid Items="@Chargings">
                         <PropertyColumn Title="Names" Property="@(p => p.Name)" />
                         <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <PropertyColumn Title="Department" Property="@(p => GetDepartmentName(p.DepartmentId ?? Guid.Empty))" />
                         <TemplateColumn Title="Actions" Align="@Align.End">
                             <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteChargingAsync(context))"/>
                         </TemplateColumn>
@@ -731,8 +735,13 @@
             btnLoading = true;
             using (var scope = ServiceScopeFactory.CreateScope())
             {
+                if(Departments == null || Departments.Count() == 0) return;
+
+                if(selectedDepartmentForChargingId == Guid.Empty)
+                    selectedDepartmentForChargingId = Departments.First().Id;
+                
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new CreateChargingCommand(InputCharging.Name, InputCharging.Description));
+                var result = await mediator.Send(new CreateChargingCommand(InputCharging.Name, InputCharging.Description, selectedDepartmentForChargingId));
                 if (result.IsSuccess)
                 {
                     await LoadChargings();
@@ -1190,6 +1199,13 @@
     {
         if (e.Value != null && Guid.TryParse(e.Value?.ToString(), out var selectedId))
             selectedDepartmentId = selectedId;
+    }
+
+    private Guid selectedDepartmentForChargingId = Guid.Empty;
+    private void SelectedDepartmentForChargingOptionChanged(ChangeEventArgs e)
+    {
+        if (e.Value != null && Guid.TryParse(e.Value?.ToString(), out var selectedId))
+            selectedDepartmentForChargingId = selectedId;        
     }
 
     private string GetSectionName(Guid sectionId)

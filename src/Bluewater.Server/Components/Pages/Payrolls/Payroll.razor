@@ -5,7 +5,7 @@
 @using Bluewater.UseCases.Attendances.Create
 @using Bluewater.UseCases.Attendances.List
 @using Bluewater.UseCases.Attendances.Update
-@using Bluewater.UseCases.Departments
+@using Bluewater.UseCases.Chargings
 @using Bluewater.UseCases.Payrolls
 @using Bluewater.UseCases.Payrolls.Create
 @using Bluewater.UseCases.Payrolls.List
@@ -30,22 +30,22 @@
     <FluentGridItem xs="6">
         <h3>Payroll</h3>
         <FluentStack HorizontalGap="20" Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
-            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate = searchDate.AddDays(-15)))"/>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate = searchDate.AddDays(-15), changedDate: true))"/>
             <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
-            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate = searchDate.AddDays(15)))"/>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate = searchDate.AddDays(15), changedDate: true))"/>
         </FluentStack>
     </FluentGridItem>
     <FluentGridItem xs="6">
         <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="10" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Center">
             <div>
-                <FluentSelect TOption="DepartmentDTO"
-                    Label="Select a department"
-                    Items="@Departments"
-                    Id="department-listbox"
+                <FluentSelect TOption="ChargingDTO"
+                    Label="Select a charging"
+                    Items="@Chargings"
+                    Id="charging-listbox"
                     Placeholder="Make a selection..."
                     OptionValue="@(p => p.Id.ToString())"
                     OptionText="@(p => p.Name)"
-                    @bind-SelectedOption="@selectedDepartment" />
+                    @bind-SelectedOption="@selectCharging" />
             </div>
 
             <FluentInputFile @ref="@myFileUploader" 
@@ -88,7 +88,6 @@
     <PropertyColumn Title="Tax" Property="@(c => c!.TaxDeductions)" Align="Align.Center" />
     <PropertyColumn Title="Basic Pay" Property="@(c => c!.BasicPayAmount)" Align="Align.Center" />
     <PropertyColumn Title="Gross" Property="@(c => c!.GrossPayAmount)" Align="Align.Center" />
-    using Bluewater.UseCases.ServiceCharges.List;
     <PropertyColumn Title="Deductions" Property="@(c => c!.TotalDeductions)" Align="Align.Center" />
     <PropertyColumn Title="Net" Property="@(c => c!.NetAmount)" Align="Align.Center" />
     <TemplateColumn Title="Actions" Align="@Align.End">
@@ -109,8 +108,8 @@
     private DateTime searchDate = DateTime.Now;
     private DateOnly startDate;
     private DateOnly endDate;    
-    private IQueryable<DepartmentDTO> Departments { get; set; } = default!;
-    private DepartmentDTO? selectedDepartment = default!;
+    private IQueryable<ChargingDTO> Chargings { get; set; } = default!;
+    private ChargingDTO? selectCharging = default!;
     private IQueryable<PayrollDTO> Payrolls { get; set; } = default!;
 
     FluentInputFile? myFileUploader = default!;
@@ -120,7 +119,7 @@
     List<ServiceChargeDTO> serviceChargeData = default!;
     protected override async Task OnInitializedAsync()
     {
-        Departments = GlobalService.Departments.ToList().AsQueryable();
+        Chargings = GlobalService.Chargings.ToList().AsQueryable();
         var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(searchDate));
         startDate = _startDate;
         endDate = _endDate;
@@ -154,7 +153,7 @@
         }
     }
 
-    async Task LoadPayrollAsync(DateTime date)
+    async Task LoadPayrollAsync(DateTime date, bool changedDate = false)
     {
         try {
             searchDate = date;
@@ -162,21 +161,21 @@
             startDate = _startDate;
             endDate = _endDate;
 
-            if(selectedDepartment == null || selectedDepartment?.Id == Guid.Empty)
+            await LoadServiceChargeAsync(endDate);
+            if(selectCharging == null || selectCharging?.Id == Guid.Empty)
             {
-                await DialogService.ShowWarningAsync("There's no current department selected yet. Please select a department first.", "Warning");
+                if(!changedDate)
+                    await DialogService.ShowWarningAsync("There's no current charging group selected yet. Please select a charging group first.", "Warning");
                 return;
             }
                         
             isBusy = true;
 
-            await LoadServiceChargeAsync(endDate);
-
             // get list of payrolls
             using (var scope = ServiceScopeFactory.CreateScope())
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new ListPayrollQuery(null, null, selectedDepartment!.Name, _startDate, _endDate));
+                var result = await mediator.Send(new ListPayrollQuery(null, null, selectCharging!.Name, _startDate, _endDate));
                 if (result.IsSuccess)
                     Payrolls = result.Value.AsQueryable();
             }
@@ -199,13 +198,13 @@
             isBusy = true;
             await CreatePayrollAsync(item);
             await LoadPayrollAsync(searchDate);
+            isBusy = false;
+            await DialogService.ShowSuccessAsync("Payroll and Attendance has been successfully Udpated.", "Success");
         } 
         catch (Exception) {
             throw;
         }
         finally {
-            isBusy = false;
-            await DialogService.ShowSuccessAsync("Payroll and Attendance has been successfully Udpated.", "Success");
         }
     }
 
@@ -292,7 +291,12 @@
                 PrimaryAction="Save",
                 ShowDismiss = true,
                 Width = "60%",
-            });            
+            });
+
+            DialogResult result = await _dialog.Result;
+            if (result.Cancelled) return;
+    
+            await SavePayrollAsync(item);            
         }
         catch (Exception)
         {
@@ -344,7 +348,10 @@
             await Task.WhenAll(tasks);
 
             // add show success message here
-            await DialogService.ShowSuccessAsync("Service charge has been successfully uploaded.", "Success");
+            await LoadServiceChargeAsync(endDate);
+            await LoadPayrollAsync(searchDate);
+            await DialogService.ShowSuccessAsync("Service charge has been successfully uploaded, and payroll has been refreshed.", "Success");
+
         }
         finally {
             isBusy = false;

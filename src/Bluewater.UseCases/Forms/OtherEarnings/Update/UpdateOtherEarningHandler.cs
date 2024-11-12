@@ -1,5 +1,6 @@
 using Ardalis.Result;
 using Ardalis.SharedKernel;
+using Bluewater.Core.Forms.Enum;
 using Bluewater.Core.Forms.OtherEarningAggregate;
 using Bluewater.UserCases.Forms.Enum;
 
@@ -14,7 +15,7 @@ public class UpdateOtherEarningHandler(IRepository<OtherEarning> _repository) : 
       return Result.NotFound();
     }
 
-    existingOtherEarning.UpdateOtherEarning(request.empId, request.type, request.totalAmount, request.isActive, request.date, request.status);
+    existingOtherEarning.UpdateOtherEarning(request.empId, (OtherEarningType)request.type, request.totalAmount, request.isActive, request.date, (ApplicationStatus)request.status);
 
     await _repository.UpdateAsync(existingOtherEarning, cancellationToken);
 

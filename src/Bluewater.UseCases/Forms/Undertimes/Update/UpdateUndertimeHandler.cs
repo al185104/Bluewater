@@ -1,5 +1,6 @@
 using Ardalis.Result;
 using Ardalis.SharedKernel;
+using Bluewater.Core.Forms.Enum;
 using Bluewater.Core.Forms.UndertimeAggregate;
 using Bluewater.UserCases.Forms.Enum;
 
@@ -14,7 +15,7 @@ public class UpdateUndertimeHandler(IRepository<Undertime> _repository) : IComma
       return Result.NotFound();
     }
 
-    existingUndertime.UpdateUndertime(request.empId, request.inclusiveTime, request.reason, request.date, request.status);
+    existingUndertime.UpdateUndertime(request.empId, request.inclusiveTime, request.reason, request.date, (ApplicationStatus)request.status);
 
     await _repository.UpdateAsync(existingUndertime, cancellationToken);
 

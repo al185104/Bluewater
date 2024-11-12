@@ -1,0 +1,87 @@
+@page "/report"
+
+@inject IServiceScopeFactory ServiceScopeFactory
+@using Bluewater.UseCases.Payrolls
+@using Bluewater.UseCases.Payrolls.List
+@using MediatR
+@inject IMediator Mediator
+@inject IDialogService DialogService
+@using Bluewater.Server.Global;
+@inject IGlobalService GlobalService
+
+<PageTitle>Payrolls Reports</PageTitle>
+
+<h3>Payrolls Reports</h3>
+<FluentDataGrid Id="shiftsGrid" Items="@PayrollSummaries" TGridItem="PayrollSummaryDTO">
+    <PropertyColumn Title="Name" Property="@(c => c!.Date)" Format="MMMM-dd" Align="Align.Start" />
+    <PropertyColumn Title="Count" Property="@(c => c!.Count)" Align="Align.Center" />
+    <PropertyColumn Title="Total Service Charge" Property="@(c => c!.TotalServiceCharge)" Align="Align.Center" />
+    <PropertyColumn Title="Total Absences" Property="@(c => c!.TotalAbsences)" Align="Align.Center" />
+    <PropertyColumn Title="Total Leave" Property="@(c => c!.TotalLeaves)" Align="Align.Center" />
+    <PropertyColumn Title="Total Undertime" Property="@(c => c!.TotalUndertimes)" Align="Align.Center" />
+    <PropertyColumn Title="Total Overbreak" Property="@(c => c!.TotalOverbreak)" Align="Align.Center" />
+    <PropertyColumn Title="Total Tax Deductions" Property="@(c => c!.TotalTaxDeductions)" Align="Align.Center" />   
+    <PropertyColumn Title="Total Net Amount" Property="@(c => c!.TotalNetAmount)" Align="Align.Center" />         
+    <TemplateColumn Title="Actions" Align="@Align.End">
+        <FluentButton Appearance=Appearance.Accent aria-label="View item" IconEnd="@(new Icons.Regular.Size20.Print())" OnClick="@(async() => await ViewPayrollAsync(context))"/>
+    </TemplateColumn>
+</FluentDataGrid>
+
+<FluentDialogProvider/>
+
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
+@code {
+    private bool isBusy = false;
+    private IQueryable<PayrollSummaryDTO> PayrollSummaries { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try{
+            isBusy = true;
+            await LoadGroupedPayrollAsync();
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally{
+            isBusy = false;
+        }
+    }
+
+    private async Task LoadGroupedPayrollAsync() {
+        try
+        {
+            await Task.Delay(19);
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListGroupedPayrollQuery(null, null));
+                if (result.IsSuccess)
+                    PayrollSummaries = result.Value.AsQueryable();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }        
+    }
+
+    async Task ViewPayrollAsync(PayrollSummaryDTO context) {
+        try {
+            isBusy = true;
+            await Task.Delay(10);
+        }
+        catch (Exception) {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }
+}

@@ -2,4 +2,4 @@
 
 namespace Bluewater.UseCases.Chargings.Create;
 
-public record CreateChargingCommand(string Name, string? Description) : Ardalis.SharedKernel.ICommand<Result<Guid>>;
+public record CreateChargingCommand(string Name, string? Description, Guid? DeptId) : Ardalis.SharedKernel.ICommand<Result<Guid>>;

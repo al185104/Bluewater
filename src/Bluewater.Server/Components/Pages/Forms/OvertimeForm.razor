@@ -5,6 +5,7 @@
 @using Bluewater.UseCases.Forms.Overtimes.Create
 @using Bluewater.UseCases.Forms.Overtimes.Delete
 @using Bluewater.UseCases.Forms.Overtimes.List
+@using Bluewater.UseCases.Forms.Overtimes.Update
 @using Bluewater.UseCases.Helpers
 @using Bluewater.UserCases.Forms.Enum
 @using MediatR
@@ -52,7 +53,9 @@
     <PropertyColumn Title="Remarks" Property="@(c => c!.Remarks)" Align="Align.Start" />
     <PropertyColumn Title="Status" Property="@(c => EnumUtilities.GetEnumDescription(c!.Status))" Align="Align.Start" />
     <TemplateColumn Title="Actions" Align="@Align.End">
-        <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteOvertimeAsync(context))"/>
+        <FluentButton aria-label="Approve item" IconEnd="@(new Icons.Regular.Size16.CheckmarkCircle())" OnClick="@(async() => await ApproveOvertimeAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending))/>
+        <FluentButton aria-label="Reject item" IconEnd="@(new Icons.Regular.Size16.DismissCircle())" OnClick="@(async() => await RejectedOvertimeAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending))/>        
+        <FluentButton Appearance=Appearance.Accent aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteOvertimeAsync(context))"/>
     </TemplateColumn>
 </FluentDataGrid>
 
@@ -97,6 +100,55 @@
             isBusy = false;
         }
     }
+
+    async Task ApproveOvertimeAsync(OvertimeDTO context) {
+        try {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to Approve this overtime record?", "Yes", "No", "Approve");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                //Guid id, Guid empId, DateTime startDate, DateTime endDate, int approvedHours, string remarks, ApplicationStatusDTO status
+                var result = await mediator.Send(new UpdateOvertimeCommand(context.Id, context.EmpId, context.StartDate!.Value, context.EndDate!.Value, context.ApprovedHours!.Value, context.Remarks ?? string.Empty, ApplicationStatusDTO.Approved));
+                if (result.IsSuccess)
+                    await LoadDeductionsAsync();
+            }
+        }
+        catch (Exception) {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }                
+    }
+
+    async Task RejectedOvertimeAsync(OvertimeDTO context) {
+        try {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to Reject this overtime record?", "Yes", "No", "Reject");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new UpdateOvertimeCommand(context.Id, context.EmpId, context.StartDate!.Value, context.EndDate!.Value, context.ApprovedHours!.Value, context.Remarks ?? string.Empty, ApplicationStatusDTO.Rejected));
+                if (result.IsSuccess)
+                    await LoadDeductionsAsync();
+            }
+        }
+        catch (Exception) {
+
+        }
+        finally {
+            isBusy = false;
+        }
+    }    
 
     async Task DeleteOvertimeAsync(OvertimeDTO context)
     {

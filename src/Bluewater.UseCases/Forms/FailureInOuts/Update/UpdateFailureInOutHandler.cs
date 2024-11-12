@@ -1,5 +1,6 @@
 using Ardalis.Result;
 using Ardalis.SharedKernel;
+using Bluewater.Core.Forms.Enum;
 using Bluewater.Core.Forms.FailureInOutAggregate;
 using Bluewater.UserCases.Forms.Enum;
 
@@ -14,7 +15,7 @@ public class UpdateFailureInOutHandler(IRepository<FailureInOut> _repository) : 
       return Result.NotFound();
     }
 
-    existingFailureInOut.UpdateFailureInOut(request.empId, request.date, request.remarks, request.reason, request.status);
+    existingFailureInOut.UpdateFailureInOut(request.empId, request.date, request.remarks, (FailureInOutReason)request.reason, (ApplicationStatus)request.status);
 
     await _repository.UpdateAsync(existingFailureInOut, cancellationToken);
 

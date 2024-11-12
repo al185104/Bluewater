@@ -38,6 +38,10 @@ using Bluewater.Core.UserAggregate;
 using Bluewater.UseCases.Users.Create;
 using Bluewater.Core.AttendanceAggregate;
 using Bluewater.UseCases.Attendances.Create;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 internal class Program
 {
@@ -60,7 +64,6 @@ internal class Program
     .Enrich.FromLogContext()
     .CreateLogger();
     
-    logger.Information("Starting web app");
     var microsoftLogger = new SerilogLoggerFactory(logger)
     .CreateLogger<Program>();
 
@@ -69,15 +72,36 @@ internal class Program
     builder.Services.AddInfrastructureServices(builder.Configuration, microsoftLogger);
     builder.Services.AddSingleton<IGlobalService, GlobalService>();
 
+    // builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    // .AddCookie(options =>
+    // {
+    //     options.LoginPath = "/login"; // Path to your login page
+    //     options.LogoutPath = "/logout";
+    //     options.Cookie.HttpOnly = true;
+    //     options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // Set session duration
+    //     options.SlidingExpiration = true; // Optional, keeps the user logged in with activity
+    // });
+    builder.Services.AddAuthentication(options => {
+      options.DefaultScheme = IdentityConstants.ApplicationScheme;
+      options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+    }).AddIdentityCookies();
+    // builder.Services.AddAuthorization(options =>
+    // {
+    //     options.FallbackPolicy = new AuthorizationPolicyBuilder()
+    //         .RequireAuthenticatedUser()
+    //         .Build();
+    // });
+
+    builder.Services.AddFluentUIComponents();
+    builder.Services.AddDataGridEntityFrameworkAdapter();
+    builder.Services.AddScoped<IEmployeeAuthService, EmployeeAuthService>();
+    builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
+    builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+    builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+  
     if (builder.Environment.IsDevelopment())
     {
-      // Use a local test email server
-      // See: https://ardalis.com/configuring-a-local-test-email-server/
-      //builder.Services.AddScoped<IEmailSender, MimeKitEmailSender>();
-
-      // Otherwise use this:
       builder.Services.AddScoped<IEmailSender, FakeEmailSender>();
-
       AddShowAllServicesSupport(builder);
     }
     else
@@ -85,12 +109,15 @@ internal class Program
       builder.Services.AddScoped<IEmailSender, MimeKitEmailSender>();
     }
 
-    builder.Services.AddFluentUIComponents();
-
-    builder.Services.AddDataGridEntityFrameworkAdapter();
-
+    // builder.Services.AddScoped<CookieEvents>();
+    // builder.Services.ConfigureApplicationCookie(opt => {
+    //   opt.EventsType = typeof(CookieEvents);
+    // });
     var app = builder.Build();
 
+    app.UseAuthentication();
+    app.UseAuthorization();
+    
     // Configure the HTTP request pipeline.
     if (!app.Environment.IsDevelopment())
     {

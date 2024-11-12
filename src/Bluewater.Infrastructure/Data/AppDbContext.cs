@@ -79,7 +79,7 @@ public class AppDbContext : DbContext
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
   {
     if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
-      optionsBuilder.UseSqlite("Data Source=localdb.db");
+      optionsBuilder.UseSqlite("Data Source=localdb_sit.db");
     else
       base.OnConfiguring(optionsBuilder);
   }

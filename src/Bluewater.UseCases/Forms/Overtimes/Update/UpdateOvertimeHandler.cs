@@ -1,5 +1,6 @@
 using Ardalis.Result;
 using Ardalis.SharedKernel;
+using Bluewater.Core.Forms.Enum;
 using Bluewater.Core.Forms.OvertimeAggregate;
 using Bluewater.UserCases.Forms.Enum;
 
@@ -14,7 +15,7 @@ public class UpdateOvertimeHandler(IRepository<Overtime> _repository) : ICommand
       return Result.NotFound();
     }
 
-    existingOvertime.UpdateOvertime(request.empId, request.startDate, request.endDate, request.approvedHours, request.remarks, request.status);
+    existingOvertime.UpdateOvertime(request.empId, request.startDate, request.endDate, request.approvedHours, request.remarks, (ApplicationStatus)request.status);
 
     await _repository.UpdateAsync(existingOvertime, cancellationToken);
 

@@ -8,7 +8,7 @@ public class CreateChargingHandler(IRepository<Charging> _repository) : ICommand
 {
   public async Task<Result<Guid>> Handle(CreateChargingCommand request, CancellationToken cancellationToken)
   {
-    var newCharging = new Charging(request.Name, request.Description);
+    var newCharging = new Charging(request.Name, request.Description, request.DeptId);
     var createdItem = await _repository.AddAsync(newCharging, cancellationToken);
     return createdItem.Id;
   }
