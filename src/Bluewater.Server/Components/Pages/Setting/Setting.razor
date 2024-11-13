@@ -58,19 +58,25 @@
 
 <FluentStack Orientation="Orientation.Vertical">
     
-    @if (env.IsDevelopment())
+    @* @if (env.IsDevelopment())
     {
         <FluentButton OnClick="@(async () => await CreateDummyEmployees())">Create Dummy Employees</FluentButton>
         <FluentButton OnClick="@(async () => await CreateDummyShifts())">Create Dummy Shifts</FluentButton>
         <FluentButton OnClick="@(async () => await CreateDummyTimesheet())">Create Dummy Timesheet</FluentButton>
         <FluentButton OnClick="@(async () => await CreateDummySchedule())">Create Dummy Schedule</FluentButton>
-    }
+    } *@
 
     <FluentGrid Spacing="2">
         @* division *@
         <FluentGridItem xs ="6">
             <FluentCard MinimalStyle="true" AreaRestricted="false">
-                <h5>Divisions</h5>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h5>Divisions</h5>
+                    <div>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowExport())" Appearance="Appearance.Outline">Export</FluentButton>
+                    </div>
+                </div>
                 <div>
                     <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Start" VerticalAlignment="VerticalAlignment.Bottom">
                         <div>
@@ -98,7 +104,13 @@
         @* department *@
         <FluentGridItem xs="6">
             <FluentCard MinimalStyle="true" AreaRestricted="false">
-                <h5>Departments</h5>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h5>Department</h5>
+                    <div>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowExport())" Appearance="Appearance.Outline">Export</FluentButton>
+                    </div>
+                </div>
                 <div>
                     <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom">
                         <div>
@@ -130,7 +142,13 @@
         @* section *@
         <FluentGridItem xs="6">
             <FluentCard MinimalStyle="true" AreaRestricted="false">
-                <h5>Sections</h5>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h5>Sections</h5>
+                    <div>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowExport())" Appearance="Appearance.Outline">Export</FluentButton>
+                    </div>
+                </div>
                 <div>
                     <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom">
                         <div>
@@ -162,7 +180,13 @@
         @* position *@
         <FluentGridItem xs="6">
             <FluentCard MinimalStyle="true" AreaRestricted="false">
-                <h5>Positions</h5>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h5>Positions</h5>
+                    <div>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowExport())" Appearance="Appearance.Outline">Export</FluentButton>
+                    </div>
+                </div>
                 <div>
                     <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom">
                         <div>
@@ -194,7 +218,13 @@
         @* charing *@
         <FluentGridItem xs="6">
             <FluentCard MinimalStyle="true" AreaRestricted="false">
-                <h5>Chargings</h5>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h5>Chargings</h5>
+                    <div>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowExport())" Appearance="Appearance.Outline">Export</FluentButton>
+                    </div>
+                </div>
                 <div>
                     <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom">
                         <div>

@@ -32,7 +32,15 @@
 <PageTitle>Employee list</PageTitle>
 
 <h3>Employees</h3>
-<FluentButton Appearance="Appearance.Accent" Icon="@(new Icons.Regular.Size16.Add())" OnClick="@(async() => await CreateNewEmployeeAsync())">Create new employee</FluentButton>
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <FluentButton Appearance="Appearance.Accent" Icon="@(new Icons.Regular.Size16.Add())" OnClick="@(async() => await CreateNewEmployeeAsync())">Create new employee</FluentButton>
+    <div>
+        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
+        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowExport())" Appearance="Appearance.Outline">Export</FluentButton>
+    </div>
+</div>
+
+<FluentSpacer/>
 
 <FluentDataGrid Items="@FilteredItems" Pagination="@pagination"
     GridTemplateColumns="0.6fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.5fr"
