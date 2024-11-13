@@ -79,6 +79,12 @@ public record PayrollDTO()
         public decimal TotalLoanDeductions { get; set; } // done
         public decimal TotalDeductions { get; set; } // done
 
+        public string? Division { get; set; }
+        public string? Department { get; set; }
+        public string? Section { get; set; }
+        public string? Position { get; set; }
+        public string? Charging { get; set; }
+
         // constructor
         public PayrollDTO(Guid id, Guid? employeeId, string? name, DateOnly date, decimal grossPayAmount, decimal netAmount, decimal basicPayAmount, decimal sssAmount, decimal sssERAmount, decimal pagibigAmount, decimal pagibigERAmount, decimal philhealthAmount, decimal philhealthERAmount, decimal restDayAmount, decimal restDayHrs, decimal regularHolidayAmount, decimal regularHolidayHrs, decimal specialHolidayAmount, decimal specialHolidayHrs, decimal overtimeAmount, decimal overtimeHrs, decimal nightDiffAmount, decimal nightDiffHrs, decimal nightDiffOvertimeAmount, decimal nightDiffOvertimeHrs, decimal nightDiffRegularHolidayAmount, decimal nightDiffRegularHolidayHrs, decimal nightDiffSpecialHolidayAmount, decimal nightDiffSpecialHolidayHrs, decimal overtimeRestDayAmount, decimal overtimeRestDayHrs, decimal overtimeRegularHolidayAmount, decimal overtimeRegularHolidayHrs, decimal overtimeSpecialHolidayAmount, decimal overtimeSpecialHolidayHrs, decimal unionDues, int absences, decimal absencesAmount, decimal leaves, decimal leavesAmount, decimal lates, decimal latesAmount, decimal undertime, decimal undertimeAmount, decimal overbreak, decimal overbreakAmount, decimal svcCharge, decimal costOfLivingAllowanceAmount, decimal monthlyAllowanceAmount, decimal salaryUnderpaymentAmount, decimal refundAbsencesAmount, decimal refundUndertimeAmount, decimal refundOvertimeAmount, decimal laborHoursIncome, decimal laborHrs, decimal taxDeductions, decimal totalConstantDeductions, decimal totalLoanDeductions, decimal totalDeductions) : this()
         {

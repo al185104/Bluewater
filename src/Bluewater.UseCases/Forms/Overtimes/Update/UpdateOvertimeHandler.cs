@@ -19,6 +19,6 @@ public class UpdateOvertimeHandler(IRepository<Overtime> _repository) : ICommand
 
     await _repository.UpdateAsync(existingOvertime, cancellationToken);
 
-    return Result.Success(new OvertimeDTO(existingOvertime.Id, existingOvertime.EmployeeId, $"{existingOvertime.Employee!.LastName}, {existingOvertime.Employee!.FirstName}", existingOvertime.StartDate, existingOvertime.EndDate, existingOvertime.ApprovedHours, existingOvertime.Remarks, (ApplicationStatusDTO)existingOvertime.Status));
+    return Result.Success(new OvertimeDTO(existingOvertime.Id, existingOvertime.EmployeeId, $"{existingOvertime.Employee?.LastName}, {existingOvertime.Employee?.FirstName}", existingOvertime.StartDate, existingOvertime.EndDate, existingOvertime.ApprovedHours, existingOvertime.Remarks, (ApplicationStatusDTO)existingOvertime.Status));
   }
 }

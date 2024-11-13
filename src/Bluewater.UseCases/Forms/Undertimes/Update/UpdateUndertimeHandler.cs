@@ -19,6 +19,6 @@ public class UpdateUndertimeHandler(IRepository<Undertime> _repository) : IComma
 
     await _repository.UpdateAsync(existingUndertime, cancellationToken);
 
-    return Result.Success(new UndertimeDTO(existingUndertime.Id, existingUndertime.EmployeeId, $"{existingUndertime.Employee!.LastName}, {existingUndertime.Employee!.FirstName}", existingUndertime.InclusiveTime, existingUndertime.Reason, existingUndertime.Date, (ApplicationStatusDTO)existingUndertime.Status));
+    return Result.Success(new UndertimeDTO(existingUndertime.Id, existingUndertime.EmployeeId, $"{existingUndertime.Employee?.LastName}, {existingUndertime.Employee?.FirstName}", existingUndertime.InclusiveTime, existingUndertime.Reason, existingUndertime.Date, (ApplicationStatusDTO)existingUndertime.Status));
   }
 }

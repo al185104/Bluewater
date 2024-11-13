@@ -9,6 +9,12 @@
 @using Bluewater.Server.Global;
 @inject IGlobalService GlobalService
 
+@using System.Globalization;
+@using System.IO;
+@using System.Text;
+@* @using CsvHelper;
+@using CsvHelper.Configuration; *@
+
 <PageTitle>Payrolls Reports</PageTitle>
 
 <h3>Payrolls Reports</h3>
@@ -38,6 +44,7 @@
 @code {
     private bool isBusy = false;
     private IQueryable<PayrollSummaryDTO> PayrollSummaries { get; set; } = default!;
+    private IQueryable<PayrollDTO> Payrolls { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -74,8 +81,19 @@
 
     async Task ViewPayrollAsync(PayrollSummaryDTO context) {
         try {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to generate reports for this {context.Date.ToString("MMM-dd")} payroll?", "Yes", "No", "Save and Submit");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
             isBusy = true;
-            await Task.Delay(10);
+            var (startDate, endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(context.Date);
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListPayrollQuery(null, null, null, startDate, endDate));
+                if (result.IsSuccess)
+                    Payrolls = result.Value.AsQueryable();
+            }
         }
         catch (Exception) {
             throw;
@@ -84,4 +102,62 @@
             isBusy = false;
         }
     }
+
+    @* public async Task CreatePayrollCsvAsync(List<PayrollDTO> payrollList, string filePath)
+    {
+        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+        {
+            HasHeaderRecord = true
+        };
+
+        using (var writer = new StreamWriter(filePath))
+        using (var csv = new CsvWriter(writer, config))
+        {
+            // Define and write the headers
+            csv.WriteHeader<PayrollDTO>();
+            await csv.NextRecordAsync();
+
+            // Group by charging and then division
+            var groupedPayrolls = payrollList
+                .GroupBy(p => p.Charging)
+                .Select(g => new
+                {
+                    Charging = g.Key,
+                    Divisions = g.GroupBy(p => p.division).ToList()
+                });
+
+            // Write each payroll record grouped by charging and division
+            foreach (var chargeGroup in groupedPayrolls)
+            {
+                foreach (var divisionGroup in chargeGroup.Divisions)
+                {
+                    foreach (var payroll in divisionGroup)
+                    {
+                        csv.WriteRecord(payroll);
+                        await csv.NextRecordAsync();
+                    }
+                }
+            }
+
+            // Calculate and write summary row at the end
+            var totalGrossPay = payrollList.Sum(p => p.grossPayAmount);
+            var totalNetPay = payrollList.Sum(p => p.netAmount);
+            var totalBasicPay = payrollList.Sum(p => p.basicPayAmount);
+            
+            // Other summary fields as needed...
+            
+            // Write the summary row (ensure columns align with headers)
+            csv.WriteField("Summary");
+            csv.WriteField(""); // for id
+            csv.WriteField(""); // for employeeId
+            csv.WriteField(""); // for name
+            csv.WriteField(""); // for date
+            csv.WriteField(totalGrossPay);
+            csv.WriteField(totalNetPay);
+            csv.WriteField(totalBasicPay);
+            
+            // Continue writing other totals as needed
+            await csv.NextRecordAsync();
+        }
+    } *@
 }

@@ -35,8 +35,15 @@
 <FluentButton Appearance="Appearance.Accent" Icon="@(new Icons.Regular.Size16.Add())" OnClick="@(async() => await CreateNewEmployeeAsync())">Create new employee</FluentButton>
 
 <FluentDataGrid Items="@FilteredItems" Pagination="@pagination"
-    GridTemplateColumns="1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.5fr"
+    GridTemplateColumns="0.6fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.5fr"
     Style="height: 550px;overflow:auto;">
+    <PropertyColumn Title="Barcode" Property="@(p => p.User!.Username)" Sortable="true">
+        <ColumnOptions>
+            <div class="search-box">
+                <FluentSearch Autofocus=true @bind-Value=barcodeFilter @oninput="HandleUsernameFilter" @bind-Value:after="HandleBarcodeClear" Placeholder="Barcode..." Style="width: 100%;" Label="Filter" />
+            </div>
+        </ColumnOptions>
+    </PropertyColumn>
     <PropertyColumn Title="Names" Property="@(p => $"{p.LastName}, {p.FirstName}")" Sortable="true">
         <ColumnOptions>
             <div class="search-box">
@@ -44,7 +51,6 @@
             </div>
         </ColumnOptions>
     </PropertyColumn>
-    <PropertyColumn Title="Middle Name" Property="@(p => p.MiddleName)" />
     <PropertyColumn Title="Birth Date" Property="@(p => p.DateOfBirth)" />
     <PropertyColumn Title="Status" Property="@(p => p.Status)" Sortable="true"/>
     <PropertyColumn Title="Type" Property="@(p => p.Type)" Sortable="true"/>
@@ -70,6 +76,7 @@
 }
 
 @code{
+    string barcodeFilter = string.Empty;
     string nameFilter = string.Empty;    
     private bool isBusy = false;
     public IQueryable<EmployeeDTO> Employees { get; set; } = default!;
@@ -82,6 +89,8 @@
             var result = Employees;
             if (result is not null && !string.IsNullOrEmpty(nameFilter))
                 result = result.Where(c => $"{c.LastName}, {c.FirstName}".Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));
+            else if (result is not null && !string.IsNullOrEmpty(barcodeFilter))
+                result = result.Where(c => c.User != null && c.User!.Username.Contains(barcodeFilter, StringComparison.CurrentCultureIgnoreCase));
             return result;
         }
     }        
@@ -415,6 +424,16 @@
     {
         if (string.IsNullOrWhiteSpace(nameFilter))
             nameFilter = string.Empty;
+    }
+
+    private void HandleUsernameFilter(ChangeEventArgs args) {
+        if(args.Value is string value)
+            barcodeFilter = value;
+    }
+
+    private void HandleBarcodeClear() {
+        if (string.IsNullOrWhiteSpace(barcodeFilter))
+            barcodeFilter = string.Empty;
     }
 
 }

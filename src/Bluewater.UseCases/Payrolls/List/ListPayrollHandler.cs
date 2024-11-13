@@ -26,15 +26,20 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
 {
   public async Task<Result<IEnumerable<PayrollDTO>>> Handle(ListPayrollQuery request, CancellationToken cancellationToken)
   {
-    List<(Guid, string, PayDTO?, string?, string?)> employees = new();
+    List<(Guid, string, PayDTO?, string?, string?, 
+    string?, string?, string?, string?, string?)> employees = new();
     using (var scope = serviceScopeFactory.CreateScope())
     {
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
       var ret = await mediator.Send(new ListEmployeeQuery(null, null));
       if (ret.IsSuccess)
         employees = ret.Value
-        .Where(c => !string.IsNullOrEmpty(c.Charging) && request.chargingName.Equals(c.Charging, StringComparison.InvariantCultureIgnoreCase))
-        .Select(s => (s.Id, $"{s.LastName}, {s.FirstName}", s.Pay, s.Type, s.User?.Username)).ToList();
+        .Where(c => 
+          string.IsNullOrEmpty(request.chargingName) || 
+          (!string.IsNullOrEmpty(c.Charging) && request.chargingName.Equals(c.Charging, StringComparison.InvariantCultureIgnoreCase))
+        )
+        .Select(s => (s.Id, $"{s.LastName}, {s.FirstName}", s.Pay, s.Type, s.User?.Username, 
+          s.Division, s.Department, s.Section, s.Position, s.Charging)).ToList();
     }
 
     List<AllAttendancesDTO> attendances = new();
@@ -108,6 +113,11 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
       var pay = emp.Item3;
       var type = emp.Item4;
       var username = emp.Item5;
+      var division = emp.Item6;
+      var department = emp.Item7;
+      var section = emp.Item8;
+      var position = emp.Item9;
+      var charging = emp.Item10;
 
       var attendance = attendances.FirstOrDefault(s => s.EmployeeId == empId);
       if (attendance == null) continue;      
@@ -177,7 +187,15 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
         name = $"{payroll.Employee?.LastName}, {payroll.Employee?.FirstName}";
       }
 
-      results.Add(new PayrollDTO(payroll!.Id, payroll.EmployeeId, name, payroll.Date, payroll.GrossPayAmount, payroll.NetAmount, payroll.BasicPayAmount, payroll.SSSAmount, payroll.SSSERAmount, payroll.PagibigAmount, payroll.PagibigERAmount, payroll.PhilhealthAmount, payroll.PhilhealthERAmount, payroll.RestDayAmount, payroll.RestDayHrs, payroll.RegularHolidayAmount, payroll.RegularHolidayHrs, payroll.SpecialHolidayAmount, payroll.SpecialHolidayHrs, payroll.OvertimeAmount, payroll.OvertimeHrs, payroll.NightDiffAmount, payroll.NightDiffHrs, payroll.NightDiffOvertimeAmount, payroll.NightDiffOvertimeHrs, payroll.NightDiffRegularHolidayAmount, payroll.NightDiffRegularHolidayHrs, payroll.NightDiffSpecialHolidayAmount, payroll.NightDiffSpecialHolidayHrs, payroll.OvertimeRestDayAmount, payroll.OvertimeRestDayHrs, payroll.OvertimeRegularHolidayAmount, payroll.OvertimeRegularHolidayHrs, payroll.OvertimeSpecialHolidayAmount, payroll.OvertimeSpecialHolidayHrs, payroll.UnionDues, payroll.Absences, payroll.AbsencesAmount, payroll.Leaves, payroll.LeavesAmount, payroll.Lates, payroll.LatesAmount, payroll.Undertime, payroll.UndertimeAmount, payroll.Overbreak, payroll.OverbreakAmount, payroll.SvcCharge, payroll.CostOfLivingAllowanceAmount, payroll.MonthlyAllowanceAmount, payroll.SalaryUnderpaymentAmount, payroll.RefundAbsencesAmount, payroll.RefundUndertimeAmount, payroll.RefundOvertimeAmount, payroll.LaborHoursIncome, payroll.LaborHrs, payroll.TaxDeductions, payroll.TotalConstantDeductions, payroll.TotalLoanDeductions, payroll.TotalDeductions));
+      var _payRoll = new PayrollDTO(payroll!.Id, payroll.EmployeeId, name, payroll.Date, payroll.GrossPayAmount, payroll.NetAmount, payroll.BasicPayAmount, payroll.SSSAmount, payroll.SSSERAmount, payroll.PagibigAmount, payroll.PagibigERAmount, payroll.PhilhealthAmount, payroll.PhilhealthERAmount, payroll.RestDayAmount, payroll.RestDayHrs, payroll.RegularHolidayAmount, payroll.RegularHolidayHrs, payroll.SpecialHolidayAmount, payroll.SpecialHolidayHrs, payroll.OvertimeAmount, payroll.OvertimeHrs, payroll.NightDiffAmount, payroll.NightDiffHrs, payroll.NightDiffOvertimeAmount, payroll.NightDiffOvertimeHrs, payroll.NightDiffRegularHolidayAmount, payroll.NightDiffRegularHolidayHrs, payroll.NightDiffSpecialHolidayAmount, payroll.NightDiffSpecialHolidayHrs, payroll.OvertimeRestDayAmount, payroll.OvertimeRestDayHrs, payroll.OvertimeRegularHolidayAmount, payroll.OvertimeRegularHolidayHrs, payroll.OvertimeSpecialHolidayAmount, payroll.OvertimeSpecialHolidayHrs, payroll.UnionDues, payroll.Absences, payroll.AbsencesAmount, payroll.Leaves, payroll.LeavesAmount, payroll.Lates, payroll.LatesAmount, payroll.Undertime, payroll.UndertimeAmount, payroll.Overbreak, payroll.OverbreakAmount, payroll.SvcCharge, payroll.CostOfLivingAllowanceAmount, payroll.MonthlyAllowanceAmount, payroll.SalaryUnderpaymentAmount, payroll.RefundAbsencesAmount, payroll.RefundUndertimeAmount, payroll.RefundOvertimeAmount, payroll.LaborHoursIncome, payroll.LaborHrs, payroll.TaxDeductions, payroll.TotalConstantDeductions, payroll.TotalLoanDeductions, payroll.TotalDeductions);
+      
+      _payRoll.Division = division;
+      _payRoll.Department = department;
+      _payRoll.Section = section;
+      _payRoll.Position = position;
+      _payRoll.Charging = charging;
+
+      results.Add(_payRoll);
     }
     return Result.Success(results.AsEnumerable());
   }

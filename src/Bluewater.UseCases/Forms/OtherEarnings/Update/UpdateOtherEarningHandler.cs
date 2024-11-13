@@ -19,6 +19,6 @@ public class UpdateOtherEarningHandler(IRepository<OtherEarning> _repository) : 
 
     await _repository.UpdateAsync(existingOtherEarning, cancellationToken);
 
-    return Result.Success(new OtherEarningDTO(existingOtherEarning.Id, existingOtherEarning.EmployeeId, $"{existingOtherEarning.Employee!.LastName},{existingOtherEarning.Employee!.FirstName}", (OtherEarningTypeDTO?)existingOtherEarning.EarningType ?? default, existingOtherEarning.TotalAmount, existingOtherEarning.IsActive, existingOtherEarning.Date, (ApplicationStatusDTO?)existingOtherEarning.Status ?? default));
+    return Result.Success(new OtherEarningDTO(existingOtherEarning.Id, existingOtherEarning.EmployeeId, $"{existingOtherEarning.Employee?.LastName},{existingOtherEarning.Employee?.FirstName}", (OtherEarningTypeDTO?)existingOtherEarning.EarningType ?? default, existingOtherEarning.TotalAmount, existingOtherEarning.IsActive, existingOtherEarning.Date, (ApplicationStatusDTO?)existingOtherEarning.Status ?? default));
   }
 }
