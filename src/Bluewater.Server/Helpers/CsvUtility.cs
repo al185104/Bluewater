@@ -7,44 +7,7 @@ using System.Reflection;
 namespace Bluewater.Server.Helpers;
 
 public static class CsvUtility
-{
-    // public static async Task<string> ExportToCSV<T>(List<T> records, string fileName = "export.csv")
-    // {
-    //     try
-    //     {
-    //         // Get the user's Downloads folder path
-    //         var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-
-    //         // Ensure the Downloads folder exists
-    //         if (!Directory.Exists(downloadsPath))
-    //         {
-    //             Directory.CreateDirectory(downloadsPath);
-    //         }
-
-    //         // Combine the file name with the Downloads path
-    //         var filePath = Path.Combine(downloadsPath, fileName);
-
-    //         // Configure CsvHelper
-    //         var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-    //         {
-    //             HasHeaderRecord = true
-    //         };
-
-    //         // Write to the CSV file in the Downloads folder
-    //         using (var writer = new StreamWriter(filePath))
-    //         using (var csv = new CsvWriter(writer, config))
-    //         {
-    //             await csv.WriteRecordsAsync(records);
-    //         }
-
-    //         return $"CSV export successful! File has been saved to: {filePath}";
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         return $"CSV export failed. Error: {ex.Message}";
-    //     }
-    // }
-    
+{    
     public static async Task<string> ExportToCSV<T>(List<T> records, string fileName = "export.csv", string[]? excludeColumns = null)
     {
         try

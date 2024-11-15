@@ -1,6 +1,7 @@
 ﻿@page "/setting"
 @rendermode InteractiveServer
 @using Bluewater.Core.EmployeeAggregate.Enum
+@using Bluewater.Server.Helpers
 @using Bluewater.UseCases.Chargings.Delete
 @using Bluewater.UseCases.Departments.Delete
 @using Bluewater.UseCases.Divisions
@@ -39,6 +40,8 @@
 @using Bluewater.UseCases.Levels.Create;
 @using Bluewater.UseCases.Shifts;
 @using Bluewater.UseCases.Shifts.Create;
+@using CsvHelper;
+@using CsvHelper.Configuration;
 
 @using Bluewater.Server.Global;
 
@@ -46,6 +49,7 @@
 @using Bluewater.UseCases.Timesheets.Create
 @using Bluewater.UseCases.Users.Create
 @using MediatR;
+@using System.Globalization
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
 @inject IGlobalService GlobalService
@@ -65,6 +69,15 @@
         <FluentButton OnClick="@(async () => await CreateDummyTimesheet())">Create Dummy Timesheet</FluentButton>
         <FluentButton OnClick="@(async () => await CreateDummySchedule())">Create Dummy Schedule</FluentButton>
     } *@
+    <FluentInputFile @ref="@divFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
+        AnchorId="DivImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
+        OnProgressChange="@(e =>
+            {
+                progressPercent = e.ProgressPercent; 
+                progressTitle = e.ProgressTitle;
+            })"
+        OnCompleted="@ImportDivisionAsync" />
+    <FluentProgress Min="0" Max="100" Visible="@(progressPercent > 0)" Value="@progressPercent" />
 
     <FluentGrid Spacing="2">
         @* division *@
@@ -73,8 +86,8 @@
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <h5>Divisions</h5>
                     <div>
-                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
-                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowExport())" Appearance="Appearance.Outline">Export</FluentButton>
+                        <FluentButton Id="DivImportButton" IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
+                        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowExport())" Appearance="Appearance.Outline" OnClick="@(async() => await ExportDivisionAsync())">Export</FluentButton>
                     </div>
                 </div>
                 <div>
@@ -280,6 +293,7 @@
                     <FluentDataGrid Items="@EmployeeTypes">
                         <PropertyColumn Title="Names" Property="@(p => p.Name)" />
                         <PropertyColumn Title="Value" Property="@(p => p.Value)" />
+    using Bluewater.Server.Helpers;
                         <PropertyColumn Title="Status" Property="@(p => p.IsActive ? "Active" : "Inactive")" />
                         <TemplateColumn Title="Actions" Align="@Align.End">
                             <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteEmployeeTypeAsync(context))"/>
@@ -370,6 +384,9 @@
 <FluentDialogProvider/>
 
 @code {
+    int? progressPercent;
+    string? progressTitle;
+    FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();    
     bool btnLoading = false;
     bool isBusy = false;
     private DateTime? SelectedDayStart = null;
@@ -418,6 +435,70 @@
             isBusy = false;
         }
     }
+
+    #region exports
+    private async Task ExportDivisionAsync() {
+        try 
+        {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to export Divison list?", "Yes", "No", "Export");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            var exportResult = await CsvUtility.ExportToCSV<DivisionDTO>(Divisions.ToList(), $"division_export_{DateTime.Now.ToString("MMM dd hh:mm:ss tt")}.csv", new[] { "id" });
+            await DialogService.ShowInfoAsync(exportResult, "Export");
+        }
+        catch (Exception) {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }    
+    #endregion
+
+    #region imports
+
+    FluentInputFile? divFileUploader = default!;
+    async Task ImportDivisionAsync(IEnumerable<FluentInputFileEventArgs> files)
+    {
+        try {
+            // TODO confirmation should be moved to before the upload processing starts
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Division import file?", "Yes", "No", "Import");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            Files = files.ToArray();
+            progressPercent = divFileUploader!.ProgressPercent;
+            progressTitle = divFileUploader!.ProgressTitle;
+
+            // assume only one file is uploaded
+            List<(string, decimal)> csvData = new List<(string, decimal)>();
+            var file = Files.FirstOrDefault();
+            if(file != null) {
+                var ret = await CsvUtility.ImportFromCSV<DivisionDTO>(file.LocalFile!.FullName);
+                if(ret.Item1 != null) {
+                    foreach(var div in ret.Item1) {
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var result = await mediator.Send(new CreateDivisionCommand(div.Name, div.Description));
+                        }
+                    }
+                    await LoadDivisions();
+                }
+                else 
+                    await DialogService.ShowErrorAsync(ret.Item2, "Import Error");
+            }
+        }
+        finally {
+            isBusy = false;
+        }
+    }
+    #endregion
 
     // generic method that gets a list and selects a random index
     private Guid GetRandomId<T>(List<T> list) where T : class

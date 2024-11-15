@@ -31,7 +31,7 @@
     <PropertyColumn Title="Total Tax Deductions" Property="@(c => c!.TotalTaxDeductions)" Align="Align.Center" />   
     <PropertyColumn Title="Total Net Amount" Property="@(c => c!.TotalNetAmount)" Align="Align.Center" />         
     <TemplateColumn Title="Actions" Align="@Align.End">
-        <FluentButton Appearance=Appearance.Accent aria-label="View item" IconEnd="@(new Icons.Regular.Size20.ArrowExport())" OnClick="@(async() => await ViewPayrollAsync(context))"/>
+        <FluentButton Appearance=Appearance.Outline aria-label="View item" IconEnd="@(new Icons.Regular.Size20.ArrowExport())" OnClick="@(async() => await ViewPayrollAsync(context))">Export</FluentButton>
     </TemplateColumn>
 </FluentDataGrid>
 
