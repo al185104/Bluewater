@@ -3,6 +3,7 @@ using Ardalis.SharedKernel;
 using Bluewater.Core.DepartmentAggregate;
 
 namespace Bluewater.Core.DivisionAggregate;
+
 public class Division(string name, string? description) : EntityBase<Guid>, IAggregateRoot
 {
   public string Name { get; private set; } = name;
