@@ -18,17 +18,29 @@ public class EmployeeImportDTO
     [Display(Name = "Birth Date")]
     public DateTime? BirthDate { get; set; }
 
+    [Display(Name = "Department Code")]
+    public string DepartmentCode { get; set; } = string.Empty;
+
     [Display(Name = "Department")]
-    public string Department { get; set; } = string.Empty;
+    public string DepartmentDescription { get; set; } = string.Empty;
 
-    [Display(Name = "Department Name")]
-    public string DepartmentName { get; set; } = string.Empty;
+    [Display(Name = "Charging Code")]
+    public string ChargingCode { get; set; } = string.Empty;
 
-    [Display(Name = "Division Name")]
-    public string DivisionName { get; set; } = string.Empty;
+    [Display(Name = "Charging")]
+    public string ChargingDescription { get; set; } = string.Empty;    
+    
+    [Display(Name = "Division Code")]
+    public string DivisionCode { get; set; } = string.Empty;
 
-    [Display(Name = "Section Name")]
-    public string SectionName { get; set; } = string.Empty;
+    [Display(Name = "Division")]
+    public string DivisionDescription { get; set; } = string.Empty;
+
+    [Display(Name = "Section Code")]
+    public string SectionCode { get; set; } = string.Empty;    
+
+    [Display(Name = "Section")]
+    public string SectionDescription { get; set; } = string.Empty;
 
     [Display(Name = "Pay Code")]
     public string PayCode { get; set; } = string.Empty;

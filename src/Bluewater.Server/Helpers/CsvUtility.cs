@@ -129,15 +129,6 @@ public static class CsvUtility
         }
     }
 
-    public static List<EmployeeImportDTO> ImportEmployeesFromCsv(string filePath)
-    {
-        using var reader = new StreamReader(filePath);
-        using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
-        csv.Context.RegisterClassMap<EmployeeImportDTOMap>();
-        return csv.GetRecords<EmployeeImportDTO>().ToList();
-    }
-
     public static async Task<(List<T>?, string)> ImportFromCSV<T>(string filePath) where T : new()
     {
         try
@@ -189,6 +180,11 @@ public static class CsvUtility
                         {
                             if (csv.TryGetField(property.PropertyType, header, out var value))
                             {
+                                // Trim strings before setting the property
+                                if (property.PropertyType == typeof(string) && value is string stringValue)
+                                {
+                                    value = stringValue.Trim();
+                                }
                                 property.SetValue(record, value);
                             }
                         }

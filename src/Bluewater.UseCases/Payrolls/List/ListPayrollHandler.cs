@@ -122,7 +122,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
       var attendance = attendances.FirstOrDefault(s => s.EmployeeId == empId);
       if (attendance == null) continue;      
 
-      var restDayHrs = attendance.Attendances.Where(s => s.Shift != null && s.Shift!.Name.Equals("Rest Day", StringComparison.InvariantCultureIgnoreCase)).Sum(i => i.WorkHrs);
+      var restDayHrs = attendance.Attendances.Where(s => s.Shift != null && s.Shift!.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase)).Sum(i => i.WorkHrs);
 
       var regularHolidayHrs = attendance.Attendances.Where(s => s.EntryDate.HasValue && regularHolidayDates.Contains(s.EntryDate.Value)).Sum(i => i.WorkHrs);
       var specialHolidayHrs = attendance.Attendances.Where(s => s.EntryDate.HasValue && specialHolidayDates.Contains(s.EntryDate.Value)).Sum(i => i.WorkHrs);
@@ -140,7 +140,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
       var refot = otherEarnings.Where(s => s.EmpId == empId && s.EarningType == OtherEarningTypeDTO.REFOT).Sum(i => i.TotalAmount);
 
       var otRestDayHrs = overtimes.Where(o => o.EmpId == empId && o.Status == ApplicationStatusDTO.Approved 
-          && attendance.Attendances.Any(s => s.Shift != null && s.Shift!.Name.Equals("Rest Day", StringComparison.InvariantCultureIgnoreCase) 
+          && attendance.Attendances.Any(s => s.Shift != null && s.Shift!.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase) 
           && o.StartDate.HasValue && o.EndDate.HasValue 
           && DateOnly.FromDateTime(o.StartDate.Value) >= s.EntryDate 
           && DateOnly.FromDateTime(o.EndDate.Value) <= s.EntryDate))
@@ -161,7 +161,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
           .Sum(o => o.ApprovedHours);
 
       // absences is counted when the attendance has ShiftId but no TimesheetId, and the Shift.Name is not "Rest Day"
-      var absences = attendance.Attendances.Where(s => s.Shift != null && s.ShiftId.HasValue && !s.TimesheetId.HasValue && !s.Shift!.Name.Equals("Rest Day", StringComparison.InvariantCultureIgnoreCase)).Count();
+      var absences = attendance.Attendances.Where(s => s.Shift != null && s.ShiftId.HasValue && !s.TimesheetId.HasValue && !s.Shift!.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase)).Count();
 
       // service charge by username
       var svcCharge = serviceCharges.FirstOrDefault(i => i.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));

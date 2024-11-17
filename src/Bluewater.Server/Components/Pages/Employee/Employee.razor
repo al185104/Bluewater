@@ -145,12 +145,28 @@
             var file = Files.FirstOrDefault();
             if(file != null) {
                 var ret = await CsvUtility.ImportFromCSV<EmployeeImportDTO>(file.LocalFile!.FullName);
-                //var ret = CsvUtility.ImportEmployeesFromCsv(file.LocalFile!.FullName);
                 if(ret.Item1 != null) {
                     foreach(var e in ret.Item1) {
 
-                        var position = GlobalService.Positions.FirstOrDefault(i => i.Name.Equals(e.Position, StringComparison.InvariantCultureIgnoreCase));
+                        // TODO bypass this
+                        @* Guid? positionId = null;
+                        var division = GlobalService.Divisions.FirstOrDefault(i => i.Name.Equals(e.DivisionCode, StringComparison.InvariantCultureIgnoreCase));
+                        if(division != null) {
+                            var department = GlobalService.Departments.Where(i => i.DivisionId == division.Id).FirstOrDefault(i => !string.IsNullOrEmpty(i.Description) && i.Description.Equals(e.DepartmentDescription, StringComparison.InvariantCultureIgnoreCase));
+                            if(department != null) {
+                                var section = GlobalService.Sections.Where(i => i.DepartmentId == department.Id).FirstOrDefault(i => i.Name.Equals(e.SectionCode, StringComparison.InvariantCultureIgnoreCase));
+                                if(section != null) {
+                                    var position = GlobalService.Positions.Where(i => i.SectionId == section.Id).FirstOrDefault(i => i.Name.Equals(e.Position, StringComparison.InvariantCultureIgnoreCase));
+                                    if(position != null)
+                                        positionId = position.Id;
+                                }
+                            }
+                        } *@
+                        Guid? positionId = GlobalService.Positions.FirstOrDefault(i => i.Name.Equals(e.Position, StringComparison.InvariantCultureIgnoreCase))?.Id;
+                        Guid? chargingId = GlobalService.Chargings.FirstOrDefault(i => i.Name.Equals(e.ChargingCode, StringComparison.InvariantCultureIgnoreCase))?.Id;
+
                         var type = GlobalService.EmployeeTypes.FirstOrDefault(i => i.Name.Equals(e.EmployeeType, StringComparison.InvariantCultureIgnoreCase));
+                        var level = GlobalService.Levels.FirstOrDefault(i => i.Name.Equals(e.Rank, StringComparison.InvariantCultureIgnoreCase));
 
                         Guid userId = Guid.Empty;
                         using (var scope = ServiceScopeFactory.CreateScope())
@@ -210,10 +226,9 @@
                                     BankAccount: e.BankAccount,
                                     HasServiceCharge: false // Default as it is not available in the import data                                    
                                 ),
-                                userId, position?.Id, payId, type?.Id, null, null));
+                                userId, positionId, payId, type?.Id, level?.Id, chargingId));
                         }
                     }
-                    
                      
                     await LoadEmployeesAsync();
                 }

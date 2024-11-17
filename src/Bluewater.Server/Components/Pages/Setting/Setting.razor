@@ -62,13 +62,13 @@
 
 <FluentStack Orientation="Orientation.Vertical">
     
-    @* @if (env.IsDevelopment())
+    @if (env.IsDevelopment())
     {
-        <FluentButton OnClick="@(async () => await CreateDummyEmployees())">Create Dummy Employees</FluentButton>
-        <FluentButton OnClick="@(async () => await CreateDummyShifts())">Create Dummy Shifts</FluentButton>
+        @* <FluentButton OnClick="@(async () => await CreateDummyEmployees())">Create Dummy Employees</FluentButton>
+        <FluentButton OnClick="@(async () => await CreateDummyShifts())">Create Dummy Shifts</FluentButton> *@
         <FluentButton OnClick="@(async () => await CreateDummyTimesheet())">Create Dummy Timesheet</FluentButton>
         <FluentButton OnClick="@(async () => await CreateDummySchedule())">Create Dummy Schedule</FluentButton>
-    } *@
+    }
     <FluentInputFile @ref="@divFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
         AnchorId="DivImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
         OnProgressChange="@(e =>
@@ -141,8 +141,8 @@
 
                 <div style="height: 300px; overflow:auto;" tabindex="-1">
                     <FluentDataGrid Items="@Divisions" ItemSize="3">
-                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
-                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" Sortable="true"/>
+                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" Sortable="true"/>
                         <TemplateColumn Title="Actions" Align="@Align.End">
                             <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteDivisionAsync(context))"/>
                         </TemplateColumn>
@@ -178,8 +178,8 @@
 
                 <div style="height: 300px; overflow:auto;" tabindex="-1">
                     <FluentDataGrid Items="@Departments">
-                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
-                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" Sortable="true"/>
+                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" Sortable="true"/>
                         <PropertyColumn Title="Division" Property="@(p => GetDivisionName(p.DivisionId))" />
                         <TemplateColumn Title="Actions" Align="@Align.End">
                             <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteDepartmentAsync(context))"/>
@@ -216,8 +216,8 @@
 
                 <div style="height: 300px; overflow:auto;" tabindex="-1">
                     <FluentDataGrid Items="@Sections">
-                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
-                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" Sortable="true"/>
+                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" Sortable="true"/>
                         <PropertyColumn Title="Department" Property="@(p => GetDepartmentName(p.DepartmentId))" />
                         <TemplateColumn Title="Actions" Align="@Align.End">
                             <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteSectionAsync(context))"/>
@@ -254,8 +254,8 @@
 
                 <div style="height: 300px; overflow:auto;" tabindex="-1">
                     <FluentDataGrid Items="@Positions">
-                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
-                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" Sortable="true"/>
+                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" Sortable="true"/>
                         <PropertyColumn Title="Section" Property="@(p => GetSectionName(p.SectionId))" />
                         <TemplateColumn Title="Actions" Align="@Align.End">
                             <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeletePositionAsync(context))"/>
@@ -291,8 +291,8 @@
                 </div>
                 <div style="height: 300px; overflow:auto;" tabindex="-1">
                     <FluentDataGrid Items="@Chargings">
-                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
-                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" Sortable="true"/>
+                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" Sortable="true"/>
                         <PropertyColumn Title="Department" Property="@(p => GetDepartmentName(p.DepartmentId ?? Guid.Empty))" />
                         <TemplateColumn Title="Actions" Align="@Align.End">
                             <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteChargingAsync(context))"/>
@@ -328,9 +328,8 @@
                 </div>
                 <div style="height: 300px; overflow:auto;" tabindex="-1">
                     <FluentDataGrid Items="@EmployeeTypes">
-                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
-                        <PropertyColumn Title="Value" Property="@(p => p.Value)" />
-    using Bluewater.Server.Helpers;
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" Sortable="true"/>
+                        <PropertyColumn Title="Value" Property="@(p => p.Value)" Sortable="true"/>
                         <PropertyColumn Title="Status" Property="@(p => p.IsActive ? "Active" : "Inactive")" />
                         <TemplateColumn Title="Actions" Align="@Align.End">
                             <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteEmployeeTypeAsync(context))"/>
@@ -361,8 +360,8 @@
                 </div>
                 <div style="height: 300px; overflow:auto;" tabindex="-1">
                     <FluentDataGrid Items="@Levels">
-                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
-                        <PropertyColumn Title="Value" Property="@(p => p.Value)" />
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" Sortable="true"/>
+                        <PropertyColumn Title="Value" Property="@(p => p.Value)" Sortable="true"/>
                         <PropertyColumn Title="Status" Property="@(p => p.IsActive ? "Active" : "Inactive")" />
                         <TemplateColumn Title="Actions" Align="@Align.End">
                             <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteLevelAsync(context))"/>
@@ -382,8 +381,8 @@
             <FluentGridItem xs="6">
                 <div style="height: 300px; overflow:auto;" tabindex="-1">
                     <FluentDataGrid Items="@Holidays">
-                        <PropertyColumn Title="Names" Property="@(p => p.Name)" />
-                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" />
+                        <PropertyColumn Title="Names" Property="@(p => p.Name)" Sortable="true"/>
+                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" Sortable="true"/>
                         <PropertyColumn Title="Date" Property="@(p => p.Date.ToShortDateString())" />
                         <TemplateColumn Title="Actions" Align="@Align.End">
                             <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteHolidayAsync(context))"/>
@@ -581,7 +580,7 @@
     {
         try {
             // TODO confirmation should be moved to before the upload processing starts
-            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Division import file?", "Yes", "No", "Import");
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Division file?", "Yes", "No", "Import");
             var conf = await dialog.Result;
             if (conf.Cancelled) return;
 
@@ -618,7 +617,7 @@
     {
         try {
             // TODO confirmation should be moved to before the upload processing starts
-            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Department import file?", "Yes", "No", "Import");
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Department file?", "Yes", "No", "Import");
             var conf = await dialog.Result;
             if (conf.Cancelled) return;
 
@@ -659,7 +658,7 @@
     async Task ImportSectionAsync(IEnumerable<FluentInputFileEventArgs> files)
     {
         try {
-            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Section import file?", "Yes", "No", "Import");
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Section file?", "Yes", "No", "Import");
             var conf = await dialog.Result;
             if (conf.Cancelled) return;
 
@@ -700,7 +699,7 @@
     async Task ImportPositionAsync(IEnumerable<FluentInputFileEventArgs> files)
     {
         try {
-            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Position import file?", "Yes", "No", "Import");
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Position file?", "Yes", "No", "Import");
             var conf = await dialog.Result;
             if (conf.Cancelled) return;
 
@@ -717,6 +716,7 @@
                 var ret = await CsvUtility.ImportFromCSV<PositionImportDTO>(file.LocalFile!.FullName);
                 if(ret.Item1 != null) {
                     foreach(var pos in ret.Item1) {
+
                         var sec = Sections.FirstOrDefault(i => i.Name == pos.Section);
                         if(sec == null) continue;
 
@@ -742,7 +742,7 @@
     async Task ImportChargingAsync(IEnumerable<FluentInputFileEventArgs> files)
     {
         try {
-            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Charging import file?", "Yes", "No", "Import");
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Charging file?", "Yes", "No", "Import");
             var conf = await dialog.Result;
             if (conf.Cancelled) return;
 

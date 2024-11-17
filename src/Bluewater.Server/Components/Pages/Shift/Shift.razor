@@ -1,6 +1,7 @@
 ﻿@page "/shift"
 @rendermode InteractiveServer
 
+@using Bluewater.Server.Helpers
 @using Bluewater.UseCases.Shifts
 @using Bluewater.UseCases.Shifts.Create
 @using Bluewater.UseCases.Shifts.Delete
@@ -17,29 +18,44 @@
 
 <h3>Shifts</h3>
 
-<FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Bottom">
+<FluentInputFile @ref="@shiftFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
+    AnchorId="ShiftsImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
+    OnProgressChange="@(e =>
+        {
+            progressPercent = e.ProgressPercent; 
+            progressTitle = e.ProgressTitle;
+        })"
+    OnCompleted="@ImportShiftsAsync" />
+
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Bottom">
+        <div>
+            <FluentTextField @bind-Value="InputShift!.Name" Name="shiftName" Label="Shift name" Required Style="width: 300px" />
+        </div>
+        <div>
+            <FluentTimePicker Value="@InputShift.ShiftStartTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftStartTime = e.ToTimeOnly())" Placeholder="00:00" Name="shiftStart" Label="Shift start time" Required />
+        </div>
+        <div>
+            <FluentTimePicker Value="@InputShift.ShiftBreakTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftBreakTime = e.ToTimeOnly())" Name="breakStartTime" Label="Break start time" Required />
+        </div>
+        <div>
+            <FluentTimePicker Value="@InputShift.ShiftBreakEndTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftBreakEndTime = e.ToTimeOnly())" Name="breakEndTime" Label="Break end time" Required />
+        </div>
+        <div>
+            <FluentTimePicker Value="@InputShift.ShiftEndTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftEndTime = e.ToTimeOnly())" Name="shiftEnd" Label="Shift end time" Required />
+        </div>
+        <div>
+            <FluentTextField Value="@InputShift.BreakHours.ToString()" Name="shiftBreakHours" Label="Break hours" Required />
+        </div>
+        <div>
+            <FluentButton aria-label="Add item" Appearance="Appearance.Accent" Style="margin-bottom: 4px" OnClick="@(async() => await AddShiftAsync())">Add</FluentButton>
+        </div>
+    </FluentStack>
     <div>
-        <FluentTextField @bind-Value="InputShift!.Name" Name="shiftName" Label="Shift name" Required Style="width: 300px" />
+        <FluentButton Id="ShiftsImportButton" IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
+        @* <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowExport())" Appearance="Appearance.Outline" OnClick="@(async() => await ExportShiftsAsync())">Export</FluentButton> *@
     </div>
-    <div>
-        <FluentTimePicker Value="@InputShift.ShiftStartTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftStartTime = e.ToTimeOnly())" Placeholder="00:00" Name="shiftStart" Label="Shift start time" Required />
-    </div>
-    <div>
-        <FluentTimePicker Value="@InputShift.ShiftBreakTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftBreakTime = e.ToTimeOnly())" Name="breakStartTime" Label="Break start time" Required />
-    </div>
-    <div>
-        <FluentTimePicker Value="@InputShift.ShiftBreakEndTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftBreakEndTime = e.ToTimeOnly())" Name="breakEndTime" Label="Break end time" Required />
-    </div>
-    <div>
-        <FluentTimePicker Value="@InputShift.ShiftEndTime.ToDateTime()" ValueChanged="@(e => InputShift.ShiftEndTime = e.ToTimeOnly())" Name="shiftEnd" Label="Shift end time" Required />
-    </div>
-    <div>
-        <FluentTextField Value="@InputShift.BreakHours.ToString()" Name="shiftBreakHours" Label="Break hours" Required />
-    </div>
-    <div>
-        <FluentButton aria-label="Add item" Appearance="Appearance.Accent" Style="margin-bottom: 4px" OnClick="@(async() => await AddShiftAsync())">Add</FluentButton>
-    </div>
-</FluentStack>
+</div>
 
 @if (Shifts == null)
 {
@@ -91,6 +107,75 @@ else
             isBusy = false;
         }
     }
+
+    int? progressPercent;
+    string? progressTitle;
+    FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
+    FluentInputFile? shiftFileUploader = default!;
+    async Task ImportShiftsAsync(IEnumerable<FluentInputFileEventArgs> files) {
+        try {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Shift file?", "Yes", "No", "Import");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+            await Task.Delay(10);
+
+            Files = files.ToArray();
+            progressPercent = shiftFileUploader!.ProgressPercent;
+            progressTitle = shiftFileUploader!.ProgressTitle;
+
+            var file = Files.FirstOrDefault();
+            if(file != null) {
+                var ret = await CsvUtility.ImportFromCSV<ShiftImportDTO>(file.LocalFile!.FullName);
+                if(ret.Item1 != null) {
+                    foreach(var shift in ret.Item1) {
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var result = await mediator.Send(new CreateShiftCommand(shift.Name, 
+                                TimeOnly.TryParse(shift.ShiftStartTime, out TimeOnly _shiftStartTime) ? _shiftStartTime : null,
+                                TimeOnly.TryParse(shift.ShiftBreakTime, out TimeOnly _shiftBreakTime) ? _shiftBreakTime : null,
+                                TimeOnly.TryParse(shift.ShiftBreakEndTime, out TimeOnly _shiftBreakEndTime) ? _shiftBreakEndTime : null,
+                                TimeOnly.TryParse(shift.ShiftEndTime, out TimeOnly _shiftEndTime) ? _shiftEndTime : null,
+                                (decimal)(_shiftBreakEndTime - _shiftBreakTime).TotalHours
+                            ));
+                        }
+                    }
+                    await LoadShiftsAsync();
+                }
+                else 
+                    await DialogService.ShowErrorAsync(ret.Item2, "Import Error");
+            }
+        }
+        catch (Exception) {
+
+        }
+        finally {
+            isBusy = false;
+        }
+    }    
+
+    async Task ExportShiftsAsync() {
+        try {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to export Shift list?", "Yes", "No", "Export");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            if(Shifts != null && Shifts.Any()) {
+                var exportResult = await CsvUtility.ExportToCSV<ShiftDTO>(Shifts.ToList(), $"shifts_export_{DateTime.Now.ToString("MMM dd hh:mm:ss tt")}.csv", new[] { "id" });
+                await DialogService.ShowInfoAsync(exportResult, "Export");
+            }
+        }
+        catch (Exception) {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }    
 
     async Task LoadShiftsAsync()
     {
