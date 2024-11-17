@@ -1,6 +1,7 @@
 @page  "/employee"
 @rendermode InteractiveServer
 @using Bluewater.Server.Components.Pages.Employee
+@using Bluewater.Server.Helpers
 @using Bluewater.UseCases.Employees
 @using Bluewater.UseCases.Employees.Create
 @using Bluewater.UseCases.Employees.Delete
@@ -32,11 +33,21 @@
 <PageTitle>Employee list</PageTitle>
 
 <h3>Employees</h3>
+
+<FluentInputFile @ref="@empFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
+    AnchorId="EmployeeImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
+    OnProgressChange="@(e =>
+        {
+            progressPercent = e.ProgressPercent; 
+            progressTitle = e.ProgressTitle;
+        })"
+    OnCompleted="@ImportEmployeeAsync" />
+
 <div style="display: flex; justify-content: space-between; align-items: center;">
     <FluentButton Appearance="Appearance.Accent" Icon="@(new Icons.Regular.Size16.Add())" OnClick="@(async() => await CreateNewEmployeeAsync())">Create new employee</FluentButton>
     <div>
-        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
-        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowExport())" Appearance="Appearance.Outline">Export</FluentButton>
+        <FluentButton Id="EmployeeImportButton" IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
+        <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowExport())" Appearance="Appearance.Outline" OnClick="@(async() => await ExportEmployeeAsync())">Export</FluentButton>
     </div>
 </div>
 
@@ -114,6 +125,127 @@
             throw;
         }
         finally{
+            isBusy = false;
+        }
+    }
+
+    int? progressPercent;
+    string? progressTitle;
+    FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
+    FluentInputFile? empFileUploader = default!;
+    async Task ImportEmployeeAsync(IEnumerable<FluentInputFileEventArgs> files) {
+        try {
+            isBusy = true;
+
+            Files = files.ToArray();
+            progressPercent = empFileUploader!.ProgressPercent;
+            progressTitle = empFileUploader!.ProgressTitle;
+
+            // assume only one file is uploaded
+            var file = Files.FirstOrDefault();
+            if(file != null) {
+                var ret = await CsvUtility.ImportFromCSV<EmployeeImportDTO>(file.LocalFile!.FullName);
+                //var ret = CsvUtility.ImportEmployeesFromCsv(file.LocalFile!.FullName);
+                if(ret.Item1 != null) {
+                    foreach(var e in ret.Item1) {
+
+                        var position = GlobalService.Positions.FirstOrDefault(i => i.Name.Equals(e.Position, StringComparison.InvariantCultureIgnoreCase));
+                        var type = GlobalService.EmployeeTypes.FirstOrDefault(i => i.Name.Equals(e.EmployeeType, StringComparison.InvariantCultureIgnoreCase));
+
+                        Guid userId = Guid.Empty;
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var result = await mediator.Send(new CreateUserCommand(e.EmployeeID ?? string.Empty, e.EmployeeID ?? string.Empty, Credential.Employee, null, false));
+                            if (result.IsSuccess)
+                                userId = result.Value;
+                        }
+
+                        // create pay
+                        Guid payId = Guid.Empty;
+                        if(!string.IsNullOrEmpty(e.EmployeeType)) {
+                            using (var scope = ServiceScopeFactory.CreateScope())
+                            {
+                                var (dailyRate, hourlyRate) = GlobalService.GetRatesByEmployeeType(e.MonthlyRate.HasValue ? e.MonthlyRate.Value : 0, e.EmployeeType.Equals("Regular", StringComparison.InvariantCultureIgnoreCase));
+                                
+                                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                                var result = await mediator.Send(new CreatePayCommand(e.MonthlyRate ?? 0, dailyRate, hourlyRate, 200 , 200));
+                                if (result.IsSuccess)
+                                    payId = result.Value;
+                            }
+                        }
+
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            await mediator.Send(new CreateEmployeeCommand(
+                                e.FirstName ?? string.Empty, e.LastName ?? string.Empty, e.MiddleName, e.BirthDate, 
+                                Enum.TryParse<Gender>(e.Gender, true, out var genderResult) ? genderResult : Gender.NotSet, 
+                                Enum.TryParse<CivilStatus>(e.CivilStatus, true, out var civilStatusResult) ? civilStatusResult : CivilStatus.Single, BloodType.NotSet,
+                                Enum.TryParse<Status>(e.Status, true, out var status) ? status : Status.NotSet, null, null, null, null,
+                                new Bluewater.UseCases.Employees.Create.ContactInfo(
+                                    Email: null,
+                                    TelNumber: null,
+                                    MobileNumber: e.CellNo,
+                                    Address: e.Address,
+                                    ProvincialAddress: null,
+                                    MothersMaidenName: null,
+                                    FathersName: null,
+                                    EmergencyContact: null,
+                                    RelationshipContact: null,
+                                    addressContact: null,
+                                    TelNoContact: null,
+                                    MobileNoContact: null
+                                ),
+                                new Bluewater.UseCases.Employees.Create.EducationInfo(EducationalAttainment.NotSet, null, null),
+                                new Bluewater.UseCases.Employees.Create.EmploymentInfo(
+                                    DateHired: e.DateHired,
+                                    DateRegularized: null,
+                                    DateResigned: null,
+                                    DateTerminated: null,
+                                    TinNo: e.TINNo,
+                                    SssNo: e.SSSNo,
+                                    HdmfNo: e.PagIbigID,
+                                    PhicNo: e.PhilHealthID,
+                                    BankAccount: e.BankAccount,
+                                    HasServiceCharge: false // Default as it is not available in the import data                                    
+                                ),
+                                userId, position?.Id, payId, type?.Id, null, null));
+                        }
+                    }
+                    
+                     
+                    await LoadEmployeesAsync();
+                }
+                else 
+                    await DialogService.ShowErrorAsync("Something's wrong with importing the Employee list. Please contact admin", "Import Error");
+            }
+        }
+        catch (Exception) {
+
+        }
+        finally {
+            isBusy = false;
+        }
+    }
+
+    async Task ExportEmployeeAsync() {
+        try {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to export Employee list?", "Yes", "No", "Export");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            if(FilteredItems != null && FilteredItems.Any()) {
+                var exportResult = await CsvUtility.ExportToCSV<EmployeeDTO>(FilteredItems.ToList(), $"employees_export_{DateTime.Now.ToString("MMM dd hh:mm:ss tt")}.csv", new[] { "id" });
+                await DialogService.ShowInfoAsync(exportResult, "Export");
+            }
+        }
+        catch (Exception) {
+            throw;
+        }
+        finally {
             isBusy = false;
         }
     }

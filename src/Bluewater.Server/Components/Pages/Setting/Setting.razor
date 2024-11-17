@@ -423,7 +423,7 @@
 @code {
     int? progressPercent;
     string? progressTitle;
-    FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();    
+    FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
     bool btnLoading = false;
     bool isBusy = false;
     private DateTime? SelectedDayStart = null;
@@ -591,8 +591,6 @@
             progressPercent = divFileUploader!.ProgressPercent;
             progressTitle = divFileUploader!.ProgressTitle;
 
-            // assume only one file is uploaded
-            List<(string, decimal)> csvData = new List<(string, decimal)>();
             var file = Files.FirstOrDefault();
             if(file != null) {
                 var ret = await CsvUtility.ImportFromCSV<DivisionDTO>(file.LocalFile!.FullName);

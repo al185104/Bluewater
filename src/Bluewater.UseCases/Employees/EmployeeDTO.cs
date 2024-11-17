@@ -1,4 +1,5 @@
 using Bluewater.Core.EmployeeAggregate.Enum;
+using Bluewater.Core.PayAggregate;
 using Bluewater.UseCases.Pays;
 using Bluewater.UseCases.Users;
 
