@@ -71,7 +71,7 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
         // new attendance to calculate
         attendance = new Attendance(emp.Id, schedule?.ShiftId, timesheet?.Id, null, date, null, null, null, null, null, isLocked: false);
         if(schedule != null && schedule.Shift != null)
-          attendance.Shift = new Shift("", schedule?.Shift.ShiftStartTime, schedule?.Shift.ShiftBreakTime, schedule?.Shift.ShiftBreakEndTime, schedule?.Shift.ShiftEndTime, schedule?.Shift.BreakHours);
+          attendance.Shift = new Shift(schedule?.Shift.Name ?? string.Empty, schedule?.Shift.ShiftStartTime, schedule?.Shift.ShiftBreakTime, schedule?.Shift.ShiftBreakEndTime, schedule?.Shift.ShiftEndTime, schedule?.Shift.BreakHours);
         if(timesheet != null)
           attendance.Timesheet = new Timesheet(Guid.Empty, timesheet.TimeIn1, timesheet.TimeOut1, timesheet.TimeIn2, timesheet.TimeOut2, date);
         
@@ -87,7 +87,7 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
         new TimesheetDTO(attendance.Timesheet.Id, emp.Id, attendance.Timesheet.TimeIn1, attendance.Timesheet.TimeOut1, attendance.Timesheet.TimeIn2, attendance.Timesheet.TimeOut2, attendance.Timesheet.EntryDate, attendance.Timesheet.IsEdited)));
       }
     }
-    
-    return Result<IEnumerable<AttendanceDTO>>.Success(results.OrderByDescending(i => i.EntryDate));
-  }
+
+    return Result.Success(results.OrderByDescending(i => i.EntryDate).AsEnumerable());
+  } 
 }

@@ -11,34 +11,40 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
 {
   public async Task<Result<IEnumerable<AllAttendancesDTO>>> Handle(ListAllAttendancesQuery request, CancellationToken cancellationToken)
   {
-        // first get all employees
-        List<EmployeeDTO> employees = new();
-        using (var scope = serviceScopeFactory.CreateScope())
-        {
-          var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-          var ret = await mediator.Send(new ListEmployeeQuery(null, null));
-          if (ret.IsSuccess)
-              employees = ret.Value.ToList();
-        }
+    try{
+      // first get all employees
+      List<EmployeeDTO> employees = new();
+      using (var scope = serviceScopeFactory.CreateScope())
+      {
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+        var ret = await mediator.Send(new ListEmployeeQuery(null, null));
+        if (ret.IsSuccess)
+            employees = ret.Value.ToList();
+            //employees = ret.Value.Where(i => !string.IsNullOrEmpty(i.Charging) && i.Charging.Equals(request.charging, StringComparison.InvariantCultureIgnoreCase)).ToList();
+      }
 
-        if(employees.Count == 0) return Result<IEnumerable<AllAttendancesDTO>>.NotFound();
+      if(employees.Count == 0) return Result<IEnumerable<AllAttendancesDTO>>.NotFound();
 
-        List<AllAttendancesDTO> results = new();
-        // get all Attendances per employee and per date. If no Attendance, create a default Attendance using ListAttendanceQuery
-        foreach(var employee in employees) {
-            using(var scope = serviceScopeFactory.CreateScope()) {
-              var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-              var ret = await mediator.Send(new ListAttendanceQuery(null, null, employee.Id, request.startDate, request.endDate));
-              if(ret.IsSuccess) {
-                var val = ret.Value.OrderByDescending(i => i.EntryDate).ToList();
-        
-                var (totalWorkHours, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLeaves) = ProcessAttendance(val);
-                
-                results.Add(new AllAttendancesDTO(employee.Id, $"{employee.LastName}, {employee.FirstName}", employee.Department, employee.Section, employee.Charging, val, totalWorkHours, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLeaves));
-              }
+      List<AllAttendancesDTO> results = new();
+      // get all Attendances per employee and per date. If no Attendance, create a default Attendance using ListAttendanceQuery
+      foreach(var employee in employees) {
+          using(var scope = serviceScopeFactory.CreateScope()) {
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            var ret = await mediator.Send(new ListAttendanceQuery(null, null, employee.Id, request.startDate, request.endDate));
+            if(ret.IsSuccess) {
+              var val = ret.Value.ToList(); // ret.Value.OrderByDescending(i => i.EntryDate).ToList();
+      
+              var (totalWorkHours, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLeaves) = ProcessAttendance(val);
+              
+              results.Add(new AllAttendancesDTO(employee.Id, $"{employee.LastName}, {employee.FirstName}", employee.Department, employee.Section, employee.Charging, val, totalWorkHours, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLeaves));
             }
-        }
-        return Result<IEnumerable<AllAttendancesDTO>>.Success(results);
+          }
+      }
+      return Result<IEnumerable<AllAttendancesDTO>>.Success(results);
+    }
+    catch(Exception){
+      throw;
+    }
   }
 
   private (decimal totalWorkHours, decimal totalLateHours, decimal totalUnderHours, decimal totalOverbreakHrs, decimal TotalNightShiftHours, decimal totalLeaves) ProcessAttendance(List<AttendanceDTO> val)
