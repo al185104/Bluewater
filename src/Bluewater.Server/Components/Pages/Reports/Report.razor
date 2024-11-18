@@ -21,7 +21,7 @@
 
 <h3>Reports</h3>
 <FluentDataGrid Id="shiftsGrid" Items="@PayrollSummaries">
-    <PropertyColumn Title="Name" Property="@(c => c!.Date)" Format="MMMM-dd" Align="Align.Start" />
+    <PropertyColumn Title="Payroll Date" Property="@(c => c!.Date)" Format="MMMM-dd" Align="Align.Start" />
     <PropertyColumn Title="Count" Property="@(c => c!.Count)" Align="Align.Center" />
     <PropertyColumn Title="Total Service Charge" Property="@(c => c!.TotalServiceCharge)" Align="Align.Center" />
     <PropertyColumn Title="Total Absences" Property="@(c => c!.TotalAbsences)" Align="Align.Center" />

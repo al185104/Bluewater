@@ -100,6 +100,7 @@
     private bool isBusy = false;
     public IQueryable<EmployeeDTO> Employees { get; set; } = default!;
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
+    private bool isFirstLoad = true;
 
     IQueryable<EmployeeDTO>? FilteredItems
     {
@@ -118,7 +119,9 @@
     {
         try{
             isBusy = true;
-            await LoadEmployeesAsync();
+            if(isFirstLoad)
+                await LoadEmployeesAsync();
+            isFirstLoad = false;
         }
         catch (Exception)
         {
@@ -273,8 +276,9 @@
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListEmployeeQuery(null, null));
-                if (result.IsSuccess)
+                if (result.IsSuccess){
                     Employees = result.Value.AsQueryable();
+                }
             }
         }
         catch (Exception)

@@ -539,6 +539,7 @@
                 isRegular = true;
 
             var (dailyRate, hourlyRate) = GlobalService.GetRatesByEmployeeType(basicPay, isRegular);
+            Content.BasicPay = basicPay;
             Content.DailyRate = dailyRate;
             Content.HourlyRate = hourlyRate;
         }

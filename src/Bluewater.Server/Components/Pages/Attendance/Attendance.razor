@@ -92,7 +92,7 @@
                 startDate = _startDate;
                 endDate = _endDate;
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new ListAllAttendancesQuery(null, null, _startDate, _endDate));
+                var result = await mediator.Send(new ListAllAttendancesQuery(null, null, "FBAll", _startDate, _endDate));
                 if (result.IsSuccess)
                     EmployeeAttendance = result.Value.AsQueryable();
             }            
