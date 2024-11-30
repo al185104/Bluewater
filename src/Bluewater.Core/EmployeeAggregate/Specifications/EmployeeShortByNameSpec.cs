@@ -9,6 +9,7 @@ public class EmployeeShortByNameSpec : Specification<Employee>
     Query.Where(employee => 
         EF.Functions.Like(employee.LastName + ", " + employee.FirstName, $"%{name}%") ||
         EF.Functions.Like(employee.FirstName + " " + employee.LastName, $"%{name}%")
-    );
+    )
+    .Include(i => i.User);
   }
 }

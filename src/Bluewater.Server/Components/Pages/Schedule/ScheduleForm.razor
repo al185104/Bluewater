@@ -11,7 +11,7 @@
         <FluentGridItem xs="12"><h4>Override Schedule</h4></FluentGridItem> 
         <FluentGridItem xs="6"><h5 style="text-align: left;">@Content.Name</h5></FluentGridItem>
         <FluentGridItem xs="6"><h5 style="text-align: right;">@GetWeekString()</h5></FluentGridItem>
-        <FluentGridItem xs="12">
+        <FluentGridItem xs="11">
             @* add a lambda function to update the isUpdated property when @onchange is executed *@
             <FluentSelect TOption="ShiftDTO"
                 Label="Sunday Shift"
@@ -23,7 +23,11 @@
                 Style="width: 100%">
             </FluentSelect>
         </FluentGridItem>
-        <FluentGridItem xs="12">
+        <FluentGridItem xs="1" Style="display: flex; align-items: flex-end;">
+            <FluentButton aria-label="Remove shift" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(() => RemoveShift(Content.SundayShift))"/>
+        </FluentGridItem>
+        
+        <FluentGridItem xs="11">
             <FluentSelect TOption="ShiftDTO"
                 Label="Monday Shift"
                 Items="@shifts"
@@ -34,7 +38,11 @@
                 Style="width: 100%">
             </FluentSelect>
         </FluentGridItem>
-        <FluentGridItem xs="12">
+        <FluentGridItem xs="1" Style="display: flex; align-items: flex-end;">
+            <FluentButton aria-label="Remove shift" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(() => RemoveShift(Content.MondayShift))"/>
+        </FluentGridItem>
+
+        <FluentGridItem xs="11">
             <FluentSelect TOption="ShiftDTO"
                 Label="Tuesday Shift"
                 Items="@shifts"
@@ -44,8 +52,12 @@
                 @onchange="@(e => Content.TuesdayShift!.IsUpdated = true)"
                 Style="width: 100%">
             </FluentSelect>
-        </FluentGridItem>   
-        <FluentGridItem xs="12">
+        </FluentGridItem>
+        <FluentGridItem xs="1" Style="display: flex; align-items: flex-end;">
+            <FluentButton aria-label="Remove shift" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(() => RemoveShift(Content.TuesdayShift))"/>
+        </FluentGridItem>
+
+        <FluentGridItem xs="11">
             <FluentSelect TOption="ShiftDTO"
                 Label="Wednesday Shift"
                 Items="@shifts"
@@ -55,8 +67,12 @@
                 @onchange="@(e => Content.WednesdayShift!.IsUpdated = true)"
                 Style="width: 100%">
             </FluentSelect>
-        </FluentGridItem>   
-        <FluentGridItem xs="12">
+        </FluentGridItem>
+        <FluentGridItem xs="1" Style="display: flex; align-items: flex-end;">
+            <FluentButton aria-label="Remove shift" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(() => RemoveShift(Content.WednesdayShift))"/>
+        </FluentGridItem>
+
+        <FluentGridItem xs="11">
             <FluentSelect TOption="ShiftDTO"
                 Label="Thursday Shift"
                 Items="@shifts"
@@ -67,7 +83,11 @@
                 Style="width: 100%">
             </FluentSelect>
         </FluentGridItem>
-        <FluentGridItem xs="12">
+        <FluentGridItem xs="1" Style="display: flex; align-items: flex-end;">
+            <FluentButton aria-label="Remove shift" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(() => RemoveShift(Content.ThursdayShift))"/>
+        </FluentGridItem>
+
+        <FluentGridItem xs="11">
             <FluentSelect TOption="ShiftDTO"
                 Label="Friday Shift"
                 Items="@shifts"
@@ -78,7 +98,11 @@
                 Style="width: 100%">
             </FluentSelect>
         </FluentGridItem>
-        <FluentGridItem xs="12">
+        <FluentGridItem xs="1" Style="display: flex; align-items: flex-end;">
+            <FluentButton aria-label="Remove shift" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(() => RemoveShift(Content.FridayShift))"/>
+        </FluentGridItem>
+
+        <FluentGridItem xs="11">
             <FluentSelect TOption="ShiftDTO"
                 Label="Saturday Shift"
                 Items="@shifts"
@@ -89,6 +113,10 @@
                 Style="width: 100%">
             </FluentSelect>
         </FluentGridItem>
+        <FluentGridItem xs="1" Style="display: flex; align-items: flex-end;">
+            <FluentButton aria-label="Remove shift" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(() => RemoveShift(Content.SaturdayShift))"/>
+        </FluentGridItem>
+
     </FluentGrid>
 </FluentDialogBody>
 
@@ -113,5 +141,12 @@
     {
         var (startDate, endDate) = GlobalService.GetStartDateAndEndDateOfWeekByDate(new DateTime(Content.SundayShift!.ScheduleDate.Year, Content.SundayShift!.ScheduleDate.Month, Content.SundayShift!.ScheduleDate.Day));
         return $"{startDate.ToString("MMM/dd")} - {endDate.ToString("MMM/dd")}";
+    }
+
+    private void RemoveShift(ShiftInfo? shiftinfo) {
+        if(shiftinfo == null) return;
+
+        shiftinfo.IsUpdated = true;
+        shiftinfo.Shift = null; 
     }
 }

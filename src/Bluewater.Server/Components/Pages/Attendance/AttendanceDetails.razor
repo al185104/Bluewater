@@ -30,6 +30,7 @@
     </FluentGridItem>
     <FluentGridItem xs="8">
         <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Center">
+            <FluentLabel Style="margin-top: 0px;"><strong>Barcode: @(Employee?.User?.Username ?? string.Empty)</strong></FluentLabel>
             <FluentLabel Style="margin-top: 0px;"><strong>Employee: @($"{Employee?.LastName}, {Employee?.FirstName}")</strong></FluentLabel>
             <FluentLabel>Department: @Employee?.Department</FluentLabel>
             <FluentLabel>Section: @Employee?.Section</FluentLabel>

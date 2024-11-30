@@ -30,17 +30,17 @@ internal class GetAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory)
           if (ret.IsSuccess)
           {
             var val = ret.Value.ToList();
-            var (totalWorkHours, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLocked) = ProcessAttendance(val);
-            result = new AllAttendancesDTO(employee.Id, employee.Name, employee.Department, employee.Section, employee.Charging, val, totalWorkHours, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLocked);
+            var (totalWorkHours, totalAbsences, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLocked) = ProcessAttendance(val);
+            result = new AllAttendancesDTO(employee.Id, employee.Barcode, employee.Name, employee.Department, employee.Section, employee.Charging, val, totalWorkHours, totalAbsences, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLocked);
           }
         }
 
         return Result<AllAttendancesDTO>.Success(result);
   }
 
-  private (decimal totalWorkHours, decimal totalLateHours, decimal totalUnderHours, decimal totalOverbreakHrs, decimal totalNightShiftHrs, decimal totalLocked) ProcessAttendance(List<AttendanceDTO> val)
+  private (decimal totalWorkHours, int totalAbsences, decimal totalLateHours, decimal totalUnderHours, decimal totalOverbreakHrs, decimal totalNightShiftHrs, decimal totalLocked) ProcessAttendance(List<AttendanceDTO> val)
   {
-    return (0, 0, 0, 0, 0, 0);
+    return (0, 0, 0, 0, 0, 0, 0);
   }
 
 }

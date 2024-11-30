@@ -104,7 +104,7 @@
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new GetAllAttendanceQuery(Content.Name, startDate, endDate));
                 if (result.IsSuccess)
-                    Content = new AllAttendancesDTO(Content.EmployeeId, Content.Name, Content.Department, Content.Section, Content.Charging, result.Value.Attendances, result.Value.TotalWorkHrs, result.Value.TotalLateHrs, result.Value.TotalUnderHrs, result.Value.TotalOverbreakHrs, result.Value.TotalNightShiftHrs, result.Value.TotalLeaves);
+                    Content = new AllAttendancesDTO(Content.EmployeeId, Content.Barcode, Content.Name, Content.Department, Content.Section, Content.Charging, result.Value.Attendances, result.Value.TotalWorkHrs, result.Value.TotalAbsences, result.Value.TotalLateHrs, result.Value.TotalUnderHrs, result.Value.TotalOverbreakHrs, result.Value.TotalNightShiftHrs, result.Value.TotalLeaves);
             }            
         }
         catch (Exception)

@@ -67,6 +67,6 @@ public class GetEmployeeShortHandler(IReadRepository<Employee> _repository, ISer
             charging = new ChargingDTO(Guid.Empty, string.Empty, string.Empty, null);
     }    
 
-    return new EmployeeShortDTO(entity.Id, $"{entity.LastName}, {entity.FirstName}", department!.Name, section!.Name, charging!.Name);
+    return new EmployeeShortDTO(entity.Id, entity.User?.Username ?? string.Empty, $"{entity.LastName}, {entity.FirstName}", department!.Name, section!.Name, charging!.Name);
   }
 }

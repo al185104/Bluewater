@@ -287,3 +287,20 @@ Domain events are a great pattern for decoupling a trigger for an operation from
 - [SharedKernel](https://github.com/ardalis/Ardalis.SharedKernel)
 - [SmartEnum](https://github.com/ardalis/SmartEnum)
 - [Specification](https://github.com/ardalis/specification)
+
+
+
+-- TODOs:
+[stupid]probie - no basic pay
+  - regular / non-regular update the readonly
+
+  
+schedule - 
+  -[done] no charging
+  -[done] no section
+  -[done] add id number
+  -[pending] import -- need dynamic csv header reading by date
+attendance - total absences between work and late
+add color to edited
+payroll - hide 0 earnings/deductions
+payroll - old design

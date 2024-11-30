@@ -278,11 +278,22 @@ public class GlobalService : IGlobalService
     public (decimal dailyRate, decimal hourlyRate) GetRatesByEmployeeType(decimal basicRate, bool isRegular)
     {
         decimal dailyRate = 0;
-        if (isRegular)
+        if (!isRegular)
             dailyRate = Math.Round(basicRate / 26, 2);
         else
             dailyRate = Math.Round(basicRate / (decimal)30.41, 2);
 
         return (dailyRate, Math.Round(dailyRate / 8, 2));
+    }
+    
+    public (decimal basicPay, decimal hourlyRate) GetRatesByEmployeeTypeAndDailyRate(decimal dailyRate, bool isRegular)
+    {
+        decimal basicPay = 0;
+        if (!isRegular)
+            basicPay = Math.Round(dailyRate * 26, 2);
+        else
+            basicPay = Math.Round(dailyRate * (decimal)30.41, 2);
+
+        return (basicPay, Math.Round(dailyRate / 8, 2));
     }
 }

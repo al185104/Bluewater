@@ -73,7 +73,7 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
                 });
             }   
         }
-        results.Add(new EmployeeScheduleDTO(emp.Id, $"{emp.LastName}, {emp.FirstName}", emp.Section ?? string.Empty, emp.Charging ?? string.Empty, shifts.OrderBy(s => s.ScheduleDate).ToList()));
+        results.Add(new EmployeeScheduleDTO(emp.Id, emp.User!.Username, $"{emp.LastName}, {emp.FirstName}", emp.Section ?? string.Empty, emp.Charging ?? string.Empty, shifts.OrderBy(s => s.ScheduleDate).ToList()));
     }
 
     return results.OrderBy(r => r.Name).ToList();

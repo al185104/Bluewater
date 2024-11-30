@@ -82,6 +82,10 @@ public class AppDbContext : DbContext
       optionsBuilder.UseSqlite("Data Source=localdb_sit01.db");
     else
       base.OnConfiguring(optionsBuilder);
+    // if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development")
+    //   optionsBuilder.UseSqlite("Data Source=localdb_sit02.db");
+    // else
+    //   base.OnConfiguring(optionsBuilder);    
   }
 
   public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())

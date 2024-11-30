@@ -1,6 +1,7 @@
 @page "/schedule"
 @rendermode InteractiveServer
 
+@using Bluewater.Server.Helpers
 @using Bluewater.Server.Components.Pages.Schedule
 @using Bluewater.Server.Global
 @using Bluewater.UseCases.Schedules
@@ -22,16 +23,39 @@
 
 <h3>Schedules</h3>
 
-<FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
-    <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadScheduleAsync(searchDate = searchDate.AddDays(-7)))"/>
-    <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
-    <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadScheduleAsync(searchDate = searchDate.AddDays(7)))"/>
-</FluentStack>
+
+<FluentInputFile @ref="@scheduleFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
+    AnchorId="ScheduleImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
+    OnProgressChange="@(e =>
+        {
+            progressPercent = e.ProgressPercent; 
+            progressTitle = e.ProgressTitle;
+        })"
+    OnCompleted="@ImportSchedulesAsync" />
+
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
+        <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadScheduleAsync(searchDate = searchDate.AddDays(-7)))"/>
+        <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
+        <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadScheduleAsync(searchDate = searchDate.AddDays(7)))"/>
+    </FluentStack>
+    <div>
+        @* <FluentButton Id="ScheduleImportButton" IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton> *@
+    </div>
+</div>
 
 
 <FluentDataGrid Items="@FilteredItems" Pagination="@pagination"
     Style="height: 550px;overflow:auto;"
-    GridTemplateColumns="1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.3fr">
+    GridTemplateColumns="0.6fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.3fr">
+
+    <PropertyColumn Title="Barcode" Property="@(p => p.Barcode)" Sortable="true">
+        <ColumnOptions>
+            <div class="search-box">
+                <FluentSearch Autofocus=true @bind-Value=barcodeFilter @oninput="HandleUsernameFilter" @bind-Value:after="HandleBarcodeClear" Placeholder="Barcode..." Style="width: 100%;" Label="Filter" />
+            </div>
+        </ColumnOptions>
+    </PropertyColumn>    
     <PropertyColumn Title="Employee" Property="@(p => p.Name)" Style="vertical-align: bottom;" Sortable="true">
         <ColumnOptions>
             <div class="search-box">
@@ -39,8 +63,6 @@
             </div>
         </ColumnOptions>        
     </PropertyColumn>
-    <PropertyColumn Title="Section" Property="@(p => p.Section)" Style="vertical-align: bottom;" Sortable="true"/>
-    <PropertyColumn Title="Charging" Property="@(p => p.Charging)" Style="vertical-align: bottom;" Sortable="true"/>
 
 
     @foreach(var day in Enumerable.Range(0, 7))
@@ -79,7 +101,14 @@
     private DateOnly startDate;
     private DateOnly endDate;
     private List<ShiftDTO> shifts = new();
+    string barcodeFilter = string.Empty;
     string nameFilter = string.Empty;
+
+    int? progressPercent;
+    string? progressTitle;
+    FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
+    FluentInputFile? scheduleFileUploader = default!;
+
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     IQueryable<EmployeeScheduleDTO>? FilteredItems
     {
@@ -88,6 +117,9 @@
             var result = EmployeeSchedules;
             if (result is not null && !string.IsNullOrEmpty(nameFilter))
                 result = result.Where(c => c.Name.Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));
+            else if (result is not null && !string.IsNullOrEmpty(barcodeFilter))
+                result = result.Where(c => c.Barcode.Contains(barcodeFilter, StringComparison.CurrentCultureIgnoreCase));
+
             return result;
         }
     }
@@ -144,7 +176,7 @@
 
     private bool IsShiftSelected(EmployeeScheduleDTO employee, int day, ShiftDTO shift)
     {
-        return employee.Shifts.Count > day && employee.Shifts[day].Shift.Id == shift.Id;
+        return employee.Shifts.Count > day && employee.Shifts[day].Shift!.Id == shift.Id;
     }
 
     private ShiftDTO? GetSelectedShift(EmployeeScheduleDTO employee, int day)
@@ -205,7 +237,7 @@
             ShowDismiss = true,
             PrimaryAction = anySchedId ? "Update" : "Create",
             SecondaryAction = "Cancel",
-            Width = "30%",
+            Width = "50%",
         });
 
         DialogResult result = await _dialog.Result;
@@ -246,10 +278,12 @@
             if(e.SundayShift!.ScheduleId != Guid.Empty) { 
                 // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
                 if(e.SundayShift!.Shift == null) {
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new DeleteScheduleCommand(e.SundayShift.ScheduleId));
+                    if(!e.SundayShift!.IsDefault) {
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new DeleteScheduleCommand(e.SundayShift.ScheduleId));
+                        }
                     }
                 }
                 else{
@@ -288,10 +322,12 @@
             if(e.MondayShift!.ScheduleId != Guid.Empty) { 
                 // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
                 if(e.MondayShift!.Shift == null) {
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new DeleteScheduleCommand(e.MondayShift.ScheduleId));
+                    if(!e.MondayShift!.IsDefault) {
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new DeleteScheduleCommand(e.MondayShift.ScheduleId));
+                        }
                     }
                 }
                 else{
@@ -330,10 +366,12 @@
             if(e.TuesdayShift!.ScheduleId != Guid.Empty) { 
                 // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
                 if(e.TuesdayShift!.Shift == null) {
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new DeleteScheduleCommand(e.TuesdayShift.ScheduleId));
+                    if(!e.TuesdayShift!.IsDefault) {
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new DeleteScheduleCommand(e.TuesdayShift.ScheduleId));
+                        }
                     }
                 }
                 else{
@@ -372,10 +410,12 @@
             if(e.WednesdayShift!.ScheduleId != Guid.Empty) { 
                 // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
                 if(e.WednesdayShift!.Shift == null) {
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new DeleteScheduleCommand(e.WednesdayShift.ScheduleId));
+                    if(!e.WednesdayShift!.IsDefault) {
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new DeleteScheduleCommand(e.WednesdayShift.ScheduleId));
+                        }
                     }
                 }
                 else{
@@ -414,10 +454,12 @@
             if(e.ThursdayShift!.ScheduleId != Guid.Empty) { 
                 // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
                 if(e.ThursdayShift!.Shift == null) {
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new DeleteScheduleCommand(e.ThursdayShift.ScheduleId));
+                    if(!e.ThursdayShift!.IsDefault) {
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new DeleteScheduleCommand(e.ThursdayShift.ScheduleId));
+                        }
                     }
                 }
                 else{
@@ -456,10 +498,12 @@
             if(e.FridayShift!.ScheduleId != Guid.Empty) { 
                 // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
                 if(e.FridayShift!.Shift == null) {
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new DeleteScheduleCommand(e.FridayShift.ScheduleId));
+                    if(!e.FridayShift!.IsDefault) { 
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new DeleteScheduleCommand(e.FridayShift.ScheduleId));
+                        }
                     }
                 }
                 else{
@@ -498,10 +542,12 @@
             if(e.SaturdayShift!.ScheduleId != Guid.Empty) { 
                 // check first if the selected shift is not null. if null, means the schedule is cleared, then delete the schedule
                 if(e.SaturdayShift!.Shift == null) {
-                    using (var scope = ServiceScopeFactory.CreateScope())
-                    {
-                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                        var ret = await mediator.Send(new DeleteScheduleCommand(e.SaturdayShift.ScheduleId));
+                    if(!e.SaturdayShift!.IsDefault) {
+                        using (var scope = ServiceScopeFactory.CreateScope())
+                        {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var ret = await mediator.Send(new DeleteScheduleCommand(e.SaturdayShift.ScheduleId));
+                        }
                     }
                 }
                 else{
@@ -546,5 +592,50 @@
             nameFilter = string.Empty;
     }
 
+    private void HandleUsernameFilter(ChangeEventArgs args) {
+        if(args.Value is string value)
+            barcodeFilter = value;
+    }
 
+    private void HandleBarcodeClear() {
+        if (string.IsNullOrWhiteSpace(barcodeFilter))
+            barcodeFilter = string.Empty;
+    }
+
+    async Task ImportSchedulesAsync(IEnumerable<FluentInputFileEventArgs> files) {
+        try {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Schedule file?", "Yes", "No", "Import");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+            await Task.Delay(10);
+
+            Files = files.ToArray();
+            progressPercent = scheduleFileUploader!.ProgressPercent;
+            progressTitle = scheduleFileUploader!.ProgressTitle;
+
+            var file = Files.FirstOrDefault();
+            if(file != null) {
+                @* var ret = await CsvUtility.ImportFromCSV<ScheduleImportDTO>(file.LocalFile!.FullName);
+                if(ret.Item1 != null) {
+                    foreach(var sched in ret.Item1) {
+                        // create schedules.
+                        using (var scope = ServiceScopeFactory.CreateScope()) {
+
+                        }
+                    }
+                    await LoadScheduleAsync(searchDate);
+                }
+                else 
+                    await DialogService.ShowErrorAsync(ret.Item2, "Import Error"); *@
+            }
+        }
+        catch (Exception) {
+
+        }
+        finally {
+            isBusy = false;
+        }
+    }        
 }

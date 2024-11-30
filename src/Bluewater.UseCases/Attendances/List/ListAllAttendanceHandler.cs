@@ -32,11 +32,11 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
             var ret = await mediator.Send(new ListAttendanceQuery(null, null, employee.Id, request.startDate, request.endDate));
             if(ret.IsSuccess) {
-              var val = ret.Value.ToList(); // ret.Value.OrderByDescending(i => i.EntryDate).ToList();
+              var val = ret.Value.ToList();
       
-              var (totalWorkHours, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLeaves) = ProcessAttendance(val);
+              var (totalWorkHours, totalAbsences, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLeaves) = ProcessAttendance(val);
               
-              results.Add(new AllAttendancesDTO(employee.Id, $"{employee.LastName}, {employee.FirstName}", employee.Department, employee.Section, employee.Charging, val, totalWorkHours, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLeaves));
+              results.Add(new AllAttendancesDTO(employee.Id, employee.User?.Username ?? string.Empty, $"{employee.LastName}, {employee.FirstName}", employee.Department, employee.Section, employee.Charging, val, totalWorkHours, totalAbsences, totalLateHours, totalUnderHours, totalOverbreakHrs, totalNightShiftHrs, totalLeaves));
             }
           }
       }
@@ -47,10 +47,11 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
     }
   }
 
-  private (decimal totalWorkHours, decimal totalLateHours, decimal totalUnderHours, decimal totalOverbreakHrs, decimal TotalNightShiftHours, decimal totalLeaves) ProcessAttendance(List<AttendanceDTO> val)
+  private (decimal totalWorkHours, int totalAbsences, decimal totalLateHours, decimal totalUnderHours, decimal totalOverbreakHrs, decimal TotalNightShiftHours, decimal totalLeaves) ProcessAttendance(List<AttendanceDTO> val)
   {
     //sum of all work hours
     var _totalWorkHours = val.Sum(i => i.WorkHrs);
+    var _totalAbsences = val.Count(i => i.ShiftId != null && i.Shift != null && !i.Shift.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase)) - val.Count(i => i.WorkHrs > 0);
     var _totalLateHours = val.Sum(i => i.LateHrs);
     var _totalUnderHours = val.Sum(i => i.UnderHrs);
     var _totalOverbreakHrs = val.Sum(i => i.OverbreakHrs);
@@ -58,7 +59,7 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
 
     var _totalLeaves = val.Count(i => i.LeaveId != null && i.LeaveId != Guid.Empty);
 
-    return (_totalWorkHours ?? 0, _totalLateHours ?? 0, _totalUnderHours ?? 0, _totalOverbreakHrs ?? 0, _totalNightShiftHours ?? 0, _totalLeaves);
+    return (_totalWorkHours ?? 0, _totalAbsences, _totalLateHours ?? 0, _totalUnderHours ?? 0, _totalOverbreakHrs ?? 0, _totalNightShiftHours ?? 0, _totalLeaves);
   }
 
 }

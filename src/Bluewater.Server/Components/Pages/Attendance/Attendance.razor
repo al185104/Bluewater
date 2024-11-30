@@ -1,9 +1,12 @@
 @page "/attendance"
 @rendermode InteractiveServer
 
+@using Bluewater.Server.Helpers
 @using Bluewater.UseCases.Attendances
+@using Bluewater.UseCases.Attendances.Create
 @using Bluewater.UseCases.Attendances.List
 @using Bluewater.UseCases.Timesheets
+@using Bluewater.UseCases.Timesheets.Create
 @using Bluewater.UseCases.Timesheets.List
 @using MediatR
 
@@ -21,15 +24,36 @@
 
 <h3>Attendance</h3>
 
-<FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
-    <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadAttendanceAsync(searchDate = searchDate.AddDays(-15)))"/>
-    <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
-    <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadAttendanceAsync(searchDate = searchDate.AddDays(15)))"/>
-</FluentStack>
+<FluentInputFile @ref="@attendanceFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
+    AnchorId="AttendanceImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
+    OnProgressChange="@(e =>
+        {
+            progressPercent = e.ProgressPercent; 
+            progressTitle = e.ProgressTitle;
+        })"
+    OnCompleted="@ImportAttendanceAsync" />
+
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
+        <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadAttendanceAsync(searchDate = searchDate.AddDays(-15)))"/>
+        <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
+        <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadAttendanceAsync(searchDate = searchDate.AddDays(15)))"/>
+    </FluentStack>
+    <div>
+        <FluentButton Id="AttendanceImportButton" IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
+    </div>    
+</div>
 
 <FluentDataGrid Items="@FilteredItems" Pagination="@pagination"
     Style="height: 550px;overflow:auto;"
-    GridTemplateColumns="1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.5fr">
+    GridTemplateColumns="0.6fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.5fr">
+    <PropertyColumn Title="Barcode" Property="@(p => p.Barcode)" Sortable="true">
+        <ColumnOptions>
+            <div class="search-box">
+                <FluentSearch Autofocus=true @bind-Value=barcodeFilter @oninput="HandleUsernameFilter" @bind-Value:after="HandleBarcodeClear" Placeholder="Barcode..." Style="width: 100%;" Label="Filter" />
+            </div>
+        </ColumnOptions>
+    </PropertyColumn>    
     <PropertyColumn Title="Employee" Property="@(p => p.Name)" Sortable="true">
         <ColumnOptions>
             <div class="search-box">
@@ -37,14 +61,15 @@
             </div>
         </ColumnOptions>
     </PropertyColumn>
-    <PropertyColumn Title="Department" Property="@(p => p.Department)" Sortable="true"/>
-    <PropertyColumn Title="Section" Property="@(p => p.Section)" Sortable="true"/>
-    <PropertyColumn Title="Charging" Property="@(p => p.Charging)" Sortable="true"/>
-    <PropertyColumn Title="Total Work" Property="@(p => p.TotalWorkHrs)" Sortable="true"/>
-    <PropertyColumn Title="Total Late" Property="@(p => p.TotalLateHrs)" Sortable="true"/>
-    <PropertyColumn Title="Total Undertime" Property="@(p => p.TotalUnderHrs)" Sortable="true"/>
-    <PropertyColumn Title="Total Overbreak" Property="@(p => p.TotalOverbreakHrs)" Sortable="true"/>
-    <PropertyColumn Title="Total Leaves" Property="@(p => p.TotalLeaves)" Sortable="true"/>
+    <PropertyColumn Title="Department" Property="@(p => p.Department)" Sortable="true" Align="Align.Center"/>
+    <PropertyColumn Title="Section" Property="@(p => p.Section)" Sortable="true" Align="Align.Center"/>
+    <PropertyColumn Title="Charging" Property="@(p => p.Charging)" Sortable="true" Align="Align.Center"/>
+    <PropertyColumn Title="Total Work" Property="@(p => p.TotalWorkHrs)" Sortable="true" Align="Align.Center"/>
+    <PropertyColumn Title="Total Absences" Property="@(p => p.TotalAbsences)" Sortable="true" Align="Align.Center"/>
+    <PropertyColumn Title="Total Late" Property="@(p => p.TotalLateHrs)" Sortable="true" Align="Align.Center"/>
+    <PropertyColumn Title="Total Undertime" Property="@(p => p.TotalUnderHrs)" Sortable="true" Align="Align.Center"/>
+    <PropertyColumn Title="Total Overbreak" Property="@(p => p.TotalOverbreakHrs)" Sortable="true" Align="Align.Center"/>
+    <PropertyColumn Title="Total Leaves" Property="@(p => p.TotalLeaves)" Sortable="true" Align="Align.Center"/>
     <TemplateColumn Title="Actions" Align="@Align.End">
         <FluentButton aria-label="view item" IconEnd="@(new Icons.Regular.Size20.Edit())" OnClick="@(async() => await ViewAttendanceAsync(context))"/>
     </TemplateColumn>
@@ -63,6 +88,7 @@
     private bool isBusy = false;
     private DateOnly searchDate = DateOnly.FromDateTime(DateTime.Now);
     private DateOnly startDate, endDate;
+    string barcodeFilter = string.Empty;
     string nameFilter = string.Empty;
     PaginationState pagination = new PaginationState { ItemsPerPage = 10 };
     private IQueryable<AllAttendancesDTO> EmployeeAttendance = default!;    
@@ -73,9 +99,16 @@
             var result = EmployeeAttendance;
             if (result is not null && !string.IsNullOrEmpty(nameFilter))
                 result = result.Where(c => c.Name.Contains(nameFilter, StringComparison.CurrentCultureIgnoreCase));
+            else if (result is not null && !string.IsNullOrEmpty(barcodeFilter))
+                result = result.Where(c => c.Barcode != null && c.Barcode.Contains(barcodeFilter, StringComparison.CurrentCultureIgnoreCase));                
             return result;
         }
     }    
+
+    int? progressPercent;
+    string? progressTitle;
+    FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
+    FluentInputFile? attendanceFileUploader = default!;
 
     protected override async Task OnInitializedAsync()
     {
@@ -124,4 +157,53 @@
         NavigationManager.NavigateTo($"/attendance/details/{context.EmployeeId}/{searchDate.ToString("yyyy-MM-dd")}");
     }
 
+    async Task ImportAttendanceAsync(IEnumerable<FluentInputFileEventArgs> files) {
+        try {
+            var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to import this Attendance file?", "Yes", "No", "Import");
+            var conf = await dialog.Result;
+            if (conf.Cancelled) return;
+
+            isBusy = true;
+
+            Files = files.ToArray();
+            progressPercent = attendanceFileUploader!.ProgressPercent;
+            progressTitle = attendanceFileUploader!.ProgressTitle;
+
+            var file = Files.FirstOrDefault();
+            if(file != null) {
+                var ret = await CsvUtility.ImportFromCSV<AttendanceImportDTO>(file.LocalFile!.FullName);
+                if(ret.Item1 != null) {
+                    int successCount = 0;
+                    foreach(var attendance in ret.Item1) {
+                        using (var scope = ServiceScopeFactory.CreateScope()) {
+                            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                            var result = await mediator.Send(new CreateAttendanceByImportCommand(attendance));
+                            if(result.IsSuccess && result != Guid.Empty)
+                                successCount++;
+                        }
+                    }
+                    await DialogService.ShowSuccessAsync($"Imported {successCount} attendances successfully.");
+                    await LoadAttendanceAsync(searchDate);
+                }
+                else 
+                    await DialogService.ShowErrorAsync(ret.Item2, "Import Error");                
+            }
+        }
+        catch (Exception) {
+            throw;
+        }
+        finally {
+            isBusy = false;
+        }
+    }   
+
+    private void HandleUsernameFilter(ChangeEventArgs args) {
+        if(args.Value is string value)
+            barcodeFilter = value;
+    }
+
+    private void HandleBarcodeClear() {
+        if (string.IsNullOrWhiteSpace(barcodeFilter))
+            barcodeFilter = string.Empty;
+    }
 }

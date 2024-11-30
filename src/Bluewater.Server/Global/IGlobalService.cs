@@ -26,4 +26,5 @@ public interface IGlobalService
     (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfWeekByDate(DateTime date);
     (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfPayslip(DateOnly date);
     (decimal dailyRate, decimal hourlyRate) GetRatesByEmployeeType(decimal basicRate, bool isRegular);
+    (decimal basicPay, decimal hourlyRate) GetRatesByEmployeeTypeAndDailyRate(decimal dailyRate, bool isRegular);
 }
