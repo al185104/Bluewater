@@ -295,7 +295,7 @@
     private List<EnumOption> credentialsOptions = new();
     private EnumOption selectedCredential = new(null, null);
     private List<PositionDTO> positions = new();
-    private PositionDTO selectedPosition = new();
+    private PositionDTO? selectedPosition = null;
     private List<SectionDTO> sections = new();
     private List<DepartmentDTO> departments = new();
     private List<DivisionDTO> divisions = new();
@@ -345,9 +345,9 @@
             levels = GlobalService.Levels.ToList() ?? new List<LevelDTO>();
             shifts = GlobalService.Shifts.ToList() ?? new List<ShiftDTO>();
 
-            if(Content.PositionId == Guid.Empty)
-                Content.PositionId = positions.FirstOrDefault()?.Id ?? Guid.Empty;
-            selectedPosition = positions.FirstOrDefault(i => i.Id == Content.PositionId) ?? new PositionDTO();
+            @* if(Content.PositionId == Guid.Empty)
+                Content.PositionId = positions.FirstOrDefault()?.Id ?? Guid.Empty; *@
+            selectedPosition = positions.FirstOrDefault(i => i.Id == Content.PositionId);
             
             if(Content.SectionId == Guid.Empty)
                 Content.SectionId = sections.FirstOrDefault(i => i.Id == Content.PositionId)?.Id ?? Guid.Empty;
@@ -530,15 +530,6 @@
         var employeeType = employeeTypes.FirstOrDefault(x => x.Name.Equals(stringValue, StringComparison.InvariantCultureIgnoreCase));
         if(employeeType != null)
             Content.TypeId = employeeType.Id;
-
-        @* var _isRegular = false;
-        if(employeeType != null)
-            _isRegular = employeeType.Name.Equals("Regular", StringComparison.InvariantCultureIgnoreCase);
-        
-        if(_isRegular)
-            UpdatePays(Content.BasicPay ?? 0, _isRegular);
-        else
-            UpdatePays(Content.DailyRate ?? 0, _isRegular); *@
     }
 
     public void HandleBasicPayUpdated(ChangeEventArgs changeEventArgs)

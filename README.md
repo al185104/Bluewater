@@ -300,7 +300,7 @@ schedule -
   -[done] no section
   -[done] add id number
   -[pending] import -- need dynamic csv header reading by date
-attendance - total absences between work and late
+[done] attendance - total absences between work and late
 add color to edited
 payroll - hide 0 earnings/deductions
 payroll - old design
