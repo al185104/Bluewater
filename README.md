@@ -303,4 +303,4 @@ schedule -
 [done] attendance - total absences between work and late
 add color to edited
 payroll - hide 0 earnings/deductions
-payroll - old design
+[done] report - old design

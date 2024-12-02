@@ -65,10 +65,11 @@
     @if (env.IsDevelopment())
     {
         @* <FluentButton OnClick="@(async () => await CreateDummyEmployees())">Create Dummy Employees</FluentButton>
-        <FluentButton OnClick="@(async () => await CreateDummyShifts())">Create Dummy Shifts</FluentButton> *@
+        <FluentButton OnClick="@(async () => await CreateDummyShifts())">Create Dummy Shifts</FluentButton>
         <FluentButton OnClick="@(async () => await CreateDummyTimesheet())">Create Dummy Timesheet</FluentButton>
-        <FluentButton OnClick="@(async () => await CreateDummySchedule())">Create Dummy Schedule</FluentButton>
+        <FluentButton OnClick="@(async () => await CreateDummySchedule())">Create Dummy Schedule</FluentButton> *@
     }
+    
     <FluentInputFile @ref="@divFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
         AnchorId="DivImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
         OnProgressChange="@(e =>

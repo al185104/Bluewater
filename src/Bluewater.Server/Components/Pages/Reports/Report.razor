@@ -94,9 +94,8 @@
                 var result = await mediator.Send(new ListPayrollQuery(null, null, null, startDate, endDate));
                 if (result.IsSuccess) {
                     var payrolls = result.Value.ToList();
-                    CsvUtility.ExportPayrollToCSV($"payroll_{DateTime.Now.ToString("MMM dd hh:mm:ss tt")}.csv", payrolls);
-                    //var exportResult = await CsvUtility.ExportToCSV<PayrollDTO>(payrolls, $"payroll_{DateTime.Now.ToString("MMM dd hh:mm:ss tt")}.csv", new[] { "id", "EmployeeId" });
-                    await DialogService.ShowInfoAsync("Exported payroll to Download folder.", "Export");
+                    CsvUtility.ExportPayrollToExcel($"payroll_{DateTime.Now.ToString("MMM dd hh:mm:ss tt")}.xlsx", payrolls);
+                    await DialogService.ShowInfoAsync($"Exported payroll_{DateTime.Now.ToString("MMM dd hh:mm:ss tt")} to Download folder.", "Export");
                 }
             }
         }

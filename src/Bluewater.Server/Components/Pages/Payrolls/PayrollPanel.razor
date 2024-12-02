@@ -1,3 +1,4 @@
+@rendermode InteractiveServer
 @using System.ComponentModel;
 @using System.Reflection;
 @using Bluewater.Server.Global;
@@ -42,125 +43,147 @@
                 </FluentGridItem>
 
                 @* restday *@
-                <FluentGridItem xs="4" Visible=false>
-                    <FluentLabel>Rest day</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.RestDayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.RestDayHrs</FluentLabel>
-                </FluentGridItem>    
-                <FluentGridItem xs="4" Visible=@(Content.RestDayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.RestDayAmount</FluentLabel>
-                </FluentGridItem>    
+                @if(Content.RestDayHrs != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Rest day</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.RestDayHrs</FluentLabel>
+                    </FluentGridItem>    
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.RestDayAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* regular *@
-                <FluentGridItem xs="4" Visible=@(Content.RegularHolidayHrs != 0)>
-                    <FluentLabel>Regular Holiday</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.RegularHolidayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.RegularHolidayHrs</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.RegularHolidayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.RegularHolidayAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.RegularHolidayHrs != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Regular Holiday</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.RegularHolidayHrs</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.RegularHolidayAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* special *@
-                <FluentGridItem xs="4" Visible=@(Content.SpecialHolidayHrs != 0)>
-                    <FluentLabel>Special Holiday</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.SpecialHolidayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.SpecialHolidayHrs</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.SpecialHolidayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.SpecialHolidayAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.SpecialHolidayHrs != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Special Holiday</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.SpecialHolidayHrs</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.SpecialHolidayAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* overtime *@
-                <FluentGridItem xs="4" Visible=@(Content.OvertimeHrs != 0)>
-                    <FluentLabel>Overtime</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.OvertimeHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.OvertimeHrs</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.OvertimeHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.OvertimeAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.OvertimeHrs != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Overtime</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.OvertimeHrs</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.OvertimeAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* night differential *@
-                <FluentGridItem xs="4" Visible=@(Content.NightDiffHrs != 0)>
-                    <FluentLabel>Night Differential</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.NightDiffHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.NightDiffHrs</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.NightDiffHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.NightDiffAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.NightDiffHrs != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Night Differential</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.NightDiffHrs</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.NightDiffAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* night differential with overtime *@
-                <FluentGridItem xs="4" Visible=@(Content.NightDiffOvertimeHrs != 0)>
-                    <FluentLabel>Night Diff with Overtime</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.NightDiffOvertimeHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.NightDiffOvertimeHrs</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.NightDiffOvertimeHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.NightDiffOvertimeAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.NightDiffOvertimeHrs != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Night Diff with Overtime</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.NightDiffOvertimeHrs</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.NightDiffOvertimeAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* night differential on Regular holidays *@
-                <FluentGridItem xs="4" Visible=@(Content.NightDiffRegularHolidayHrs != 0)>
-                    <FluentLabel>Night Diff on Regular Holidays</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.NightDiffRegularHolidayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.NightDiffRegularHolidayHrs</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.NightDiffRegularHolidayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.NightDiffRegularHolidayAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.NightDiffRegularHolidayHrs != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Night Diff on Regular Holidays</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.NightDiffRegularHolidayHrs</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.NightDiffRegularHolidayAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* night differential on Special holidays *@
-                <FluentGridItem xs="4" Visible=@(Content.NightDiffSpecialHolidayHrs != 0)>
-                    <FluentLabel>Night Diff on Special Holidays</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.NightDiffSpecialHolidayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.NightDiffSpecialHolidayHrs</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.NightDiffSpecialHolidayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.NightDiffSpecialHolidayAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.NightDiffSpecialHolidayHrs != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Night Diff on Special Holidays</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.NightDiffSpecialHolidayHrs</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.NightDiffSpecialHolidayAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* overtime on Rest day *@
-                <FluentGridItem xs="4" Visible=@(Content.OvertimeRestDayHrs != 0)>
-                    <FluentLabel>Overtime on Rest day premium</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.OvertimeRestDayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.OvertimeRestDayHrs</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.OvertimeRestDayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.OvertimeRestDayAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.OvertimeRestDayHrs != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Overtime on Rest day premium</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.OvertimeRestDayHrs</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.OvertimeRestDayAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* overtime on Regular holidays *@
-                <FluentGridItem xs="4" Visible=@(Content.OvertimeRegularHolidayHrs != 0)>
-                    <FluentLabel>Overtime on Regular Holidays</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.OvertimeRegularHolidayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.OvertimeRegularHolidayHrs</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.OvertimeRegularHolidayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.OvertimeRegularHolidayAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.OvertimeRegularHolidayHrs != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Overtime on Regular Holidays</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.OvertimeRegularHolidayHrs</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.OvertimeRegularHolidayAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* overtime on Special holidays *@
-                <FluentGridItem xs="4" Visible=@(Content.OvertimeSpecialHolidayHrs != 0)>
-                    <FluentLabel>Overtime on Special Holidays</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.OvertimeSpecialHolidayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.OvertimeSpecialHolidayHrs</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.OvertimeSpecialHolidayHrs != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.OvertimeSpecialHolidayAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.OvertimeSpecialHolidayHrs != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Overtime on Special Holidays</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.OvertimeSpecialHolidayHrs</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.OvertimeSpecialHolidayAmount</FluentLabel>
+                    </FluentGridItem>
+                }
             </FluentGrid>
         </FluentCard>
 
@@ -176,60 +199,75 @@
                 </FluentGridItem>
 
                 @* service charge *@
-                <FluentGridItem xs="6" Visible=@(Content.SvcCharge != 0)>
-                    <FluentLabel>Service Charge</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.SvcCharge != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.SvcCharge</FluentLabel>
-                </FluentGridItem>
+                @if(Content.SvcCharge != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>Service Charge</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.SvcCharge</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* cost of living allowance *@
-                <FluentGridItem xs="6" Visible=@(Content.CostOfLivingAllowanceAmount != 0)>
-                    <FluentLabel>Cost of Living Allowance</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.CostOfLivingAllowanceAmount != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.CostOfLivingAllowanceAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.CostOfLivingAllowanceAmount != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>Cost of Living Allowance</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.CostOfLivingAllowanceAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* monthly allowance *@
-                <FluentGridItem xs="6" Visible=@(Content.MonthlyAllowanceAmount != 0)>
-                    <FluentLabel>Monthly Allowance</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.MonthlyAllowanceAmount != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.MonthlyAllowanceAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.MonthlyAllowanceAmount != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>Monthly Allowance</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.MonthlyAllowanceAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* salary underpayment *@
-                <FluentGridItem xs="6" Visible=@(Content.SalaryUnderpaymentAmount != 0)>
-                    <FluentLabel>Salary Underpayment</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.SalaryUnderpaymentAmount != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.SalaryUnderpaymentAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.SalaryUnderpaymentAmount != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>Salary Underpayment</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.SalaryUnderpaymentAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* refund absences *@
-                <FluentGridItem xs="6" Visible=@(Content.RefundAbsencesAmount != 0)>
-                    <FluentLabel>Refund Absences</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.RefundAbsencesAmount != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.RefundAbsencesAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.RefundAbsencesAmount != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>Refund Absences</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.RefundAbsencesAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* refund undertime *@
-                <FluentGridItem xs="6" Visible=@(Content.RefundUndertimeAmount != 0)>
-                    <FluentLabel>Refund Undertime</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.RefundUndertimeAmount != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.RefundUndertimeAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.RefundUndertimeAmount != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>Refund Undertime</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.RefundUndertimeAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* refund overtime *@
-                <FluentGridItem xs="6" Visible=@(Content.RefundOvertimeAmount != 0)>
-                    <FluentLabel>Refund Overtime</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.RefundOvertimeAmount != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.RefundOvertimeAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.RefundOvertimeAmount != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>Refund Overtime</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.RefundOvertimeAmount</FluentLabel>
+                    </FluentGridItem>
+                }
+
             </FluentGrid>
         </FluentCard>
 
@@ -243,40 +281,50 @@
                     <FluentLabel Alignment="HorizontalAlignment.End">Amount</FluentLabel>
                 </FluentGridItem>         
 
-                <FluentGridItem xs="6" Visible=@(Content.SSSAmount != 0)>
-                    <FluentLabel>SSS</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.SSSAmount != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.SSSAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.SSSAmount != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>SSS</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.SSSAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
-                <FluentGridItem xs="6" Visible=@(Content.PagibigAmount != 0)>
-                    <FluentLabel>Pagibig</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.PagibigAmount != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.PagibigAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.PagibigAmount != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>Pagibig</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.PagibigAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
-                <FluentGridItem xs="6" Visible=@(Content.PhilhealthAmount != 0)>
-                    <FluentLabel>Philhealth</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.PhilhealthAmount != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.PhilhealthAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.PhilhealthAmount != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>Philhealth</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.PhilhealthAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
-                <FluentGridItem xs="6" Visible=@(Content.UnionDues != 0)>
-                    <FluentLabel>Union Dues</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.UnionDues != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.UnionDues</FluentLabel>
-                </FluentGridItem>
+                @if(Content.UnionDues != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>Union Dues</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.UnionDues</FluentLabel>
+                    </FluentGridItem>
+                }
 
-                <FluentGridItem xs="6" Visible=@(Content.TaxDeductions != 0)>
-                    <FluentLabel>Tax Deduction</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.TaxDeductions != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.TaxDeductions</FluentLabel>
-                </FluentGridItem>
+                @if(Content.TaxDeductions != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>Tax Deduction</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.TaxDeductions</FluentLabel>
+                    </FluentGridItem>
+                }
 
             </FluentGrid>
         </FluentCard>    
@@ -291,57 +339,68 @@
                     <FluentLabel Alignment="HorizontalAlignment.End">Amount</FluentLabel>
                 </FluentGridItem> 
 
-                <FluentGridItem xs="6" Visible=@(Content.TotalLoanDeductions != 0)>
-                    <FluentLabel>Loans</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="6" Visible=@(Content.TotalLoanDeductions != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.TotalLoanDeductions</FluentLabel>
-                </FluentGridItem>   
+                @if(Content.TotalLoanDeductions != 0) {
+                    <FluentGridItem xs="6">
+                        <FluentLabel>Loans</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="6">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.TotalLoanDeductions</FluentLabel>
+                    </FluentGridItem>   
+                }
 
                 @* AbsencesAmount *@
-                <FluentGridItem xs="4" Visible=@(Content.Absences != 0)>
-                    <FluentLabel>Absences</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.Absences != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.Absences</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.Absences != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.AbsencesAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.Absences != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Absences</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.Absences</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.AbsencesAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* LatesAmount *@
-                <FluentGridItem xs="4" Visible=@(Content.Lates != 0)>
-                    <FluentLabel>Lates</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.Lates != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.Lates</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.Lates != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.LatesAmount</FluentLabel>
-                </FluentGridItem>
+                @if(Content.Lates != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Lates</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.Lates</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.LatesAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* UndertimeAmount  *@
-                <FluentGridItem xs="4" Visible=@(Content.Undertime != 0)>
-                    <FluentLabel>Undertime</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.Undertime != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.Undertime</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.Undertime != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.UndertimeAmount</FluentLabel>
-                </FluentGridItem>                
+                @if(Content.Undertime != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Undertime</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.Undertime</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.UndertimeAmount</FluentLabel>
+                    </FluentGridItem>
+                }
 
                 @* OverbreakAmount *@
-                <FluentGridItem xs="4" Visible=@(Content.Overbreak != 0)>
-                    <FluentLabel>Overbreak</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.Overbreak != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.Center">@Content.Overbreak</FluentLabel>
-                </FluentGridItem>
-                <FluentGridItem xs="4" Visible=@(Content.Overbreak != 0)>
-                    <FluentLabel Alignment="HorizontalAlignment.End">@Content.OverbreakAmount</FluentLabel>
-                </FluentGridItem>
-            </FluentGrid>
+                @if(Content.Overbreak != 0) {
+                    <FluentGridItem xs="4">
+                        <FluentLabel>Overbreak</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.Center">@Content.Overbreak</FluentLabel>
+                    </FluentGridItem>
+                    <FluentGridItem xs="4">
+                        <FluentLabel Alignment="HorizontalAlignment.End">@Content.OverbreakAmount</FluentLabel>
+                    </FluentGridItem>
+                }
+                
+                </FluentGrid>
         </FluentCard>    
 
         @* net pay *@

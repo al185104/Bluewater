@@ -4,11 +4,276 @@ using CsvHelper.Configuration;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Reflection;
+using ClosedXML.Excel;
 
 namespace Bluewater.Server.Helpers;
 
 public static class CsvUtility
-{    
+{
+    public static void ExportPayrollToExcel(string fileName, IEnumerable<PayrollDTO> payrolls)
+    {
+        var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+        // Ensure the Downloads folder exists
+        if (!Directory.Exists(downloadsPath))
+            Directory.CreateDirectory(downloadsPath);
+
+        // Combine the file name with the Downloads path
+        var filePath = Path.Combine(downloadsPath, fileName);
+
+        using var workbook = new XLWorkbook();
+        var worksheet = workbook.Worksheets.Add("Payroll");
+
+        // Define headers
+        var headers = new[]
+        {
+            "Division", "Department", "Section", "Employee Name",
+            "Labor Hours", "Labor Hours Income", "Regular Holiday Hours", "Regular Holiday Amount",
+            "Special Holiday Hours", "Special Holiday Amount", "Night Differential Hours", "Night Differential Amount",
+            "Night Diff Regular Holiday Hours", "Night Diff Regular Holiday Amount",
+            "Night Diff Special Holiday Hours", "Night Diff Special Holiday Amount",
+            "Pagibig Amount", "Philhealth Amount", "Union Dues", "Lates", "Lates Amount",
+            "Undertime", "Undertime Amount", "Overbreak", "Overbreak Amount",
+            "Service Charge", "Monthly Allowance Amount", "Tax Deductions",
+            "Total Constant Deductions", "Total Loan Deductions",
+            "Gross Pay Amount", "Total Deductions", "Net Amount"
+        };
+
+        // Write headers
+        for (int i = 0; i < headers.Length; i++)
+        {
+            worksheet.Cell(1, i + 1).Value = headers[i];
+            worksheet.Cell(1, i + 1).Style.Font.Bold = true;
+            worksheet.Cell(1, i + 1).Style.Fill.BackgroundColor = XLColor.LightGray;
+        }
+
+        int currentRow = 2;
+        var sortedPayrolls = payrolls
+        .OrderBy(p => p.Division)
+        .ThenBy(p => p.Department)
+        .ThenBy(p => p.Section)
+        .ToList();
+
+        // Initialize grand totals
+        decimal grandTotalLaborHrs = 0, grandTotalLaborHoursIncome = 0, grandTotalRegularHolidayHrs = 0,
+                grandTotalRegularHolidayAmount = 0, grandTotalSpecialHolidayHrs = 0, grandTotalSpecialHolidayAmount = 0,
+                grandTotalNightDiffHrs = 0, grandTotalNightDiffAmount = 0, grandTotalNightDiffRegularHolidayHrs = 0,
+                grandTotalNightDiffRegularHolidayAmount = 0, grandTotalNightDiffSpecialHolidayHrs = 0,
+                grandTotalNightDiffSpecialHolidayAmount = 0, grandTotalPagibigAmount = 0, grandTotalPhilhealthAmount = 0,
+                grandTotalUnionDues = 0, grandTotalLates = 0, grandTotalLatesAmount = 0, grandTotalUndertime = 0,
+                grandTotalUndertimeAmount = 0, grandTotalOverbreak = 0, grandTotalOverbreakAmount = 0, grandTotalSvcCharge = 0,
+                grandTotalMonthlyAllowanceAmount = 0, grandTotalTaxDeductions = 0, grandTotalTotalConstantDeductions = 0,
+                grandTotalTotalLoanDeductions = 0, grandTotalGrossPay = 0, grandTotalTotalDeductions = 0, grandTotalNetPay = 0;
+
+        string? lastDivision = string.Empty;
+        string? lastDepartment = string.Empty;
+        string? lastSection = string.Empty;
+
+        foreach (var divisionGroup in sortedPayrolls.GroupBy(p => p.Division))
+        {
+            // Initialize division totals
+            decimal divisionTotalLaborHrs = 0, divisionTotalLaborHoursIncome = 0, divisionTotalRegularHolidayHrs = 0,
+                    divisionTotalRegularHolidayAmount = 0, divisionTotalSpecialHolidayHrs = 0, divisionTotalSpecialHolidayAmount = 0,
+                    divisionTotalNightDiffHrs = 0, divisionTotalNightDiffAmount = 0, divisionTotalNightDiffRegularHolidayHrs = 0,
+                    divisionTotalNightDiffRegularHolidayAmount = 0, divisionTotalNightDiffSpecialHolidayHrs = 0,
+                    divisionTotalNightDiffSpecialHolidayAmount = 0, divisionTotalPagibigAmount = 0, divisionTotalPhilhealthAmount = 0,
+                    divisionTotalUnionDues = 0, divisionTotalLates = 0, divisionTotalLatesAmount = 0, divisionTotalUndertime = 0,
+                    divisionTotalUndertimeAmount = 0, divisionTotalOverbreak = 0, divisionTotalOverbreakAmount = 0, divisionTotalSvcCharge = 0,
+                    divisionTotalMonthlyAllowanceAmount = 0, divisionTotalTaxDeductions = 0, divisionTotalTotalConstantDeductions = 0,
+                    divisionTotalTotalLoanDeductions = 0, divisionTotalGrossPay = 0, divisionTotalTotalDeductions = 0, divisionTotalNetPay = 0;
+
+            foreach (var payroll in divisionGroup)
+            {
+                // Write payroll data
+                worksheet.Cell(currentRow, 1).Value = lastDivision != divisionGroup.Key ? divisionGroup.Key : "";
+                worksheet.Cell(currentRow, 2).Value = lastDepartment != payroll.Department ? payroll.Department : "";
+                worksheet.Cell(currentRow, 3).Value = lastSection != payroll.Section ? payroll.Section : "";
+                if(!string.IsNullOrEmpty(divisionGroup.Key) && !lastDivision!.Equals(divisionGroup.Key, StringComparison.InvariantCultureIgnoreCase))
+                    lastDivision = divisionGroup.Key;
+                if(!string.IsNullOrEmpty(payroll.Department) && !lastDepartment!.Equals(payroll.Department, StringComparison.InvariantCultureIgnoreCase))
+                    lastDepartment = payroll.Department;
+                if(!string.IsNullOrEmpty(payroll.Section) && !lastSection!.Equals(payroll.Section, StringComparison.InvariantCultureIgnoreCase))
+                    lastSection = payroll.Section;
+
+                worksheet.Cell(currentRow, 4).Value = payroll.Name;
+                worksheet.Cell(currentRow, 5).Value = payroll.LaborHrs;
+                worksheet.Cell(currentRow, 6).Value = payroll.LaborHoursIncome.ToString("N");
+                worksheet.Cell(currentRow, 7).Value = payroll.RegularHolidayHrs;
+                worksheet.Cell(currentRow, 8).Value = payroll.RegularHolidayAmount.ToString("N");
+                worksheet.Cell(currentRow, 9).Value = payroll.SpecialHolidayHrs;
+                worksheet.Cell(currentRow, 10).Value = payroll.SpecialHolidayAmount.ToString("N");
+                worksheet.Cell(currentRow, 11).Value = payroll.NightDiffHrs;
+                worksheet.Cell(currentRow, 12).Value = payroll.NightDiffAmount.ToString("N");
+                worksheet.Cell(currentRow, 13).Value = payroll.NightDiffRegularHolidayHrs;
+                worksheet.Cell(currentRow, 14).Value = payroll.NightDiffRegularHolidayAmount.ToString("N");
+                worksheet.Cell(currentRow, 15).Value = payroll.NightDiffSpecialHolidayHrs;
+                worksheet.Cell(currentRow, 16).Value = payroll.NightDiffSpecialHolidayAmount.ToString("N");
+                worksheet.Cell(currentRow, 17).Value = payroll.PagibigAmount.ToString("N");
+                worksheet.Cell(currentRow, 18).Value = payroll.PhilhealthAmount.ToString("N");
+                worksheet.Cell(currentRow, 19).Value = payroll.UnionDues.ToString("N");
+                worksheet.Cell(currentRow, 20).Value = payroll.Lates;
+                worksheet.Cell(currentRow, 21).Value = payroll.LatesAmount.ToString("N");
+                worksheet.Cell(currentRow, 22).Value = payroll.Undertime;
+                worksheet.Cell(currentRow, 23).Value = payroll.UndertimeAmount.ToString("N");
+                worksheet.Cell(currentRow, 24).Value = payroll.Overbreak;
+                worksheet.Cell(currentRow, 25).Value = payroll.OverbreakAmount.ToString("N");
+                worksheet.Cell(currentRow, 26).Value = payroll.SvcCharge;
+                worksheet.Cell(currentRow, 27).Value = payroll.MonthlyAllowanceAmount.ToString("N");
+                worksheet.Cell(currentRow, 28).Value = payroll.TaxDeductions.ToString("N");
+                worksheet.Cell(currentRow, 29).Value = payroll.TotalConstantDeductions.ToString("N");
+                worksheet.Cell(currentRow, 30).Value = payroll.TotalLoanDeductions.ToString("N");
+                worksheet.Cell(currentRow, 31).Value = payroll.GrossPayAmount.ToString("N");
+                worksheet.Cell(currentRow, 32).Value = payroll.TotalDeductions.ToString("N");
+                worksheet.Cell(currentRow, 33).Value = payroll.NetAmount.ToString("N");
+
+                // Update totals
+                #region division groups
+                divisionTotalLaborHrs += payroll.LaborHrs;
+                divisionTotalLaborHoursIncome += payroll.LaborHoursIncome;
+                divisionTotalRegularHolidayHrs += payroll.RegularHolidayHrs;
+                divisionTotalRegularHolidayAmount += payroll.RegularHolidayAmount;
+                divisionTotalSpecialHolidayHrs += payroll.SpecialHolidayHrs;
+                divisionTotalSpecialHolidayAmount += payroll.SpecialHolidayAmount;
+                divisionTotalNightDiffHrs += payroll.NightDiffHrs;
+                divisionTotalNightDiffAmount += payroll.NightDiffAmount;
+                divisionTotalNightDiffRegularHolidayHrs += payroll.NightDiffRegularHolidayHrs;
+                divisionTotalNightDiffRegularHolidayAmount += payroll.NightDiffRegularHolidayAmount;
+                divisionTotalNightDiffSpecialHolidayHrs += payroll.NightDiffSpecialHolidayHrs;
+                divisionTotalNightDiffSpecialHolidayAmount += payroll.NightDiffSpecialHolidayAmount;
+                divisionTotalPagibigAmount += payroll.PagibigAmount;
+                divisionTotalPhilhealthAmount += payroll.PhilhealthAmount;
+                divisionTotalUnionDues += payroll.UnionDues;
+                divisionTotalLates += payroll.Lates;
+                divisionTotalLatesAmount += payroll.LatesAmount;
+                divisionTotalUndertime += payroll.Undertime;
+                divisionTotalUndertimeAmount += payroll.UndertimeAmount;
+                divisionTotalOverbreak += payroll.Overbreak;
+                divisionTotalOverbreakAmount += payroll.OverbreakAmount;
+                divisionTotalSvcCharge += payroll.SvcCharge;
+                divisionTotalMonthlyAllowanceAmount += payroll.MonthlyAllowanceAmount;
+                divisionTotalTaxDeductions += payroll.TaxDeductions;
+                divisionTotalTotalConstantDeductions += payroll.TotalConstantDeductions;
+                divisionTotalTotalLoanDeductions += payroll.TotalLoanDeductions;
+                divisionTotalGrossPay += payroll.GrossPayAmount;
+                divisionTotalTotalDeductions += payroll.TotalDeductions;
+                divisionTotalNetPay += payroll.NetAmount;
+                #endregion
+
+                #region grand total
+                grandTotalLaborHrs += payroll.LaborHrs;
+                grandTotalLaborHoursIncome += payroll.LaborHoursIncome;
+                grandTotalRegularHolidayHrs += payroll.RegularHolidayHrs;
+                grandTotalRegularHolidayAmount += payroll.RegularHolidayAmount;
+                grandTotalSpecialHolidayHrs += payroll.SpecialHolidayHrs;
+                grandTotalSpecialHolidayAmount += payroll.SpecialHolidayAmount;
+                grandTotalNightDiffHrs += payroll.NightDiffHrs;
+                grandTotalNightDiffAmount += payroll.NightDiffAmount;
+                grandTotalNightDiffRegularHolidayHrs += payroll.NightDiffRegularHolidayHrs;
+                grandTotalNightDiffRegularHolidayAmount += payroll.NightDiffRegularHolidayAmount;
+                grandTotalNightDiffSpecialHolidayHrs += payroll.NightDiffSpecialHolidayHrs;
+                grandTotalNightDiffSpecialHolidayAmount += payroll.NightDiffSpecialHolidayAmount;
+                grandTotalPagibigAmount += payroll.PagibigAmount;
+                grandTotalPhilhealthAmount += payroll.PhilhealthAmount;
+                grandTotalUnionDues += payroll.UnionDues;
+                grandTotalLates += payroll.Lates;
+                grandTotalLatesAmount += payroll.LatesAmount;
+                grandTotalUndertime += payroll.Undertime;
+                grandTotalUndertimeAmount += payroll.UndertimeAmount;
+                grandTotalOverbreak += payroll.Overbreak;
+                grandTotalOverbreakAmount += payroll.OverbreakAmount;
+                grandTotalSvcCharge += payroll.SvcCharge;
+                grandTotalMonthlyAllowanceAmount += payroll.MonthlyAllowanceAmount;
+                grandTotalTaxDeductions += payroll.TaxDeductions;
+                grandTotalTotalConstantDeductions += payroll.TotalConstantDeductions;
+                grandTotalTotalLoanDeductions += payroll.TotalLoanDeductions;
+                grandTotalGrossPay += payroll.GrossPayAmount;
+                grandTotalTotalDeductions += payroll.TotalDeductions;
+                grandTotalNetPay += payroll.NetAmount;
+                #endregion
+
+                currentRow++;
+            }
+
+            // Division total
+            worksheet.Cell(currentRow, 1).Value = $"{divisionGroup.Key} Total";
+            worksheet.Row(currentRow).Style.Font.Bold = true;
+            worksheet.Row(currentRow).Style.Fill.BackgroundColor = XLColor.LightGreen;
+
+            // Write division totals
+            worksheet.Cell(currentRow, 5).Value = divisionTotalLaborHrs;
+            worksheet.Cell(currentRow, 6).Value = divisionTotalLaborHoursIncome.ToString("N");
+            worksheet.Cell(currentRow, 7).Value = divisionTotalRegularHolidayHrs;
+            worksheet.Cell(currentRow, 8).Value = divisionTotalRegularHolidayAmount.ToString("N");
+            worksheet.Cell(currentRow, 9).Value = divisionTotalSpecialHolidayHrs;
+            worksheet.Cell(currentRow, 10).Value = divisionTotalSpecialHolidayAmount.ToString("N");
+            worksheet.Cell(currentRow, 11).Value = divisionTotalNightDiffHrs;
+            worksheet.Cell(currentRow, 12).Value = divisionTotalNightDiffAmount.ToString("N");
+            worksheet.Cell(currentRow, 13).Value = divisionTotalNightDiffRegularHolidayHrs;
+            worksheet.Cell(currentRow, 14).Value = divisionTotalNightDiffRegularHolidayAmount.ToString("N");
+            worksheet.Cell(currentRow, 15).Value = divisionTotalNightDiffSpecialHolidayHrs;
+            worksheet.Cell(currentRow, 16).Value = divisionTotalNightDiffSpecialHolidayAmount.ToString("N");
+            worksheet.Cell(currentRow, 17).Value = divisionTotalPagibigAmount.ToString("N");
+            worksheet.Cell(currentRow, 18).Value = divisionTotalPhilhealthAmount.ToString("N");
+            worksheet.Cell(currentRow, 19).Value = divisionTotalUnionDues.ToString("N");
+            worksheet.Cell(currentRow, 20).Value = divisionTotalLates;
+            worksheet.Cell(currentRow, 21).Value = divisionTotalLatesAmount.ToString("N");
+            worksheet.Cell(currentRow, 22).Value = divisionTotalUndertime;
+            worksheet.Cell(currentRow, 23).Value = divisionTotalUndertimeAmount.ToString("N");
+            worksheet.Cell(currentRow, 24).Value = divisionTotalOverbreak;
+            worksheet.Cell(currentRow, 25).Value = divisionTotalOverbreakAmount.ToString("N");
+            worksheet.Cell(currentRow, 26).Value = divisionTotalSvcCharge.ToString("N");
+            worksheet.Cell(currentRow, 27).Value = divisionTotalMonthlyAllowanceAmount.ToString("N");
+            worksheet.Cell(currentRow, 28).Value = divisionTotalTaxDeductions.ToString("N");
+            worksheet.Cell(currentRow, 29).Value = divisionTotalTotalConstantDeductions.ToString("N");
+            worksheet.Cell(currentRow, 30).Value = divisionTotalTotalLoanDeductions.ToString("N");
+            worksheet.Cell(currentRow, 31).Value = divisionTotalGrossPay.ToString("N");
+            worksheet.Cell(currentRow, 32).Value = divisionTotalTotalDeductions.ToString("N");
+            worksheet.Cell(currentRow, 33).Value = divisionTotalNetPay.ToString("N");
+
+            currentRow++;
+        }
+
+        currentRow++; // Empty row before grand total
+
+        // Grand total
+        worksheet.Cell(currentRow, 1).Value = "Grand Total";
+        worksheet.Row(currentRow).Style.Font.Bold = true;
+        worksheet.Row(currentRow).Style.Fill.BackgroundColor = XLColor.LightPink;
+
+        // Write grand totals
+        worksheet.Cell(currentRow, 5).Value = grandTotalLaborHrs;
+        worksheet.Cell(currentRow, 6).Value = grandTotalLaborHoursIncome.ToString("N");
+        worksheet.Cell(currentRow, 7).Value = grandTotalRegularHolidayHrs;
+        worksheet.Cell(currentRow, 8).Value = grandTotalRegularHolidayAmount.ToString("N");
+        worksheet.Cell(currentRow, 9).Value = grandTotalSpecialHolidayHrs;
+        worksheet.Cell(currentRow, 10).Value = grandTotalSpecialHolidayAmount.ToString("N");
+        worksheet.Cell(currentRow, 11).Value = grandTotalNightDiffHrs;
+        worksheet.Cell(currentRow, 12).Value = grandTotalNightDiffAmount.ToString("N");
+        worksheet.Cell(currentRow, 13).Value = grandTotalNightDiffRegularHolidayHrs;
+        worksheet.Cell(currentRow, 14).Value = grandTotalNightDiffRegularHolidayAmount.ToString("N");
+        worksheet.Cell(currentRow, 15).Value = grandTotalNightDiffSpecialHolidayHrs;
+        worksheet.Cell(currentRow, 16).Value = grandTotalNightDiffSpecialHolidayAmount.ToString("N");
+        worksheet.Cell(currentRow, 17).Value = grandTotalPagibigAmount.ToString("N");
+        worksheet.Cell(currentRow, 18).Value = grandTotalPhilhealthAmount.ToString("N");
+        worksheet.Cell(currentRow, 19).Value = grandTotalUnionDues.ToString("N");
+        worksheet.Cell(currentRow, 20).Value = grandTotalLates;
+        worksheet.Cell(currentRow, 21).Value = grandTotalLatesAmount.ToString("N");
+        worksheet.Cell(currentRow, 22).Value = grandTotalUndertime;
+        worksheet.Cell(currentRow, 23).Value = grandTotalUndertimeAmount.ToString("N");
+        worksheet.Cell(currentRow, 24).Value = grandTotalOverbreak;
+        worksheet.Cell(currentRow, 25).Value = grandTotalOverbreakAmount.ToString("N");
+        worksheet.Cell(currentRow, 26).Value = grandTotalSvcCharge.ToString("N");
+        worksheet.Cell(currentRow, 27).Value = grandTotalMonthlyAllowanceAmount.ToString("N");
+        worksheet.Cell(currentRow, 28).Value = grandTotalTaxDeductions.ToString("N");
+        worksheet.Cell(currentRow, 29).Value = grandTotalTotalConstantDeductions.ToString("N");
+        worksheet.Cell(currentRow, 30).Value = grandTotalTotalLoanDeductions.ToString("N");
+        worksheet.Cell(currentRow, 31).Value = grandTotalGrossPay.ToString("N");
+        worksheet.Cell(currentRow, 32).Value = grandTotalTotalDeductions.ToString("N");
+        worksheet.Cell(currentRow, 33).Value = grandTotalNetPay.ToString("N");
+
+        // Save to file
+        workbook.SaveAs(filePath);
+    }
+
     public static void ExportPayrollToCSV(string fileName, IEnumerable<PayrollDTO> payrolls)
     {
         var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
@@ -353,6 +618,7 @@ public static class CsvUtility
         csv.WriteField(grandTotalNetPay);
         csv.NextRecord();
     }    
+    
     public static async Task<string> ExportToCSV<T>(List<T> records, string fileName = "export.csv", string[]? excludeColumns = null)
     {
         try
