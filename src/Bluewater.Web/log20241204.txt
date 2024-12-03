@@ -1,0 +1,153 @@
+2024-12-04 00:52:28.176 +08:00 [INF] Registered 18 endpoints in 114 milliseconds.
+2024-12-04 00:52:28.569 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2024-12-04 00:52:28.694 +08:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2024-12-04 00:52:28.766 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Contributors" AS "c")
+2024-12-04 00:52:28.980 +08:00 [INF] Now listening on: https://localhost:57679
+2024-12-04 00:52:28.980 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-12-04 00:52:28.980 +08:00 [INF] Hosting environment: Development
+2024-12-04 00:52:28.981 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2024-12-04 00:52:52.447 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2024-12-04 00:52:52.477 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 30.6981ms
+2024-12-04 00:52:52.478 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2024-12-04 00:52:55.580 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2024-12-04 00:52:55.580 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 0.3735ms
+2024-12-04 00:52:55.580 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2024-12-04 00:52:58.423 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2024-12-04 00:52:58.424 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 1.0945ms
+2024-12-04 00:52:58.425 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2024-12-04 00:52:59.623 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/division - null null
+2024-12-04 00:52:59.626 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/division - 404 0 null 2.9969ms
+2024-12-04 00:52:59.627 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/division, Response status code: 404
+2024-12-04 00:53:01.960 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/divisions - null null
+2024-12-04 00:53:01.964 +08:00 [INF] Executing endpoint 'HTTP: GET /Divisions'
+2024-12-04 00:53:01.997 +08:00 [INF] Handling ListDivisionsQuery
+2024-12-04 00:53:01.998 +08:00 [INF] Property skip : null
+2024-12-04 00:53:01.998 +08:00 [INF] Property take : null
+2024-12-04 00:53:02.025 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "d"."Id", "d"."Name", COALESCE("d"."Description", '')
+FROM "Divisions" AS "d"
+2024-12-04 00:53:02.026 +08:00 [INF] Handled ListDivisionsQuery with Ardalis.Result.Result`1[System.Collections.Generic.IEnumerable`1[Bluewater.UseCases.Divisions.DivisionDTO]] in 28 ms
+2024-12-04 00:53:02.036 +08:00 [INF] Executed endpoint 'HTTP: GET /Divisions'
+2024-12-04 00:53:02.037 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/divisions - 200 null application/json 77.0568ms
+2024-12-04 00:53:04.318 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2024-12-04 00:53:04.319 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 0.8938ms
+2024-12-04 00:53:04.319 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2024-12-04 00:53:06.555 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/mealcredits - null null
+2024-12-04 00:53:06.556 +08:00 [INF] Executing endpoint 'HTTP: GET /MealCredits'
+2024-12-04 00:53:06.562 +08:00 [INF] Handling ListMealCreditQuery
+2024-12-04 00:53:06.563 +08:00 [INF] Property skip : null
+2024-12-04 00:53:06.563 +08:00 [INF] Property take : null
+2024-12-04 00:53:06.615 +08:00 [ERR] Failed executing DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."Id", "m"."Count", "m"."CreateBy", "m"."CreatedDate", "m"."Date", "m"."EmployeeId", "m"."UpdateBy", "m"."UpdatedDate"
+FROM "MealCredits" AS "m"
+2024-12-04 00:53:06.624 +08:00 [ERR] An exception occurred while iterating over the results of a query for context type 'Bluewater.Infrastructure.Data.AppDbContext'.
+Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 1: 'no such table: MealCredits'.
+   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+   at Microsoft.Data.Sqlite.SqliteCommand.PrepareAndEnumerateStatements()+MoveNext()
+   at Microsoft.Data.Sqlite.SqliteCommand.GetStatements()+MoveNext()
+   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 1: 'no such table: MealCredits'.
+   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+   at Microsoft.Data.Sqlite.SqliteCommand.PrepareAndEnumerateStatements()+MoveNext()
+   at Microsoft.Data.Sqlite.SqliteCommand.GetStatements()+MoveNext()
+   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2024-12-04 00:53:06.625 +08:00 [INF] Executed endpoint 'HTTP: GET /MealCredits'
+2024-12-04 00:53:06.626 +08:00 [ERR] An unhandled exception has occurred while executing the request.
+Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 1: 'no such table: MealCredits'.
+   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+   at Microsoft.Data.Sqlite.SqliteCommand.PrepareAndEnumerateStatements()+MoveNext()
+   at Microsoft.Data.Sqlite.SqliteCommand.GetStatements()+MoveNext()
+   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.EntityFrameworkQueryableExtensions.ToListAsync[TSource](IQueryable`1 source, CancellationToken cancellationToken)
+   at Ardalis.Specification.EntityFrameworkCore.RepositoryBase`1.ListAsync(CancellationToken cancellationToken)
+   at Bluewater.UseCases.Contributors.Create.ListMealCreditHandler.Handle(ListMealCreditQuery request, CancellationToken cancellationToken) in /Users/adrianllamido/Repo/Bluewater/src/Bluewater.UseCases/MealCredits/List/ListMealCreditHandler.cs:line 12
+   at Ardalis.SharedKernel.LoggingBehavior`2.Handle(TRequest request, RequestHandlerDelegate`1 next, CancellationToken cancellationToken)
+   at Bluewater.Web.MealCredits.List.HandleAsync(CancellationToken ct) in /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web/MealCredits/List.cs:line 22
+   at FastEndpoints.Endpoint`2.ExecAsync(CancellationToken ct)
+   at FastEndpoints.Endpoint`2.ExecAsync(CancellationToken ct)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at NSwag.AspNetCore.Middlewares.SwaggerUiIndexMiddleware.Invoke(HttpContext context)
+   at NSwag.AspNetCore.Middlewares.RedirectToIndexMiddleware.Invoke(HttpContext context)
+   at NSwag.AspNetCore.Middlewares.OpenApiDocumentMiddleware.Invoke(HttpContext context)
+   at Ardalis.ListStartupServices.ShowAllServicesMiddleware.Invoke(HttpContext httpContext)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2024-12-04 00:53:06.643 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/mealcredits - 500 null text/html; charset=utf-8 87.5921ms
+2024-12-04 00:53:13.904 +08:00 [INF] Application is shutting down...
+2024-12-04 00:59:45.199 +08:00 [INF] Registered 18 endpoints in 115 milliseconds.
+2024-12-04 00:59:45.676 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2024-12-04 00:59:45.764 +08:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2024-12-04 00:59:45.824 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Contributors" AS "c")
+2024-12-04 00:59:45.874 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Contributors" ("Name", "Status")
+VALUES (@p0, @p1)
+RETURNING "Id";
+2024-12-04 00:59:45.880 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 8), @p1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Contributors" ("Name", "Status")
+VALUES (@p0, @p1)
+RETURNING "Id";
+2024-12-04 00:59:46.036 +08:00 [INF] Now listening on: https://localhost:57679
+2024-12-04 00:59:46.036 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-12-04 00:59:46.036 +08:00 [INF] Hosting environment: Development
+2024-12-04 00:59:46.037 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2024-12-04 01:00:17.226 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2024-12-04 01:00:17.244 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 17.9005ms
+2024-12-04 01:00:17.245 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2024-12-04 01:00:19.340 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2024-12-04 01:00:19.341 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 1.1976ms
+2024-12-04 01:00:19.341 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2024-12-04 01:00:21.914 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/divisions - null null
+2024-12-04 01:00:21.917 +08:00 [INF] Executing endpoint 'HTTP: GET /Divisions'
+2024-12-04 01:00:21.950 +08:00 [INF] Handling ListDivisionsQuery
+2024-12-04 01:00:21.950 +08:00 [INF] Property skip : null
+2024-12-04 01:00:21.950 +08:00 [INF] Property take : null
+2024-12-04 01:00:21.978 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "d"."Id", "d"."Name", COALESCE("d"."Description", '')
+FROM "Divisions" AS "d"
+2024-12-04 01:00:21.979 +08:00 [INF] Handled ListDivisionsQuery with Ardalis.Result.Result`1[System.Collections.Generic.IEnumerable`1[Bluewater.UseCases.Divisions.DivisionDTO]] in 28 ms
+2024-12-04 01:00:21.989 +08:00 [INF] Executed endpoint 'HTTP: GET /Divisions'
+2024-12-04 01:00:21.991 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/divisions - 200 null application/json 77.2079ms
+2024-12-04 01:00:24.457 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2024-12-04 01:00:24.458 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 0.9817ms
+2024-12-04 01:00:24.459 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2024-12-04 01:00:25.576 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/mealcredits - null null
+2024-12-04 01:00:25.579 +08:00 [INF] Executing endpoint 'HTTP: GET /MealCredits'
+2024-12-04 01:00:25.585 +08:00 [INF] Handling ListMealCreditQuery
+2024-12-04 01:00:25.586 +08:00 [INF] Property skip : null
+2024-12-04 01:00:25.586 +08:00 [INF] Property take : null
+2024-12-04 01:00:25.634 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."Id", "m"."Count", "m"."CreateBy", "m"."CreatedDate", "m"."Date", "m"."EmployeeId", "m"."UpdateBy", "m"."UpdatedDate"
+FROM "MealCredits" AS "m"
+2024-12-04 01:00:25.634 +08:00 [INF] Handled ListMealCreditQuery with Ardalis.Result.Result`1[System.Collections.Generic.IEnumerable`1[Bluewater.UseCases.MealCredits.MealCreditDTO]] in 48 ms
+2024-12-04 01:00:25.639 +08:00 [INF] Executed endpoint 'HTTP: GET /MealCredits'
+2024-12-04 01:00:25.639 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/mealcredits - 200 null application/json 62.8128ms
+2024-12-04 01:01:28.258 +08:00 [INF] Application is shutting down...

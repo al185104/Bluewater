@@ -1,0 +1,550 @@
+2024-12-03 19:53:43.390 +08:00 [INF] Registered 15 endpoints in 100 milliseconds.
+2024-12-03 19:53:44.065 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2024-12-03 19:53:44.167 +08:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+PRAGMA journal_mode = 'wal';
+2024-12-03 19:53:44.265 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2024-12-03 19:53:44.377 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Contributors" (
+    "Id" INTEGER NOT NULL CONSTRAINT "PK_Contributors" PRIMARY KEY AUTOINCREMENT,
+    "Name" TEXT NOT NULL,
+    "Status" INTEGER NOT NULL,
+    "PhoneNumber_CountryCode" TEXT NULL,
+    "PhoneNumber_Number" TEXT NULL,
+    "PhoneNumber_Extension" TEXT NULL
+);
+2024-12-03 19:53:44.378 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Divisions" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Divisions" PRIMARY KEY,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL
+);
+2024-12-03 19:53:44.378 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Holidays" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Holidays" PRIMARY KEY,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT NULL,
+    "Date" TEXT NOT NULL,
+    "IsRegular" INTEGER NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL
+);
+2024-12-03 19:53:44.378 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Levels" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Levels" PRIMARY KEY,
+    "Name" TEXT NOT NULL,
+    "Value" TEXT NOT NULL,
+    "IsActive" INTEGER NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL
+);
+2024-12-03 19:53:44.378 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Pays" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Pays" PRIMARY KEY,
+    "BasicPay" TEXT NOT NULL,
+    "DailyRate" TEXT NOT NULL,
+    "HourlyRate" TEXT NOT NULL,
+    "HDMF_Con" TEXT NOT NULL,
+    "HDMF_Er" TEXT NOT NULL,
+    "Cola" TEXT NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL
+);
+2024-12-03 19:53:44.378 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "ServiceCharges" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_ServiceCharges" PRIMARY KEY,
+    "Username" TEXT NOT NULL,
+    "Amount" TEXT NOT NULL,
+    "Date" TEXT NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL
+);
+2024-12-03 19:53:44.378 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Shifts" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Shifts" PRIMARY KEY,
+    "Name" TEXT NOT NULL,
+    "ShiftStartTime" TEXT NULL,
+    "ShiftBreakTime" TEXT NULL,
+    "ShiftBreakEndTime" TEXT NULL,
+    "ShiftEndTime" TEXT NULL,
+    "BreakHours" TEXT NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL
+);
+2024-12-03 19:53:44.378 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Types" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Types" PRIMARY KEY,
+    "Name" TEXT NOT NULL,
+    "Value" TEXT NOT NULL,
+    "IsActive" INTEGER NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL
+);
+2024-12-03 19:53:44.378 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Users" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Users" PRIMARY KEY,
+    "Username" TEXT NOT NULL,
+    "PasswordHash" TEXT NOT NULL,
+    "Credential" INTEGER NOT NULL,
+    "SupervisedGroup" TEXT NULL,
+    "IsGlobalSupervisor" INTEGER NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL
+);
+2024-12-03 19:53:44.378 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Departments" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Departments" PRIMARY KEY,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    "DivisionId" TEXT NOT NULL,
+    CONSTRAINT "FK_Departments_Divisions_DivisionId" FOREIGN KEY ("DivisionId") REFERENCES "Divisions" ("Id") ON DELETE CASCADE
+);
+2024-12-03 19:53:44.378 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Chargings" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Chargings" PRIMARY KEY,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT NULL,
+    "DepartmentId" TEXT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    CONSTRAINT "FK_Chargings_Departments_DepartmentId" FOREIGN KEY ("DepartmentId") REFERENCES "Departments" ("Id")
+);
+2024-12-03 19:53:44.379 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Sections" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Sections" PRIMARY KEY,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT NULL,
+    "Approved1Id" TEXT NULL,
+    "Approved2Id" TEXT NULL,
+    "Approved3Id" TEXT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    "DepartmentId" TEXT NOT NULL,
+    CONSTRAINT "FK_Sections_Departments_DepartmentId" FOREIGN KEY ("DepartmentId") REFERENCES "Departments" ("Id") ON DELETE CASCADE
+);
+2024-12-03 19:53:44.379 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Positions" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Positions" PRIMARY KEY,
+    "Name" TEXT NOT NULL,
+    "Description" TEXT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    "SectionId" TEXT NOT NULL,
+    CONSTRAINT "FK_Positions_Sections_SectionId" FOREIGN KEY ("SectionId") REFERENCES "Sections" ("Id") ON DELETE CASCADE
+);
+2024-12-03 19:53:44.379 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Employees" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Employees" PRIMARY KEY,
+    "FirstName" TEXT NOT NULL,
+    "LastName" TEXT NOT NULL,
+    "MiddleName" TEXT NULL,
+    "DateOfBirth" TEXT NULL,
+    "Gender" INTEGER NOT NULL,
+    "CivilStatus" INTEGER NOT NULL,
+    "BloodType" INTEGER NOT NULL,
+    "Status" INTEGER NOT NULL,
+    "Height" TEXT NULL,
+    "Weight" TEXT NULL,
+    "IsDeleted" INTEGER NOT NULL,
+    "ImageUrl" BLOB NULL,
+    "Remarks" TEXT NULL,
+    "ContactInfo_Email" TEXT NULL,
+    "ContactInfo_TelNumber" TEXT NULL,
+    "ContactInfo_MobileNumber" TEXT NULL,
+    "ContactInfo_Address" TEXT NULL,
+    "ContactInfo_ProvincialAddress" TEXT NULL,
+    "ContactInfo_MothersMaidenName" TEXT NULL,
+    "ContactInfo_FathersName" TEXT NULL,
+    "ContactInfo_EmergencyContact" TEXT NULL,
+    "ContactInfo_RelationshipContact" TEXT NULL,
+    "ContactInfo_AddressContact" TEXT NULL,
+    "ContactInfo_TelNoContact" TEXT NULL,
+    "ContactInfo_MobileNoContact" TEXT NULL,
+    "EducationInfo_EducationalAttainment" INTEGER NULL,
+    "EducationInfo_CourseGraduated" TEXT NULL,
+    "EducationInfo_UniversityGraduated" TEXT NULL,
+    "EmploymentInfo_DateHired" TEXT NULL,
+    "EmploymentInfo_DateRegularized" TEXT NULL,
+    "EmploymentInfo_DateResigned" TEXT NULL,
+    "EmploymentInfo_DateTerminated" TEXT NULL,
+    "EmploymentInfo_TINNo" TEXT NULL,
+    "EmploymentInfo_SSSNo" TEXT NULL,
+    "EmploymentInfo_HDMFNo" TEXT NULL,
+    "EmploymentInfo_PHICNo" TEXT NULL,
+    "EmploymentInfo_BankAccount" TEXT NULL,
+    "EmploymentInfo_HasServiceCharge" INTEGER NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    "UserId" TEXT NULL,
+    "PositionId" TEXT NULL,
+    "PayId" TEXT NULL,
+    "TypeId" TEXT NULL,
+    "LevelId" TEXT NULL,
+    "ChargingId" TEXT NULL,
+    "ServiceChargeId" TEXT NULL,
+    CONSTRAINT "FK_Employees_Chargings_ChargingId" FOREIGN KEY ("ChargingId") REFERENCES "Chargings" ("Id"),
+    CONSTRAINT "FK_Employees_Levels_LevelId" FOREIGN KEY ("LevelId") REFERENCES "Levels" ("Id"),
+    CONSTRAINT "FK_Employees_Pays_PayId" FOREIGN KEY ("PayId") REFERENCES "Pays" ("Id"),
+    CONSTRAINT "FK_Employees_Positions_PositionId" FOREIGN KEY ("PositionId") REFERENCES "Positions" ("Id"),
+    CONSTRAINT "FK_Employees_ServiceCharges_ServiceChargeId" FOREIGN KEY ("ServiceChargeId") REFERENCES "ServiceCharges" ("Id"),
+    CONSTRAINT "FK_Employees_Types_TypeId" FOREIGN KEY ("TypeId") REFERENCES "Types" ("Id"),
+    CONSTRAINT "FK_Employees_Users_UserId" FOREIGN KEY ("UserId") REFERENCES "Users" ("Id")
+);
+2024-12-03 19:53:44.379 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Deductions" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Deductions" PRIMARY KEY,
+    "DeductionType" INTEGER NOT NULL,
+    "TotalAmount" TEXT NULL,
+    "MonthlyAmortization" TEXT NULL,
+    "RemainingBalance" TEXT NULL,
+    "NoOfMonths" INTEGER NULL,
+    "StartDate" TEXT NULL,
+    "EndDate" TEXT NULL,
+    "Remarks" TEXT NULL,
+    "Status" INTEGER NOT NULL,
+    "EmployeeId" TEXT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    CONSTRAINT "FK_Deductions_Employees_EmployeeId" FOREIGN KEY ("EmployeeId") REFERENCES "Employees" ("Id")
+);
+2024-12-03 19:53:44.379 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Dependents" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Dependents" PRIMARY KEY,
+    "FirstName" TEXT NOT NULL,
+    "LastName" TEXT NOT NULL,
+    "Relationship" TEXT NOT NULL,
+    "DateOfBirth" TEXT NULL,
+    "EmployeeId" TEXT NOT NULL,
+    CONSTRAINT "FK_Dependents_Employees_EmployeeId" FOREIGN KEY ("EmployeeId") REFERENCES "Employees" ("Id") ON DELETE CASCADE
+);
+2024-12-03 19:53:44.379 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "FailureInOuts" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_FailureInOuts" PRIMARY KEY,
+    "Date" TEXT NULL,
+    "Remarks" TEXT NULL,
+    "Reason" INTEGER NULL,
+    "Status" INTEGER NOT NULL,
+    "EmployeeId" TEXT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    CONSTRAINT "FK_FailureInOuts_Employees_EmployeeId" FOREIGN KEY ("EmployeeId") REFERENCES "Employees" ("Id")
+);
+2024-12-03 19:53:44.379 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "LeaveCredits" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_LeaveCredits" PRIMARY KEY,
+    "LeaveCode" TEXT NOT NULL,
+    "LeaveDescription" TEXT NOT NULL,
+    "DefaultCredits" TEXT NOT NULL,
+    "IsLeaveWithPay" INTEGER NOT NULL,
+    "IsCanCarryOver" INTEGER NOT NULL,
+    "SortOrder" INTEGER NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    "EmployeeId" TEXT NULL,
+    CONSTRAINT "FK_LeaveCredits_Employees_EmployeeId" FOREIGN KEY ("EmployeeId") REFERENCES "Employees" ("Id")
+);
+2024-12-03 19:53:44.379 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Leaves" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Leaves" PRIMARY KEY,
+    "StartDate" TEXT NOT NULL,
+    "EndDate" TEXT NOT NULL,
+    "IsHalfDay" INTEGER NOT NULL,
+    "Status" INTEGER NOT NULL,
+    "EmployeeId" TEXT NULL,
+    "LeaveCreditId" TEXT NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    CONSTRAINT "FK_Leaves_Employees_EmployeeId" FOREIGN KEY ("EmployeeId") REFERENCES "Employees" ("Id")
+);
+2024-12-03 19:53:44.379 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "OtherEarnings" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_OtherEarnings" PRIMARY KEY,
+    "EarningType" INTEGER NULL,
+    "TotalAmount" TEXT NULL,
+    "IsActive" INTEGER NOT NULL,
+    "Date" TEXT NULL,
+    "Status" INTEGER NOT NULL,
+    "EmployeeId" TEXT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    CONSTRAINT "FK_OtherEarnings_Employees_EmployeeId" FOREIGN KEY ("EmployeeId") REFERENCES "Employees" ("Id")
+);
+2024-12-03 19:53:44.379 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Overtimes" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Overtimes" PRIMARY KEY,
+    "StartDate" TEXT NULL,
+    "EndDate" TEXT NULL,
+    "ApprovedHours" INTEGER NULL,
+    "Remarks" TEXT NULL,
+    "Status" INTEGER NOT NULL,
+    "EmployeeId" TEXT NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    CONSTRAINT "FK_Overtimes_Employees_EmployeeId" FOREIGN KEY ("EmployeeId") REFERENCES "Employees" ("Id") ON DELETE CASCADE
+);
+2024-12-03 19:53:44.380 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Payrolls" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Payrolls" PRIMARY KEY,
+    "Date" TEXT NOT NULL,
+    "GrossPayAmount" TEXT NOT NULL,
+    "NetAmount" TEXT NOT NULL,
+    "BasicPayAmount" TEXT NOT NULL,
+    "SSSAmount" TEXT NOT NULL,
+    "SSSERAmount" TEXT NOT NULL,
+    "PagibigAmount" TEXT NOT NULL,
+    "PagibigERAmount" TEXT NOT NULL,
+    "PhilhealthAmount" TEXT NOT NULL,
+    "PhilhealthERAmount" TEXT NOT NULL,
+    "RestDayAmount" TEXT NOT NULL,
+    "RestDayHrs" TEXT NOT NULL,
+    "RegularHolidayAmount" TEXT NOT NULL,
+    "RegularHolidayHrs" TEXT NOT NULL,
+    "SpecialHolidayAmount" TEXT NOT NULL,
+    "SpecialHolidayHrs" TEXT NOT NULL,
+    "OvertimeAmount" TEXT NOT NULL,
+    "OvertimeHrs" TEXT NOT NULL,
+    "NightDiffAmount" TEXT NOT NULL,
+    "NightDiffHrs" TEXT NOT NULL,
+    "NightDiffOvertimeAmount" TEXT NOT NULL,
+    "NightDiffOvertimeHrs" TEXT NOT NULL,
+    "NightDiffRegularHolidayAmount" TEXT NOT NULL,
+    "NightDiffRegularHolidayHrs" TEXT NOT NULL,
+    "NightDiffSpecialHolidayAmount" TEXT NOT NULL,
+    "NightDiffSpecialHolidayHrs" TEXT NOT NULL,
+    "OvertimeRestDayAmount" TEXT NOT NULL,
+    "OvertimeRestDayHrs" TEXT NOT NULL,
+    "OvertimeRegularHolidayAmount" TEXT NOT NULL,
+    "OvertimeRegularHolidayHrs" TEXT NOT NULL,
+    "OvertimeSpecialHolidayAmount" TEXT NOT NULL,
+    "OvertimeSpecialHolidayHrs" TEXT NOT NULL,
+    "UnionDues" TEXT NOT NULL,
+    "Absences" INTEGER NOT NULL,
+    "AbsencesAmount" TEXT NOT NULL,
+    "Leaves" TEXT NOT NULL,
+    "LeavesAmount" TEXT NOT NULL,
+    "Lates" TEXT NOT NULL,
+    "LatesAmount" TEXT NOT NULL,
+    "Undertime" TEXT NOT NULL,
+    "UndertimeAmount" TEXT NOT NULL,
+    "Overbreak" TEXT NOT NULL,
+    "OverbreakAmount" TEXT NOT NULL,
+    "SvcCharge" TEXT NOT NULL,
+    "CostOfLivingAllowanceAmount" TEXT NOT NULL,
+    "MonthlyAllowanceAmount" TEXT NOT NULL,
+    "SalaryUnderpaymentAmount" TEXT NOT NULL,
+    "RefundAbsencesAmount" TEXT NOT NULL,
+    "RefundUndertimeAmount" TEXT NOT NULL,
+    "RefundOvertimeAmount" TEXT NOT NULL,
+    "LaborHoursIncome" TEXT NOT NULL,
+    "LaborHrs" TEXT NOT NULL,
+    "TaxDeductions" TEXT NOT NULL,
+    "TaxPercentage" TEXT NOT NULL,
+    "TotalConstantDeductions" TEXT NOT NULL,
+    "TotalLoanDeductions" TEXT NOT NULL,
+    "TotalDeductions" TEXT NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    "EmployeeId" TEXT NULL,
+    CONSTRAINT "FK_Payrolls_Employees_EmployeeId" FOREIGN KEY ("EmployeeId") REFERENCES "Employees" ("Id")
+);
+2024-12-03 19:53:44.380 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Schedules" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Schedules" PRIMARY KEY,
+    "EmployeeId" TEXT NOT NULL,
+    "ShiftId" TEXT NOT NULL,
+    "ScheduleDate" TEXT NOT NULL,
+    "IsDefault" INTEGER NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    CONSTRAINT "FK_Schedules_Employees_EmployeeId" FOREIGN KEY ("EmployeeId") REFERENCES "Employees" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_Schedules_Shifts_ShiftId" FOREIGN KEY ("ShiftId") REFERENCES "Shifts" ("Id") ON DELETE CASCADE
+);
+2024-12-03 19:53:44.380 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Timesheets" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Timesheets" PRIMARY KEY,
+    "EmployeeId" TEXT NOT NULL,
+    "TimeIn1" TEXT NULL,
+    "TimeOut1" TEXT NULL,
+    "TimeIn2" TEXT NULL,
+    "TimeOut2" TEXT NULL,
+    "TimeIn1Orig" TEXT NULL,
+    "TimeOut1Orig" TEXT NULL,
+    "TimeIn2Orig" TEXT NULL,
+    "TimeOut2Orig" TEXT NULL,
+    "IsEdited" INTEGER NOT NULL,
+    "IsLocked" INTEGER NOT NULL,
+    "EntryDate" TEXT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    CONSTRAINT "FK_Timesheets_Employees_EmployeeId" FOREIGN KEY ("EmployeeId") REFERENCES "Employees" ("Id") ON DELETE CASCADE
+);
+2024-12-03 19:53:44.380 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Undertimes" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Undertimes" PRIMARY KEY,
+    "InclusiveTime" TEXT NULL,
+    "Date" TEXT NULL,
+    "Reason" TEXT NULL,
+    "Status" INTEGER NOT NULL,
+    "EmployeeId" TEXT NOT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    CONSTRAINT "FK_Undertimes_Employees_EmployeeId" FOREIGN KEY ("EmployeeId") REFERENCES "Employees" ("Id") ON DELETE CASCADE
+);
+2024-12-03 19:53:44.380 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE TABLE "Attendance" (
+    "Id" TEXT NOT NULL CONSTRAINT "PK_Attendance" PRIMARY KEY,
+    "EmployeeId" TEXT NOT NULL,
+    "ShiftId" TEXT NULL,
+    "TimesheetId" TEXT NULL,
+    "LeaveId" TEXT NULL,
+    "EntryDate" TEXT NULL,
+    "WorkHrs" TEXT NULL,
+    "LateHrs" TEXT NULL,
+    "UnderHrs" TEXT NULL,
+    "OverbreakHrs" TEXT NULL,
+    "NightShiftHours" TEXT NULL,
+    "IsLocked" INTEGER NOT NULL,
+    "IsEdited" INTEGER NOT NULL,
+    "Remarks" TEXT NULL,
+    "CreatedDate" TEXT NOT NULL,
+    "CreateBy" TEXT NOT NULL,
+    "UpdatedDate" TEXT NOT NULL,
+    "UpdateBy" TEXT NOT NULL,
+    CONSTRAINT "FK_Attendance_Employees_EmployeeId" FOREIGN KEY ("EmployeeId") REFERENCES "Employees" ("Id") ON DELETE CASCADE,
+    CONSTRAINT "FK_Attendance_Shifts_ShiftId" FOREIGN KEY ("ShiftId") REFERENCES "Shifts" ("Id"),
+    CONSTRAINT "FK_Attendance_Timesheets_TimesheetId" FOREIGN KEY ("TimesheetId") REFERENCES "Timesheets" ("Id")
+);
+2024-12-03 19:53:44.380 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Attendance_EmployeeId" ON "Attendance" ("EmployeeId");
+2024-12-03 19:53:44.380 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Attendance_ShiftId" ON "Attendance" ("ShiftId");
+2024-12-03 19:53:44.380 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Attendance_TimesheetId" ON "Attendance" ("TimesheetId");
+2024-12-03 19:53:44.380 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Chargings_DepartmentId" ON "Chargings" ("DepartmentId");
+2024-12-03 19:53:44.380 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Deductions_EmployeeId" ON "Deductions" ("EmployeeId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Departments_DivisionId" ON "Departments" ("DivisionId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Dependents_EmployeeId" ON "Dependents" ("EmployeeId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Employees_ChargingId" ON "Employees" ("ChargingId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Employees_LevelId" ON "Employees" ("LevelId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Employees_PayId" ON "Employees" ("PayId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Employees_PositionId" ON "Employees" ("PositionId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Employees_ServiceChargeId" ON "Employees" ("ServiceChargeId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Employees_TypeId" ON "Employees" ("TypeId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Employees_UserId" ON "Employees" ("UserId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_FailureInOuts_EmployeeId" ON "FailureInOuts" ("EmployeeId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_LeaveCredits_EmployeeId" ON "LeaveCredits" ("EmployeeId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Leaves_EmployeeId" ON "Leaves" ("EmployeeId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_OtherEarnings_EmployeeId" ON "OtherEarnings" ("EmployeeId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Overtimes_EmployeeId" ON "Overtimes" ("EmployeeId");
+2024-12-03 19:53:44.381 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Payrolls_EmployeeId" ON "Payrolls" ("EmployeeId");
+2024-12-03 19:53:44.382 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Positions_SectionId" ON "Positions" ("SectionId");
+2024-12-03 19:53:44.382 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Schedules_EmployeeId" ON "Schedules" ("EmployeeId");
+2024-12-03 19:53:44.382 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Schedules_ShiftId" ON "Schedules" ("ShiftId");
+2024-12-03 19:53:44.382 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Sections_DepartmentId" ON "Sections" ("DepartmentId");
+2024-12-03 19:53:44.382 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Timesheets_EmployeeId" ON "Timesheets" ("EmployeeId");
+2024-12-03 19:53:44.382 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+CREATE INDEX "IX_Undertimes_EmployeeId" ON "Undertimes" ("EmployeeId");
+2024-12-03 19:53:44.446 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Contributors" AS "c")
+2024-12-03 19:53:44.497 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[@p0='?' (Size = 7), @p1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Contributors" ("Name", "Status")
+VALUES (@p0, @p1)
+RETURNING "Id";
+2024-12-03 19:53:44.501 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p0='?' (Size = 8), @p1='?' (DbType = Int32)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Contributors" ("Name", "Status")
+VALUES (@p0, @p1)
+RETURNING "Id";
+2024-12-03 19:53:44.657 +08:00 [INF] Now listening on: https://localhost:57679
+2024-12-03 19:53:44.657 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-12-03 19:53:44.657 +08:00 [INF] Hosting environment: Development
+2024-12-03 19:53:44.657 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2024-12-03 19:54:18.938 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2024-12-03 19:54:18.972 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 33.8122ms
+2024-12-03 19:54:18.972 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2024-12-03 19:54:18.991 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/favicon.ico - null null
+2024-12-03 19:54:18.992 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/favicon.ico - 404 0 null 0.6972ms
+2024-12-03 19:54:18.992 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/favicon.ico, Response status code: 404
+2024-12-03 19:55:09.325 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/Divisions - null null
+2024-12-03 19:55:09.335 +08:00 [INF] Executing endpoint 'HTTP: GET /Divisions'
+2024-12-03 19:55:09.380 +08:00 [INF] Handling ListDivisionsQuery
+2024-12-03 19:55:09.380 +08:00 [INF] Property skip : null
+2024-12-03 19:55:09.380 +08:00 [INF] Property take : null
+2024-12-03 19:55:09.433 +08:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "d"."Id", "d"."Name", COALESCE("d"."Description", '')
+FROM "Divisions" AS "d"
+2024-12-03 19:55:09.434 +08:00 [INF] Handled ListDivisionsQuery with Ardalis.Result.Result`1[System.Collections.Generic.IEnumerable`1[Bluewater.UseCases.Divisions.DivisionDTO]] in 53 ms
+2024-12-03 19:55:09.444 +08:00 [INF] Executed endpoint 'HTTP: GET /Divisions'
+2024-12-03 19:55:09.446 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/Divisions - 200 null application/json 121.7277ms

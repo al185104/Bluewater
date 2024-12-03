@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bluewater.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241108162606_Initial")]
-    partial class Initial
+    [Migration("20241203165824_Initial Migration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -100,6 +100,9 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<Guid?>("DepartmentId")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
@@ -114,6 +117,8 @@ namespace Bluewater.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("DepartmentId");
 
                     b.ToTable("Chargings");
                 });
@@ -748,6 +753,38 @@ namespace Bluewater.Infrastructure.Migrations
                     b.ToTable("Levels");
                 });
 
+            modelBuilder.Entity("Bluewater.Core.MealCreditAggregate.MealCredit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("Count")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("CreateBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("Date")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid?>("EmployeeId")
+                        .HasColumnType("TEXT");
+
+                    b.Property<Guid>("UpdateBy")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("UpdatedDate")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MealCredits");
+                });
+
             modelBuilder.Entity("Bluewater.Core.PayAggregate.Pay", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1305,6 +1342,15 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Navigation("Timesheet");
                 });
 
+            modelBuilder.Entity("Bluewater.Core.ChargingAggregate.Charging", b =>
+                {
+                    b.HasOne("Bluewater.Core.DepartmentAggregate.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId");
+
+                    b.Navigation("Department");
+                });
+
             modelBuilder.Entity("Bluewater.Core.ContributorAggregate.Contributor", b =>
                 {
                     b.OwnsOne("Bluewater.Core.ContributorAggregate.PhoneNumber", "PhoneNumber", b1 =>
@@ -1359,7 +1405,7 @@ namespace Bluewater.Infrastructure.Migrations
             modelBuilder.Entity("Bluewater.Core.EmployeeAggregate.Employee", b =>
                 {
                     b.HasOne("Bluewater.Core.ChargingAggregate.Charging", "Charging")
-                        .WithMany("Employees")
+                        .WithMany()
                         .HasForeignKey("ChargingId");
 
                     b.HasOne("Bluewater.Core.LevelAggregate.Level", "Level")
@@ -1643,11 +1689,6 @@ namespace Bluewater.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("Bluewater.Core.ChargingAggregate.Charging", b =>
-                {
-                    b.Navigation("Employees");
                 });
 
             modelBuilder.Entity("Bluewater.Core.DepartmentAggregate.Department", b =>

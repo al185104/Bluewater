@@ -292,9 +292,7 @@ Domain events are a great pattern for decoupling a trigger for an operation from
 
 -- TODOs:
 [stupid]probie - no basic pay
-  - regular / non-regular update the readonly
-
-  
+  - regular / non-regular update the readonly  
 schedule - 
   -[done] no charging
   -[done] no section
@@ -302,5 +300,9 @@ schedule -
   -[pending] import -- need dynamic csv header reading by date
 [done] attendance - total absences between work and late
 add color to edited
-payroll - hide 0 earnings/deductions
+[done] payroll - hide 0 earnings/deductions
 [done] report - old design
+timesheet API
+leave
+login
+
