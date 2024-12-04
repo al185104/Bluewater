@@ -78,7 +78,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.Delay(100);
+        await Task.Delay(10);
         var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(searchDate));
         startDate = _startDate;
         endDate = _endDate;

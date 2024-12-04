@@ -11,8 +11,7 @@ internal class ListGroupedPayrollHandler(IRepository<Payroll> _repository) : IQu
   {
     var spec = new PayrollAllSpec();
     var ret = await _repository.ListAsync(cancellationToken);
-    // var result = (await _repository.ListAsync(cancellationToken)).Select(s => new PayrollDTO(s.Id, s.Name, s.Description, s.Date, s.IsRegular));
-    // return Result.Success(result);
+    
     // Group by generation date and get the count for each date
     var summary = ret
         .GroupBy(payroll => payroll.Date) // Adjust GeneratedDate to your actual date field

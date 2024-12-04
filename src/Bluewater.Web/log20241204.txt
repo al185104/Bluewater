@@ -151,3 +151,752 @@ FROM "MealCredits" AS "m"
 2024-12-04 01:00:25.639 +08:00 [INF] Executed endpoint 'HTTP: GET /MealCredits'
 2024-12-04 01:00:25.639 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/mealcredits - 200 null application/json 62.8128ms
 2024-12-04 01:01:28.258 +08:00 [INF] Application is shutting down...
+2024-12-04 12:59:14.302 +08:00 [INF] Registered 18 endpoints in 112 milliseconds.
+2024-12-04 12:59:14.782 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2024-12-04 12:59:14.864 +08:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2024-12-04 12:59:14.923 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Contributors" AS "c")
+2024-12-04 12:59:15.055 +08:00 [INF] Now listening on: https://localhost:57679
+2024-12-04 12:59:15.055 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-12-04 12:59:15.055 +08:00 [INF] Hosting environment: Development
+2024-12-04 12:59:15.055 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2024-12-04 12:59:16.146 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger - null null
+2024-12-04 12:59:16.166 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger - 302 0 null 21.0755ms
+2024-12-04 12:59:16.175 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/index.html - null null
+2024-12-04 12:59:16.240 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/index.html - 200 null text/html; charset=utf-8 64.8051ms
+2024-12-04 12:59:16.284 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/swagger-ui.css - null null
+2024-12-04 12:59:16.284 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/index.css - null null
+2024-12-04 12:59:16.286 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/swagger-ui-bundle.js - null null
+2024-12-04 12:59:16.286 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/swagger-ui-standalone-preset.js - null null
+2024-12-04 12:59:16.288 +08:00 [INF] Sending file. Request path: '/index.css'. Physical path: 'N/A'
+2024-12-04 12:59:16.288 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/index.css - 200 218 text/css 3.5801ms
+2024-12-04 12:59:16.292 +08:00 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2024-12-04 12:59:16.292 +08:00 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2024-12-04 12:59:16.293 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/swagger-ui.css - 200 152073 text/css 8.5719ms
+2024-12-04 12:59:16.293 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/swagger-ui-standalone-preset.js - 200 230294 text/javascript 7.1104ms
+2024-12-04 12:59:16.299 +08:00 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2024-12-04 12:59:16.299 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/swagger-ui-bundle.js - 200 1452754 text/javascript 12.9973ms
+2024-12-04 12:59:16.444 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/v1/swagger.json - null null
+2024-12-04 12:59:16.446 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2024-12-04 12:59:16.641 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 197.2806ms
+2024-12-04 12:59:16.667 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/favicon-16x16.png - null null
+2024-12-04 12:59:16.667 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/favicon-32x32.png - null null
+2024-12-04 12:59:16.667 +08:00 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
+2024-12-04 12:59:16.667 +08:00 [INF] Sending file. Request path: '/favicon-16x16.png'. Physical path: 'N/A'
+2024-12-04 12:59:16.667 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/favicon-32x32.png - 200 628 image/png 0.2981ms
+2024-12-04 12:59:16.667 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/favicon-16x16.png - 200 665 image/png 0.3833ms
+2024-12-04 12:59:26.424 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/MealCredits - null null
+2024-12-04 12:59:26.429 +08:00 [INF] Executing endpoint 'HTTP: GET /MealCredits'
+2024-12-04 12:59:26.462 +08:00 [INF] Handling ListMealCreditQuery
+2024-12-04 12:59:26.462 +08:00 [INF] Property skip : null
+2024-12-04 12:59:26.462 +08:00 [INF] Property take : null
+2024-12-04 12:59:26.509 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."Id", "m"."Count", "m"."CreateBy", "m"."CreatedDate", "m"."Date", "m"."EmployeeId", "m"."UpdateBy", "m"."UpdatedDate"
+FROM "MealCredits" AS "m"
+2024-12-04 12:59:26.510 +08:00 [INF] Handled ListMealCreditQuery with Ardalis.Result.Result`1[System.Collections.Generic.IEnumerable`1[Bluewater.UseCases.MealCredits.MealCreditDTO]] in 47 ms
+2024-12-04 12:59:26.523 +08:00 [INF] Executed endpoint 'HTTP: GET /MealCredits'
+2024-12-04 12:59:26.524 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/MealCredits - 200 null application/json 100.4992ms
+2024-12-04 13:00:08.931 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/MealCredits - null null
+2024-12-04 13:00:08.935 +08:00 [INF] Executing endpoint 'HTTP: GET /MealCredits'
+2024-12-04 13:00:08.939 +08:00 [INF] Handling ListMealCreditQuery
+2024-12-04 13:00:08.940 +08:00 [INF] Property skip : null
+2024-12-04 13:00:08.940 +08:00 [INF] Property take : null
+2024-12-04 13:00:08.968 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."Id", "m"."Count", "m"."CreateBy", "m"."CreatedDate", "m"."Date", "m"."EmployeeId", "m"."UpdateBy", "m"."UpdatedDate"
+FROM "MealCredits" AS "m"
+2024-12-04 13:00:08.968 +08:00 [INF] Handled ListMealCreditQuery with Ardalis.Result.Result`1[System.Collections.Generic.IEnumerable`1[Bluewater.UseCases.MealCredits.MealCreditDTO]] in 28 ms
+2024-12-04 13:00:08.969 +08:00 [INF] Executed endpoint 'HTTP: GET /MealCredits'
+2024-12-04 13:00:08.969 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/MealCredits - 200 null application/json 39.6622ms
+2024-12-04 13:00:15.321 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/MealCredits - application/json 101
+2024-12-04 13:00:15.321 +08:00 [INF] Executing endpoint 'HTTP: POST /MealCredits'
+2024-12-04 13:00:15.360 +08:00 [INF] Handling CreateMealCreditCommand
+2024-12-04 13:00:15.360 +08:00 [INF] Property EmployeeId : "00000000-0000-0000-0000-000000000000"
+2024-12-04 13:00:15.360 +08:00 [INF] Property Date : "0001-01-01"
+2024-12-04 13:00:15.360 +08:00 [INF] Property Count : 1
+2024-12-04 13:00:15.424 +08:00 [INF] Executed DbCommand (3ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Int32), @p2='?' (DbType = Guid), @p3='?' (DbType = DateTime), @p4='?' (DbType = Date), @p5='?' (DbType = Guid), @p6='?' (DbType = Guid), @p7='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "MealCredits" ("Id", "Count", "CreateBy", "CreatedDate", "Date", "EmployeeId", "UpdateBy", "UpdatedDate")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7);
+2024-12-04 13:00:15.428 +08:00 [INF] Handled CreateMealCreditCommand with Ardalis.Result.Result`1[System.Guid] in 67 ms
+2024-12-04 13:00:15.429 +08:00 [INF] Executed endpoint 'HTTP: POST /MealCredits'
+2024-12-04 13:00:15.429 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/MealCredits - 200 null application/json 108.7273ms
+2024-12-04 13:00:22.105 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/MealCredits - null null
+2024-12-04 13:00:22.106 +08:00 [INF] Executing endpoint 'HTTP: GET /MealCredits'
+2024-12-04 13:00:22.107 +08:00 [INF] Handling ListMealCreditQuery
+2024-12-04 13:00:22.107 +08:00 [INF] Property skip : null
+2024-12-04 13:00:22.107 +08:00 [INF] Property take : null
+2024-12-04 13:00:22.110 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."Id", "m"."Count", "m"."CreateBy", "m"."CreatedDate", "m"."Date", "m"."EmployeeId", "m"."UpdateBy", "m"."UpdatedDate"
+FROM "MealCredits" AS "m"
+2024-12-04 13:00:22.113 +08:00 [INF] Handled ListMealCreditQuery with Ardalis.Result.Result`1[System.Collections.Generic.IEnumerable`1[Bluewater.UseCases.MealCredits.MealCreditDTO]] in 5 ms
+2024-12-04 13:00:22.116 +08:00 [INF] Executed endpoint 'HTTP: GET /MealCredits'
+2024-12-04 13:00:22.116 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/MealCredits - 200 null application/json 10.4352ms
+2024-12-04 13:02:14.839 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 13:02:14.841 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 13:02:14.876 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 13:02:14.876 +08:00 [INF] Property EmpId : "00000000-0000-0000-0000-000000000000"
+2024-12-04 13:02:14.876 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 13:02:14.957 +08:00 [INF] Executed DbCommand (2ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 13:02:14.957 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 80 ms
+2024-12-04 13:02:14.958 +08:00 [INF] Handling CreateTimesheetCommand
+2024-12-04 13:02:14.958 +08:00 [INF] Property employeeId : "00000000-0000-0000-0000-000000000000"
+2024-12-04 13:02:14.958 +08:00 [INF] Property timeIn1 : "2024-12-04T05:00:32.2060000Z"
+2024-12-04 13:02:14.959 +08:00 [INF] Property timeOut1 : null
+2024-12-04 13:02:14.959 +08:00 [INF] Property timeIn2 : null
+2024-12-04 13:02:14.959 +08:00 [INF] Property timeOut2 : null
+2024-12-04 13:02:14.959 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 13:02:14.962 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 13:02:14.991 +08:00 [ERR] Failed executing DbCommand (5ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime), @p3='?' (DbType = Guid), @p4='?' (DbType = Date), @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = DateTime), @p15='?' (DbType = Guid), @p16='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Timesheets" ("Id", "CreateBy", "CreatedDate", "EmployeeId", "EntryDate", "IsEdited", "IsLocked", "TimeIn1", "TimeIn1Orig", "TimeIn2", "TimeIn2Orig", "TimeOut1", "TimeOut1Orig", "TimeOut2", "TimeOut2Orig", "UpdateBy", "UpdatedDate")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16);
+2024-12-04 13:02:15.001 +08:00 [ERR] An exception occurred in the database while saving changes for context type 'Bluewater.Infrastructure.Data.AppDbContext'.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'FOREIGN KEY constraint failed'.
+   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'FOREIGN KEY constraint failed'.
+   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+2024-12-04 13:02:15.004 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 13:02:15.006 +08:00 [ERR] An unhandled exception has occurred while executing the request.
+Microsoft.EntityFrameworkCore.DbUpdateException: An error occurred while saving the entity changes. See the inner exception for details.
+ ---> Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 19: 'FOREIGN KEY constraint failed'.
+   at Microsoft.Data.Sqlite.SqliteException.ThrowExceptionForRC(Int32 rc, sqlite3 db)
+   at Microsoft.Data.Sqlite.SqliteDataReader.NextResult()
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReader(CommandBehavior behavior)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.Data.Sqlite.SqliteCommand.ExecuteDbDataReaderAsync(CommandBehavior behavior, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.EntityFrameworkCore.Update.ReaderModificationCommandBatch.ExecuteAsync(IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Update.Internal.BatchExecutor.ExecuteAsync(IEnumerable`1 commandBatches, IRelationalConnection connection, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(IList`1 entriesToSave, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.ChangeTracking.Internal.StateManager.SaveChangesAsync(StateManager stateManager, Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.DbContext.SaveChangesAsync(Boolean acceptAllChangesOnSuccess, CancellationToken cancellationToken)
+   at Bluewater.Infrastructure.Data.AppDbContext.SaveChangesAsync(CancellationToken cancellationToken) in /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Infrastructure/Data/AppDbContext.cs:line 95
+   at Ardalis.Specification.EntityFrameworkCore.RepositoryBase`1.SaveChangesAsync(CancellationToken cancellationToken)
+   at Ardalis.Specification.EntityFrameworkCore.RepositoryBase`1.AddAsync(T entity, CancellationToken cancellationToken)
+   at Bluewater.UseCases.Timesheets.Create.CreateTimesheetHandler.Handle(CreateTimesheetCommand request, CancellationToken cancellationToken) in /Users/adrianllamido/Repo/Bluewater/src/Bluewater.UseCases/Timesheets/Create/CreateTimesheetHandler.cs:line 26
+   at Ardalis.SharedKernel.LoggingBehavior`2.Handle(TRequest request, RequestHandlerDelegate`1 next, CancellationToken cancellationToken)
+   at Bluewater.Web.Timesheets.Create.HandleAsync(CreateTimesheetRequest request, CancellationToken cancellationToken) in /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web/Timesheets/Create.cs:line 40
+   at FastEndpoints.Endpoint`2.ExecAsync(CancellationToken ct)
+   at FastEndpoints.Endpoint`2.ExecAsync(CancellationToken ct)
+   at Microsoft.AspNetCore.Routing.EndpointMiddleware.<Invoke>g__AwaitRequestTask|7_0(Endpoint endpoint, Task requestTask, ILogger logger)
+   at NSwag.AspNetCore.Middlewares.SwaggerUiIndexMiddleware.Invoke(HttpContext context)
+   at NSwag.AspNetCore.Middlewares.RedirectToIndexMiddleware.Invoke(HttpContext context)
+   at NSwag.AspNetCore.Middlewares.OpenApiDocumentMiddleware.Invoke(HttpContext context)
+   at Ardalis.ListStartupServices.ShowAllServicesMiddleware.Invoke(HttpContext httpContext)
+   at Microsoft.AspNetCore.Diagnostics.DeveloperExceptionPageMiddlewareImpl.Invoke(HttpContext context)
+2024-12-04 13:02:15.016 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 500 null text/plain; charset=utf-8 177.2297ms
+2024-12-04 17:50:57.539 +08:00 [INF] Registered 18 endpoints in 107 milliseconds.
+2024-12-04 17:50:58.024 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2024-12-04 17:50:58.107 +08:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2024-12-04 17:50:58.167 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Contributors" AS "c")
+2024-12-04 17:50:58.296 +08:00 [INF] Now listening on: https://localhost:57679
+2024-12-04 17:50:58.296 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-12-04 17:50:58.296 +08:00 [INF] Hosting environment: Development
+2024-12-04 17:50:58.296 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2024-12-04 17:50:58.567 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger - null null
+2024-12-04 17:50:58.593 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger - 302 0 null 26.5584ms
+2024-12-04 17:50:58.599 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/index.html - null null
+2024-12-04 17:50:58.650 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/index.html - 200 null text/html; charset=utf-8 50.9716ms
+2024-12-04 17:50:58.660 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/swagger-ui-bundle.js - null null
+2024-12-04 17:50:58.674 +08:00 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2024-12-04 17:50:58.674 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/swagger-ui-bundle.js - 200 1452754 text/javascript 14.5413ms
+2024-12-04 17:50:58.768 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/v1/swagger.json - null null
+2024-12-04 17:50:58.770 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2024-12-04 17:50:59.035 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 266.971ms
+2024-12-04 17:52:07.731 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 17:52:07.742 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:52:07.795 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 17:52:07.796 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:52:07.796 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 17:52:07.883 +08:00 [INF] Executed DbCommand (3ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 17:52:07.884 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 86 ms
+2024-12-04 17:52:07.885 +08:00 [INF] Handling CreateTimesheetCommand
+2024-12-04 17:52:07.885 +08:00 [INF] Property employeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:52:07.885 +08:00 [INF] Property timeIn1 : "2024-12-04T09:51:00.6940000Z"
+2024-12-04 17:52:07.885 +08:00 [INF] Property timeOut1 : null
+2024-12-04 17:52:07.885 +08:00 [INF] Property timeIn2 : null
+2024-12-04 17:52:07.885 +08:00 [INF] Property timeOut2 : null
+2024-12-04 17:52:07.885 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 17:52:07.902 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 17:52:07.962 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime), @p3='?' (DbType = Guid), @p4='?' (DbType = Date), @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = DateTime), @p15='?' (DbType = Guid), @p16='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Timesheets" ("Id", "CreateBy", "CreatedDate", "EmployeeId", "EntryDate", "IsEdited", "IsLocked", "TimeIn1", "TimeIn1Orig", "TimeIn2", "TimeIn2Orig", "TimeOut1", "TimeOut1Orig", "TimeOut2", "TimeOut2Orig", "UpdateBy", "UpdatedDate")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16);
+2024-12-04 17:52:07.965 +08:00 [INF] Handled CreateTimesheetCommand with Ardalis.Result.Result`1[System.Guid] in 79 ms
+2024-12-04 17:52:07.970 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:52:07.973 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 242.2453ms
+2024-12-04 17:52:19.833 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 17:52:19.835 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:52:19.845 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 17:52:19.846 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:52:19.847 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 17:52:19.853 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 17:52:19.919 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 71 ms
+2024-12-04 17:52:19.920 +08:00 [INF] Handling UpdateTimesheetCommand
+2024-12-04 17:52:19.920 +08:00 [INF] Property TimesheetId : "0ace6f68-5656-49e3-8a85-eb192989e610"
+2024-12-04 17:52:19.920 +08:00 [INF] Property employeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:52:19.920 +08:00 [INF] Property timeIn1 : "2024-12-04T09:51:00.6940000"
+2024-12-04 17:52:19.920 +08:00 [INF] Property timeOut1 : "2024-12-04T09:51:00.6940000Z"
+2024-12-04 17:52:19.920 +08:00 [INF] Property timeIn2 : null
+2024-12-04 17:52:19.920 +08:00 [INF] Property timeOut2 : null
+2024-12-04 17:52:19.920 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 17:52:19.921 +08:00 [INF] Property isLocked : false
+2024-12-04 17:52:19.928 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate"
+FROM "Timesheets" AS "t"
+WHERE "t"."Id" = @__get_Item_0
+LIMIT 1
+2024-12-04 17:52:19.930 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p16='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Guid), @p3='?' (DbType = Date), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Guid), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Timesheets" SET "CreateBy" = @p0, "CreatedDate" = @p1, "EmployeeId" = @p2, "EntryDate" = @p3, "IsEdited" = @p4, "IsLocked" = @p5, "TimeIn1" = @p6, "TimeIn1Orig" = @p7, "TimeIn2" = @p8, "TimeIn2Orig" = @p9, "TimeOut1" = @p10, "TimeOut1Orig" = @p11, "TimeOut2" = @p12, "TimeOut2Orig" = @p13, "UpdateBy" = @p14, "UpdatedDate" = @p15
+WHERE "Id" = @p16
+RETURNING 1;
+2024-12-04 17:52:19.932 +08:00 [INF] Handled UpdateTimesheetCommand with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 10 ms
+2024-12-04 17:52:19.933 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:52:19.933 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 99.8837ms
+2024-12-04 17:52:31.405 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 17:52:31.405 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:52:31.406 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 17:52:31.406 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:52:31.406 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 17:52:31.409 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 17:52:31.411 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 3 ms
+2024-12-04 17:52:31.411 +08:00 [INF] Handling UpdateTimesheetCommand
+2024-12-04 17:52:31.411 +08:00 [INF] Property TimesheetId : "0ace6f68-5656-49e3-8a85-eb192989e610"
+2024-12-04 17:52:31.411 +08:00 [INF] Property employeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:52:31.411 +08:00 [INF] Property timeIn1 : "2024-12-04T09:51:00.6940000"
+2024-12-04 17:52:31.411 +08:00 [INF] Property timeOut1 : "2024-12-04T09:51:00.6940000"
+2024-12-04 17:52:31.411 +08:00 [INF] Property timeIn2 : "2024-12-04T09:51:00.6940000Z"
+2024-12-04 17:52:31.411 +08:00 [INF] Property timeOut2 : null
+2024-12-04 17:52:31.411 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 17:52:31.411 +08:00 [INF] Property isLocked : false
+2024-12-04 17:52:31.412 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate"
+FROM "Timesheets" AS "t"
+WHERE "t"."Id" = @__get_Item_0
+LIMIT 1
+2024-12-04 17:52:31.413 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p16='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Guid), @p3='?' (DbType = Date), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Guid), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Timesheets" SET "CreateBy" = @p0, "CreatedDate" = @p1, "EmployeeId" = @p2, "EntryDate" = @p3, "IsEdited" = @p4, "IsLocked" = @p5, "TimeIn1" = @p6, "TimeIn1Orig" = @p7, "TimeIn2" = @p8, "TimeIn2Orig" = @p9, "TimeOut1" = @p10, "TimeOut1Orig" = @p11, "TimeOut2" = @p12, "TimeOut2Orig" = @p13, "UpdateBy" = @p14, "UpdatedDate" = @p15
+WHERE "Id" = @p16
+RETURNING 1;
+2024-12-04 17:52:31.414 +08:00 [INF] Handled UpdateTimesheetCommand with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 2 ms
+2024-12-04 17:52:31.414 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:52:31.414 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 9.7053ms
+2024-12-04 17:52:56.570 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 17:52:56.572 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:52:56.576 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 17:52:56.576 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:52:56.576 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 17:52:56.583 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 17:52:56.585 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 7 ms
+2024-12-04 17:52:56.586 +08:00 [INF] Handling UpdateTimesheetCommand
+2024-12-04 17:52:56.586 +08:00 [INF] Property TimesheetId : "0ace6f68-5656-49e3-8a85-eb192989e610"
+2024-12-04 17:52:56.586 +08:00 [INF] Property employeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:52:56.586 +08:00 [INF] Property timeIn1 : "2024-12-04T09:51:00.6940000"
+2024-12-04 17:52:56.586 +08:00 [INF] Property timeOut1 : "2024-12-04T09:51:00.6940000"
+2024-12-04 17:52:56.587 +08:00 [INF] Property timeIn2 : "2024-12-04T09:51:00.6940000"
+2024-12-04 17:52:56.587 +08:00 [INF] Property timeOut2 : "2024-12-04T09:51:00.6940000Z"
+2024-12-04 17:52:56.587 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 17:52:56.587 +08:00 [INF] Property isLocked : false
+2024-12-04 17:52:56.589 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate"
+FROM "Timesheets" AS "t"
+WHERE "t"."Id" = @__get_Item_0
+LIMIT 1
+2024-12-04 17:52:56.591 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p16='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Guid), @p3='?' (DbType = Date), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Guid), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Timesheets" SET "CreateBy" = @p0, "CreatedDate" = @p1, "EmployeeId" = @p2, "EntryDate" = @p3, "IsEdited" = @p4, "IsLocked" = @p5, "TimeIn1" = @p6, "TimeIn1Orig" = @p7, "TimeIn2" = @p8, "TimeIn2Orig" = @p9, "TimeOut1" = @p10, "TimeOut1Orig" = @p11, "TimeOut2" = @p12, "TimeOut2Orig" = @p13, "UpdateBy" = @p14, "UpdatedDate" = @p15
+WHERE "Id" = @p16
+RETURNING 1;
+2024-12-04 17:52:56.592 +08:00 [INF] Handled UpdateTimesheetCommand with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 4 ms
+2024-12-04 17:52:56.592 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:52:56.592 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 22.4222ms
+2024-12-04 17:53:06.336 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 17:53:06.337 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:53:06.339 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 17:53:06.340 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:53:06.340 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 17:53:06.347 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 17:53:06.353 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 12 ms
+2024-12-04 17:53:06.353 +08:00 [INF] Handling UpdateTimesheetCommand
+2024-12-04 17:53:06.353 +08:00 [INF] Property TimesheetId : "0ace6f68-5656-49e3-8a85-eb192989e610"
+2024-12-04 17:53:06.353 +08:00 [INF] Property employeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:53:06.353 +08:00 [INF] Property timeIn1 : "2024-12-04T09:51:00.6940000"
+2024-12-04 17:53:06.353 +08:00 [INF] Property timeOut1 : "2024-12-04T09:51:00.6940000"
+2024-12-04 17:53:06.353 +08:00 [INF] Property timeIn2 : "2024-12-04T09:51:00.6940000Z"
+2024-12-04 17:53:06.353 +08:00 [INF] Property timeOut2 : "2024-12-04T09:51:00.6940000"
+2024-12-04 17:53:06.353 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 17:53:06.353 +08:00 [INF] Property isLocked : false
+2024-12-04 17:53:06.355 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__get_Item_0='?' (DbType = Guid)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate"
+FROM "Timesheets" AS "t"
+WHERE "t"."Id" = @__get_Item_0
+LIMIT 1
+2024-12-04 17:53:06.357 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p16='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Guid), @p3='?' (DbType = Date), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Guid), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Timesheets" SET "CreateBy" = @p0, "CreatedDate" = @p1, "EmployeeId" = @p2, "EntryDate" = @p3, "IsEdited" = @p4, "IsLocked" = @p5, "TimeIn1" = @p6, "TimeIn1Orig" = @p7, "TimeIn2" = @p8, "TimeIn2Orig" = @p9, "TimeOut1" = @p10, "TimeOut1Orig" = @p11, "TimeOut2" = @p12, "TimeOut2Orig" = @p13, "UpdateBy" = @p14, "UpdatedDate" = @p15
+WHERE "Id" = @p16
+RETURNING 1;
+2024-12-04 17:53:06.358 +08:00 [INF] Handled UpdateTimesheetCommand with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 4 ms
+2024-12-04 17:53:06.358 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:53:06.358 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 23.1788ms
+2024-12-04 17:53:22.422 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 17:53:22.423 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:53:22.426 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 17:53:22.426 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:53:22.426 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 17:53:22.431 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 17:53:22.434 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 7 ms
+2024-12-04 17:53:22.434 +08:00 [INF] Handling CreateTimesheetCommand
+2024-12-04 17:53:22.435 +08:00 [INF] Property employeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:53:22.435 +08:00 [INF] Property timeIn1 : "2024-12-04T09:51:00.6940000Z"
+2024-12-04 17:53:22.435 +08:00 [INF] Property timeOut1 : null
+2024-12-04 17:53:22.435 +08:00 [INF] Property timeIn2 : null
+2024-12-04 17:53:22.435 +08:00 [INF] Property timeOut2 : null
+2024-12-04 17:53:22.435 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 17:53:22.437 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 17:53:22.459 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p16='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Guid), @p3='?' (DbType = Date), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Guid), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Timesheets" SET "CreateBy" = @p0, "CreatedDate" = @p1, "EmployeeId" = @p2, "EntryDate" = @p3, "IsEdited" = @p4, "IsLocked" = @p5, "TimeIn1" = @p6, "TimeIn1Orig" = @p7, "TimeIn2" = @p8, "TimeIn2Orig" = @p9, "TimeOut1" = @p10, "TimeOut1Orig" = @p11, "TimeOut2" = @p12, "TimeOut2Orig" = @p13, "UpdateBy" = @p14, "UpdatedDate" = @p15
+WHERE "Id" = @p16
+RETURNING 1;
+2024-12-04 17:53:22.460 +08:00 [INF] Handled CreateTimesheetCommand with Ardalis.Result.Result`1[System.Guid] in 24 ms
+2024-12-04 17:53:22.460 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:53:22.460 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 37.9607ms
+2024-12-04 17:53:53.065 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 17:53:53.068 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:53:53.074 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 17:53:53.074 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:53:53.074 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 17:53:53.083 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 17:53:53.088 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 13 ms
+2024-12-04 17:53:53.089 +08:00 [INF] Handling CreateTimesheetCommand
+2024-12-04 17:53:53.089 +08:00 [INF] Property employeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:53:53.089 +08:00 [INF] Property timeIn1 : "2024-12-04T09:51:01.6940000Z"
+2024-12-04 17:53:53.089 +08:00 [INF] Property timeOut1 : null
+2024-12-04 17:53:53.089 +08:00 [INF] Property timeIn2 : null
+2024-12-04 17:53:53.089 +08:00 [INF] Property timeOut2 : null
+2024-12-04 17:53:53.089 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 17:53:53.091 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 17:53:53.094 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p16='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Guid), @p3='?' (DbType = Date), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Guid), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Timesheets" SET "CreateBy" = @p0, "CreatedDate" = @p1, "EmployeeId" = @p2, "EntryDate" = @p3, "IsEdited" = @p4, "IsLocked" = @p5, "TimeIn1" = @p6, "TimeIn1Orig" = @p7, "TimeIn2" = @p8, "TimeIn2Orig" = @p9, "TimeOut1" = @p10, "TimeOut1Orig" = @p11, "TimeOut2" = @p12, "TimeOut2Orig" = @p13, "UpdateBy" = @p14, "UpdatedDate" = @p15
+WHERE "Id" = @p16
+RETURNING 1;
+2024-12-04 17:53:53.095 +08:00 [INF] Handled CreateTimesheetCommand with Ardalis.Result.Result`1[System.Guid] in 5 ms
+2024-12-04 17:53:53.095 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:53:53.096 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 34.6185ms
+2024-12-04 17:54:05.340 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 17:54:05.340 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:54:05.341 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 17:54:05.341 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:54:05.341 +08:00 [INF] Property EntryDate : "2024-12-05"
+2024-12-04 17:54:05.343 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 17:54:05.343 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 2 ms
+2024-12-04 17:54:05.343 +08:00 [INF] Handling CreateTimesheetCommand
+2024-12-04 17:54:05.372 +08:00 [INF] Property employeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 17:54:05.372 +08:00 [INF] Property timeIn1 : "2024-12-04T09:51:01.6940000Z"
+2024-12-04 17:54:05.372 +08:00 [INF] Property timeOut1 : null
+2024-12-04 17:54:05.372 +08:00 [INF] Property timeIn2 : null
+2024-12-04 17:54:05.372 +08:00 [INF] Property timeOut2 : null
+2024-12-04 17:54:05.372 +08:00 [INF] Property entryDate : "2024-12-05"
+2024-12-04 17:54:05.373 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 17:54:05.375 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime), @p3='?' (DbType = Guid), @p4='?' (DbType = Date), @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = DateTime), @p15='?' (DbType = Guid), @p16='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Timesheets" ("Id", "CreateBy", "CreatedDate", "EmployeeId", "EntryDate", "IsEdited", "IsLocked", "TimeIn1", "TimeIn1Orig", "TimeIn2", "TimeIn2Orig", "TimeOut1", "TimeOut1Orig", "TimeOut2", "TimeOut2Orig", "UpdateBy", "UpdatedDate")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16);
+2024-12-04 17:54:05.375 +08:00 [INF] Handled CreateTimesheetCommand with Ardalis.Result.Result`1[System.Guid] in 3 ms
+2024-12-04 17:54:05.375 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 17:54:05.375 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 35.6633ms
+2024-12-04 18:05:52.999 +08:00 [INF] Registered 18 endpoints in 118 milliseconds.
+2024-12-04 18:05:53.362 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2024-12-04 18:05:53.452 +08:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2024-12-04 18:05:53.515 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Contributors" AS "c")
+2024-12-04 18:05:53.641 +08:00 [INF] Now listening on: https://localhost:57679
+2024-12-04 18:05:53.641 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-12-04 18:05:53.641 +08:00 [INF] Hosting environment: Development
+2024-12-04 18:05:53.641 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2024-12-04 18:05:53.978 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger - null null
+2024-12-04 18:05:54.003 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger - 302 0 null 25.7925ms
+2024-12-04 18:05:54.055 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/index.html - null null
+2024-12-04 18:05:54.111 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/index.html - 200 null text/html; charset=utf-8 55.6527ms
+2024-12-04 18:05:54.249 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/v1/swagger.json - null null
+2024-12-04 18:05:54.252 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2024-12-04 18:05:54.465 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 216.219ms
+2024-12-04 18:06:35.960 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 18:06:35.969 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:06:36.019 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 18:06:36.019 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:06:36.019 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 18:06:36.108 +08:00 [INF] Executed DbCommand (4ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:06:36.108 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 88 ms
+2024-12-04 18:06:36.109 +08:00 [INF] Handling CreateTimesheetCommand
+2024-12-04 18:06:36.109 +08:00 [INF] Property employeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:06:36.109 +08:00 [INF] Property timeIn1 : "2024-12-04T10:05:57.4280000Z"
+2024-12-04 18:06:36.109 +08:00 [INF] Property timeOut1 : null
+2024-12-04 18:06:36.109 +08:00 [INF] Property timeIn2 : null
+2024-12-04 18:06:36.109 +08:00 [INF] Property timeOut2 : null
+2024-12-04 18:06:36.110 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 18:06:36.126 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:06:36.184 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime), @p3='?' (DbType = Guid), @p4='?' (DbType = Date), @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = DateTime), @p15='?' (DbType = Guid), @p16='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Timesheets" ("Id", "CreateBy", "CreatedDate", "EmployeeId", "EntryDate", "IsEdited", "IsLocked", "TimeIn1", "TimeIn1Orig", "TimeIn2", "TimeIn2Orig", "TimeOut1", "TimeOut1Orig", "TimeOut2", "TimeOut2Orig", "UpdateBy", "UpdatedDate")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16);
+2024-12-04 18:06:36.187 +08:00 [INF] Handled CreateTimesheetCommand with Ardalis.Result.Result`1[System.Guid] in 77 ms
+2024-12-04 18:06:36.192 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:06:36.193 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 234.989ms
+2024-12-04 18:06:47.664 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 18:06:47.665 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:06:47.666 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 18:06:47.667 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:06:47.667 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 18:06:47.676 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:06:47.744 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 77 ms
+2024-12-04 18:06:47.745 +08:00 [INF] Handling UpdateSingleTimesheetCommand
+2024-12-04 18:06:47.745 +08:00 [INF] Property TimesheetId : "1c0b9d72-bc19-4118-89ae-8c425f6dd16e"
+2024-12-04 18:06:47.745 +08:00 [INF] Property EmployeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:06:47.745 +08:00 [INF] Property time : "2024-12-04T10:05:57.4280000Z"
+2024-12-04 18:06:47.745 +08:00 [INF] Property input : "TimeOut1"
+2024-12-04 18:06:47.745 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 18:06:47.747 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:06:47.761 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p16='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Guid), @p3='?' (DbType = Date), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Guid), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Timesheets" SET "CreateBy" = @p0, "CreatedDate" = @p1, "EmployeeId" = @p2, "EntryDate" = @p3, "IsEdited" = @p4, "IsLocked" = @p5, "TimeIn1" = @p6, "TimeIn1Orig" = @p7, "TimeIn2" = @p8, "TimeIn2Orig" = @p9, "TimeOut1" = @p10, "TimeOut1Orig" = @p11, "TimeOut2" = @p12, "TimeOut2Orig" = @p13, "UpdateBy" = @p14, "UpdatedDate" = @p15
+WHERE "Id" = @p16
+RETURNING 1;
+2024-12-04 18:06:47.762 +08:00 [INF] Handled UpdateSingleTimesheetCommand with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 16 ms
+2024-12-04 18:06:47.762 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:06:47.762 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 98.7798ms
+2024-12-04 18:07:26.254 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 18:07:26.256 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:07:26.261 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 18:07:26.261 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:07:26.261 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 18:07:26.273 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:07:26.274 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 13 ms
+2024-12-04 18:07:26.275 +08:00 [INF] Handling UpdateSingleTimesheetCommand
+2024-12-04 18:07:26.275 +08:00 [INF] Property TimesheetId : "1c0b9d72-bc19-4118-89ae-8c425f6dd16e"
+2024-12-04 18:07:26.275 +08:00 [INF] Property EmployeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:07:26.276 +08:00 [INF] Property time : "2024-12-04T10:05:57.4280000Z"
+2024-12-04 18:07:26.276 +08:00 [INF] Property input : "TimeIn2"
+2024-12-04 18:07:26.276 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 18:07:26.277 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:07:26.279 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p16='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Guid), @p3='?' (DbType = Date), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Guid), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Timesheets" SET "CreateBy" = @p0, "CreatedDate" = @p1, "EmployeeId" = @p2, "EntryDate" = @p3, "IsEdited" = @p4, "IsLocked" = @p5, "TimeIn1" = @p6, "TimeIn1Orig" = @p7, "TimeIn2" = @p8, "TimeIn2Orig" = @p9, "TimeOut1" = @p10, "TimeOut1Orig" = @p11, "TimeOut2" = @p12, "TimeOut2Orig" = @p13, "UpdateBy" = @p14, "UpdatedDate" = @p15
+WHERE "Id" = @p16
+RETURNING 1;
+2024-12-04 18:07:26.281 +08:00 [INF] Handled UpdateSingleTimesheetCommand with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 5 ms
+2024-12-04 18:07:26.282 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:07:26.282 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 30.7413ms
+2024-12-04 18:07:56.339 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 18:07:56.342 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:07:56.346 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 18:07:56.347 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:07:56.347 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 18:07:56.351 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:07:56.354 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 7 ms
+2024-12-04 18:07:56.356 +08:00 [INF] Handling UpdateSingleTimesheetCommand
+2024-12-04 18:07:56.356 +08:00 [INF] Property TimesheetId : "1c0b9d72-bc19-4118-89ae-8c425f6dd16e"
+2024-12-04 18:07:56.356 +08:00 [INF] Property EmployeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:07:56.356 +08:00 [INF] Property time : "2024-12-04T10:05:57.4280000Z"
+2024-12-04 18:07:56.356 +08:00 [INF] Property input : "TimeOut2"
+2024-12-04 18:07:56.356 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 18:07:56.357 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:07:56.359 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p16='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Guid), @p3='?' (DbType = Date), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Guid), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Timesheets" SET "CreateBy" = @p0, "CreatedDate" = @p1, "EmployeeId" = @p2, "EntryDate" = @p3, "IsEdited" = @p4, "IsLocked" = @p5, "TimeIn1" = @p6, "TimeIn1Orig" = @p7, "TimeIn2" = @p8, "TimeIn2Orig" = @p9, "TimeOut1" = @p10, "TimeOut1Orig" = @p11, "TimeOut2" = @p12, "TimeOut2Orig" = @p13, "UpdateBy" = @p14, "UpdatedDate" = @p15
+WHERE "Id" = @p16
+RETURNING 1;
+2024-12-04 18:07:56.360 +08:00 [INF] Handled UpdateSingleTimesheetCommand with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 4 ms
+2024-12-04 18:07:56.361 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:07:56.361 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 21.606ms
+2024-12-04 18:10:43.702 +08:00 [INF] Registered 18 endpoints in 118 milliseconds.
+2024-12-04 18:10:44.057 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2024-12-04 18:10:44.146 +08:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2024-12-04 18:10:44.210 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT EXISTS (
+    SELECT 1
+    FROM "Contributors" AS "c")
+2024-12-04 18:10:44.343 +08:00 [INF] Now listening on: https://localhost:57679
+2024-12-04 18:10:44.343 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2024-12-04 18:10:44.343 +08:00 [INF] Hosting environment: Development
+2024-12-04 18:10:44.343 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2024-12-04 18:10:44.687 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger - null null
+2024-12-04 18:10:44.708 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger - 302 0 null 21.5741ms
+2024-12-04 18:10:44.715 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/index.html - null null
+2024-12-04 18:10:44.766 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/index.html - 200 null text/html; charset=utf-8 50.4318ms
+2024-12-04 18:10:44.897 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/v1/swagger.json - null null
+2024-12-04 18:10:44.901 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2024-12-04 18:10:45.140 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 242.283ms
+2024-12-04 18:11:21.438 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 18:11:21.446 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:11:21.500 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 18:11:21.500 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:11:21.500 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 18:11:21.567 +08:00 [INF] Executed DbCommand (3ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:11:21.568 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 66 ms
+2024-12-04 18:11:21.569 +08:00 [INF] Handling CreateTimesheetCommand
+2024-12-04 18:11:21.569 +08:00 [INF] Property employeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:11:21.569 +08:00 [INF] Property timeIn1 : "2024-12-04T10:10:49.0950000Z"
+2024-12-04 18:11:21.569 +08:00 [INF] Property timeOut1 : null
+2024-12-04 18:11:21.569 +08:00 [INF] Property timeIn2 : null
+2024-12-04 18:11:21.569 +08:00 [INF] Property timeOut2 : null
+2024-12-04 18:11:21.569 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 18:11:21.585 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:11:21.641 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = DateTime), @p3='?' (DbType = Guid), @p4='?' (DbType = Date), @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = DateTime), @p15='?' (DbType = Guid), @p16='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+INSERT INTO "Timesheets" ("Id", "CreateBy", "CreatedDate", "EmployeeId", "EntryDate", "IsEdited", "IsLocked", "TimeIn1", "TimeIn1Orig", "TimeIn2", "TimeIn2Orig", "TimeOut1", "TimeOut1Orig", "TimeOut2", "TimeOut2Orig", "UpdateBy", "UpdatedDate")
+VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13, @p14, @p15, @p16);
+2024-12-04 18:11:21.644 +08:00 [INF] Handled CreateTimesheetCommand with Ardalis.Result.Result`1[System.Guid] in 75 ms
+2024-12-04 18:11:21.650 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:11:21.651 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 212.7754ms
+2024-12-04 18:12:03.163 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 18:12:03.174 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:12:03.187 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 18:12:03.188 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:12:03.188 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 18:12:03.196 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:12:03.261 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 72 ms
+2024-12-04 18:12:03.262 +08:00 [INF] Handling UpdateSingleTimesheetCommand
+2024-12-04 18:12:03.262 +08:00 [INF] Property TimesheetId : "7421029f-0fbc-4d55-9a96-9eb39a9c2a6f"
+2024-12-04 18:12:03.262 +08:00 [INF] Property EmployeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:12:03.262 +08:00 [INF] Property time : "2024-12-04T10:10:49.0950000Z"
+2024-12-04 18:12:03.263 +08:00 [INF] Property input : "TimeOut1"
+2024-12-04 18:12:03.263 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 18:12:03.265 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:12:03.279 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p16='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Guid), @p3='?' (DbType = Date), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Guid), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Timesheets" SET "CreateBy" = @p0, "CreatedDate" = @p1, "EmployeeId" = @p2, "EntryDate" = @p3, "IsEdited" = @p4, "IsLocked" = @p5, "TimeIn1" = @p6, "TimeIn1Orig" = @p7, "TimeIn2" = @p8, "TimeIn2Orig" = @p9, "TimeOut1" = @p10, "TimeOut1Orig" = @p11, "TimeOut2" = @p12, "TimeOut2Orig" = @p13, "UpdateBy" = @p14, "UpdatedDate" = @p15
+WHERE "Id" = @p16
+RETURNING 1;
+2024-12-04 18:12:03.281 +08:00 [INF] Handled UpdateSingleTimesheetCommand with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 18 ms
+2024-12-04 18:12:03.281 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:12:03.281 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 120.0536ms
+2024-12-04 18:12:24.066 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 18:12:24.070 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:12:24.075 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 18:12:24.075 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:12:24.075 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 18:12:24.082 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:12:24.084 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 8 ms
+2024-12-04 18:12:24.084 +08:00 [INF] Handling UpdateSingleTimesheetCommand
+2024-12-04 18:12:24.084 +08:00 [INF] Property TimesheetId : "7421029f-0fbc-4d55-9a96-9eb39a9c2a6f"
+2024-12-04 18:12:24.085 +08:00 [INF] Property EmployeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:12:24.085 +08:00 [INF] Property time : "2024-12-04T10:10:49.0950000Z"
+2024-12-04 18:12:24.085 +08:00 [INF] Property input : "TimeIn2"
+2024-12-04 18:12:24.085 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 18:12:24.086 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:12:24.090 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p16='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Guid), @p3='?' (DbType = Date), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Guid), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Timesheets" SET "CreateBy" = @p0, "CreatedDate" = @p1, "EmployeeId" = @p2, "EntryDate" = @p3, "IsEdited" = @p4, "IsLocked" = @p5, "TimeIn1" = @p6, "TimeIn1Orig" = @p7, "TimeIn2" = @p8, "TimeIn2Orig" = @p9, "TimeOut1" = @p10, "TimeOut1Orig" = @p11, "TimeOut2" = @p12, "TimeOut2Orig" = @p13, "UpdateBy" = @p14, "UpdatedDate" = @p15
+WHERE "Id" = @p16
+RETURNING 1;
+2024-12-04 18:12:24.092 +08:00 [INF] Handled UpdateSingleTimesheetCommand with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 7 ms
+2024-12-04 18:12:24.092 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:12:24.093 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 28.2546ms
+2024-12-04 18:12:40.830 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Timesheets - application/json 148
+2024-12-04 18:12:40.834 +08:00 [INF] Executing endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:12:40.838 +08:00 [INF] Handling GetTimesheetByEmpIdAndDateQuery
+2024-12-04 18:12:40.839 +08:00 [INF] Property EmpId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:12:40.839 +08:00 [INF] Property EntryDate : "2024-12-04"
+2024-12-04 18:12:40.852 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:12:40.854 +08:00 [INF] Handled GetTimesheetByEmpIdAndDateQuery with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 14 ms
+2024-12-04 18:12:40.855 +08:00 [INF] Handling UpdateSingleTimesheetCommand
+2024-12-04 18:12:40.855 +08:00 [INF] Property TimesheetId : "7421029f-0fbc-4d55-9a96-9eb39a9c2a6f"
+2024-12-04 18:12:40.855 +08:00 [INF] Property EmployeeId : "13f08987-052b-4f8f-9f9d-47aadd5c6789"
+2024-12-04 18:12:40.855 +08:00 [INF] Property time : "2024-12-04T10:10:49.0950000Z"
+2024-12-04 18:12:40.855 +08:00 [INF] Property input : "TimeOut2"
+2024-12-04 18:12:40.855 +08:00 [INF] Property entryDate : "2024-12-04"
+2024-12-04 18:12:40.856 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@__empId_0='?' (DbType = Guid), @__entryDate_1='?' (DbType = Date)], CommandType='"Text"', CommandTimeout='30']
+SELECT "t"."Id", "t"."CreateBy", "t"."CreatedDate", "t"."EmployeeId", "t"."EntryDate", "t"."IsEdited", "t"."IsLocked", "t"."TimeIn1", "t"."TimeIn1Orig", "t"."TimeIn2", "t"."TimeIn2Orig", "t"."TimeOut1", "t"."TimeOut1Orig", "t"."TimeOut2", "t"."TimeOut2Orig", "t"."UpdateBy", "t"."UpdatedDate", "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo"
+FROM "Timesheets" AS "t"
+INNER JOIN "Employees" AS "e" ON "t"."EmployeeId" = "e"."Id"
+WHERE "t"."EmployeeId" = @__empId_0 AND "t"."EntryDate" = @__entryDate_1
+LIMIT 1
+2024-12-04 18:12:40.859 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[@p16='?' (DbType = Guid), @p0='?' (DbType = Guid), @p1='?' (DbType = DateTime), @p2='?' (DbType = Guid), @p3='?' (DbType = Date), @p4='?' (DbType = Boolean), @p5='?' (DbType = Boolean), @p6='?' (DbType = DateTime), @p7='?' (DbType = DateTime), @p8='?' (DbType = DateTime), @p9='?' (DbType = DateTime), @p10='?' (DbType = DateTime), @p11='?' (DbType = DateTime), @p12='?' (DbType = DateTime), @p13='?' (DbType = DateTime), @p14='?' (DbType = Guid), @p15='?' (DbType = DateTime)], CommandType='"Text"', CommandTimeout='30']
+UPDATE "Timesheets" SET "CreateBy" = @p0, "CreatedDate" = @p1, "EmployeeId" = @p2, "EntryDate" = @p3, "IsEdited" = @p4, "IsLocked" = @p5, "TimeIn1" = @p6, "TimeIn1Orig" = @p7, "TimeIn2" = @p8, "TimeIn2Orig" = @p9, "TimeOut1" = @p10, "TimeOut1Orig" = @p11, "TimeOut2" = @p12, "TimeOut2Orig" = @p13, "UpdateBy" = @p14, "UpdatedDate" = @p15
+WHERE "Id" = @p16
+RETURNING 1;
+2024-12-04 18:12:40.861 +08:00 [INF] Handled UpdateSingleTimesheetCommand with Ardalis.Result.Result`1[Bluewater.UseCases.Timesheets.TimesheetDTO] in 5 ms
+2024-12-04 18:12:40.861 +08:00 [INF] Executed endpoint 'HTTP: POST /Timesheets'
+2024-12-04 18:12:40.861 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Timesheets - 200 null application/json 34.162ms

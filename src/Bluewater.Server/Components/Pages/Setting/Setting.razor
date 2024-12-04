@@ -446,22 +446,26 @@
     public IQueryable<HolidayDTO> Holidays { get; set; } = default!;
     public IQueryable<EmployeeTypeDTO> EmployeeTypes { get; set; } = default!;
     public IQueryable<LevelDTO> Levels { get; set; } = default!;
+    private bool _isInitialized;
 
     #region Initialize
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            isBusy = true;
-            await Task.Delay(100);
-            Divisions = GlobalService.Divisions.ToList().AsQueryable();
-            Departments = GlobalService.Departments.ToList().AsQueryable();
-            Sections = GlobalService.Sections.ToList().AsQueryable();
-            Positions = GlobalService.Positions.ToList().AsQueryable();
-            Chargings = GlobalService.Chargings.ToList().AsQueryable();
-            Holidays = GlobalService.Holidays.ToList().AsQueryable();
-            EmployeeTypes = GlobalService.EmployeeTypes.ToList().AsQueryable();
-            Levels = GlobalService.Levels.ToList().AsQueryable();
+            if(!_isInitialized) {
+                isBusy = true;
+                await Task.Delay(10);
+                Divisions = GlobalService.Divisions.ToList().AsQueryable();
+                Departments = GlobalService.Departments.ToList().AsQueryable();
+                Sections = GlobalService.Sections.ToList().AsQueryable();
+                Positions = GlobalService.Positions.ToList().AsQueryable();
+                Chargings = GlobalService.Chargings.ToList().AsQueryable();
+                Holidays = GlobalService.Holidays.ToList().AsQueryable();
+                EmployeeTypes = GlobalService.EmployeeTypes.ToList().AsQueryable();
+                Levels = GlobalService.Levels.ToList().AsQueryable();
+                _isInitialized = true;
+            }
         }
         catch (Exception)
         {

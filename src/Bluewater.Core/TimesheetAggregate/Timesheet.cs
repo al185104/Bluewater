@@ -43,23 +43,26 @@ public class Timesheet(Guid employeeId, DateTime? timeIn1, DateTime? timeOut1, D
         UpdatedDate = DateTime.Now;
     }
 
-    public void UpdateTimesheetByInput(Guid employeeId, DateTime? timein, int input)
+    public void UpdateTimesheetByInput(DateTime? timein, int input)
     {
         switch(input){
-            case 1:
+            case 0:
                 TimeIn1 = timein;
+                TimeIn1Orig = timein;
+                break;
+            case 1:
+                TimeOut1 = timein;
+                TimeOut1Orig = timein;
                 break;
             case 2:
-                TimeOut1 = timein;
+                TimeIn2 = timein;
+                TimeIn2Orig = timein;
                 break;
             case 3:
-                TimeIn2 = timein;
-                break;
-            case 4:
                 TimeOut2 = timein;
+                TimeOut2Orig = timein;
                 break;
         }
-        IsEdited = true;
         UpdatedDate = DateTime.Now;
     }
 }

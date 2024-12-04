@@ -117,15 +117,19 @@
     string? progressTitle;
     FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
     List<ServiceChargeDTO> serviceChargeData = default!;
+    private bool _isInitialized;
     protected override async Task OnInitializedAsync()
     {
-        Chargings = GlobalService.Chargings.ToList().AsQueryable();
-        var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(searchDate));
-        startDate = _startDate;
-        endDate = _endDate;
+        if(!_isInitialized) {
+            Chargings = GlobalService.Chargings.ToList().AsQueryable();
+            var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(searchDate));
+            startDate = _startDate;
+            endDate = _endDate;
 
-        // get the current service charge
-        await LoadServiceChargeAsync(endDate);
+            // get the current service charge
+            await LoadServiceChargeAsync(endDate);
+            _isInitialized = true;
+        }
     }
 
     async Task LoadServiceChargeAsync(DateOnly date)
@@ -161,16 +165,17 @@
             startDate = _startDate;
             endDate = _endDate;
 
+            isBusy = true;
             await LoadServiceChargeAsync(endDate);
             if(selectCharging == null || selectCharging?.Id == Guid.Empty)
             {
-                if(!changedDate)
+                if(!changedDate) {
+                    isBusy = false;
                     await DialogService.ShowWarningAsync("There's no current charging group selected yet. Please select a charging group first.", "Warning");
+                }
                 return;
             }
-                        
-            isBusy = true;
-
+            
             // get list of payrolls
             using (var scope = ServiceScopeFactory.CreateScope())
             {

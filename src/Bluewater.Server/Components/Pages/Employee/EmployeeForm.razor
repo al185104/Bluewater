@@ -162,9 +162,18 @@
         <FluentGridItem xs="6"><FluentTextField Label="PhilHealth No" @bind-Value="@Content.PhicNo" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"><FluentTextField Label="Bank Account" @bind-Value="@Content.BankAccount" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"></FluentGridItem>
-        <FluentGridItem xs="6"><FluentNumberField Label="Basic Pay" Value="@BasicPay" Style="width: 100%" ReadOnly=@(EnableByEmployeeType(true)) @onchange=HandleBasicPayUpdated /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentNumberField Label="Daily Rate" Value="@DailyRate" Style="width: 100%" ReadOnly=@(EnableByEmployeeType(false)) @onchange=HandleDailyRateUpdated /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentNumberField Label="Hourly Rate" @bind-Value="@Content.HourlyRate" Style="width: 100%" ReadOnly/></FluentGridItem>        
+        <FluentGridItem xs="6"><FluentNumberField Label="Basic Pay" Value="@Content.BasicPay" Style="width: 100%" ReadOnly=@(EnableByEmployeeType(true)) /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentNumberField Label="Daily Rate" Value="@Content.DailyRate" Style="width: 100%" ReadOnly=@(EnableByEmployeeType(false)) /></FluentGridItem>        
+
+        <FluentGridItem xs="6" Style="display: flex; flex-direction: column; justify-content: flex-end;">
+            <FluentNumberField Label="Hourly Rate" @bind-Value="@Content.HourlyRate" Style="width: 100%;" ReadOnly />
+        </FluentGridItem>
+        <FluentGridItem xs="6" Style="display: flex; flex-direction: column; justify-content: flex-end;">
+            <FluentButton IconStart="@(new Icons.Regular.Size20.Calculator())" Appearance="Appearance.Outline" OnClick="CalculatePay">
+                Calculate
+            </FluentButton>
+        </FluentGridItem>
+
         <FluentGridItem xs="6"><FluentNumberField Label="HDMF Con" @bind-Value="@Content.HDMF_Con" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"><FluentNumberField Label="HDMF Er" @bind-Value="@Content.HDMF_Er" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"></FluentGridItem>
@@ -311,18 +320,6 @@
 
     bool isFirstLoad = false;
 
-    private decimal _basicPay = 0;
-    public decimal BasicPay {
-        get { return _basicPay; }
-        set { _basicPay = value; }
-    }
-
-    private decimal _dailyRate = 0;
-    public decimal DailyRate {
-        get { return _dailyRate; }
-        set { _dailyRate = value; }
-    }
-
     public Task InitializeDialogAsync()
     {
         if(!isFirstLoad)
@@ -368,8 +365,6 @@
                 Content.LevelId = levels.FirstOrDefault()?.Id ?? Guid.Empty;
             selectedLevel = levels.FirstOrDefault(i => i.Id == Content.LevelId) ?? new LevelDTO();
 
-            BasicPay = Content.BasicPay ?? 0;
-            DailyRate = Content.DailyRate ?? 0;
 
             selectedGender = genderOptions.FirstOrDefault(i => (Gender)(i.Value ?? Gender.NotSet)  == Content.Gender) ?? new EnumOption(null, null);
             selectedCivilStatus = civilStatusOptions.FirstOrDefault(i => (CivilStatus)(i.Value ?? CivilStatus.NotSet) == Content.CivilStatus) ?? new EnumOption(null, null);
@@ -532,60 +527,6 @@
             Content.TypeId = employeeType.Id;
     }
 
-    public void HandleBasicPayUpdated(ChangeEventArgs changeEventArgs)
-    {
-        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
-        var _isRegular = selectedEmployeeType.Name.Equals("Regular", StringComparison.InvariantCultureIgnoreCase);
-        // convert stringValue to decimal
-        if(decimal.TryParse(stringValue, out var basicPay)) {
-            var (dailyRate, hourlyRate) = GlobalService.GetRatesByEmployeeType(basicPay, _isRegular);
-            Content.BasicPay = basicPay;
-            Content.HourlyRate = hourlyRate;
-            Content.DailyRate = _dailyRate = dailyRate;
-        }
-        StateHasChanged();
-            @* UpdatePays(basicPay); *@
-    }
-
-    public void HandleDailyRateUpdated(ChangeEventArgs changeEventArgs) {
-        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
-        var _isRegular = selectedEmployeeType.Name.Equals("Regular", StringComparison.InvariantCultureIgnoreCase);
-        // convert stringValue to decimal
-        if(decimal.TryParse(stringValue, out var dailyRate)) {
-            var (basicPay, hourlyRate) = GlobalService.GetRatesByEmployeeTypeAndDailyRate(dailyRate, _isRegular);
-            Content.DailyRate = dailyRate;
-            Content.HourlyRate = hourlyRate;
-            Content.BasicPay = _basicPay = basicPay;  
-        }
-        StateHasChanged();
-            @* UpdatePays(dailyRate); *@
-    }
-
-    public void UpdatePays(decimal pay, bool? isRegular = null) {
-        var _isRegular = false;
-        if(isRegular != null) 
-            _isRegular = (bool)isRegular;
-        else if(selectedEmployeeType != null)
-            _isRegular = selectedEmployeeType.Name.Equals("Regular", StringComparison.InvariantCultureIgnoreCase);
-
-        if(_isRegular) {
-            var (dailyRate, hourlyRate) = GlobalService.GetRatesByEmployeeType(pay, _isRegular);
-            Content.BasicPay = pay;
-            Content.HourlyRate = hourlyRate;
-            Content.DailyRate = dailyRate;
-
-            DailyRate = dailyRate;
-        }
-        else {
-            var (basicPay, hourlyRate) = GlobalService.GetRatesByEmployeeTypeAndDailyRate(pay, _isRegular);
-            Content.DailyRate = pay;
-            Content.HourlyRate = hourlyRate;
-            Content.BasicPay = basicPay;
-
-            BasicPay = basicPay;
-        }
-    }
-
     public bool IsDisableSupervisedGroup(){
         return Content.IsGlobalSupervisor || Content.Credential < Credential.Manager;
     }
@@ -597,5 +538,21 @@
         }
         else
             return false;
+    }
+
+    private void CalculatePay(){
+        if(selectedEmployeeType == null) return;
+
+        var _isRegular = selectedEmployeeType.Name.Equals("Regular", StringComparison.InvariantCultureIgnoreCase);
+        if(_isRegular) {
+            var (dailyRate, hourlyRate) = GlobalService.GetRatesByEmployeeType(Content.BasicPay ?? 0, _isRegular);
+            Content.HourlyRate = hourlyRate;
+            Content.DailyRate = dailyRate;
+        }
+        else {
+            var (basicPay, hourlyRate) = GlobalService.GetRatesByEmployeeTypeAndDailyRate(Content.DailyRate ?? 0, _isRegular);
+            Content.HourlyRate = hourlyRate;
+            Content.BasicPay = basicPay;
+        }
     }
 }

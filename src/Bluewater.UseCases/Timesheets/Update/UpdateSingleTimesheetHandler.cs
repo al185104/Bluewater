@@ -12,7 +12,7 @@ public class UpdateSingleTimesheetHandler(IRepository<Timesheet> _repository) : 
     var existingTimesheet = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (existingTimesheet == null) return Result.NotFound();
 
-    existingTimesheet.UpdateTimesheetByInput(request.EmployeeId, request.time, (int)request.input);
+    existingTimesheet.UpdateTimesheetByInput(request.time, (int)request.input);
 
     await _repository.UpdateAsync(existingTimesheet, cancellationToken);
 

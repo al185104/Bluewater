@@ -41,3 +41,12 @@ Content-Type: application/json
 @id_to_delete=1
 DELETE {{host}}:{{port}}/Contributors/{{id_to_delete}}
 
+### Create a new Meal Credit
+POST {{host}}:{{port}}/MealCredits
+Content-Type: application/json
+
+{
+  "employeeId": "00000000-0000-0000-0000-000000000000", // Replace with a valid GUID
+  "entryDate": "2024-12-04", // Replace with the desired date in yyyy-MM-dd format
+  "count": 5 // Replace with the desired count
+}

@@ -124,14 +124,18 @@
         }
     }
 
+    private bool _isInitialized;
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            isBusy = true;
-            await LoadScheduleAsync(searchDate);
-            shifts = GlobalService.Shifts.ToList() ?? new List<ShiftDTO>();
-            StateHasChanged();
+            if(!_isInitialized) {
+                isBusy = true;
+                await LoadScheduleAsync(searchDate);
+                shifts = GlobalService.Shifts.ToList() ?? new List<ShiftDTO>();
+                StateHasChanged();
+                _isInitialized = true;
+            }
         }
         catch (Exception)
         {

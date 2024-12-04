@@ -119,8 +119,10 @@
     {
         try{
             isBusy = true;
-            if(isFirstLoad)
+
+            if(isFirstLoad) {
                 await LoadEmployeesAsync();
+            }
             isFirstLoad = false;
         }
         catch (Exception)

@@ -18,7 +18,6 @@ public class Create(IMediator _mediator, IServiceScopeFactory serviceScopeFactor
   {
     Post(CreateTimesheetRequest.Route);
     AllowAnonymous();
-    //Summary(s => { s.ExampleRequest = new CreateTimesheetRequest {  }; });
   }
 
   public override async Task HandleAsync(CreateTimesheetRequest request, CancellationToken cancellationToken)
@@ -44,12 +43,7 @@ public class Create(IMediator _mediator, IServiceScopeFactory serviceScopeFactor
                 using (var scope = serviceScopeFactory.CreateScope())
                 {
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var _result = await mediator.Send(new UpdateTimesheetCommand(timesheetDTO.Id, timesheetDTO.EmployeeId, 
-                        timesheetDTO.TimeIn1, 
-                        request.timeInput,
-                        timesheetDTO.TimeIn2, 
-                        timesheetDTO.TimeOut2, 
-                        timesheetDTO.EntryDate, false));
+                    var _result = await mediator.Send(new UpdateSingleTimesheetCommand(timesheetDTO.Id, timesheetDTO.EmployeeId, request.timeInput, TimesheetEnum.TimeOut1, request.entryDate ?? DateOnly.FromDateTime(DateTime.Today)));
                     if(_result.IsSuccess)
                         result = _result.Value.Id;
                 }
@@ -60,12 +54,7 @@ public class Create(IMediator _mediator, IServiceScopeFactory serviceScopeFactor
                 using (var scope = serviceScopeFactory.CreateScope())
                 {
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var _result = await mediator.Send(new UpdateTimesheetCommand(timesheetDTO.Id, timesheetDTO.EmployeeId, 
-                        timesheetDTO.TimeIn1, 
-                        timesheetDTO.TimeOut1,
-                        request.timeInput,
-                        timesheetDTO.TimeOut2, 
-                        timesheetDTO.EntryDate, false));
+                    var _result = await mediator.Send(new UpdateSingleTimesheetCommand(timesheetDTO.Id, timesheetDTO.EmployeeId, request.timeInput, TimesheetEnum.TimeIn2, request.entryDate ?? DateOnly.FromDateTime(DateTime.Today)));
                     if(_result.IsSuccess)
                         result = _result.Value.Id;
                 }
@@ -76,12 +65,7 @@ public class Create(IMediator _mediator, IServiceScopeFactory serviceScopeFactor
                 using (var scope = serviceScopeFactory.CreateScope())
                 {
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var _result = await mediator.Send(new UpdateTimesheetCommand(timesheetDTO.Id, timesheetDTO.EmployeeId, 
-                        timesheetDTO.TimeIn1, 
-                        timesheetDTO.TimeOut1,
-                        timesheetDTO.TimeIn2, 
-                        request.timeInput,
-                        timesheetDTO.EntryDate, false));
+                    var _result = await mediator.Send(new UpdateSingleTimesheetCommand(timesheetDTO.Id, timesheetDTO.EmployeeId, request.timeInput, TimesheetEnum.TimeOut2, request.entryDate ?? DateOnly.FromDateTime(DateTime.Today)));
                     if(_result.IsSuccess)
                         result = _result.Value.Id;
                 }

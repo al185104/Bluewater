@@ -168,7 +168,7 @@ In Visual Studio, open the Package Manager Console, and run `Add-Migration Initi
 In a terminal with the CLI, the command is similar. Run this from the Web project directory:
 
 ```powershell
-dotnet ef migrations add "AddSomething" --project ./src/Bluewater.Infrastructure --startup-project src/Bluewater.Server;
+dotnet ef migrations add "Initial Migration" --project ./src/Bluewater.Infrastructure --startup-project src/Bluewater.Server;
 ```
 
 To use SqlServer, change `options.UseSqlite(connectionString));` to `options.UseSqlServer(connectionString));` in the `Your.ProjectName.Infrastructure.StartupSetup` file. Also remember to replace the `SqliteConnection` with `DefaultConnection` in the `Your.ProjectName.Web.Program` file, which points to your Database Server.
@@ -291,7 +291,7 @@ Domain events are a great pattern for decoupling a trigger for an operation from
 
 
 -- TODOs:
-[stupid]probie - no basic pay
+[done]probie - no basic pay
   - regular / non-regular update the readonly  
 schedule - 
   -[done] no charging
@@ -302,7 +302,13 @@ schedule -
 add color to edited
 [done] payroll - hide 0 earnings/deductions
 [done] report - old design
-timesheet API
+[done] timesheet API
+[done] meal credit
+[done] barcode and bank account in reports
+[done] use xlsx for reports
+[done] auto hide 0 from reports
+[done] loading visible
+MAUI
 leave
 login
 

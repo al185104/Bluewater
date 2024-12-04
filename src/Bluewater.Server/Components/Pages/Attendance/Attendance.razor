@@ -109,10 +109,14 @@
     string? progressTitle;
     FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
     FluentInputFile? attendanceFileUploader = default!;
-
+    
+    private bool _isInitialized;
     protected override async Task OnInitializedAsync()
     {
-        await LoadAttendanceAsync(searchDate);
+        if (!_isInitialized) {
+            await LoadAttendanceAsync(searchDate);
+            _isInitialized = true;
+        }
     }
 
     private async Task LoadAttendanceAsync(DateOnly searchDate)
@@ -153,7 +157,7 @@
 
     private async Task ViewAttendanceAsync(AllAttendancesDTO context)
     {
-        await Task.Delay(100);
+        await Task.Delay(10);
         NavigationManager.NavigateTo($"/attendance/details/{context.EmployeeId}/{searchDate.ToString("yyyy-MM-dd")}");
     }
 

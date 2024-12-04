@@ -23,13 +23,13 @@
 <FluentDataGrid Id="shiftsGrid" Items="@PayrollSummaries">
     <PropertyColumn Title="Payroll Date" Property="@(c => c!.Date)" Format="MMMM-dd" Align="Align.Start" />
     <PropertyColumn Title="Count" Property="@(c => c!.Count)" Align="Align.Center" />
-    <PropertyColumn Title="Total Service Charge" Property="@(c => c!.TotalServiceCharge)" Align="Align.Center" />
-    <PropertyColumn Title="Total Absences" Property="@(c => c!.TotalAbsences)" Align="Align.Center" />
-    <PropertyColumn Title="Total Leave" Property="@(c => c!.TotalLeaves)" Align="Align.Center" />
-    <PropertyColumn Title="Total Undertime" Property="@(c => c!.TotalUndertimes)" Align="Align.Center" />
-    <PropertyColumn Title="Total Overbreak" Property="@(c => c!.TotalOverbreak)" Align="Align.Center" />
-    <PropertyColumn Title="Total Tax Deductions" Property="@(c => c!.TotalTaxDeductions)" Align="Align.Center" />   
-    <PropertyColumn Title="Total Net Amount" Property="@(c => c!.TotalNetAmount)" Align="Align.Center" />         
+    <PropertyColumn Title="Total Service Charge" Property="@(c => c!.TotalServiceCharge.ToString("N2"))" Align="Align.Center" />
+    <PropertyColumn Title="Total Absences" Property="@(c => c!.TotalAbsences.ToString("N2"))" Align="Align.Center" />
+    <PropertyColumn Title="Total Leave" Property="@(c => c!.TotalLeaves.ToString("N2"))" Align="Align.Center" />
+    <PropertyColumn Title="Total Undertime" Property="@(c => c!.TotalUndertimes.ToString("N2"))" Align="Align.Center" />
+    <PropertyColumn Title="Total Overbreak" Property="@(c => c!.TotalOverbreak.ToString("N2"))" Align="Align.Center" />
+    <PropertyColumn Title="Total Tax Deductions" Property="@(c => c!.TotalTaxDeductions.ToString("N2"))" Align="Align.Center" />   
+    <PropertyColumn Title="Total Net Amount" Property="@(c => c!.TotalNetAmount.ToString("N2"))" Align="Align.Center" />         
     <TemplateColumn Title="Actions" Align="@Align.End">
         <FluentButton Appearance=Appearance.Outline aria-label="View item" IconEnd="@(new Icons.Regular.Size20.ArrowExport())" OnClick="@(async() => await ViewPayrollAsync(context))">Export</FluentButton>
     </TemplateColumn>
@@ -94,8 +94,9 @@
                 var result = await mediator.Send(new ListPayrollQuery(null, null, null, startDate, endDate));
                 if (result.IsSuccess) {
                     var payrolls = result.Value.ToList();
-                    CsvUtility.ExportPayrollToExcel($"payroll_{DateTime.Now.ToString("MMM dd hh:mm:ss tt")}.xlsx", payrolls);
-                    await DialogService.ShowInfoAsync($"Exported payroll_{DateTime.Now.ToString("MMM dd hh:mm:ss tt")} to Download folder.", "Export");
+                    var fileName = $"payroll_{startDate.ToString("MMM-dd-yy")}_to_{endDate.ToString("MMM-dd-yy")}";
+                    CsvUtility.ExportPayrollToExcel($"{fileName}.xlsx", payrolls);
+                    await DialogService.ShowInfoAsync($"Exported {fileName}.xlsx to Download folder.", "Export");
                 }
             }
         }
