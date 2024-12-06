@@ -1,4 +1,7 @@
 using Ardalis.Result;
+using Ardalis.SharedKernel;
+using Bluewater.Core.EmployeeAggregate;
+using Bluewater.Core.EmployeeAggregate.Specifications;
 using Bluewater.UseCases.Timesheets;
 using Bluewater.UseCases.Timesheets.Create;
 using Bluewater.UseCases.Timesheets.Get;
@@ -12,7 +15,8 @@ namespace Bluewater.Web.Timesheets;
 /// </summary>
 /// <param name="_mediator"></param>
 /// <param name="serviceScopeFactory"></param>
-public class Create(IMediator _mediator, IServiceScopeFactory serviceScopeFactory) : Endpoint<CreateTimesheetRequest, CreateTimesheetsResponse>
+/// <param name="_empRepository"></param>
+public class Create(IMediator _mediator, IServiceScopeFactory serviceScopeFactory, IRepository<Employee> _empRepository) : Endpoint<CreateTimesheetRequest, CreateTimesheetsResponse>
 {
   public override void Configure()
   {
@@ -22,20 +26,33 @@ public class Create(IMediator _mediator, IServiceScopeFactory serviceScopeFactor
 
   public override async Task HandleAsync(CreateTimesheetRequest request, CancellationToken cancellationToken)
   {
+    string? name = null;
     Result<Guid> result = new Result<Guid>(Guid.Empty);
     TimesheetDTO? timesheetDTO = null;
+
+    var spec = new EmployeeByBarcodeSpec(request.username);
+    var emp = await _empRepository.FirstOrDefaultAsync(spec, cancellationToken);
+    if(emp == null) {
+        Response = new CreateTimesheetsResponse(null);
+        return;
+    } 
+
     using(var scope = serviceScopeFactory.CreateScope())
     {
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var ret = await mediator.Send(new GetTimesheetByEmpIdAndDateQuery(request.employeeId, request.entryDate ?? DateOnly.MinValue));
+        var ret = await mediator.Send(new GetTimesheetByEmpIdAndDateQuery(emp.Id, request.entryDate ?? DateOnly.MinValue));
         if(ret.IsSuccess)
             timesheetDTO = ret.Value;
-    }
+    }   
 
-    switch(request.inputType)
+    var input = request.inputType;
+    if(input == 3 && timesheetDTO != null && timesheetDTO.TimeOut1 == null)
+        input = 1;
+
+    switch(input)
     {
         case 0:
-            var timesheet = new CreateTimesheetCommand(employeeId: request.employeeId, timeIn1: request.timeInput, timeOut1: null, timeIn2: null, timeOut2: null, entryDate: request.entryDate);
+            var timesheet = new CreateTimesheetCommand(employeeId: emp.Id, timeIn1: request.timeInput, timeOut1: null, timeIn2: null, timeOut2: null, entryDate: request.entryDate);
             result = await _mediator.Send(timesheet, cancellationToken);
             break;
         case 1:
@@ -76,7 +93,10 @@ public class Create(IMediator _mediator, IServiceScopeFactory serviceScopeFactor
             break;
     }
 
-    Response = new CreateTimesheetsResponse(result.Value);
+    if(result.Value != Guid.Empty && emp != null)
+        name = $"{emp.LastName}, {emp.FirstName}";
+
+    Response = new CreateTimesheetsResponse(name);
     return;
   }
 }

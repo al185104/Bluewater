@@ -24,8 +24,114 @@
 @inject IMediator Mediator
 @inject IGlobalService GlobalService
 
+<PageTitle>Home</PageTitle>
+
+<div class="home-page-container">
+    <!-- Left Content: Welcome Message -->
+    <div class="welcome-container">
+        <h1>Welcome to the Human Resource Management System of Bluewater Maribago</h1>
+        <p>
+At Bluewater Maribago, we recognize that our people are our greatest asset, and we are dedicated to creating an environment where every team member feels empowered, supported, and valued. Our Human Resource Management System is here to streamline your daily operations, helping you manage employee records, performance evaluations, payroll, and benefits—all in one centralized platform.
+
+This system is designed to offer you unparalleled convenience, efficiency, and transparency, giving you quick access to the resources and tools you need to succeed in your role. Whether you are managing employee schedules, facilitating training programs, or tracking career development, our platform ensures you have the data and insights required to make informed decisions that drive the success of our team.
+
+At Bluewater Maribago, we are committed to fostering a workplace culture that nurtures growth, collaboration, and innovation. Through this platform, we aim to enhance your experience, making HR processes more streamlined so that you can focus on what truly matters—developing our people and elevating the employee experience.
+
+Explore, engage, and empower—this platform is your key to unlocking a more efficient, modern, and proactive approach to Human Resource management. Welcome to the future of HR at Bluewater Maribago!
+        </p>
+    </div>
+
+    <!-- Right Content: Updates Section -->
+    <div class="updates-container">
+        <FluentAccordion>
+            <FluentAccordionItem Expanded="true" Heading="System Updates">
+                <FluentIcon Value="@(new Icons.Regular.Size20.MegaphoneLoud())" Color="@Color.Neutral" Slot="start" />
+                <ul>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> Probie calculation: regular/non-regular update readonly</li>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> Schedule: no charging, no section, add ID number</li>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> Barcode all over the place</li>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> Attendance: total absences between work and late</li>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> Add color to edited</li>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> Payroll: hide 0 earnings/deductions</li>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> Report: keep the old design</li>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> Timesheet API</li>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> Meal credit API</li>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> Barcode and bank account in reports</li>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> Use XLSX for reports</li>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> Auto-hide 0 from reports</li>
+                    <li><FluentIcon Value="@(new Icons.Filled.Size20.Hourglass())" Style="color: orange;" /> In progress: meal credit in the device</li>
+                </ul>
+            </FluentAccordionItem>
+        </FluentAccordion>
+    </div>
+</div>
 
 <style>
+    .home-page-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .welcome-container {
+        flex: 3;
+        padding: 20px;
+    }
+
+    .updates-container {
+        flex: 1;
+        padding: 10px;
+        padding-bottom: 40px;
+        border-left: 2px solid #ddd;
+    }
+
+    .updates-container FluentAccordion {
+        width: 100%;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    li {
+        margin: 5px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    p {
+        font-size: 18px;
+        line-height: 1.6;
+    }    
+</style>
+
+@* 
+<style>
+    .home-page-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .welcome-container {
+        flex: 2;
+        padding: 20px;
+    }
+
+    .updates-container {
+        flex: 1;
+        padding: 20px;
+        border-left: 2px solid #ddd;
+    }
+
+    .updates-container FluentAccordion {
+        width: 100%;
+    }
+
     .welcome-container {
         text-align: left;
         padding: 20px;
@@ -41,8 +147,11 @@
     }
 </style>
 
+
 <PageTitle>Home</PageTitle>
 
+<div class="home-page-container">
+    <!-- Left Content: Welcome Message -->
     <div class="welcome-container">
         <h1>Welcome to the Human Resource Management System of Bluewater Maribago</h1>
         <p>
@@ -55,6 +164,96 @@ At Bluewater Maribago, we are committed to fostering a workplace culture that nu
 Explore, engage, and empower—this platform is your key to unlocking a more efficient, modern, and proactive approach to Human Resource management. Welcome to the future of HR at Bluewater Maribago!
         </p>
     </div>
+
+    <!-- Right Content: Updates Section -->
+    <div class="updates-container">
+        <FluentAccordion>
+            <FluentAccordionItem IsExpanded="true" Header="Probie Calculation">
+                <ul>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> regular / non-regular update the readonly
+                    </li>
+                </ul>
+            </FluentAccordionItem>
+            
+            <FluentAccordionItem IsExpanded="true" Header="Schedule">
+                <ul>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> no charging
+                    </li>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> no section
+                    </li>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> add id number
+                    </li>
+                </ul>
+            </FluentAccordionItem>
+            
+            <FluentAccordionItem IsExpanded="true" Header="General Updates">
+                <ul>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> barcode all over the place
+                    </li>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> attendance - total absences between work and late
+                    </li>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> add color to edited
+                    </li>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> payroll - hide 0 earnings/deductions
+                    </li>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> report - keep the old design
+                    </li>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> timesheet API
+                    </li>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> meal credit API
+                    </li>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> barcode and bank account in reports
+                    </li>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> use xlsx for reports
+                    </li>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> auto hide 0 from reports
+                    </li>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> loading visible
+                    </li>
+                </ul>
+            </FluentAccordionItem>
+
+            <FluentAccordionItem IsExpanded="true" Header="In Progress">
+                <ul>
+                    <li>
+                        <FluentIcon Value="@(new Icons.Filled.Size16.Hourglass())" Style="color: orange;" /> meal credit in the device
+                    </li>
+                </ul>
+            </FluentAccordionItem>
+        </FluentAccordion>
+    </div>
+</div> *@
+
+
+@* <PageTitle>Home</PageTitle>
+
+    <div class="welcome-container">
+        <h1>Welcome to the Human Resource Management System of Bluewater Maribago</h1>
+        <p>
+At Bluewater Maribago, we recognize that our people are our greatest asset, and we are dedicated to creating an environment where every team member feels empowered, supported, and valued. Our Human Resource Management System is here to streamline your daily operations, helping you manage employee records, performance evaluations, payroll, and benefits—all in one centralized platform.
+
+This system is designed to offer you unparalleled convenience, efficiency, and transparency, giving you quick access to the resources and tools you need to succeed in your role. Whether you are managing employee schedules, facilitating training programs, or tracking career development, our platform ensures you have the data and insights required to make informed decisions that drive the success of our team.
+
+At Bluewater Maribago, we are committed to fostering a workplace culture that nurtures growth, collaboration, and innovation. Through this platform, we aim to enhance your experience, making HR processes more streamlined so that you can focus on what truly matters—developing our people and elevating the employee experience.
+
+Explore, engage, and empower—this platform is your key to unlocking a more efficient, modern, and proactive approach to Human Resource management. Welcome to the future of HR at Bluewater Maribago!
+        </p>
+    </div> *@
     
 @if (isBusy)
 {

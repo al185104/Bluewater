@@ -291,24 +291,26 @@ Domain events are a great pattern for decoupling a trigger for an operation from
 
 
 -- TODOs:
-[done]probie - no basic pay
+[done]probie calculation
   - regular / non-regular update the readonly  
 schedule - 
   -[done] no charging
   -[done] no section
   -[done] add id number
-  -[pending] import -- need dynamic csv header reading by date
+[done] barcode all over the place
 [done] attendance - total absences between work and late
-add color to edited
+[done] add color to edited
 [done] payroll - hide 0 earnings/deductions
-[done] report - old design
+[done] report - keep the old design
 [done] timesheet API
-[done] meal credit
+[done] meal credit API
 [done] barcode and bank account in reports
 [done] use xlsx for reports
 [done] auto hide 0 from reports
 [done] loading visible
-MAUI
+
+[inprogress] meal credit in the device
+
 leave
 login
 

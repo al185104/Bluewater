@@ -84,7 +84,7 @@ else
 app.UseFastEndpoints()
     .UseSwaggerGen(); // Includes AddFileServer and static files middleware
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 await SeedDatabase(app);
 

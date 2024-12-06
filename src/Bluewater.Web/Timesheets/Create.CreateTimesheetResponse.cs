@@ -1,6 +1,6 @@
 namespace Bluewater.Web.Timesheets;
 
-public class CreateTimesheetsResponse(Guid Id)
+public class CreateTimesheetsResponse(string? name)
 {
-  public Guid Id { get; set; } = Id;
+  public string? Name { get; set; } = name;
 } 

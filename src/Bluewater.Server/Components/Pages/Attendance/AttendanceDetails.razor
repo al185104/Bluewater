@@ -41,6 +41,7 @@
 </FluentGrid>
 
 <FluentDataGrid Items="@EmployeeAttendance" TGridItem="AttendanceDTO"
+    RowStyle="@rowStyle"
     GridTemplateColumns="1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 0.8fr 0.8fr 0.8fr 0.6fr">
     <PropertyColumn Title="Date" Property="@(p => p.EntryDate)" Format="MMM-dd" Sortable="true"/>
     <PropertyColumn Title="Day" Property="@(p => p.EntryDate)" Format="dddd"/>
@@ -54,7 +55,7 @@
     <PropertyColumn Title="Break end" Property="@(p => p.Shift != null ? p.Shift.ShiftBreakEndTime : default)" Format="hh:mm tt" />        
     <PropertyColumn Title="End time" Property="@(p => p.Shift != null ? p.Shift.ShiftEndTime : default)" Format="hh:mm tt" />
     <TemplateColumn Title="In #1" Align="@Align.Center">
-        <FluentTimePicker Value="@(context.Timesheet?.TimeIn1 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeIn1 = e)" Format="hh:mm tt" Disabled=@context.IsLocked/>
+        <FluentTimePicker Value="@(context.Timesheet?.TimeIn1 ?? DateTime.MinValue)" ValueChanged="@(async (e) => await TimesheetValueChangedAsync(context, 0, e))" Format="hh:mm tt" Disabled=@context.IsLocked/>
     </TemplateColumn>
     <TemplateColumn Title="Out #1" Align="@Align.Center">
         <FluentTimePicker Value="@(context.Timesheet?.TimeOut1 ?? DateTime.MinValue)" ValueChanged="@(e => context.Timesheet!.TimeOut1 = e)" Format="hh:mm tt" Disabled=@context.IsLocked/>        
@@ -85,6 +86,7 @@
 <FluentDialogProvider/>
 
 @code {
+    Func<AttendanceDTO, string?> rowStyle = x => x.Timesheet != null && x.Timesheet.IsEdited ? "background-color: #82c5ff" : null;
 
     [Parameter]
     public Guid EmpId { get; set; }
@@ -274,6 +276,38 @@
         }
         finally {
             isBusy = false;
+        }
+    }
+
+    private async Task TimesheetValueChangedAsync(AttendanceDTO attendance, int type, DateTime? input) {
+        // create timesheet
+        if(attendance.Timesheet == null || attendance.TimesheetId == Guid.Empty) {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateTimesheetCommand(attendance.EmployeeId, null, null, null, null, attendance.EntryDate));
+                if (result.IsSuccess) {
+                    attendance.TimesheetId = result.Value;
+                    attendance.Timesheet = new TimesheetDTO(result.Value, attendance.EmployeeId, null, null, null, null, attendance.EntryDate, true);
+                }
+            }
+        }
+
+        if(attendance.Timesheet != null) {
+            switch (type) {
+                case 0:
+                    attendance.Timesheet.TimeIn1 = input;
+                break;
+                case 1:
+                    attendance.Timesheet.TimeOut1 = input;
+                break;
+                case 2:
+                    attendance.Timesheet.TimeIn2 = input;
+                break;
+                case 3:
+                    attendance.Timesheet.TimeOut2 = input;
+                break;
+            }
         }
     }
 }
