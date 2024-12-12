@@ -116,7 +116,7 @@
     int? progressPercent;
     string? progressTitle;
     FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
-    List<ServiceChargeDTO> serviceChargeData = default!;
+    List<ServiceChargeDTO> serviceChargeData = new();
     private bool _isInitialized;
     protected override async Task OnInitializedAsync()
     {

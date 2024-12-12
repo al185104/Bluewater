@@ -16,7 +16,7 @@ public class MealCreditsPost(CustomWebApplicationFactory<Program> factory) : ICl
     var employeeId = Guid.NewGuid(); // Replace with a valid seeded or test employee ID
     var request = new CreateMealCreditRequest
     {
-      employeeId = employeeId,
+      barcode = "",
       entryDate = DateOnly.FromDateTime(DateTime.Now),
       count = 5
     };
@@ -29,7 +29,6 @@ public class MealCreditsPost(CustomWebApplicationFactory<Program> factory) : ICl
 
     // Assert
     Assert.NotNull(createdMealCredit);
-    Assert.Equal(request.employeeId, createdMealCredit.EmployeeId);
     Assert.Equal(request.entryDate, createdMealCredit.Date);
     Assert.Equal(request.count, createdMealCredit.Count);
   }
@@ -40,7 +39,7 @@ public class MealCreditsPost(CustomWebApplicationFactory<Program> factory) : ICl
     // Arrange
     var request = new CreateMealCreditRequest
     {
-      employeeId = Guid.Empty, // Invalid GUID
+      barcode = "", // Invalid GUID
       entryDate = null,        // Null entry date
       count = -1               // Invalid count
     };

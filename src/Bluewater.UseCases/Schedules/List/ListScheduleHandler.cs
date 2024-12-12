@@ -39,8 +39,11 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
             var sched = scheds!.FirstOrDefault(s => s.ScheduleDate == date);
             // if no schedule, check first if there's a default schedule
             if(sched == null) {
-                var defaultSpec = new DefaultShiftByEmpIdSpec(emp.Id, date.DayOfWeek);
-                var defaultSched = await _schedRepository.FirstOrDefaultAsync(defaultSpec, cancellationToken);
+                var defaultSpec = new DefaultShiftByEmpIdSpec(emp.Id); //date.DayOfWeek
+                var list = await _schedRepository.ListAsync(defaultSpec, cancellationToken);
+
+                var defaultSched = list.FirstOrDefault(i => i.ScheduleDate.DayOfWeek == date.DayOfWeek);
+
                 // if no default schedule, create a default schedule
                 if(defaultSched == null) {
                     var defaultShift = new ShiftDTO(Guid.Empty, string.Empty, null, null, null, null, 0);

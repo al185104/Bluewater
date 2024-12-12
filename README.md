@@ -179,6 +179,9 @@ To update the database use this command from the Web project folder (replace `Bl
 dotnet ef database update --project src/Bluewater.Infrastructure --startup-project src/Bluewater.Server
 ```
 
+## Publish
+dotnet publish -c Release -o ./publish
+
 # Goals
 
 The goal of this repository is to provide a basic solution structure that can be used to build Domain-Driven Design (DDD)-based or simply well-factored, SOLID applications using .NET Core. Learn more about these topics here:

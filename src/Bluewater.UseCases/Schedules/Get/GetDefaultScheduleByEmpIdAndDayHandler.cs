@@ -9,8 +9,11 @@ public class GetDefaultScheduleByEmpIdAndDayHandler(IRepository<Schedule> _sched
 {
   public async Task<Result<ScheduleDTO>> Handle(GetDefaultScheduleByEmpIdAndDayQuery request, CancellationToken cancellationToken)
   {
-    var spec = new DefaultShiftByEmpIdSpec(request.empId, request.dayOfWeek);
-    var schedResult = await _schedRepository.FirstOrDefaultAsync(spec, cancellationToken);
+    var spec = new DefaultShiftByEmpIdSpec(request.empId); //request.dayOfWeek
+    var list = await _schedRepository.ListAsync(spec, cancellationToken);
+
+    var schedResult = list.FirstOrDefault(i => i.ScheduleDate.DayOfWeek == request.dayOfWeek);
+
     if (schedResult == null || schedResult!.EmployeeId == Guid.Empty) return Result.NotFound();
 
     var empResult = await _empRepository.GetByIdAsync(schedResult!.EmployeeId, cancellationToken);

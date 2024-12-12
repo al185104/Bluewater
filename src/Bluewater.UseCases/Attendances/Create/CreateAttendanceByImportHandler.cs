@@ -82,8 +82,11 @@ public class CreateAttendanceByImportHandler(IRepository<Attendance> _attendance
         }
         else {
           // if no - check if same as the default.
-          var defaultSchedSpec = new DefaultShiftByEmpIdSpec(emp.Id, entryDate.DayOfWeek);
-          var defaultSchedule = await _scheduleRepo.FirstOrDefaultAsync(defaultSchedSpec, cancellationToken);
+          var defaultSchedSpec = new DefaultShiftByEmpIdSpec(emp.Id); //entryDate.DayOfWeek
+          var list = await _scheduleRepo.ListAsync(defaultSchedSpec, cancellationToken);
+
+          var defaultSchedule = list.FirstOrDefault(i => i.ScheduleDate.DayOfWeek == entryDate.DayOfWeek);
+          
           if(defaultSchedule == null || !defaultSchedule.Shift.Name.Equals(request.attendance.ShiftCode, StringComparison.InvariantCultureIgnoreCase)) {
             // if no default schedule, then just create an override
             var newSchedule = new Schedule(emp.Id, shift!.Id, entryDate, isDefault: false);
