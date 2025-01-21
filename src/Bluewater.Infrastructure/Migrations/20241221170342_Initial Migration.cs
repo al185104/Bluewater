@@ -12,7 +12,27 @@ namespace Bluewater.Infrastructure.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Contributors",
+                name: "AppUsers",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Username = table.Column<string>(type: "TEXT", nullable: false),
+                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
+                    Credential = table.Column<int>(type: "INTEGER", nullable: false),
+                    SupervisedGroup = table.Column<Guid>(type: "TEXT", nullable: true),
+                    IsGlobalSupervisor = table.Column<bool>(type: "INTEGER", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CreateBy = table.Column<Guid>(type: "TEXT", nullable: false),
+                    UpdatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdateBy = table.Column<Guid>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Contributor",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "INTEGER", nullable: false)
@@ -25,7 +45,7 @@ namespace Bluewater.Infrastructure.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Contributors", x => x.Id);
+                    table.PrimaryKey("PK_Contributor", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -176,26 +196,6 @@ namespace Bluewater.Infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Types", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
-                    Username = table.Column<string>(type: "TEXT", nullable: false),
-                    PasswordHash = table.Column<string>(type: "TEXT", nullable: false),
-                    Credential = table.Column<int>(type: "INTEGER", nullable: false),
-                    SupervisedGroup = table.Column<Guid>(type: "TEXT", nullable: true),
-                    IsGlobalSupervisor = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CreateBy = table.Column<Guid>(type: "TEXT", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    UpdateBy = table.Column<Guid>(type: "TEXT", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -355,6 +355,11 @@ namespace Bluewater.Infrastructure.Migrations
                 {
                     table.PrimaryKey("PK_Employees", x => x.Id);
                     table.ForeignKey(
+                        name: "FK_Employees_AppUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AppUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
                         name: "FK_Employees_Chargings_ChargingId",
                         column: x => x.ChargingId,
                         principalTable: "Chargings",
@@ -383,11 +388,6 @@ namespace Bluewater.Infrastructure.Migrations
                         name: "FK_Employees_Types_TypeId",
                         column: x => x.TypeId,
                         principalTable: "Types",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Employees_Users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "Users",
                         principalColumn: "Id");
                 });
 
@@ -924,7 +924,7 @@ namespace Bluewater.Infrastructure.Migrations
                 name: "Attendance");
 
             migrationBuilder.DropTable(
-                name: "Contributors");
+                name: "Contributor");
 
             migrationBuilder.DropTable(
                 name: "Deductions");
@@ -972,6 +972,9 @@ namespace Bluewater.Infrastructure.Migrations
                 name: "Employees");
 
             migrationBuilder.DropTable(
+                name: "AppUsers");
+
+            migrationBuilder.DropTable(
                 name: "Chargings");
 
             migrationBuilder.DropTable(
@@ -988,9 +991,6 @@ namespace Bluewater.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Types");
-
-            migrationBuilder.DropTable(
-                name: "Users");
 
             migrationBuilder.DropTable(
                 name: "Sections");

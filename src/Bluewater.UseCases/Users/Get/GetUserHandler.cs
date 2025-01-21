@@ -5,7 +5,7 @@ using Bluewater.Core.UserAggregate.Specifications;
 
 namespace Bluewater.UseCases.Users.Get;
 
-public class GetUserHandler(IRepository<User> _repository) : IQueryHandler<GetUserQuery, Result<UserDTO>>
+public class GetUserHandler(IRepository<AppUser> _repository) : IQueryHandler<GetUserQuery, Result<UserDTO>>
 {
   public async Task<Result<UserDTO>> Handle(GetUserQuery request, CancellationToken cancellationToken)
   {

@@ -47,7 +47,7 @@ public class Employee(string firstName, string lastName, string? middleName, Dat
   public Guid? ChargingId { get; private set; }
 
   // Navigation Properties
-  public virtual User? User { get; private set; }  
+  public virtual AppUser? User { get; private set; }  
   public virtual Position? Position { get; private set; }
   public virtual Pay? Pay { get; private set; }
   public virtual EmployeeType? Type { get; private set; }

@@ -1,6 +1,6 @@
 @page "/payroll"
 @rendermode InteractiveServer
-
+@attribute [Authorize]
 @using Bluewater.UseCases.Attendances
 @using Bluewater.UseCases.Attendances.Create
 @using Bluewater.UseCases.Attendances.List
@@ -75,21 +75,22 @@
     </FluentGridItem>
 </FluentGrid>
 
-<FluentDataGrid Id="payrollsGrid" Items="@Payrolls" TGridItem="PayrollDTO" GridTemplateColumns="1.5fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr 0.5fr 0.5fr 0.7fr 0.5fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr ">
+<FluentDataGrid Id="payrollsGrid" Items="@Payrolls" TGridItem="PayrollDTO" GridTemplateColumns="0.7fr 1.5fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr 0.5fr 0.5fr 0.7fr 0.5fr 0.7fr 0.7fr 0.7fr 0.7fr 0.7fr ">
+    <PropertyColumn Title="Barcode" Property="@(c => c!.Barcode)" Align="Align.Start" Sortable="true" />
     <PropertyColumn Title="Name" Property="@(c => c!.Name)" Align="Align.Start" Sortable="true" />
     <PropertyColumn Title="Absences" Property="@(c => c!.Absences)" Align="Align.Center" />
     <PropertyColumn Title="Leaves" Property="@(c => c!.Leaves)" Align="Align.Center" />
     <PropertyColumn Title="Lates" Property="@(c => c!.Lates)" Align="Align.Center" />
     <PropertyColumn Title="Overbreak" Property="@(c => c!.Overbreak)" Align="Align.Center" />
     <PropertyColumn Title="Undertime" Property="@(c => c!.Undertime)" Align="Align.Center" />
-    <PropertyColumn Title="SSS" Property="@(c => c!.SSSAmount)" Align="Align.Center" />
-    <PropertyColumn Title="Pagibig" Property="@(c => c!.PagibigAmount)" Align="Align.Center" />
-    <PropertyColumn Title="PhilHealth" Property="@(c => c!.PhilhealthAmount)" Align="Align.Center" />
-    <PropertyColumn Title="Tax" Property="@(c => c!.TaxDeductions)" Align="Align.Center" />
-    <PropertyColumn Title="Basic Pay" Property="@(c => c!.BasicPayAmount)" Align="Align.Center" />
-    <PropertyColumn Title="Gross" Property="@(c => c!.GrossPayAmount)" Align="Align.Center" />
-    <PropertyColumn Title="Deductions" Property="@(c => c!.TotalDeductions)" Align="Align.Center" />
-    <PropertyColumn Title="Net" Property="@(c => c!.NetAmount)" Align="Align.Center" />
+    <PropertyColumn Title="SSS" Property="@(c => c!.SSSAmount.ToString("N2"))" Align="Align.Center" />
+    <PropertyColumn Title="Pagibig" Property="@(c => c!.PagibigAmount.ToString("N2"))" Align="Align.Center" />
+    <PropertyColumn Title="PhilHealth" Property="@(c => c!.PhilhealthAmount.ToString("N2"))" Align="Align.Center" />
+    <PropertyColumn Title="Tax" Property="@(c => c!.TaxDeductions.ToString("N2"))" Align="Align.Center" />
+    <PropertyColumn Title="Basic Pay" Property="@(c => c!.BasicPayAmount.ToString("N2"))" Align="Align.Center" />
+    <PropertyColumn Title="Gross" Property="@(c => c!.GrossPayAmount.ToString("N2"))" Align="Align.Center" />
+    <PropertyColumn Title="Deductions" Property="@(c => c!.TotalDeductions.ToString("N2"))" Align="Align.Center" />
+    <PropertyColumn Title="Net" Property="@(c => c!.NetAmount.ToString("N2"))" Align="Align.Center" />
     <TemplateColumn Title="Actions" Align="@Align.End">
         <FluentButton aria-label="view item" IconEnd="@(new Icons.Regular.Size16.Search())" OnClick="@(async() => await ViewPayrollAsync(context))"/>
         <FluentButton aria-label="view item" IconEnd="@(new Icons.Regular.Size16.Save())" Appearance="Appearance.Accent" OnClick="@(async() => await SavePayrollAsync(context))" Disabled="@(context.Id == Guid.Empty ? false : true)"/>

@@ -1,0 +1,151 @@
+@page "/register"
+@rendermode InteractiveServer
+@attribute [Authorize]
+
+@using Microsoft.AspNetCore.Identity
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.EntityFrameworkCore
+
+@inject UserManager<IdentityUser> UserManager
+@inject RoleManager<IdentityRole> RoleManager
+@inject NavigationManager NavigationManager
+
+<div class="registration-container">
+    <FluentCard style="width: 400px; padding: 20px;">
+        <h3 style="text-align: center;">Register</h3>
+
+        <EditForm Model="registerModel" OnValidSubmit="HandleRegistration">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="form-group">
+                <label for="username" class="form-label">Username</label>
+                <FluentTextField id="username" @bind-Value="registerModel.Username" Placeholder="Enter username" style="width: 100%;" />
+            </div>
+
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <FluentTextField id="password" @bind-Value="registerModel.Password" Type="password" Placeholder="Enter password" style="width: 100%;" />
+            </div>
+
+            <div class="form-group">
+                <label for="role" class="form-label">Role</label>
+                <FluentSelect id="role" @bind-Value="registerModel.Role" style="width: 100%;" TOption="List<string>">
+                    @foreach (var roleOption in roleOptions)
+                    {
+                        <FluentOption Value="@roleOption">@roleOption</FluentOption>
+                    }
+                </FluentSelect>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <FluentButton Appearance="Appearance.Accent" Type="ButtonType.Submit">Register</FluentButton>
+            </div>
+        </EditForm>
+
+        @if (!string.IsNullOrEmpty(message))
+        {
+            <div style="text-align: center; margin-top: 10px; color: red;">
+                <p>@message</p>
+            </div>
+        }
+    </FluentCard>
+</div>
+
+<style>
+    .registration-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background-color: #f3f3f3;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+    }
+</style>
+
+@code {
+    private RegisterModel registerModel = new();
+    private string message = string.Empty;
+    private List<string> roleOptions = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch available roles dynamically from RoleManager
+        var roles = await RoleManager.Roles.Select(r => r.Name).ToListAsync();
+        if(roles != null) {
+            foreach(var role in roles)
+            {
+                if(string.IsNullOrEmpty(role))
+                    roleOptions.Add(string.Empty);
+                else
+                    roleOptions.Add(role);
+            }
+        }
+    }
+
+    private async Task HandleRegistration()
+    {
+        message = string.Empty;
+
+        try
+        {
+            // Ensure the selected role exists
+            if (!await RoleManager.RoleExistsAsync(registerModel.Role))
+            {
+                message = $"Role {registerModel.Role} does not exist.";
+                return;
+            }
+
+            var user = new IdentityUser { UserName = registerModel.Username };
+            var createUserResult = await UserManager.CreateAsync(user, registerModel.Password);
+
+            if (!createUserResult.Succeeded)
+            {
+                message = string.Join(", ", createUserResult.Errors.Select(e => e.Description));
+                return;
+            }
+
+            var addRoleResult = await UserManager.AddToRoleAsync(user, registerModel.Role);
+
+            if (!addRoleResult.Succeeded)
+            {
+                message = string.Join(", ", addRoleResult.Errors.Select(e => e.Description));
+                return;
+            }
+
+            message = "Registration successful!";
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            message = $"An error occurred: {ex.Message}";
+        }
+    }
+
+    public class RegisterModel
+    {
+        [Required]
+        public string Username { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters long.")]
+        public string Password { get; set; } = string.Empty;
+
+        [Required]
+        public string Role { get; set; } = string.Empty;
+    }
+}

@@ -1,5 +1,6 @@
 @page  "/employee"
 @rendermode InteractiveServer
+@attribute [Authorize]
 @using Bluewater.Server.Components.Pages.Employee
 @using Bluewater.Server.Helpers
 @using Bluewater.UseCases.Employees
@@ -24,6 +25,7 @@
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
 @inject IDialogService DialogService
+@inject IJSRuntime JSRuntime
 
 @using Bluewater.Server.Global;
 @inject IGlobalService GlobalService
@@ -41,12 +43,12 @@
             progressPercent = e.ProgressPercent; 
             progressTitle = e.ProgressTitle;
         })"
-    OnCompleted="@ImportEmployeeAsync" />
+    OnCompleted="@ImportEmployeeAsync" style="display: none;"/>
 
 <div style="display: flex; justify-content: space-between; align-items: center;">
     <FluentButton Appearance="Appearance.Accent" Icon="@(new Icons.Regular.Size16.Add())" OnClick="@(async() => await CreateNewEmployeeAsync())">Create new employee</FluentButton>
     <div>
-        <FluentButton Id="EmployeeImportButton" IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton>
+        <FluentButton Id="EmployeeImportButton" IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;" >Import</FluentButton>
         <FluentButton IconStart="@(new Icons.Regular.Size16.ArrowExport())" Appearance="Appearance.Outline" OnClick="@(async() => await ExportEmployeeAsync())">Export</FluentButton>
     </div>
 </div>
@@ -93,6 +95,15 @@
         <FluentProgressRing />
     </div>
 }
+
+<script>
+    function triggerFileInput(id) {
+        const inputFile = document.getElementById(id);
+        if (inputFile) {
+            inputFile.click();
+        }
+    }
+</script>
 
 @code{
     string barcodeFilter = string.Empty;
@@ -241,8 +252,9 @@
                     await DialogService.ShowErrorAsync("Something's wrong with importing the Employee list. Please contact admin", "Import Error");
             }
         }
-        catch (Exception) {
-
+        catch (Exception e) {
+            Console.WriteLine( $"====={e.Message}=====");
+            throw;
         }
         finally {
             isBusy = false;

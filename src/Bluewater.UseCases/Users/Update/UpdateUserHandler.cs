@@ -4,7 +4,7 @@ using Bluewater.Core.UserAggregate;
 using Bluewater.Core.UserAggregate.Enum;
 
 namespace Bluewater.UseCases.Users.Update;
-public class UpdateUserHandler(IRepository<User> _repository) : ICommandHandler<UpdateUserCommand, Result<UserDTO>>
+public class UpdateUserHandler(IRepository<AppUser> _repository) : ICommandHandler<UpdateUserCommand, Result<UserDTO>>
 {
   public async Task<Result<UserDTO>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
   {

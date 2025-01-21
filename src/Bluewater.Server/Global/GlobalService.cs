@@ -269,7 +269,12 @@ public class GlobalService : IGlobalService
         else
         {
             start = new DateOnly(date.Year, date.Month, 26);
-            end = new DateOnly(date.Year, date.Month + 1, 10);
+            //end = new DateOnly(date.Year, date.Month + 1, 10);
+            end = new DateOnly(
+                date.Year + (date.Month == 12 ? 1 : 0), // Increment year if it's December
+                date.Month == 12 ? 1 : date.Month + 1, // Reset to January if it's December, otherwise increment the month
+                10 // Day of the month
+            );
         }
 
         return (start, end);

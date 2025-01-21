@@ -1009,7 +1009,12 @@
             using (var scope = ServiceScopeFactory.CreateScope())
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new CreateHolidayCommand(InputHoliday.Name, InputHoliday.Description, SelectedDayStart!.Value,  true));
+
+                DateTime curDate = DateTime.Today;
+                if(SelectedDayStart != null)
+                    curDate = SelectedDayStart!.Value;
+
+                var result = await mediator.Send(new CreateHolidayCommand(InputHoliday.Name, InputHoliday.Description, curDate, true));
                 if (result.IsSuccess)
                 {
                     await LoadHolidays();

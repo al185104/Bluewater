@@ -1,0 +1,30 @@
+﻿@page "/____login"
+@model Bluewater.Server.Components.Pages.LoginModel
+
+<div class="login-container">
+    <div class="login-card">
+        <img src="/images/bluewater-logo.png" alt="Bluewater Maribago Logo" class="logo" />
+        <h2 class="login-title">Welcome</h2>
+
+        @if (Model.ErrorMessage != null)
+        {
+            <div class="alert alert-danger">@Model.ErrorMessage</div>
+        }
+
+        <form method="post">
+            <div class="login-field">
+                <input type="text" name="Username" class="form-control" placeholder="Enter your username" required />
+            </div>
+
+            <div class="login-field">
+                <input type="password" name="Password" class="form-control" placeholder="Enter your password" required />
+            </div>
+
+            <button type="submit" class="btn btn-primary login-button">Log In</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/register" class="register-link">Don't have an account? Register here</a>
+        </div>
+    </div>
+</div>

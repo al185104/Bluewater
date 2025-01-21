@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bluewater.UseCases.Timesheets.List;
 
-internal class ListAllTimesheetHandler(IRepository<User> _userRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAllTimesheetQuery, Result<IEnumerable<AllEmployeeTimesheetDTO>>>
+internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAllTimesheetQuery, Result<IEnumerable<AllEmployeeTimesheetDTO>>>
 {
   public async Task<Result<IEnumerable<AllEmployeeTimesheetDTO>>> Handle(ListAllTimesheetQuery request, CancellationToken cancellationToken)
   {

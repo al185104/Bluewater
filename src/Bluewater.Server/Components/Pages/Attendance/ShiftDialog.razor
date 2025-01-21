@@ -2,6 +2,7 @@
 @using Bluewater.Server.Global;
 @using Bluewater.UseCases.Schedules;
 @inject IGlobalService GlobalService;
+@attribute [Authorize]
 
 @implements IDialogContentComponent<ShiftDTO>
 

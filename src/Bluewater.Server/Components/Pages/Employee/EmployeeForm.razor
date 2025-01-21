@@ -18,6 +18,8 @@
 @using Bluewater.UseCases.Shifts;
 @inject IGlobalService GlobalService;
 
+@attribute [Authorize]
+
 @implements IDialogContentComponent<EmployeeFormDTO>
 
 <FluentDialogBody OnAfterRenderAsync="@InitializeDialogAsync()">
@@ -162,8 +164,8 @@
         <FluentGridItem xs="6"><FluentTextField Label="PhilHealth No" @bind-Value="@Content.PhicNo" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"><FluentTextField Label="Bank Account" @bind-Value="@Content.BankAccount" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"></FluentGridItem>
-        <FluentGridItem xs="6"><FluentNumberField Label="Basic Pay" Value="@Content.BasicPay" Style="width: 100%" ReadOnly=@(EnableByEmployeeType(true)) /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentNumberField Label="Daily Rate" Value="@Content.DailyRate" Style="width: 100%" ReadOnly=@(EnableByEmployeeType(false)) /></FluentGridItem>        
+        <FluentGridItem xs="6"><FluentNumberField Label="Basic Pay" @bind-Value="@Content.BasicPay" Style="width: 100%" ReadOnly=@(EnableByEmployeeType(true)) /></FluentGridItem>
+        <FluentGridItem xs="6"><FluentNumberField Label="Daily Rate" @bind-Value="@Content.DailyRate" Style="width: 100%" ReadOnly=@(EnableByEmployeeType(false)) /></FluentGridItem>        
 
         <FluentGridItem xs="6" Style="display: flex; flex-direction: column; justify-content: flex-end;">
             <FluentNumberField Label="Hourly Rate" @bind-Value="@Content.HourlyRate" Style="width: 100%;" ReadOnly />

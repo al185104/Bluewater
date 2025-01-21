@@ -14,6 +14,7 @@
 @using Bluewater.UseCases.Timesheets.Update
 @using MediatR
 @rendermode InteractiveServer
+@attribute [Authorize]
 
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator

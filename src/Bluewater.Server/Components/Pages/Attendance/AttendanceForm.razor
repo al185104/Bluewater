@@ -5,6 +5,7 @@
 @using Bluewater.UseCases.Shifts;
 @using MediatR
 @rendermode InteractiveServer
+@attribute [Authorize]
 
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator

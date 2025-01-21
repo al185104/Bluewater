@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bluewater.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241203165824_Initial Migration")]
+    [Migration("20241221170342_Initial Migration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
@@ -139,7 +139,7 @@ namespace Bluewater.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Contributors");
+                    b.ToTable("Contributor");
                 });
 
             modelBuilder.Entity("Bluewater.Core.DepartmentAggregate.Department", b =>
@@ -1279,7 +1279,7 @@ namespace Bluewater.Infrastructure.Migrations
                     b.ToTable("Timesheets");
                 });
 
-            modelBuilder.Entity("Bluewater.Core.UserAggregate.User", b =>
+            modelBuilder.Entity("Bluewater.Core.UserAggregate.AppUser", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -1316,7 +1316,7 @@ namespace Bluewater.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Users");
+                    b.ToTable("AppUsers");
                 });
 
             modelBuilder.Entity("Bluewater.Core.AttendanceAggregate.Attendance", b =>
@@ -1371,7 +1371,7 @@ namespace Bluewater.Infrastructure.Migrations
 
                             b1.HasKey("ContributorId");
 
-                            b1.ToTable("Contributors");
+                            b1.ToTable("Contributor");
 
                             b1.WithOwner()
                                 .HasForeignKey("ContributorId");
@@ -1428,7 +1428,7 @@ namespace Bluewater.Infrastructure.Migrations
                         .WithMany("Employees")
                         .HasForeignKey("TypeId");
 
-                    b.HasOne("Bluewater.Core.UserAggregate.User", "User")
+                    b.HasOne("Bluewater.Core.UserAggregate.AppUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 

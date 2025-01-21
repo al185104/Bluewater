@@ -1,5 +1,7 @@
 ﻿@page "/"
 
+@attribute [Authorize]
+
 @inject IJSRuntime JSRuntime
 @using Bluewater.UseCases.Positions;
 @using Bluewater.UseCases.Positions.List;

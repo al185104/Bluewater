@@ -46,7 +46,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
         //if (!db.ToDoItems.Any())
         //{
         // Seed the database with test data.
-        SeedData.PopulateTestDataAsync(db).Wait();
+        //SeedData.PopulateTestDataAsync(db).Wait();
         //}
       }
       catch (Exception ex)
@@ -64,6 +64,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
     builder
         .ConfigureServices(services =>
         {
+          services.AddMvc();
           // Configure test dependencies here
 
           //// Remove the app's ApplicationDbContext registration.

@@ -1,7 +1,7 @@
 using Ardalis.Specification;
 
 namespace Bluewater.Core.UserAggregate.Specifications;
-public class UserByUsernamePassSpec : Specification<User>
+public class UserByUsernamePassSpec : Specification<AppUser>
 {
   public UserByUsernamePassSpec(string username, string password)
   {

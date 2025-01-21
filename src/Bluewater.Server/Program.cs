@@ -1,4 +1,4 @@
-﻿using Microsoft.FluentUI.AspNetCore.Components;
+using Microsoft.FluentUI.AspNetCore.Components;
 using Bluewater.Server.Components;
 using Bluewater.Server.Global;
 using Ardalis.ListStartupServices;
@@ -39,10 +39,13 @@ using Bluewater.UseCases.Users.Create;
 using Bluewater.Core.AttendanceAggregate;
 using Bluewater.UseCases.Attendances.Create;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.DataProtection;
+using Bluewater.Infrastructure.Data;
+using System.Security.Claims;
+using Bluewater.Server.Areas.Identity.Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 internal class Program
 {
@@ -53,6 +56,7 @@ internal class Program
     // Add services to the container.
     builder.Services.AddRazorComponents()
         .AddInteractiveServerComponents();
+    builder.Services.AddRazorPages();
 
     builder.Configuration
         .SetBasePath(Directory.GetCurrentDirectory())
@@ -78,32 +82,24 @@ internal class Program
     builder.Services.AddInfrastructureServices(builder.Configuration, microsoftLogger);
     builder.Services.AddSingleton<IGlobalService, GlobalService>();
 
-    // builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    // .AddCookie(options =>
-    // {
-    //     options.LoginPath = "/login"; // Path to your login page
-    //     options.LogoutPath = "/logout";
-    //     options.Cookie.HttpOnly = true;
-    //     options.ExpireTimeSpan = TimeSpan.FromMinutes(60); // Set session duration
-    //     options.SlidingExpiration = true; // Optional, keeps the user logged in with activity
-    // });
-    builder.Services.AddAuthentication(options => {
-      options.DefaultScheme = IdentityConstants.ApplicationScheme;
-      options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-    }).AddIdentityCookies();
-    // builder.Services.AddAuthorization(options =>
-    // {
-    //     options.FallbackPolicy = new AuthorizationPolicyBuilder()
-    //         .RequireAuthenticatedUser()
-    //         .Build();
-    // });
+    builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => {
+      options.Password.RequireDigit = false;
+      options.Password.RequiredLength = 5;
+      options.Password.RequireLowercase = false;
+      options.Password.RequireUppercase = false;
+      options.Password.RequireNonAlphanumeric = false;
+      options.SignIn.RequireConfirmedEmail = false;
+      options.SignIn.RequireConfirmedAccount = false;
+    }).AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+    
 
     builder.Services.AddFluentUIComponents();
     builder.Services.AddDataGridEntityFrameworkAdapter();
     builder.Services.AddScoped<IEmployeeAuthService, EmployeeAuthService>();
     builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
-    builder.Services.AddScoped<CustomAuthenticationStateProvider>();
-    builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+    // builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+    // builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
   
     if (builder.Environment.IsDevelopment())
     {
@@ -115,12 +111,42 @@ internal class Program
       builder.Services.AddScoped<IEmailSender, MimeKitEmailSender>();
     }
 
-    // builder.Services.AddScoped<CookieEvents>();
-    // builder.Services.ConfigureApplicationCookie(opt => {
-    //   opt.EventsType = typeof(CookieEvents);
+
+    //new
+    // builder.Services.AddHttpContextAccessor();
+    // builder.Services.AddRazorPages(options =>
+    // {
+    //     options.Conventions.AuthorizeAreaFolder("Identity", "/Account");
     // });
+    // builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    // .AddCookie(options =>
+    // {
+    //     options.LoginPath = "/Login"; // Redirect if unauthenticated
+    // });    
+    // builder.Services.ConfigureApplicationCookie(options =>
+    // {
+    //     options.LoginPath = "/Login"; // Ensure it matches your route
+    // });   
+    builder.Services.ConfigureApplicationCookie(options =>
+    {
+        options.LoginPath = "/Identity/Account/Login";
+        options.AccessDeniedPath = "/Identity/Account/AccessDenied";
+    });
+
+    builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+        .AddCookie();
+
+    builder.Services.AddAuthorizationCore(); // Adds support for the [Authorize] attribute
+
+
+    builder.Services.Configure<IdentityOptions>(options =>
+    {
+        options.ClaimsIdentity.RoleClaimType = ClaimTypes.Role; // Ensure roles are mapped correctly
+    });
+
     var app = builder.Build();
 
+    app.UseRouting();
     app.UseAuthentication();
     app.UseAuthorization();
     
@@ -137,6 +163,9 @@ internal class Program
 
     app.UseStaticFiles();
     app.UseAntiforgery();
+
+    app.MapRazorPages();
+    //app.MapBlazorHub();
 
     app.MapRazorComponents<App>()
         .AddInteractiveServerRenderMode();
@@ -184,7 +213,7 @@ internal class Program
       Assembly.GetAssembly(typeof(Timesheet)),
       Assembly.GetAssembly(typeof(CreateTimesheetCommand)),
 
-      Assembly.GetAssembly(typeof(User)),
+      Assembly.GetAssembly(typeof(AppUser)),
       Assembly.GetAssembly(typeof(CreateUserCommand)),
 
       Assembly.GetAssembly(typeof(Attendance)),
@@ -208,3 +237,9 @@ internal class Program
     });
   }
 }
+
+// var connectionString = builder.Configuration.GetConnectionString("IdentityDataContextConnection") ?? throw new InvalidOperationException("Connection string 'IdentityDataContextConnection' not found.");
+
+// builder.Services.AddDbContext<IdentityDataContext>(options => options.UseSqlServer(connectionString));
+
+// builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<IdentityDataContext>();

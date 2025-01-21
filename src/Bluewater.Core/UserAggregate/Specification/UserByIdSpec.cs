@@ -1,7 +1,7 @@
 using Ardalis.Specification;
 
 namespace Bluewater.Core.UserAggregate.Specifications;
-public class UserByIdSpec : Specification<User>
+public class UserByIdSpec : Specification<AppUser>
 {
   public UserByIdSpec(Guid UserId)
   {

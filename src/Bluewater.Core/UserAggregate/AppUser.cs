@@ -1,9 +1,8 @@
 ﻿using Ardalis.SharedKernel;
-using Bluewater.Core.EmployeeAggregate;
 using Bluewater.Core.UserAggregate.Enum;
 
 namespace Bluewater.Core.UserAggregate;
-public class User(string username, string passwordHash, Credential? credential, Guid? supervisedGroup, bool isGlobalSupervisor = false) : EntityBase<Guid>, IAggregateRoot
+public class AppUser(string username, string passwordHash, Credential? credential, Guid? supervisedGroup, bool isGlobalSupervisor = false) : EntityBase<Guid>, IAggregateRoot
 {
   public string Username { get; private set; } = username;
   public string PasswordHash { get; private set; } = passwordHash;
@@ -18,7 +17,7 @@ public class User(string username, string passwordHash, Credential? credential, 
 
   // Navigation Property
   // public virtual Employee Employee { get; set; } = null!;
-  public User() : this(string.Empty, string.Empty, Credential.None, null) { }
+  public AppUser() : this(string.Empty, string.Empty, Credential.None, null) { }
 
   public void UpdateUser(string username, string passwordHash, Credential? credential, Guid? supervisedGroup, bool isGlobalSupervisor)
   {

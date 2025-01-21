@@ -4,7 +4,7 @@ using Bluewater.Core.UserAggregate;
 
 namespace Bluewater.UseCases.Users.List;
 
-internal class ListUserHandler(IRepository<User> _repository) : IQueryHandler<ListUserQuery, Result<IEnumerable<UserDTO>>>
+internal class ListUserHandler(IRepository<AppUser> _repository) : IQueryHandler<ListUserQuery, Result<IEnumerable<UserDTO>>>
 {
   public async Task<Result<IEnumerable<UserDTO>>> Handle(ListUserQuery request, CancellationToken cancellationToken)
   {

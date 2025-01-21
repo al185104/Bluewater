@@ -1,4 +1,8 @@
-﻿@rendermode InteractiveServer
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@rendermode InteractiveServer
+@inject SignInManager<IdentityUser> SignInManager
+@inject NavigationManager NavigationManager
 
 <div class="navmenu">
     <input type="checkbox" title="Menu expand/collapse toggle" id="navmenu-toggle" class="navmenu-icon" />
@@ -24,10 +28,16 @@
             @* <FluentNavLink Href="inprogress" Icon="@(new Icons.Regular.Size24.ContactCard())" IconColor="Color.Accent">Contact</FluentNavLink>
             <FluentNavLink Href="inprogress" Icon="@(new Icons.Regular.Size24.PersonAccounts())" IconColor="Color.Accent">My Profile</FluentNavLink> *@
             <FluentNavLink Href="setting" Icon="@(new Icons.Regular.Size24.SettingsCogMultiple())" IconColor="Color.Accent">Settings</FluentNavLink>
+            <FluentNavLink Href="/Identity/Account/Logout" Icon="@(new Icons.Regular.Size20.SignOut())" IconColor="Color.Accent">Logout</FluentNavLink>
         </FluentNavMenu>
     </nav>
 </div>
 
 @code {
     private bool expanded = true;
+
+    private async Task LogoutAsync() {
+        await SignInManager.SignOutAsync();
+        NavigationManager.NavigateTo("/login");
+    }
 }

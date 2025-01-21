@@ -28,16 +28,16 @@ using Bluewater.Core.Forms.OtherEarningAggregate;
 using Bluewater.Core.PayrollAggregate;
 using Bluewater.Core.ServiceChargeAggregate;
 using Bluewater.Core.MealCreditAggregate;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace Bluewater.Infrastructure.Data;
-public class AppDbContext : DbContext
+public class AppDbContext : IdentityDbContext
 {
   private readonly IDomainEventDispatcher? _dispatcher;
 
   // DbSet Properties
-  public DbSet<Contributor> Contributors => Set<Contributor>();
   public DbSet<Employee> Employees => Set<Employee>();
-  public DbSet<User> Users => Set<User>();
+  public DbSet<AppUser> AppUsers => Set<AppUser>();
   public DbSet<Level> Levels => Set<Level>();
   public DbSet<EmployeeType> Types => Set<EmployeeType>();
   public DbSet<Position> Positions => Set<Position>();

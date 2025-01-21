@@ -1,0 +1,555 @@
+@* @page "/account/login"
+@rendermode InteractiveAuto
+@attribute [AllowAnonymous]
+@inject NavigationManager Navigation
+@using Bluewater.Server.Global
+
+@inject IHttpContextAccessor HttpContextAccessor
+@using Microsoft.AspNetCore.Authentication;
+@using Microsoft.AspNetCore.Authentication.Cookies;
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Identity
+
+@inject UserManager<IdentityUser> UserManager
+
+<style>
+    .login-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #1e3a8a, #2563eb); /* Blue gradient background */
+        color: #ffffff;
+    }
+
+    .login-card {
+        background-color: #ffffff;
+        color: #000000;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+    }
+
+    .logo {
+        margin-bottom: 1rem;
+        width: 240px; /* Increased width */
+        height: auto; /* Maintains aspect ratio */
+    }
+
+    .login-title {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .login-field {
+        margin-bottom: 1rem;
+    }
+
+    .login-button {
+        margin-top: 1rem;
+        width: 100%;
+    }    
+
+    .register-link {
+        font-size: 14px;
+        color: #0078d7;
+        text-decoration: none;
+    }
+
+    .register-link:hover {
+        text-decoration: underline;
+        color: #005a9e;
+    }
+
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <img src="images/bluewater-logo.png" alt="Bluewater Maribago Logo" class="logo" />
+        <h2 class="login-title">Welcome</h2>
+
+        <FluentTextField 
+            class="login-field" 
+            Label="Username" 
+            @bind-Value="@username" 
+            required 
+            Placeholder="Enter your username" 
+            Style="width: 100%" />
+
+        <FluentTextField 
+            class="login-field" 
+            Label="Password" 
+            @bind-Value="@password" 
+            required 
+            Placeholder="Enter your password" 
+            Style="width: 100%" 
+            Type="password" />
+
+        <FluentButton 
+            Appearance="Appearance.Accent" 
+            class="login-button" 
+            OnClick="@(async () => await HandleLoginAsync())">
+            Log In
+        </FluentButton>
+
+        <!-- Register link -->
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/register" class="register-link">Don't have an account? Register here</a>
+        </div>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="alert alert-danger">@errorMessage</div>
+        }          
+    </div>
+</div>
+
+@code {
+    private string username = string.Empty;
+    private string password = string.Empty;
+
+    private string errorMessage = string.Empty;
+
+    private async Task HandleLoginAsync()
+    {
+        errorMessage = string.Empty;
+
+        try
+        {
+            var user = await UserManager.FindByNameAsync(username);
+
+            if (user != null && await UserManager.CheckPasswordAsync(user, password))
+            {
+                // Ensure UserName and Id are not null
+                var username = user.UserName ?? string.Empty;
+                var userId = user.Id ?? string.Empty;
+
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.NameIdentifier, userId)
+                };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = true, // Keep user signed in
+                };
+
+                // Access HttpContext and sign in
+                var httpContext = HttpContextAccessor.HttpContext;
+                if (httpContext != null)
+                {
+                    await httpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+
+                    // Redirect to home page
+                    Navigation.NavigateTo("/");
+                }
+                else
+                {
+                    errorMessage = "Unable to access HttpContext.";
+                }
+            }
+            else
+            {
+                errorMessage = "Invalid username or password.";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"An error occurred: {ex.Message}";
+        }
+    }
+} *@
+
+
+@page "/__login"
+
+@attribute [AllowAnonymous]
+@inject NavigationManager NavigationManager
+@using Bluewater.Server.Global
+
+@inject IHttpContextAccessor HttpContextAccessor
+@using Microsoft.AspNetCore.Authentication;
+@using Microsoft.AspNetCore.Authentication.Cookies;
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Identity
+@using System.ComponentModel.DataAnnotations
+
+@inject UserManager<IdentityUser> UserManager
+@inject SignInManager<IdentityUser> SignInManager
+
+    <style>
+    .login-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        background: linear-gradient(135deg, #1e3a8a, #2563eb); /* Blue gradient background */
+        color: #ffffff;
+    }
+
+    .login-card {
+        background-color: #ffffff;
+        color: #000000;
+        padding: 2rem;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+    }
+
+    .logo {
+        margin-bottom: 1rem;
+        width: 240px; /* Increased width */
+        height: auto; /* Maintains aspect ratio */
+    }
+
+    .login-title {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .login-field {
+        margin-bottom: 1rem;
+    }
+
+    .login-button {
+        margin-top: 1rem;
+        width: 100%;
+    }    
+
+    .register-link {
+        font-size: 14px;
+        color: #0078d7;
+        text-decoration: none;
+    }
+
+    .register-link:hover {
+        text-decoration: underline;
+        color: #005a9e;
+    }
+
+</style>
+
+@* <div class="login-container">
+    <div class="login-card">
+        <img src="images/bluewater-logo.png" alt="Bluewater Maribago Logo" class="logo" />
+        <h2 class="login-title">Welcome</h2>
+
+        <FluentTextField 
+            class="login-field" 
+            Label="Username" 
+            @bind-Value="@Username" 
+            required 
+            Placeholder="Enter your username" 
+            Style="width: 100%" />
+
+        <FluentTextField 
+            class="login-field" 
+            Label="Password" 
+            @bind-Value="@Password" 
+            required 
+            Placeholder="Enter your password" 
+            Style="width: 100%" 
+            Type="password" />
+
+        <FluentButton 
+            Appearance="Appearance.Accent" 
+            class="login-button" 
+            OnClick="@(async() => await HandleLoginAsync())">
+            Log In
+        </FluentButton>
+
+        <!-- Register link -->
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/register" class="register-link">Don't have an account? Register here</a>
+        </div>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger">@ErrorMessage</div>
+        }          
+    </div>
+</div> *@
+
+@* <div class="login-container">
+    <div class="login-card">
+        <h2 class="login-title">Login</h2>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger">@ErrorMessage</div>
+        }
+
+        <EditForm Model="@this" OnValidSubmit="HandleLoginAsync" FormName="LoginForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="login-field">
+                <label>Username</label>
+                <FluentTextField @bind-Value="@Username" class="form-control" placeholder="Enter your username" required />
+            </div>
+
+            <div class="login-field">
+                <label>Password</label>
+                <FluentTextField @bind-Value="@Password" class="form-control" placeholder="Enter your password" type="password" required />
+            </div>
+
+            <FluentButton class="btn btn-primary login-button">Log In</FluentButton>
+        </EditForm>
+    </div>
+</div> *@
+
+
+@* 
+        <EditForm Model="@LoginData" OnValidSubmit="HandleLoginAsync" FormName="LoginForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div class="login-field">
+                <label>Username</label>
+                <FluentTextField @bind-Value="@LoginData.Username" class="form-control" placeholder="Enter your username" required />
+            </div>
+
+            <div class="login-field">
+                <label>Password</label>
+                <FluentTextField @bind-Value="@LoginData.Password" class="form-control" placeholder="Enter your password" type="password" required />
+            </div>
+
+            <FluentButton class="btn btn-primary login-button">Log In</FluentButton>
+        </EditForm>
+
+
+@code {
+    private LoginModel LoginData = new LoginModel();
+    private string ErrorMessage = string.Empty;
+
+    private async Task HandleLoginAsync()
+    {
+        try
+        {
+            var user = await UserManager.FindByNameAsync(LoginData.Username);
+
+            if (user != null && await UserManager.CheckPasswordAsync(user, LoginData.Password))
+            {
+                // Ensure UserName and Id are not null
+                var username = user.UserName ?? string.Empty;
+                var userId = user.Id ?? string.Empty;
+
+                var claims = new List<Claim>
+                {
+                    new Claim(ClaimTypes.Name, username),
+                    new Claim(ClaimTypes.NameIdentifier, userId)
+                };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var authProperties = new AuthenticationProperties
+                {
+                    IsPersistent = true, // Keep user signed in
+                };
+
+                // Access HttpContext and sign in
+                var httpContext = HttpContextAccessor.HttpContext;
+                if (httpContext != null)
+                {
+                    await httpContext.SignInAsync(
+                        CookieAuthenticationDefaults.AuthenticationScheme,
+                        new ClaimsPrincipal(claimsIdentity),
+                        authProperties);
+
+                    // Redirect to home page
+                    NavigationManager.NavigateTo("/");
+                }
+                else
+                {
+                    ErrorMessage = "Unable to access HttpContext.";
+                }
+            }
+            else
+            {
+                ErrorMessage = "Invalid username or password.";
+            }
+        }
+        catch (Exception)
+        {
+            ErrorMessage = "An error occurred during login.";
+        }
+    }
+
+    public class LoginModel
+    {
+        [Required]
+        public string Username { get; set; } = string.Empty;
+
+        [Required]
+        public string Password { get; set; } = string.Empty;
+    }
+
+} *@
+
+@* @code {
+    private string Username { get; set; } = string.Empty;
+    private string Password { get; set; } = string.Empty;
+    private string ErrorMessage { get; set; } = string.Empty;
+
+    private async Task HandleLoginAsync()
+    {
+        // Attempt to find the user
+        var user = await UserManager.FindByNameAsync("admin");
+
+        if (user == null)
+        {
+            ErrorMessage = "Invalid username or password. Please try again.";
+            return;
+        }
+
+        // Check if the user is locked out or not allowed to sign in
+        if (await UserManager.IsLockedOutAsync(user))
+        {
+            ErrorMessage = "Your account is locked out. Please try again later.";
+            return;
+        }
+
+        // Perform password sign-in
+        var result = await SignInManager.PasswordSignInAsync("admin", "adminadmin", isPersistent: false, lockoutOnFailure: false);
+
+        if (result.Succeeded)
+        {
+            // Get user roles
+            var roles = await UserManager.GetRolesAsync(user);
+
+            // Convert roles to claims
+            var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role)).ToList();
+
+            // Re-sign the user with role claims
+            await SignInManager.SignInWithClaimsAsync(user, isPersistent: false, roleClaims);
+
+            // Redirect to the home page or a secure page
+            NavigationManager.NavigateTo("/");
+        }
+        else if (result.RequiresTwoFactor)
+        {
+            ErrorMessage = "Two-factor authentication is required.";
+        }
+        else if (result.IsLockedOut)
+        {
+            ErrorMessage = "Your account is locked out.";
+        }
+        else
+        {
+            ErrorMessage = "Invalid username or password. Please try again.";
+        }
+    }    
+} *@
+
+<div class="login-container">
+    <div class="login-card">
+        <h2 class="login-title">Login</h2>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div class="alert alert-danger">@ErrorMessage</div>
+        }
+
+        <EditForm Model="@LoginData" OnValidSubmit="HandleLoginAsync" id="testform" FormName="testform">
+            @* <DataAnnotationsValidator /> *@
+            <ValidationSummary />
+
+            <div class="login-field">
+                <label>Username</label>
+                <FluentTextField @bind-Value="@LoginData.Username" class="form-control" placeholder="Enter your username" />
+            </div>
+
+            <div class="login-field">
+                <label>Password</label>
+                <FluentTextField @bind-Value="@LoginData.Password" class="form-control" placeholder="Enter your password" type="password" />
+            </div>
+
+            <FluentButton Type="Microsoft.FluentUI.AspNetCore.Components.ButtonType.Submit" Id="submit" FormId="testform" class="btn btn-primary login-button">Log In</FluentButton>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    private LoginModel LoginData = new LoginModel();
+    private string ErrorMessage = string.Empty;
+
+    private async Task HandleLoginAsync()
+    {
+        try
+        {
+            // Attempt to find the user
+            @* var user = await UserManager.FindByNameAsync(LoginData.Username); *@
+            var user = await UserManager.FindByNameAsync("hrisadmin");
+
+            if (user == null)
+            {
+                ErrorMessage = "Invalid username or password. Please try again.";
+                return;
+            }
+
+            // Check if the user is locked out or not allowed to sign in
+            if (await UserManager.IsLockedOutAsync(user))
+            {
+                ErrorMessage = "Your account is locked out. Please try again later.";
+                return;
+            }
+
+            // Perform password sign-in
+            var result = await SignInManager.PasswordSignInAsync("hrisadmin", "@Maribago2023", isPersistent: false, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                // Get user roles
+                var roles = await UserManager.GetRolesAsync(user);
+
+                // Convert roles to claims
+                var roleClaims = roles.Select(role => new Claim(ClaimTypes.Role, role)).ToList();
+
+                // Re-sign the user with role claims
+                await SignInManager.SignInWithClaimsAsync(user, isPersistent: false, roleClaims);
+
+                // Redirect to the home page or a secure page
+                NavigationManager.NavigateTo("/");
+            }
+            else if (result.RequiresTwoFactor)
+            {
+                ErrorMessage = "Two-factor authentication is required.";
+            }
+            else if (result.IsLockedOut)
+            {
+                ErrorMessage = "Your account is locked out.";
+            }
+            else
+            {
+                ErrorMessage = "Invalid username or password. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = "An error occurred during login. Please try again later.";
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    public class LoginModel
+    {
+        //[Required(ErrorMessage = "Username is required.")]
+        public string Username { get; set; } = string.Empty;
+
+        //[Required(ErrorMessage = "Password is required.")]
+        public string Password { get; set; } = string.Empty;
+    }
+}
