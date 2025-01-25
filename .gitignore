@@ -367,3 +367,7 @@ FodyWeavers.xsd
 /src/Bluewater.Server/localdatabase_2.db
 /src/Bluewater.Server/localdatabase_2.db-wal
 /src/Bluewater.Server/localdatabase_2.db-shm
+
+/src/Bluewater.Server/localdb_sit01.db
+/src/Bluewater.Server/localdb_sit01.db-wal
+/src/Bluewater.Server/localdb_sit01.db-shm
