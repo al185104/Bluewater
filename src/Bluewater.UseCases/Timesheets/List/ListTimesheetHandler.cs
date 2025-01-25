@@ -3,6 +3,7 @@ using Ardalis.SharedKernel;
 using Bluewater.Core.TimesheetAggregate;
 using Bluewater.Core.TimesheetAggregate.Specifications;
 using Bluewater.UseCases.Employees;
+using Bluewater.UseCases.Employees.Get;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,6 +21,15 @@ internal class ListTimesheetHandler(IRepository<Timesheet> _repository, IService
         var ret = await mediator.Send(new GetEmployeeShortQuery(request.name));
         if (ret.IsSuccess)
             emp = ret.Value;
+    }
+
+    if(emp == null) {
+      using (var scope = serviceScopeFactory.CreateScope()) {
+        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+        var ret = await mediator.Send(new GetEmployeeByBarcodeQuery(request.name));
+        if (ret.IsSuccess)
+          emp = ret.Value;
+      }
     }
 
     if (emp == null) return Result<EmployeeTimesheetDTO>.NotFound();

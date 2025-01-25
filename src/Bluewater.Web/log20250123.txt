@@ -1,0 +1,231 @@
+2025-01-23 11:00:21.458 +08:00 [INF] Registered 18 endpoints in 166 milliseconds.
+2025-01-23 11:00:22.222 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2025-01-23 11:00:22.315 +08:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-01-23 11:00:22.493 +08:00 [INF] Now listening on: https://localhost:57679
+2025-01-23 11:00:22.493 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-01-23 11:00:22.493 +08:00 [INF] Hosting environment: Development
+2025-01-23 11:00:22.494 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2025-01-23 11:22:33.360 +08:00 [INF] Application is shutting down...
+illiseconds.
+2025-01-23 11:20:14.717 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2025-01-23 11:20:14.807 +08:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-01-23 11:20:14.982 +08:00 [ERR] Hosting failed to start
+System.IO.IOException: Failed to bind to address https://127.0.0.1:57679: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Address already in use
+ ---> System.Net.Sockets.SocketException (48): Address already in use
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.AddressesStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindAsync(ListenOptions[] listenOptions, AddressBindContext context, Func`2 useHttps, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__15_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2025-01-23 11:22:40.706 +08:00 [INF] Registered 18 endpoints in 140 milliseconds.
+2025-01-23 11:22:41.041 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2025-01-23 11:22:41.127 +08:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-01-23 11:22:41.258 +08:00 [INF] Now listening on: https://localhost:57679
+2025-01-23 11:22:41.258 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-01-23 11:22:41.258 +08:00 [INF] Hosting environment: Development
+2025-01-23 11:22:41.258 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2025-01-23 11:22:43.403 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2025-01-23 11:22:43.430 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 27.9468ms
+2025-01-23 11:22:43.433 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2025-01-23 11:22:43.492 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/favicon.ico - null null
+2025-01-23 11:22:43.493 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/favicon.ico - 404 0 null 0.7243ms
+2025-01-23 11:22:43.493 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/favicon.ico, Response status code: 404
+2025-01-23 11:22:46.102 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2025-01-23 11:22:46.103 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 0.589ms
+2025-01-23 11:22:46.103 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2025-01-23 11:22:47.463 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2025-01-23 11:22:47.464 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 0.9552ms
+2025-01-23 11:22:47.464 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2025-01-23 11:22:48.675 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/mealcredits - null null
+2025-01-23 11:22:48.680 +08:00 [INF] Executing endpoint 'HTTP: GET /MealCredits'
+2025-01-23 11:22:48.713 +08:00 [INF] Handling ListMealCreditQuery
+2025-01-23 11:22:48.713 +08:00 [INF] Property skip : null
+2025-01-23 11:22:48.713 +08:00 [INF] Property take : null
+2025-01-23 11:22:48.786 +08:00 [INF] Executed DbCommand (1ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."Id", "m"."Count", "m"."CreateBy", "m"."CreatedDate", "m"."Date", "m"."EmployeeId", "m"."UpdateBy", "m"."UpdatedDate"
+FROM "MealCredits" AS "m"
+2025-01-23 11:22:48.789 +08:00 [INF] Handled ListMealCreditQuery with Ardalis.Result.Result`1[System.Collections.Generic.IEnumerable`1[Bluewater.UseCases.MealCredits.MealCreditDTO]] in 75 ms
+2025-01-23 11:22:48.800 +08:00 [INF] Executed endpoint 'HTTP: GET /MealCredits'
+2025-01-23 11:22:48.801 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/mealcredits - 200 null application/json 126.1623ms
+2025-01-23 11:22:49.541 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/mealcredits - null null
+2025-01-23 11:22:49.542 +08:00 [INF] Executing endpoint 'HTTP: GET /MealCredits'
+2025-01-23 11:22:49.543 +08:00 [INF] Handling ListMealCreditQuery
+2025-01-23 11:22:49.544 +08:00 [INF] Property skip : null
+2025-01-23 11:22:49.544 +08:00 [INF] Property take : null
+2025-01-23 11:22:49.581 +08:00 [INF] Executed DbCommand (0ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT "m"."Id", "m"."Count", "m"."CreateBy", "m"."CreatedDate", "m"."Date", "m"."EmployeeId", "m"."UpdateBy", "m"."UpdatedDate"
+FROM "MealCredits" AS "m"
+2025-01-23 11:22:49.582 +08:00 [INF] Handled ListMealCreditQuery with Ardalis.Result.Result`1[System.Collections.Generic.IEnumerable`1[Bluewater.UseCases.MealCredits.MealCreditDTO]] in 37 ms
+2025-01-23 11:22:49.582 +08:00 [INF] Executed endpoint 'HTTP: GET /MealCredits'
+2025-01-23 11:22:49.582 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/mealcredits - 200 null application/json 41.3956ms
+2025-01-23 11:23:47.575 +08:00 [INF] Application is shutting down...
+2025-01-23 11:38:19.332 +08:00 [INF] Registered 19 endpoints in 175 milliseconds.
+2025-01-23 11:38:19.837 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2025-01-23 11:38:19.923 +08:00 [INF] Executed DbCommand (3ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-01-23 11:38:20.092 +08:00 [INF] Now listening on: https://localhost:57679
+2025-01-23 11:38:20.092 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-01-23 11:38:20.093 +08:00 [INF] Hosting environment: Development
+2025-01-23 11:38:20.093 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2025-01-23 11:38:51.432 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2025-01-23 11:38:51.448 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 17.0475ms
+2025-01-23 11:38:51.449 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2025-01-23 11:38:54.296 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2025-01-23 11:38:54.298 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 1.6497ms
+2025-01-23 11:38:54.300 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2025-01-23 11:39:09.619 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/Users/ - null null
+2025-01-23 11:39:09.626 +08:00 [INF] Executing endpoint '405 HTTP Method Not Supported'
+2025-01-23 11:39:09.627 +08:00 [INF] Executed endpoint '405 HTTP Method Not Supported'
+2025-01-23 11:39:09.627 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/Users/ - 405 0 null 8.7703ms
+2025-01-23 11:40:13.595 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/Users/200083 - null null
+2025-01-23 11:40:13.601 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/Users/200083 - 404 0 null 6.2541ms
+2025-01-23 11:40:13.603 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/Users/200083, Response status code: 404
+2025-01-23 11:40:57.268 +08:00 [INF] Application is shutting down...
+2025-01-23 11:41:32.784 +08:00 [INF] Registered 19 endpoints in 172 milliseconds.
+2025-01-23 11:41:33.107 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2025-01-23 11:41:33.195 +08:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-01-23 11:41:33.383 +08:00 [INF] Now listening on: https://localhost:57679
+2025-01-23 11:41:33.383 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-01-23 11:41:33.383 +08:00 [INF] Hosting environment: Development
+2025-01-23 11:41:33.383 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2025-01-23 11:41:35.133 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2025-01-23 11:41:35.154 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 21.1042ms
+2025-01-23 11:41:35.157 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2025-01-23 11:41:37.546 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2025-01-23 11:41:37.548 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 2.4897ms
+2025-01-23 11:41:37.548 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2025-01-23 11:41:40.613 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/Users?barcode=12345 - null null
+2025-01-23 11:41:40.617 +08:00 [INF] Executing endpoint '405 HTTP Method Not Supported'
+2025-01-23 11:41:40.617 +08:00 [INF] Executed endpoint '405 HTTP Method Not Supported'
+2025-01-23 11:41:40.618 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/Users?barcode=12345 - 405 0 null 4.887ms
+2025-01-23 11:41:44.924 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/Users?barcode=200083 - null null
+2025-01-23 11:41:44.928 +08:00 [INF] Executing endpoint '405 HTTP Method Not Supported'
+2025-01-23 11:41:44.928 +08:00 [INF] Executed endpoint '405 HTTP Method Not Supported'
+2025-01-23 11:41:44.928 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/Users?barcode=200083 - 405 0 null 4.0495ms
+2025-01-23 11:42:44.094 +08:00 [INF] Application is shutting down...
+2025-01-23 11:42:47.637 +08:00 [INF] Registered 19 endpoints in 162 milliseconds.
+2025-01-23 11:42:47.957 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2025-01-23 11:42:48.043 +08:00 [INF] Executed DbCommand (6ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-01-23 11:42:48.216 +08:00 [INF] Now listening on: https://localhost:57679
+2025-01-23 11:42:48.216 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-01-23 11:42:48.216 +08:00 [INF] Hosting environment: Development
+2025-01-23 11:42:48.216 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2025-01-23 11:42:54.627 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2025-01-23 11:42:54.648 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 21.3862ms
+2025-01-23 11:42:54.649 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2025-01-23 11:42:57.541 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2025-01-23 11:42:57.542 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 1.3247ms
+2025-01-23 11:42:57.543 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2025-01-23 11:43:02.865 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/Users/200083 - null null
+2025-01-23 11:43:02.868 +08:00 [INF] Executing endpoint '405 HTTP Method Not Supported'
+2025-01-23 11:43:02.868 +08:00 [INF] Executed endpoint '405 HTTP Method Not Supported'
+2025-01-23 11:43:02.869 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/Users/200083 - 405 0 null 4.182ms
+2025-01-23 11:51:54.059 +08:00 [INF] Registered 19 endpoints in 261 milliseconds.
+2025-01-23 11:51:54.418 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2025-01-23 11:51:54.509 +08:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-01-23 11:51:54.669 +08:00 [INF] Now listening on: https://localhost:57679
+2025-01-23 11:51:54.669 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-01-23 11:51:54.669 +08:00 [INF] Hosting environment: Development
+2025-01-23 11:51:54.670 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2025-01-23 11:51:54.992 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger - null null
+2025-01-23 11:51:55.014 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger - 302 0 null 22.5417ms
+2025-01-23 11:51:55.072 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/index.html - null null
+2025-01-23 11:51:55.127 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/index.html - 200 null text/html; charset=utf-8 54.1568ms
+2025-01-23 11:51:55.146 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/swagger-ui.css - null null
+2025-01-23 11:51:55.146 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/index.css - null null
+2025-01-23 11:51:55.239 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/swagger-ui-bundle.js - null null
+2025-01-23 11:51:55.240 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/swagger-ui-standalone-preset.js - null null
+2025-01-23 11:51:55.316 +08:00 [INF] Sending file. Request path: '/index.css'. Physical path: 'N/A'
+2025-01-23 11:51:55.316 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/index.css - 200 218 text/css 169.8496ms
+2025-01-23 11:51:55.638 +08:00 [INF] Sending file. Request path: '/swagger-ui.css'. Physical path: 'N/A'
+2025-01-23 11:51:55.762 +08:00 [INF] Sending file. Request path: '/swagger-ui-standalone-preset.js'. Physical path: 'N/A'
+2025-01-23 11:51:55.768 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/swagger-ui.css - 200 152073 text/css 622.0577ms
+2025-01-23 11:51:55.768 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/swagger-ui-standalone-preset.js - 200 230294 text/javascript 528.1117ms
+2025-01-23 11:51:55.930 +08:00 [INF] Sending file. Request path: '/swagger-ui-bundle.js'. Physical path: 'N/A'
+2025-01-23 11:51:55.931 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/swagger-ui-bundle.js - 200 1452754 text/javascript 737.4528ms
+2025-01-23 11:51:56.052 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/v1/swagger.json - null null
+2025-01-23 11:51:56.074 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2025-01-23 11:51:56.256 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/favicon-32x32.png - null null
+2025-01-23 11:51:56.306 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/favicon-16x16.png - null null
+2025-01-23 11:51:56.357 +08:00 [INF] Sending file. Request path: '/favicon-32x32.png'. Physical path: 'N/A'
+2025-01-23 11:51:56.357 +08:00 [INF] Sending file. Request path: '/favicon-16x16.png'. Physical path: 'N/A'
+2025-01-23 11:51:56.357 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/favicon-32x32.png - 200 628 image/png 151.0376ms
+2025-01-23 11:51:56.357 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/favicon-16x16.png - 200 665 image/png 76.2143ms
+2025-01-23 11:51:56.531 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 479.0294ms
+2025-01-23 11:52:17.583 +08:00 [INF] Request starting HTTP/2 POST https://localhost:57679/Users/200083 - null 0
+2025-01-23 11:52:17.589 +08:00 [INF] Executing endpoint 'HTTP: POST /Users/{barcode}'
+2025-01-23 11:52:17.592 +08:00 [INF] Executed endpoint 'HTTP: POST /Users/{barcode}'
+2025-01-23 11:52:17.618 +08:00 [INF] Request finished HTTP/2 POST https://localhost:57679/Users/200083 - 415 null null 35.293ms
+2025-01-23 11:52:42.590 +08:00 [INF] Registered 19 endpoints in 286 milliseconds.
+2025-01-23 11:52:42.951 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2025-01-23 11:52:43.045 +08:00 [INF] Executed DbCommand (4ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-01-23 11:52:43.241 +08:00 [INF] Now listening on: https://localhost:57679
+2025-01-23 11:52:43.241 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-01-23 11:52:43.241 +08:00 [INF] Hosting environment: Development
+2025-01-23 11:52:43.241 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2025-01-23 11:52:43.561 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger - null null
+2025-01-23 11:52:43.597 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger - 302 0 null 36.928ms
+2025-01-23 11:52:43.609 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/index.html - null null
+2025-01-23 11:52:43.685 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/index.html - 200 null text/html; charset=utf-8 76.24ms
+2025-01-23 11:52:43.891 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/swagger/v1/swagger.json - null null
+2025-01-23 11:52:43.897 +08:00 [INF] No action descriptors found. This may indicate an incorrectly configured application or missing application parts. To learn more, visit https://aka.ms/aspnet/mvc/app-parts
+2025-01-23 11:52:44.130 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/swagger/v1/swagger.json - 200 null application/json; charset=utf-8 238.1387ms
+2025-01-23 11:52:50.685 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/Users/200083 - null null
+2025-01-23 11:52:50.691 +08:00 [INF] Executing endpoint 'HTTP: GET /Users/{barcode}'
+2025-01-23 11:52:55.050 +08:00 [INF] Executed DbCommand (5ms) [Parameters=[@__ToLower_0='?' (Size = 6)], CommandType='"Text"', CommandTimeout='30']
+SELECT "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo", "a"."Id", "a"."CreateBy", "a"."CreatedDate", "a"."Credential", "a"."IsGlobalSupervisor", "a"."PasswordHash", "a"."SupervisedGroup", "a"."UpdateBy", "a"."UpdatedDate", "a"."Username"
+FROM "Employees" AS "e"
+LEFT JOIN "AppUsers" AS "a" ON "e"."UserId" = "a"."Id"
+WHERE "a"."Id" IS NOT NULL AND lower("a"."Username") = @__ToLower_0
+LIMIT 1
+2025-01-23 11:52:57.773 +08:00 [INF] Executed endpoint 'HTTP: GET /Users/{barcode}'
+2025-01-23 11:52:57.776 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/Users/200083 - 200 null application/json 7091.4233ms
+2025-01-23 11:57:38.494 +08:00 [INF] Registered 19 endpoints in 144 milliseconds.
+2025-01-23 11:57:38.814 +08:00 [WRN] The entity type 'ContactInfo' is an optional dependent using table sharing without any required non shared property that could be used to identify whether the entity exists. If all nullable properties contain a null value in database then an object instance won't be created in the query. Add a required property to create instances with null values for other properties or mark the incoming navigation as required to always create an instance.
+2025-01-23 11:57:38.909 +08:00 [INF] Executed DbCommand (5ms) [Parameters=[], CommandType='"Text"', CommandTimeout='30']
+SELECT COUNT(*) FROM "sqlite_master" WHERE "type" = 'table' AND "rootpage" IS NOT NULL;
+2025-01-23 11:57:39.069 +08:00 [INF] Now listening on: https://localhost:57679
+2025-01-23 11:57:39.069 +08:00 [INF] Application started. Press Ctrl+C to shut down.
+2025-01-23 11:57:39.070 +08:00 [INF] Hosting environment: Development
+2025-01-23 11:57:39.070 +08:00 [INF] Content root path: /Users/adrianllamido/Repo/Bluewater/src/Bluewater.Web
+2025-01-23 11:57:41.432 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2025-01-23 11:57:41.450 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 18.5616ms
+2025-01-23 11:57:41.452 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2025-01-23 11:57:43.617 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/ - null null
+2025-01-23 11:57:43.619 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/ - 404 0 null 1.3607ms
+2025-01-23 11:57:43.619 +08:00 [INF] Request reached the end of the middleware pipeline without being handled by application code. Request path: GET https://localhost:57679/, Response status code: 404
+2025-01-23 11:57:47.522 +08:00 [INF] Request starting HTTP/2 GET https://localhost:57679/users/200083 - null null
+2025-01-23 11:57:47.526 +08:00 [INF] Executing endpoint 'HTTP: GET /Users/{barcode}'
+2025-01-23 11:57:47.692 +08:00 [INF] Executed DbCommand (2ms) [Parameters=[@__ToLower_0='?' (Size = 6)], CommandType='"Text"', CommandTimeout='30']
+SELECT "e"."Id", "e"."BloodType", "e"."ChargingId", "e"."CivilStatus", "e"."CreateBy", "e"."CreatedDate", "e"."DateOfBirth", "e"."FirstName", "e"."Gender", "e"."Height", "e"."ImageUrl", "e"."IsDeleted", "e"."LastName", "e"."LevelId", "e"."MiddleName", "e"."PayId", "e"."PositionId", "e"."Remarks", "e"."ServiceChargeId", "e"."Status", "e"."TypeId", "e"."UpdateBy", "e"."UpdatedDate", "e"."UserId", "e"."Weight", "e"."ContactInfo_Address", "e"."ContactInfo_AddressContact", "e"."ContactInfo_Email", "e"."ContactInfo_EmergencyContact", "e"."ContactInfo_FathersName", "e"."ContactInfo_MobileNoContact", "e"."ContactInfo_MobileNumber", "e"."ContactInfo_MothersMaidenName", "e"."ContactInfo_ProvincialAddress", "e"."ContactInfo_RelationshipContact", "e"."ContactInfo_TelNoContact", "e"."ContactInfo_TelNumber", "e"."EducationInfo_CourseGraduated", "e"."EducationInfo_EducationalAttainment", "e"."EducationInfo_UniversityGraduated", "e"."EmploymentInfo_BankAccount", "e"."EmploymentInfo_DateHired", "e"."EmploymentInfo_DateRegularized", "e"."EmploymentInfo_DateResigned", "e"."EmploymentInfo_DateTerminated", "e"."EmploymentInfo_HDMFNo", "e"."EmploymentInfo_HasServiceCharge", "e"."EmploymentInfo_PHICNo", "e"."EmploymentInfo_SSSNo", "e"."EmploymentInfo_TINNo", "a"."Id", "a"."CreateBy", "a"."CreatedDate", "a"."Credential", "a"."IsGlobalSupervisor", "a"."PasswordHash", "a"."SupervisedGroup", "a"."UpdateBy", "a"."UpdatedDate", "a"."Username"
+FROM "Employees" AS "e"
+LEFT JOIN "AppUsers" AS "a" ON "e"."UserId" = "a"."Id"
+WHERE "a"."Id" IS NOT NULL AND lower("a"."Username") = @__ToLower_0
+LIMIT 1
+2025-01-23 11:57:47.759 +08:00 [INF] Executed endpoint 'HTTP: GET /Users/{barcode}'
+2025-01-23 11:57:47.760 +08:00 [INF] Request finished HTTP/2 GET https://localhost:57679/users/200083 - 200 null application/json 238.0179ms
+2025-01-23 11:57:53.793 +08:00 [INF] Application is shutting down...

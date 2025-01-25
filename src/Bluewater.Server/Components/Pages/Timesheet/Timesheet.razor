@@ -35,7 +35,7 @@
 
 
 
-<FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Placeholder="Employee name..." Style="width: 100%;" />
+<FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Placeholder="Employee name or id..." Style="width: 100%;" />
 
 <FluentDataGrid Items="@Timesheets" TGridItem=TimesheetInfo>
     <PropertyColumn Title="Date" Property="@(p => p.EntryDate)" Format="MMM-dd" Sortable="true"/>

@@ -167,6 +167,8 @@
             endDate = _endDate;
 
             isBusy = true;
+            await Task.Delay(100);
+
             await LoadServiceChargeAsync(endDate);
             if(selectCharging == null || selectCharging?.Id == Guid.Empty)
             {

@@ -294,13 +294,14 @@ public class Payroll : EntityBase<Guid>, IAggregateRoot
         var adjustedGrossIncome = GrossPayAmount - AbsencesAmount - LatesAmount - UndertimeAmount - OverbreakAmount - UnionDues;
 
         // + contant deductions
-        PagibigAmount = Date.Day != 25 ? 0 : Math.Round(hdmfCon, 2);
-        PagibigERAmount = Date.Day != 25 ? 0 : Math.Round(hdmfEr, 2);
-        PhilhealthAmount = Math.Round(basicPay * 0.05m / 2, 2);
-        PhilhealthERAmount = PhilhealthAmount;
+        PagibigAmount = Date.Day == 25 ? 0 : Math.Round(hdmfCon, 2);
+        PagibigERAmount = Date.Day == 25 ? 0 : Math.Round(hdmfEr, 2);
+        PhilhealthAmount = Date.Day == 25 ? 0 : Math.Round(basicPay * 0.05m / 2, 2);
+        PhilhealthERAmount = Date.Day == 25 ? 0 : PhilhealthAmount;
+
         (decimal ER, decimal EE) = CompensationLookup.FindValuesByCompensation(basicPay);
-        SSSAmount = Date.Day == 25 ? 0 : Math.Round(EE);
-        SSSERAmount = Date.Day == 25 ? 0 : Math.Round(ER);
+        SSSAmount = Date.Day != 25 ? 0 : Math.Round(EE);
+        SSSERAmount = Date.Day != 25 ? 0 : Math.Round(ER);
         // - constant deductions
 
         var (taxDeduction, taxPercentage) = TaxCalculator.CalculateTax(adjustedGrossIncome + SvcCharge - PagibigAmount - PhilhealthAmount - SSSAmount);
