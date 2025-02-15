@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Bluewater.Core.Services;
-public class DeleteSectionService(IRepository<Section> _repository, IMediator _mediator, ILogger<DeleteSectionService> _logger) : IDeleteSectionService
+public class DeleteSectionService(IRepository<Section> _repository, ILogger<DeleteSectionService> _logger) : IDeleteSectionService
 {
   public async Task<Result> DeleteSection(Guid SectionId)
   {
@@ -16,8 +16,6 @@ public class DeleteSectionService(IRepository<Section> _repository, IMediator _m
     if (aggregateToDelete == null) return Result.NotFound();
 
     await _repository.DeleteAsync(aggregateToDelete);
-    var domainEvent = new SectionDeletedEvent(SectionId);
-    await _mediator.Publish(domainEvent);
     return Result.Success();
   }
 }

@@ -7,6 +7,7 @@ using Bluewater.UseCases.Holidays;
 using Bluewater.UseCases.EmployeeTypes;
 using Bluewater.UseCases.Levels;
 using Bluewater.UseCases.Shifts;
+using Bluewater.UseCases.LeaveCredits;
 
 namespace Bluewater.Server.Global;
 
@@ -21,6 +22,7 @@ public interface IGlobalService
     public List<EmployeeTypeDTO> EmployeeTypes { get; set; } 
     public List<LevelDTO> Levels { get; set; } 
     public List<ShiftDTO> Shifts { get; set; }
+    public List<LeaveCreditDTO> LeaveCredits { get; set; }
 
     Task LoadDataAsync();
     (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfWeekByDate(DateTime date);

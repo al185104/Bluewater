@@ -43,8 +43,10 @@ internal class ListTimesheetHandler(IRepository<Timesheet> _repository, IService
     for (var date = request.startDate; date <= request.endDate; date = date.AddDays(1))
     {
         var timesheet = timesheets!.FirstOrDefault(s => s.EntryDate == date);
-        if(timesheet == null)
+        if(timesheet == null){
           results.Add(new TimesheetInfo(Guid.Empty, null, null, null, null, date, isEdited: false));
+          // results.Add(new TimesheetInfo(Guid.Empty, new DateTime(date.Year, date.Month, date.Day), new DateTime(date.Year, date.Month, date.Day), new DateTime(date.Year, date.Month, date.Day), new DateTime(date.Year, date.Month, date.Day), date, isEdited: false));
+        }
         else
           results.Add(new TimesheetInfo(timesheet.Id, timesheet.TimeIn1, timesheet.TimeOut1, timesheet.TimeIn2, timesheet.TimeOut2, timesheet.EntryDate, isEdited: timesheet.IsEdited));
     }

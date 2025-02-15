@@ -22,6 +22,7 @@ using Bluewater.UseCases.Users.Get;
 
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Bluewater.Core.EmployeeAggregate.Specifications;
 
 namespace Bluewater.UseCases.Employees.List;
 
@@ -30,9 +31,10 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
   public async Task<Result<IEnumerable<EmployeeDTO>>> Handle(ListEmployeeQuery request, CancellationToken cancellationToken)
   {
     try {
+        var spec = new EmployeeListSpec(request.skip, request.take);
+        var employees = await _repository.ListAsync(spec, cancellationToken);
+        if(employees == null) return Result.NotFound();
 
-        var employees = await _repository
-            .ListAsync(cancellationToken);
 
         List<EmployeeDTO> _employees = new List<EmployeeDTO>();
 

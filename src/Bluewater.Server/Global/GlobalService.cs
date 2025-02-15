@@ -18,6 +18,8 @@ using Bluewater.UseCases.Levels.List;
 using MediatR;
 using Bluewater.UseCases.Shifts.List;
 using Bluewater.UseCases.Shifts;
+using Bluewater.UseCases.LeaveCredits.List;
+using Bluewater.UseCases.LeaveCredits;
 
 namespace Bluewater.Server.Global;
 
@@ -32,6 +34,7 @@ public class GlobalService : IGlobalService
     public List<EmployeeTypeDTO> EmployeeTypes { get; set; } = new();
     public List<LevelDTO> Levels { get; set; } = new();
     public List<ShiftDTO> Shifts { get; set; } = new();
+    public List<LeaveCreditDTO> LeaveCredits { get; set; } = new();
 
     private readonly IServiceScopeFactory ServiceScopeFactory;
     private readonly IMediator Mediator;
@@ -57,7 +60,8 @@ public class GlobalService : IGlobalService
                 LoadHolidays(),
                 LoadEmployeeTypes(),
                 LoadLevels(),
-                LoadShifts()
+                LoadShifts(),
+                LoadLeaveCredits()
             };
 
             await Task.WhenAll(tasks);            
@@ -68,7 +72,7 @@ public class GlobalService : IGlobalService
         }
     }
 
-    public (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfWeekByDate(DateTime date)
+  public (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfWeekByDate(DateTime date)
     {
         var today = DateOnly.FromDateTime(date);
         var dayOfWeek = (int)today.DayOfWeek;
@@ -79,6 +83,24 @@ public class GlobalService : IGlobalService
     #endregion
 
     #region Load Data
+    private async Task LoadLeaveCredits()
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListLeaveCreditQuery(null, null));
+                if (result.IsSuccess)
+                    LeaveCredits = result.Value.ToList();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
     private async Task LoadShifts()
     {
         try

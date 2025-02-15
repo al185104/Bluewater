@@ -38,14 +38,12 @@ using Bluewater.Core.UserAggregate;
 using Bluewater.UseCases.Users.Create;
 using Bluewater.Core.AttendanceAggregate;
 using Bluewater.UseCases.Attendances.Create;
-using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.DataProtection;
 using Bluewater.Infrastructure.Data;
 using System.Security.Claims;
-using Bluewater.Server.Areas.Identity.Data;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Bluewater.Core.Forms.LeaveAggregate;
 
 internal class Program
 {
@@ -218,6 +216,8 @@ internal class Program
 
       Assembly.GetAssembly(typeof(Attendance)),
       Assembly.GetAssembly(typeof(CreateAttendanceCommand)),
+
+      Assembly.GetAssembly(typeof(Leave))
 
     };
     builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(mediatRAssemblies!));

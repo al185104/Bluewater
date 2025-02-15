@@ -14,9 +14,7 @@ namespace Bluewater.Core.Services;
 /// <param name="_repository"></param>
 /// <param name="_mediator"></param>
 /// <param name="_logger"></param>
-public class DeleteContributorService(IRepository<Contributor> _repository,
-  IMediator _mediator,
-  ILogger<DeleteContributorService> _logger) : IDeleteContributorService
+public class DeleteContributorService(IRepository<Contributor> _repository, ILogger<DeleteContributorService> _logger) : IDeleteContributorService
 {
   public async Task<Result> DeleteContributor(int contributorId)
   {
@@ -25,8 +23,8 @@ public class DeleteContributorService(IRepository<Contributor> _repository,
     if (aggregateToDelete == null) return Result.NotFound();
 
     await _repository.DeleteAsync(aggregateToDelete);
-    var domainEvent = new ContributorDeletedEvent(contributorId);
-    await _mediator.Publish(domainEvent);
+    // var domainEvent = new ContributorDeletedEvent(contributorId);
+    // await _mediator.Publish(domainEvent);
     return Result.Success();
   }
 }

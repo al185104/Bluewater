@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Bluewater.Core.Services;
-public class DeleteHolidayService(IRepository<Holiday> _repository, IMediator _mediator, ILogger<DeleteHolidayService> _logger) : IDeleteHolidayService
+public class DeleteHolidayService(IRepository<Holiday> _repository, ILogger<DeleteHolidayService> _logger) : IDeleteHolidayService
 {
   public async Task<Result> DeleteHoliday(Guid HolidayId)
   {
@@ -16,8 +16,8 @@ public class DeleteHolidayService(IRepository<Holiday> _repository, IMediator _m
     if (aggregateToDelete == null) return Result.NotFound();
 
     await _repository.DeleteAsync(aggregateToDelete);
-    var domainEvent = new HolidayDeletedEvent(HolidayId);
-    await _mediator.Publish(domainEvent);
+    // var domainEvent = new HolidayDeletedEvent(HolidayId, aggregateToDelete.Name);
+    // await _mediator.Publish(domainEvent);
     return Result.Success();
   }
 }

@@ -21,7 +21,15 @@ public class GetEmployeeShortHandler(IReadRepository<Employee> _repository, ISer
   {
     var spec = new EmployeeShortByNameSpec(request.EmployeeName);
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
-    if (entity == null) return Result.NotFound();
+
+    // if not found, try searching by barcode
+    if(entity == null) {
+        var barcodeSpec = new EmployeeByBarcodeSpec(request.EmployeeName);
+        var barcodeEntity = await _repository.FirstOrDefaultAsync(barcodeSpec, cancellationToken);
+        if (barcodeEntity == null) 
+            return Result.NotFound();
+        entity = barcodeEntity;
+    }
 
     PositionDTO? position = null;
     using (var scope = _serviceScopeFactory.CreateScope())

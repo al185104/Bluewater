@@ -17,7 +17,8 @@ public class DeleteContributorService_DeleteContributor
 
   public DeleteContributorService_DeleteContributor()
   {
-    _service = new DeleteContributorService(_repository, _mediator, _logger);
+    // _service = new DeleteContributorService(_repository, _mediator, _logger);
+    _service = new DeleteContributorService(_repository, _logger);
   }
 
   [Fact]

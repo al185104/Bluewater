@@ -77,7 +77,7 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
         ));
     }
 
-    if(request.UserId != Guid.Empty && request.PositionId != Guid.Empty && request.PayId != Guid.Empty && request.TypeId != Guid.Empty && request.LevelId != Guid.Empty && request.ChargingId != Guid.Empty)
+//    if(request.UserId != Guid.Empty && request.PositionId != Guid.Empty && request.PayId != Guid.Empty && request.TypeId != Guid.Empty && request.LevelId != Guid.Empty && request.ChargingId != Guid.Empty)
         existingEmployee.SetExternalKeys(request.UserId, request.PositionId, request.PayId, request.TypeId, request.LevelId, request.ChargingId);
 
     await _repository.UpdateAsync(existingEmployee, cancellationToken);

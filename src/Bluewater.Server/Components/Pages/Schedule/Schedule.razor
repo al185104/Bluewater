@@ -152,6 +152,7 @@
         try 
         {
             isBusy = true;
+            await Task.Delay(10);
             var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfWeekByDate(date);
             startDate = _startDate;
             endDate = _endDate;

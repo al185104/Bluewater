@@ -62,13 +62,13 @@
 
 <FluentStack Orientation="Orientation.Vertical">
     
-    @if (env.IsDevelopment())
+    @* @if (env.IsDevelopment())
     {
-        @* <FluentButton OnClick="@(async () => await CreateDummyEmployees())">Create Dummy Employees</FluentButton>
+        <FluentButton OnClick="@(async () => await CreateDummyEmployees())">Create Dummy Employees</FluentButton>
         <FluentButton OnClick="@(async () => await CreateDummyShifts())">Create Dummy Shifts</FluentButton>
         <FluentButton OnClick="@(async () => await CreateDummyTimesheet())">Create Dummy Timesheet</FluentButton>
-        <FluentButton OnClick="@(async () => await CreateDummySchedule())">Create Dummy Schedule</FluentButton> *@
-    }
+        <FluentButton OnClick="@(async () => await CreateDummySchedule())">Create Dummy Schedule</FluentButton>
+    } *@
     
     <FluentInputFile @ref="@divFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
         AnchorId="DivImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
@@ -383,7 +383,9 @@
                 <div style="height: 300px; overflow:auto;" tabindex="-1">
                     <FluentDataGrid Items="@Holidays">
                         <PropertyColumn Title="Names" Property="@(p => p.Name)" Sortable="true"/>
-                        <PropertyColumn Title="Descriptions" Property="@(p => p.Description)" Sortable="true"/>
+                        <TemplateColumn Title="Type" Sortable="true">
+                            @(context.IsRegular == true ? "Regular" : "Special")
+                        </TemplateColumn>
                         <PropertyColumn Title="Date" Property="@(p => p.Date.ToShortDateString())" />
                         <TemplateColumn Title="Actions" Align="@Align.End">
                             <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteHolidayAsync(context))"/>
@@ -395,7 +397,7 @@
             <FluentGridItem xs="3" Style="display: flex; justify-content: stretch ">
                 <FluentStack Orientation="Orientation.Vertical" VerticalAlignment="VerticalAlignment.Top" VerticalGap="4">
                     <FluentTextField @bind-Value="InputHoliday.Name" Name="holidayName" Label="Holiday Name" Style="width: 100%;" Required />
-                    <FluentTextField @bind-Value="InputHoliday.Description" Name="holidayDescription" Label="Holiday Description" Style="width: 100%;" Required />
+                    <FluentTextField @bind-Value="InputHoliday.Description" Name="holidayDescription" Label="Holiday Description" Style="width: 100%;" />
                     <FluentSwitch @bind-Value="@InputHoliday.IsRegular" Label="Holiday Type">
                         <span slot="checked-message">Regular</span>
                         <span slot="unchecked-message">Special</span>
@@ -1014,7 +1016,7 @@
                 if(SelectedDayStart != null)
                     curDate = SelectedDayStart!.Value;
 
-                var result = await mediator.Send(new CreateHolidayCommand(InputHoliday.Name, InputHoliday.Description, curDate, true));
+                var result = await mediator.Send(new CreateHolidayCommand(InputHoliday.Name, InputHoliday.Description, curDate, InputHoliday.IsRegular));
                 if (result.IsSuccess)
                 {
                     await LoadHolidays();
@@ -1281,6 +1283,8 @@
     {
         try
         {
+            isBusy = true;
+            await Task.Delay(10);
             using (var scope = ServiceScopeFactory.CreateScope())
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -1291,6 +1295,7 @@
         }
         finally
         {
+            isBusy = false;
         }
     }
     #endregion
@@ -1302,6 +1307,7 @@
         try
         {
             isBusy = true;
+            await Task.Delay(100);
             // Create sample employees
             for (int i = 0; i < 20; i++)
             {
@@ -1417,6 +1423,8 @@
         int dummyCount = 0;
         try{
             isBusy = true;
+            await Task.Delay(100);
+
             var shifts = new List<CreateShiftCommand>();
             var random = new Random();
             for (int i = 1; i <= 20; i++)
@@ -1464,6 +1472,7 @@
         int dummyCount = 0;
         try {
             isBusy = true;
+            await Task.Delay(100);
 
             // get all employees
             List<Guid> employeeIds = new();
@@ -1479,7 +1488,7 @@
             var random = new Random();
             foreach (var employeeId in employeeIds)
             {
-                for (DateTime date = new DateTime(2024, 9, 1); date <= new DateTime(2024, 11, 10); date = date.AddDays(1))
+                for (DateTime date = new DateTime(2024, 10, 1); date <= DateTime.Today; date = date.AddDays(1))
                 {
                     // Generate random times for TimeIn and TimeOut
                     var timeIn1 = date.AddHours(8).AddMinutes(random.Next(0, 30)); // 8:00 - 8:30 AM
@@ -1521,7 +1530,7 @@
         int dummyCount = 0;
         try {
             isBusy = true;
-
+            await Task.Delay(100);
             // get all employees
             List<Guid> employeeIds = new();
             using(var scope = ServiceScopeFactory.CreateScope())

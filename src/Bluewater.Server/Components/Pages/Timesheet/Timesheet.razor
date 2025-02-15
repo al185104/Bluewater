@@ -7,6 +7,8 @@
 @using Bluewater.UseCases.Timesheets.List
 @using Bluewater.UseCases.Timesheets.Update
 @using MediatR
+@using Microsoft.FluentUI.AspNetCore.Components.Extensions
+
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
 @inject IGlobalService GlobalService
@@ -37,20 +39,30 @@
 
 <FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Placeholder="Employee name or id..." Style="width: 100%;" />
 
-<FluentDataGrid Items="@Timesheets" TGridItem=TimesheetInfo>
+<FluentDataGrid Items="@Timesheets" GridTemplateColumns="0.5fr 0.5fr 1fr 1fr 1fr 1fr 0.5fr" TGridItem="TimesheetInfo">
     <PropertyColumn Title="Date" Property="@(p => p.EntryDate)" Format="MMM-dd" Sortable="true"/>
     <PropertyColumn Title="Day of Week" Property="@(p => p.EntryDate)" Format="dddd" />
     <TemplateColumn Title="Time in #1">
-        <FluentTimePicker Value="@context!.TimeIn1" ValueChanged="@(e => context!.TimeIn1 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" />
+        <FluentDatePicker Style="width: 120px;" Format="MM-dd-yy" @bind-Value="@context.TimeIn1" />
+        <FluentTimePicker Style="width: 120px;" @bind-Value="@context.TimeIn1" />
     </TemplateColumn>
     <TemplateColumn Title="Time out #1">
-        <FluentTimePicker Value="@context!.TimeOut1" ValueChanged="@(e => context!.TimeOut1 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" />
+        <FluentDatePicker Style="width: 120px;" Format="MM-dd-yy" @bind-Value="@context.TimeOut1" />
+        <FluentTimePicker Style="width: 120px;" @bind-Value="@context.TimeOut1" />        
+        @* <FluentDatePicker Style="width: 120px;" Format="MM-dd-yy"/>
+        <FluentTimePicker Value="@context!.TimeOut1" ValueChanged="@(e => context!.TimeOut1 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" Style="width: 100px"/> *@
     </TemplateColumn>
     <TemplateColumn Title="Time in #2">
-        <FluentTimePicker Value="@context!.TimeIn2" ValueChanged="@(e => context!.TimeIn2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" />
+        <FluentDatePicker Style="width: 120px;" Format="MM-dd-yy" @bind-Value="@context.TimeIn2" />
+        <FluentTimePicker Style="width: 120px;" @bind-Value="@context.TimeIn2" />
+        @* <FluentDatePicker Style="width: 120px;" Format="MM-dd-yy"/>
+        <FluentTimePicker Value="@context!.TimeIn2" ValueChanged="@(e => context!.TimeIn2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" Style="width: 100px"/> *@
     </TemplateColumn>
     <TemplateColumn Title="Time out #2">
-        <FluentTimePicker Value="@context!.TimeOut2" ValueChanged="@(e => context!.TimeOut2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" />
+        <FluentDatePicker Style="width: 120px;" Format="MM-dd-yy" @bind-Value="@context.TimeOut2" />
+        <FluentTimePicker Style="width: 120px;" @bind-Value="@context.TimeOut2" />
+        @* <FluentDatePicker Style="width: 120px;" Format="MM-dd-yy"/>
+        <FluentTimePicker Value="@context!.TimeOut2" ValueChanged="@(e => context!.TimeOut2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" Style="width: 100px"/> *@
     </TemplateColumn>    
     <TemplateColumn Title="Actions" Align="@Align.End">
         <FluentButton aria-label="Save item" IconEnd="@(new Icons.Regular.Size16.Save())" OnClick="@(async() => await SaveTimesheetAsync(context))"/>
@@ -159,4 +171,61 @@
             }
         }
     }
+
+    private DateTime? GetDateValue(DateTime? item)
+    {
+        @* return DateOnly.FromDateTime(item.Value ?? DateTime.Now).ToDateTime(TimeOnly.MinValue); *@
+        if(item.HasValue) 
+            return DateOnly.FromDateTime(item.Value).ToDateTime(TimeOnly.MinValue);
+        return DateTime.Today;
+    }
+
+    // Returns the time portion of TimeIn as a TimeSpan, or null if TimeIn is null.
+    private TimeOnly? GetTimeValue(DateTime? item)
+    {
+        if(item.HasValue)
+            return TimeOnly.FromDateTime(item.Value);
+        return null;
+    }
+
+    // Updates the date portion of TimeIn while preserving the time.
+    private void UpdateDate(DateTime? item, DateTime? newDate)
+    {
+        if (newDate == null)
+            item = null;
+        else if (item.HasValue)
+        {
+            var currentTime = TimeOnly.FromDateTime(item.Value);
+            item = new DateTime(newDate.Value.Year, newDate.Value.Month, newDate.Value.Day,
+                currentTime.Hour, currentTime.Minute, currentTime.Second);
+        }
+        else
+        {
+            var today = DateTime.Today;
+            item = new DateTime(newDate.Value.Year, newDate.Value.Month, newDate.Value.Day,
+                today.TimeOfDay.Hours, today.TimeOfDay.Minutes, today.TimeOfDay.Seconds);
+        }
+
+        StateHasChanged();
+    }
+
+    // Updates the time portion of TimeIn while preserving the date.
+    private void UpdateTime(DateTime? item, DateTime? newTime)
+    {
+        if (newTime == null)
+            item = null;
+        else if (item.HasValue) {
+            var dt = item.Value;
+            item = new DateTime(dt.Year, dt.Month, dt.Day,
+                newTime.Value.TimeOfDay.Hours, newTime.Value.TimeOfDay.Minutes, newTime.Value.TimeOfDay.Seconds);
+        }
+        else
+        {
+            var today = DateTime.Today;
+            item = new DateTime(today.Year, today.Month, today.Day,
+                newTime.Value.TimeOfDay.Hours, newTime.Value.TimeOfDay.Minutes, newTime.Value.TimeOfDay.Seconds);
+        }
+
+        StateHasChanged();
+    }                
 }

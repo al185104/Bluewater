@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Bluewater.Core.Services;
-public class DeleteEmployeeService(IRepository<Employee> _repository, IMediator _mediator, ILogger<DeleteEmployeeService> _logger) : IDeleteEmployeeService
+public class DeleteEmployeeService(IRepository<Employee> _repository, ILogger<DeleteEmployeeService> _logger) : IDeleteEmployeeService
 {
   public async Task<Result> DeleteEmployee(Guid EmployeeId)
   {
@@ -16,8 +16,8 @@ public class DeleteEmployeeService(IRepository<Employee> _repository, IMediator 
     if (aggregateToDelete == null) return Result.NotFound();
 
     await _repository.DeleteAsync(aggregateToDelete);
-    var domainEvent = new EmployeeDeletedEvent(EmployeeId);
-    await _mediator.Publish(domainEvent);
+    // var domainEvent = new EmployeeDeletedEvent(EmployeeId);
+    // await _mediator.Publish(domainEvent);
     return Result.Success();
   }
 }

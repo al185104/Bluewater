@@ -7,7 +7,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Bluewater.Core.Services;
-public class DeleteChargingService(IRepository<Charging> _repository, IMediator _mediator, ILogger<DeleteChargingService> _logger) : IDeleteChargingService
+public class DeleteChargingService(IRepository<Charging> _repository, ILogger<DeleteChargingService> _logger) : IDeleteChargingService
 {
   public async Task<Result> DeleteCharging(Guid ChargingId)
   {
@@ -16,8 +16,8 @@ public class DeleteChargingService(IRepository<Charging> _repository, IMediator 
     if (aggregateToDelete == null) return Result.NotFound();
 
     await _repository.DeleteAsync(aggregateToDelete);
-    var domainEvent = new ChargingDeletedEvent(ChargingId);
-    await _mediator.Publish(domainEvent);
+    // var domainEvent = new ChargingDeletedEvent(ChargingId);
+    // await _mediator.Publish(domainEvent);
     return Result.Success();
   }
 }

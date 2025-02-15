@@ -11,11 +11,11 @@ internal class HolidayDeletedHandler(ILogger<HolidayDeletedHandler> logger, IEma
 {
   public async Task Handle(HolidayDeletedEvent domainEvent, CancellationToken cancellationToken)
   {
-    logger.LogInformation("Handling Contributed Deleted event for {HolidayId}", domainEvent.HolidayId);
+    logger.LogInformation("Handling Contributed Deleted event for {HolidayId} - {HolidayName}", domainEvent.HolidayId, domainEvent.Name);
 
-    await emailSender.SendEmailAsync("to@test.com",
+    await emailSender.SendEmailAsync("adrian.llamido@gmail.com",
                                      "from@test.com",
                                      "Holiday Deleted",
-                                     $"Holiday with id {domainEvent.HolidayId} was deleted.");
+                                     $"Holiday with id {domainEvent.HolidayId} - {domainEvent.Name} was deleted.");
   }
 }
