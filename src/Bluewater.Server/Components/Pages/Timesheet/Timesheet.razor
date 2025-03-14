@@ -4,6 +4,7 @@
 @using Bluewater.Server.Global
 @using Bluewater.UseCases.Timesheets
 @using Bluewater.UseCases.Timesheets.Create
+@using Bluewater.UseCases.Timesheets.Delete
 @using Bluewater.UseCases.Timesheets.List
 @using Bluewater.UseCases.Timesheets.Update
 @using MediatR
@@ -20,9 +21,9 @@
 <FluentGrid>
     <FluentGridItem xs="4">
         <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center" Orientation="Orientation.Horizontal">            
-            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadTimesheetAsync(searchDate = searchDate.AddDays(-15)))"/>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await ChangePayrollPeriod(-1))"/>
             <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
-            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadTimesheetAsync(searchDate = searchDate.AddDays(15)))"/>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await ChangePayrollPeriod(1))"/>
         </FluentStack>
     </FluentGridItem>
     <FluentGridItem xs="8">
@@ -65,6 +66,7 @@
         <FluentTimePicker Value="@context!.TimeOut2" ValueChanged="@(e => context!.TimeOut2 = context!.EntryDate?.ToDateTime(ToTimeOnly(e)))" Style="width: 100px"/> *@
     </TemplateColumn>    
     <TemplateColumn Title="Actions" Align="@Align.End">
+        <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteTimesheetAsync(context))" />
         <FluentButton aria-label="Save item" IconEnd="@(new Icons.Regular.Size16.Save())" OnClick="@(async() => await SaveTimesheetAsync(context))"/>
     </TemplateColumn>    
 </FluentDataGrid>
@@ -87,22 +89,22 @@
     private IQueryable<TimesheetInfo> Timesheets = default!;
     string nameFilter = string.Empty;
 
-
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
-        await Task.Delay(10);
         var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(searchDate));
         startDate = _startDate;
         endDate = _endDate;
+
+        base.OnInitialized();
     }
 
     async Task LoadTimesheetAsync(DateTime date)
     {
-        if(string.IsNullOrEmpty(nameFilter)) return;
-
         var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(date));
         startDate = _startDate;
         endDate = _endDate;
+
+        if(string.IsNullOrEmpty(nameFilter)) return;
 
         using (var scope = ServiceScopeFactory.CreateScope())
         {
@@ -172,6 +174,26 @@
         }
     }
 
+    private async Task DeleteTimesheetAsync(TimesheetInfo context)
+    {
+        var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to delete daily time record for {context.EntryDate?.ToString("MMMM - dd, dddd")}?", "Yes", "No", "Save");
+        var conf = await dialog.Result;
+        if (conf.Cancelled) return;
+
+        if(context.TimesheetId != Guid.Empty)
+        {
+            // delete existing timesheet
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteTimesheetCommand(context.TimesheetId));
+
+                if (result.IsSuccess)
+                    await LoadTimesheetAsync(searchDate);
+            }
+        }
+    }
+
     private DateTime? GetDateValue(DateTime? item)
     {
         @* return DateOnly.FromDateTime(item.Value ?? DateTime.Now).ToDateTime(TimeOnly.MinValue); *@
@@ -214,7 +236,8 @@
     {
         if (newTime == null)
             item = null;
-        else if (item.HasValue) {
+        else if (item.HasValue)
+        {
             var dt = item.Value;
             item = new DateTime(dt.Year, dt.Month, dt.Day,
                 newTime.Value.TimeOfDay.Hours, newTime.Value.TimeOfDay.Minutes, newTime.Value.TimeOfDay.Seconds);
@@ -227,5 +250,23 @@
         }
 
         StateHasChanged();
-    }                
+    }
+
+    private async Task ChangePayrollPeriod(int direction)
+    {
+        // Convert the current searchDate (a DateTime) to DateOnly.
+        var currentDateOnly = new DateOnly(searchDate.Year, searchDate.Month, searchDate.Day);
+        var currentPeriod = GlobalService.GetStartDateAndEndDateOfPayslip(currentDateOnly);
+
+        // Use direction: -1 for previous, +1 for next.
+        DateOnly newPeriodDate = direction < 0
+            ? currentPeriod.startDate.AddDays(-1)   // previous period: one day before the current period starts
+            : currentPeriod.endDate.AddDays(1);       // next period: one day after the current period ends
+
+        // Update the searchDate from the new payroll period anchor date.
+        searchDate = new DateTime(newPeriodDate.Year, newPeriodDate.Month, newPeriodDate.Day);
+
+        // Load the payroll data for the new period.
+        await LoadTimesheetAsync(searchDate);
+    }
 }

@@ -82,7 +82,7 @@ public static class InfrastructureServiceExtensions
     // Employee
     services.AddScoped<IDeleteEmployeeService, DeleteEmployeeService>();
 
-    //services.AddScoped<IEmailSender, FakeEmailSender>();
+    services.AddScoped<IEmailSender, FakeEmailSender>();
 
     services.Configure<MailserverConfiguration>(config.GetSection("Mailserver"));
 

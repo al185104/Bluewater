@@ -30,9 +30,9 @@
     <FluentGridItem xs="6">
         <h3>Payroll</h3>
         <FluentStack HorizontalGap="20" Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
-            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate = searchDate.AddDays(-15), changedDate: true))"/>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await ChangePayrollPeriod(-1))"/>
             <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
-            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadPayrollAsync(searchDate = searchDate.AddDays(15), changedDate: true))"/>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await ChangePayrollPeriod(1))"/>
         </FluentStack>
     </FluentGridItem>
     <FluentGridItem xs="6">
@@ -378,5 +378,23 @@
         catch (Exception) {
             throw;
         }
+    }
+
+    private async Task ChangePayrollPeriod(int direction)
+    {
+        // Convert the current searchDate (a DateTime) to DateOnly.
+        var currentDateOnly = new DateOnly(searchDate.Year, searchDate.Month, searchDate.Day);
+        var currentPeriod = GlobalService.GetStartDateAndEndDateOfPayslip(currentDateOnly);
+
+        // Use direction: -1 for previous, +1 for next.
+        DateOnly newPeriodDate = direction < 0
+            ? currentPeriod.startDate.AddDays(-1)   // previous period: one day before the current period starts
+            : currentPeriod.endDate.AddDays(1);       // next period: one day after the current period ends
+
+        // Update the searchDate from the new payroll period anchor date.
+        searchDate = new DateTime(newPeriodDate.Year, newPeriodDate.Month, newPeriodDate.Day);
+
+        // Load the payroll data for the new period.
+        await LoadPayrollAsync(searchDate, true);
     }
 }

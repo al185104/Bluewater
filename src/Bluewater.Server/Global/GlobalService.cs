@@ -1,4 +1,4 @@
-using Bluewater.UseCases.Positions;
+﻿using Bluewater.UseCases.Positions;
 using Bluewater.UseCases.Positions.List;
 using Bluewater.UseCases.Sections;
 using Bluewater.UseCases.Sections.List;
@@ -263,46 +263,85 @@ public class GlobalService : IGlobalService
             throw;
         }
     }
-    #endregion
+  #endregion
 
-    public (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfPayslip(DateOnly date)
+  //public (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfPayslip(DateOnly date)
+  //{
+  //    DateOnly start;
+  //    DateOnly end;
+
+  //    if (date.Day >= 11 && date.Day <= 25)
+  //    {
+  //        start = new DateOnly(date.Year, date.Month, 11);
+  //        end = new DateOnly(date.Year, date.Month, 25);
+  //    }
+  //    else if (date.Day < 11)
+  //    {
+  //        if (date.Month == 1)
+  //        {
+  //            start = new DateOnly(date.Year - 1, 12, 26);
+  //            end = new DateOnly(date.Year, date.Month, 10);
+  //        }
+  //        else
+  //        {
+  //            start = new DateOnly(date.Year, date.Month - 1, 26);
+  //            end = new DateOnly(date.Year, date.Month, 10);
+  //        }
+  //    }
+  //    else
+  //    {
+  //        start = new DateOnly(date.Year, date.Month, 26);
+  //        //end = new DateOnly(date.Year, date.Month + 1, 10);
+  //        end = new DateOnly(
+  //            date.Year + (date.Month == 12 ? 1 : 0), // Increment year if it's December
+  //            date.Month == 12 ? 1 : date.Month + 1, // Reset to January if it's December, otherwise increment the month
+  //            10 // Day of the month
+  //        );
+  //    }
+
+  //    return (start, end);
+  //}
+
+
+  public (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfPayslip(DateOnly date)
+  {
+    // Payroll period from the 11th to 25th of the month.
+    if (date.Day >= 11 && date.Day <= 25)
     {
-        DateOnly start;
-        DateOnly end;
-
-        if (date.Day >= 11 && date.Day <= 25)
-        {
-            start = new DateOnly(date.Year, date.Month, 11);
-            end = new DateOnly(date.Year, date.Month, 25);
-        }
-        else if (date.Day < 11)
-        {
-            if (date.Month == 1)
-            {
-                start = new DateOnly(date.Year - 1, 12, 26);
-                end = new DateOnly(date.Year, date.Month, 10);
-            }
-            else
-            {
-                start = new DateOnly(date.Year, date.Month - 1, 26);
-                end = new DateOnly(date.Year, date.Month, 10);
-            }
-        }
-        else
-        {
-            start = new DateOnly(date.Year, date.Month, 26);
-            //end = new DateOnly(date.Year, date.Month + 1, 10);
-            end = new DateOnly(
-                date.Year + (date.Month == 12 ? 1 : 0), // Increment year if it's December
-                date.Month == 12 ? 1 : date.Month + 1, // Reset to January if it's December, otherwise increment the month
-                10 // Day of the month
-            );
-        }
-
-        return (start, end);
+      return (new DateOnly(date.Year, date.Month, 11), new DateOnly(date.Year, date.Month, 25));
     }
+    else
+    {
+      // For dates that do not fall between the 11th and 25th,
+      // the payroll period spans two months: from the 26th to the 10th.
+      DateOnly startDate, endDate;
 
-    public (decimal dailyRate, decimal hourlyRate) GetRatesByEmployeeType(decimal basicRate, bool isRegular)
+      if (date.Day >= 26)
+      {
+        // When the given date is 26 or later,
+        // the period starts on the 26th of the current month
+        // and ends on the 10th of the next month.
+        startDate = new DateOnly(date.Year, date.Month, 26);
+        DateOnly nextMonth = date.AddMonths(1);
+        endDate = new DateOnly(nextMonth.Year, nextMonth.Month, 10);
+      }
+      else // date.Day < 11
+      {
+        // When the given date is before the 11th,
+        // the payroll period is considered to have started on the 26th of the previous month
+        // and ends on the 10th of the current month.
+        DateOnly previousMonth = date.AddMonths(-1);
+        startDate = new DateOnly(previousMonth.Year, previousMonth.Month, 26);
+        endDate = new DateOnly(date.Year, date.Month, 10);
+      }
+
+      return (startDate, endDate);
+    }
+  }
+
+
+
+  public (decimal dailyRate, decimal hourlyRate) GetRatesByEmployeeType(decimal basicRate, bool isRegular)
     {
         decimal dailyRate = 0;
         if (!isRegular)

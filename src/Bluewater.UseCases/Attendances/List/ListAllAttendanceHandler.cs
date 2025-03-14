@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Employees.List;
@@ -17,7 +17,8 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
       using (var scope = serviceScopeFactory.CreateScope())
       {
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var ret = await mediator.Send(new ListEmployeeQuery(null, null));
+        //var ret = await mediator.Send(new ListEmployeeQuery(null, null));
+        var ret = await mediator.Send(new ListEmployeeByChargingQuery(null, null, request.charging));
         if (ret.IsSuccess)
             employees = ret.Value.ToList();
             //employees = ret.Value.Where(i => !string.IsNullOrEmpty(i.Charging) && i.Charging.Equals(request.charging, StringComparison.InvariantCultureIgnoreCase)).ToList();

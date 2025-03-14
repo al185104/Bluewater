@@ -17,7 +17,6 @@
     <Folder Include="DependentAggregate\Handlers\" />
     <Folder Include="EmployeeAggregate\Events\" />
     <Folder Include="EmployeeAggregate\Handlers\" />
-    <Folder Include="EmployeeAggregate\Specifications\" />
     <Folder Include="EmployeeTypeAggregate\Events\" />
     <Folder Include="EmployeeTypeAggregate\Handlers\" />
     <Folder Include="Forms\FailureInOutAggregate\Events\" />

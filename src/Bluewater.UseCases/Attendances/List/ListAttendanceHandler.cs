@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.AttendanceAggregate;
 using Bluewater.Core.AttendanceAggregate.Specifications;
@@ -74,12 +74,14 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
           attendance.Shift = new Shift(schedule?.Shift.Name ?? string.Empty, schedule?.Shift.ShiftStartTime, schedule?.Shift.ShiftBreakTime, schedule?.Shift.ShiftBreakEndTime, schedule?.Shift.ShiftEndTime, schedule?.Shift.BreakHours);
         if(timesheet != null)
           attendance.Timesheet = new Timesheet(Guid.Empty, timesheet.TimeIn1, timesheet.TimeOut1, timesheet.TimeIn2, timesheet.TimeOut2, date);
-        
+
+        //attendance.CalculateWorkHours();
         attendance.CalculateWorkHours();
 
         results.Add(new AttendanceDTO(Guid.Empty, emp.Id, schedule?.ShiftId, timesheet?.Id, null, date, attendance.WorkHrs, attendance.LateHrs, attendance.UnderHrs, attendance.OverbreakHrs, attendance.NightShiftHours, isLocked: false, schedule?.Shift, timesheet));
       }
       else{
+        //attendance.CalculateWorkHours();
         attendance.CalculateWorkHours();
 
         results.Add(new AttendanceDTO(attendance.Id, emp.Id, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, attendance.WorkHrs, attendance.LateHrs, attendance.UnderHrs, attendance.OverbreakHrs, attendance.NightShiftHours, attendance.IsLocked, 

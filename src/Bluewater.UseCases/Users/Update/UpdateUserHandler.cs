@@ -1,7 +1,6 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.UserAggregate;
-using Bluewater.Core.UserAggregate.Enum;
 
 namespace Bluewater.UseCases.Users.Update;
 public class UpdateUserHandler(IRepository<AppUser> _repository) : ICommandHandler<UpdateUserCommand, Result<UserDTO>>
