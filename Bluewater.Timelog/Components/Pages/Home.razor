@@ -112,7 +112,17 @@ style="position: absolute; left: -9999px;"
     </div>
 }
 
+@if (isBusy == true)
+{
+    <div class="overlay">
+        <div class="progress-ring-container">
+            <div class="progress-ring"></div>
+        </div>
+    </div>
+}
+
 @code {
+    private bool isBusy = false;
     private ElementReference barcodeInputRef;
     private string barcodeBuffer = "";
     private List<EmployeeRecord> employeeRecords = new List<EmployeeRecord>();
@@ -168,9 +178,10 @@ style="position: absolute; left: -9999px;"
     {
         try
         {
-            await Task.Delay(100);
             if (e.Key == "Enter")
             {
+                isBusy = true;
+                await Task.Delay(100);
                 using (var scope = ServiceScopeFactory.CreateScope())
                 {
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -215,6 +226,10 @@ style="position: absolute; left: -9999px;"
         catch (Exception ex)
         {
             ShowError($"Failed to process scan: {ex.Message}");
+        }
+        finally
+        {
+            isBusy = false;
         }
     }
 
@@ -701,5 +716,46 @@ style="position: absolute; left: -9999px;"
         font-size: 1.2rem;
     }
 
+    }
+
+    .progress-ring-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .progress-ring {
+        width: 48px;
+        height: 48px;
+        border: 5px solid rgba(0, 0, 0, 0.1);
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        0%
+    {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.7);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 </style>

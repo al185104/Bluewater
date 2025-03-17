@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.ScheduleAggregate;
 using Bluewater.Core.ScheduleAggregate.Specifications;
@@ -20,7 +20,7 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         var ret = await mediator.Send(new ListEmployeeQuery(null, null));
         if (ret.IsSuccess)
-            employees = ret.Value.ToList();
+            employees = ret.Value.Where(i => i.Charging != null && i.Charging.Equals(request.chargingName, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }
 
     List<EmployeeScheduleDTO> results = new();

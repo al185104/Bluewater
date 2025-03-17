@@ -4,6 +4,7 @@
 @using Bluewater.Server.Helpers
 @using Bluewater.Server.Components.Pages.Schedule
 @using Bluewater.Server.Global
+@using Bluewater.UseCases.Chargings
 @using Bluewater.UseCases.Schedules
 @using Bluewater.UseCases.Schedules.Create
 @using Bluewater.UseCases.Schedules.Delete
@@ -25,13 +26,13 @@
 
 
 <FluentInputFile @ref="@scheduleFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
-    AnchorId="ScheduleImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
-    OnProgressChange="@(e =>
+AnchorId="ScheduleImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
+OnProgressChange="@(e =>
         {
             progressPercent = e.ProgressPercent; 
             progressTitle = e.ProgressTitle;
         })"
-    OnCompleted="@ImportSchedulesAsync" />
+OnCompleted="@ImportSchedulesAsync" />
 
 <div style="display: flex; justify-content: space-between; align-items: center;">
     <FluentStack HorizontalGap="20" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
@@ -40,14 +41,21 @@
         <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await LoadScheduleAsync(searchDate = searchDate.AddDays(7)))"/>
     </FluentStack>
     <div>
-        @* <FluentButton Id="ScheduleImportButton" IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-right: 8px;">Import</FluentButton> *@
+        <FluentSelect TOption="ChargingDTO"
+        Label="Select charging"
+        Items="@Chargings"
+        Id="charging-listbox"
+        Placeholder="Make a selection..."
+        OptionValue="@(p => p.Id.ToString())"
+        OptionText="@(p => p.Name)"
+        SelectedOptionChanged="(OnSelectedOptionChanged)" />
     </div>
 </div>
 
 
 <FluentDataGrid Items="@FilteredItems" Pagination="@pagination"
-    Style="height: 550px;overflow:auto;"
-    GridTemplateColumns="0.6fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.3fr">
+Style="height: 550px;overflow:auto;"
+GridTemplateColumns="0.6fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.3fr">
 
     <PropertyColumn Title="Barcode" Property="@(p => p.Barcode)" Sortable="true">
         <ColumnOptions>
@@ -103,6 +111,8 @@
     private List<ShiftDTO> shifts = new();
     string barcodeFilter = string.Empty;
     string nameFilter = string.Empty;
+    private IQueryable<ChargingDTO> Chargings { get; set; } = default!;
+    private ChargingDTO? selectCharging = default!;
 
     int? progressPercent;
     string? progressTitle;
@@ -131,8 +141,13 @@
         {
             if(!_isInitialized) {
                 isBusy = true;
-                await LoadScheduleAsync(searchDate);
+                await Task.Delay(10);
+                var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfWeekByDate(searchDate);
+                startDate = _startDate;
+                endDate = _endDate;
+                // await LoadScheduleAsync(searchDate);
                 shifts = GlobalService.Shifts.ToList() ?? new List<ShiftDTO>();
+                Chargings = GlobalService.Chargings.ToList().AsQueryable();
                 StateHasChanged();
                 _isInitialized = true;
             }
@@ -151,15 +166,19 @@
     {
         try 
         {
-            isBusy = true;
-            await Task.Delay(10);
             var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfWeekByDate(date);
             startDate = _startDate;
             endDate = _endDate;
+
+            if (selectCharging == null || string.IsNullOrEmpty(selectCharging?.Name)) return;
+
+            isBusy = true;
+            await Task.Delay(10);
+
             using (var scope = ServiceScopeFactory.CreateScope())
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new ListScheduleQuery(null, null, _startDate, _endDate));
+                var result = await mediator.Send(new ListScheduleQuery(null, null, selectCharging.Name, _startDate, _endDate));
                 if (result.IsSuccess)
                     EmployeeSchedules = result.Value.AsQueryable();
             }
@@ -319,7 +338,7 @@
             }
         }
         #endregion
-    
+
         #region MONDAY
         // evaluate monday schedule
         // if there's an existing schedule, check if it's default or not
@@ -441,14 +460,14 @@
                 }
             }
             else { // if schedule id is empty, then create a new schedule
-            if(e.WednesdayShift!.Shift != null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.WednesdayShift!.Shift!.Id, e.WednesdayShift!.ScheduleDate, IsDefault: false));
+                if(e.WednesdayShift!.Shift != null) {
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.WednesdayShift!.Shift!.Id, e.WednesdayShift!.ScheduleDate, IsDefault: false));
+                    }
                 }
             }
-        }
         }
         #endregion
 
@@ -529,14 +548,14 @@
                 }
             }
             else { // if schedule id is empty, then create a new schedule
-            if(e.FridayShift!.Shift != null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.FridayShift!.Shift!.Id, e.FridayShift!.ScheduleDate, IsDefault: false));
+                if(e.FridayShift!.Shift != null) {
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.FridayShift!.Shift!.Id, e.FridayShift!.ScheduleDate, IsDefault: false));
+                    }
                 }
             }
-        }
         }
         #endregion
 
@@ -573,14 +592,14 @@
                 }
             }
             else { // if schedule id is empty, then create a new schedule
-            if(e.SaturdayShift!.Shift != null) {
-                using (var scope = ServiceScopeFactory.CreateScope())
-                {
-                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.SaturdayShift!.Shift!.Id, e.SaturdayShift!.ScheduleDate, IsDefault: false));
+                if(e.SaturdayShift!.Shift != null) {
+                    using (var scope = ServiceScopeFactory.CreateScope())
+                    {
+                        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                        var ret = await mediator.Send(new CreateScheduleCommand(e.EmployeeId, e.SaturdayShift!.Shift!.Id, e.SaturdayShift!.ScheduleDate, IsDefault: false));
+                    }
                 }
             }
-        }
         }
         #endregion
     }
@@ -642,5 +661,11 @@
         finally {
             isBusy = false;
         }
-    }        
+    }    
+
+    private async Task OnSelectedOptionChanged(ChargingDTO value)
+    {
+        selectCharging = value;
+        await LoadScheduleAsync(searchDate);
+    }
 }

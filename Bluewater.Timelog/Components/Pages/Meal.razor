@@ -1,0 +1,864 @@
+﻿@page "/meals"
+@rendermode @(new InteractiveServerRenderMode(prerender:false))
+@using System.Timers
+@using Bluewater.UseCases.MealCredits.Create
+@using Bluewater.UseCases.Timesheets.Create
+@using MediatR
+@implements IDisposable
+
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IMediator Mediator
+
+<input type="text"
+style="position: absolute; left: -9999px;"
+@ref="barcodeInputRef"
+@onkeydown="HandleKeyDown"
+@onblur="HandleBlur" />
+
+<div class="hero-container">
+    <!-- Hero Header Section -->
+    <div class="hero-header">
+        <div class="company-branding">
+            <i class="oi oi-timer hero-icon"></i>
+            <h1>Bluewater Daily Time Record</h1>
+        </div>
+        <div class="digital-clock">@currentTime</div>
+    </div>
+
+    <!-- Main Hero Content -->
+    <div class="hero-content">
+        <!-- Swapped positions of the panels -->
+        <div class="records-table">
+            <div class="table-header">
+                <h3>Recent Activity</h3>
+                <span class="record-count">@employeeRecords.Count records</span>
+            </div>
+            <div class="table-content">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Employee</th>
+                            <th>Time</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var record in employeeRecords)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="employee-info">
+                                        <div class="avatar">
+                                            @record.EmployeeName.Substring(0, 1)
+                                        </div>
+                                        <span>@record.EmployeeName</span>
+                                    </div>
+                                </td>
+                                <td>@record.RecordTime.ToString("hh:mm:ss tt")</td>
+                                <td>
+                                    <span class="status-badge @(record.IsCheckIn ? "check-in" : "check-out")">
+                                        <i class="oi @(record.IsCheckIn ? "oi-account-login" : "oi-account-logout")"></i>
+                                        @(record.IsCheckIn ? "Checked In" : "Checked Out")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="status-card">
+            <div class="status-header">
+                <h2>Employee Time Tracking</h2>
+            </div>
+
+            <!-- Larger mode buttons placed prominently -->
+            <div class="mode-selector">
+                <button class="mode-button @(isCheckIn ? "check-in active" : "check-in")" @onclick="() => SetMode(true)">
+                    <i class="oi oi-account-login"></i>
+                    <span>Check In Canteen</span>
+                </button>
+                <button class="mode-button @(isCheckIn ? "check-out" : "check-out active")" @onclick="() => SetMode(false)">
+                    <i class="oi oi-account-logout"></i>
+                    <span>Check Out Canteen</span>
+                </button>
+            </div>
+
+            <div class="scan-instruction">
+                <div class="scan-animation">
+                    <i class="oi oi-barcode"></i>
+                </div>
+                <p>Please scan your ID badge to @(isCheckIn ? "check in" : "check out")</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (showError)
+{
+    <div class="error-modal">
+        <div class="error-content">
+            <div class="error-header">
+                <i class="oi oi-warning"></i>
+                <h3>Error Occurred</h3>
+            </div>
+            <div class="error-message">
+                <p>@errorMessage</p>
+            </div>
+            <div class="error-actions">
+                <button @onclick="CloseError">Dismiss</button>
+            </div>
+        </div>
+    </div>
+}
+
+
+@if (isModalOpen)
+{
+    <div class="modal-backdrop" @onclick="CloseModal">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h2>Select a Meal Number</h2>
+            </div>
+            <div class="modal-body">
+                <div class="button-container">
+                    <button class="huge-button" @onclick="(async() => await SelectNumber(1))">1</button>
+                    <button class="huge-button" @onclick="(async() => await SelectNumber(2))">2</button>
+                    <button class="huge-button" @onclick="(async() => await SelectNumber(3))">3</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (isBusy == true)
+{
+    <div class="overlay">
+        <div class="progress-ring-container">
+            <div class="progress-ring"></div>
+        </div>
+    </div>
+}
+
+@code {
+    private ElementReference barcodeInputRef;
+    private string barcodeBuffer = "";
+    private List<EmployeeRecord> employeeRecords = new List<EmployeeRecord>();
+    private bool isCheckIn = true;
+    private string currentTime = DateTime.Now.ToString("hh:mm:ss tt");
+    private Timer timer = new();
+    private bool showError = false;
+    private string errorMessage = "";
+    private Random random = new Random();
+    private bool isModalOpen = false;
+    private int? selectedNumber = null;
+    private bool isBusy = false;
+
+    private void OpenModal()
+    {
+        isModalOpen = true;
+    }
+
+    private void CloseModal()
+    {
+        isModalOpen = false;
+    }
+
+    private async Task SelectNumber(int number)
+    {
+
+        try
+        {
+            isBusy = true;
+            await Task.Delay(100);
+            selectedNumber = number;
+
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                var _now = DateTime.Now;
+                var _dateOnly = DateOnly.FromDateTime(_now);
+                var result = await mediator.Send(new CreateMealCreditCommand(barcodeBuffer, DateOnly.FromDateTime(DateTime.Now), selectedNumber));
+                if (result.IsSuccess)
+                    barcodeBuffer = "";
+            }
+        }
+        finally
+        {
+            isBusy = false;
+            CloseModal();
+        }
+    }
+
+
+    protected override void OnInitialized()
+    {
+        // Start the clock timer
+        timer = new Timer(1000);
+        timer.Elapsed += UpdateClock;
+        timer.AutoReset = true;
+        timer.Enabled = true;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await barcodeInputRef.FocusAsync();
+        }
+    }
+
+    private void UpdateClock(object? sender, ElapsedEventArgs e)
+    {
+        currentTime = DateTime.Now.ToString("hh:mm:ss tt");
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void SetMode(bool checkInMode)
+    {
+        isCheckIn = checkInMode;
+        StateHasChanged();
+    }
+
+    // Method for demo button click simulation
+    private async Task SimulateBarcodeScanned()
+    {
+        await BarcodeScannedAsync($"EMPID-{random.Next(1000, 9999)}");
+    }
+
+    // If the hidden input ever loses focus, refocus it
+    private async Task HandleBlur()
+    {
+        await barcodeInputRef.FocusAsync();
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        try
+        {
+            if (e.Key == "Enter")
+            {
+                isBusy = true;
+                await Task.Delay(10);
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                    var _now = DateTime.Now;
+                    var _dateOnly = DateOnly.FromDateTime(_now);
+                    var result = await mediator.Send(new CreateTimesheetFromTimeLogCommand(barcodeBuffer, _now, _dateOnly, isCheckIn == true ? 1 : 2));
+                    if (result.IsSuccess)
+                    {
+                        // Create new record
+                        var newRecord = new EmployeeRecord
+                            {
+                                EmployeeName = result.Value,
+                                RecordTime = DateTime.Now,
+                                IsCheckIn = isCheckIn
+                            };
+
+                        // Add to the beginning of the list
+                        employeeRecords.Insert(0, newRecord);
+
+                        // If more than 20 records, remove the oldest
+                        if (employeeRecords.Count > 20)
+                        {
+                            employeeRecords.RemoveAt(employeeRecords.Count - 1);
+                        }
+
+                        isBusy = false; 
+                        await InvokeAsync(StateHasChanged);
+
+                        OpenModal();
+                    }
+                }
+
+                // Process the full barcode
+                //await BarcodeScannedAsync(barcodeBuffer);
+                // Reset the buffer for the next scan
+                //barcodeBuffer = "";
+            }
+            else if (e.Key.Length == 1)
+            {
+                // Append normal characters to the buffer
+                barcodeBuffer += e.Key;
+            }
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Failed to process scan: {ex.Message}");
+        }
+    }
+
+    private async Task BarcodeScannedAsync(string barcode)
+    {
+        try
+        {
+            // This would be where the actual barcode processing happens
+            // For demo purposes, we're creating a random employee
+
+            string[] names = {
+                "John Smith", "Emily Johnson", "Michael Wong", "Sarah Davis",
+                "Robert Chen", "Jessica Taylor", "David Rodriguez", "Jennifer Martinez",
+                "William Kim", "Lisa Anderson", "James Wilson", "Patricia Moore",
+                "Daniel Jackson", "Nancy Garcia", "Thomas Lee", "Mary Brown"
+    };
+
+            string employeeName = names[random.Next(names.Length)];
+
+            // Create new record
+            var newRecord = new EmployeeRecord
+                {
+                    EmployeeName = employeeName,
+                    RecordTime = DateTime.Now,
+                    IsCheckIn = isCheckIn
+                };
+
+            // Add to the beginning of the list
+            employeeRecords.Insert(0, newRecord);
+
+            // If more than 20 records, remove the oldest
+            if (employeeRecords.Count > 20)
+            {
+                employeeRecords.RemoveAt(employeeRecords.Count - 1);
+            }
+
+            await InvokeAsync(StateHasChanged);
+        }
+        catch (Exception ex)
+        {
+            ShowError($"Failed to process scan: {ex.Message}");
+        }
+    }
+
+    private void ShowError(string message)
+    {
+        errorMessage = message;
+        showError = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void CloseError()
+    {
+        showError = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+
+    // Model class for employee records
+    private class EmployeeRecord
+    {
+        public string EmployeeName { get; set; } = string.Empty;
+        public DateTime RecordTime { get; set; }
+        public bool IsCheckIn { get; set; }
+    }
+}
+
+<style>
+    /* Base styles and variables */
+    :root {
+        --primary-color: #4361ee;
+        --primary-light: #4895ef;
+        --success-color: #4cc9f0;
+        --success-bg: rgba(76, 201, 240, 0.15);
+        --danger-color: #f72585;
+        --danger-bg: rgba(247, 37, 133, 0.15);
+        --dark-color: #1eeeee;
+        --light-color: #f8f9fa;
+        --gray-light: #e9ecef;
+        --gray-dark: #495057;
+        --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        --border-radius: 12px;
+    }
+
+    /* Reset and global styles */
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    .hero-container {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+        color: #1a1a1a;
+    }
+
+    /* Hero Header Section */
+    .hero-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        background-color: white;
+        box-shadow: var(--shadow);
+        z-index: 10;
+    }
+
+    .company-branding {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .hero-icon {
+        font-size: 1.8rem;
+        color: var(--primary-color);
+    }
+
+    .company-branding h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--dark-color);
+        margin: 0;
+    }
+
+    /* Larger digital clock */
+    .digital-clock {
+        font-size: 2.5rem;
+        font-weight: 600;
+        padding: 0.5rem 1.5rem;
+        background-color: var(--dark-color);
+        color: white;
+        border-radius: var(--border-radius);
+        letter-spacing: 1px;
+        box-shadow: var(--shadow);
+    }
+
+    /* Hero Content */
+    .hero-content {
+        display: flex;
+        flex: 1;
+        padding: 1.5rem;
+        gap: 1.5rem;
+        overflow: hidden;
+    }
+
+    /* Status Card */
+    .status-card {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .status-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--gray-light);
+    }
+
+        .status-header h2 {
+            font-size: 1.6rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            text-align: center;
+        }
+
+    /* Larger mode buttons */
+    .mode-selector {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1.5rem;
+    }
+
+    .mode-button {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.8rem;
+        padding: 1.2rem 1.5rem;
+        border: none;
+        border-radius: var(--border-radius);
+        font-size: 1.4rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: var(--gray-light);
+        color: var(--gray-dark);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+        .mode-button i {
+            font-size: 1.6rem;
+        }
+
+        .mode-button.check-in.active {
+            background-color: var(--success-color);
+            color: white;
+            box-shadow: 0 4px 8px rgba(76, 201, 240, 0.3);
+        }
+
+        .mode-button.check-out.active {
+            background-color: var(--danger-color);
+            color: white;
+            box-shadow: 0 4px 8px rgba(247, 37, 133, 0.3);
+        }
+
+    .scan-instruction {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        gap: 1.5rem;
+    }
+
+    .scan-animation {
+        width: 120px;
+        height: 120px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background-color: var(--primary-light);
+        color: white;
+        font-size: 4rem;
+        animation: pulse 2s infinite;
+        cursor: pointer; /* Make it look clickable */
+    }
+
+    @@keyframes pulse {
+        0% {
+            box-shadow: 0 0 0 0 rgba(67, 97, 238, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 0 15px rgba(67, 97, 238, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(67, 97, 238, 0);
+        }
+    }
+
+    .scan-instruction p {
+        font-size: 1.4rem;
+        font-weight: 500;
+        text-align: center;
+        color: var(--gray-dark);
+    }
+
+    /* Records Table */
+    .records-table {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        background-color: white;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid var(--gray-light);
+    }
+
+        .table-header h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            margin: 0;
+        }
+
+    .record-count {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--gray-dark);
+        background-color: var(--gray-light);
+        padding: 0.3rem 0.8rem;
+        border-radius: 1rem;
+    }
+
+    .table-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.5rem;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    thead th {
+        padding: 0.8rem 1rem;
+        text-align: left;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--gray-dark);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid var(--gray-light);
+    }
+
+    tbody tr {
+        border-bottom: 1px solid var(--gray-light);
+        transition: background-color 0.2s ease;
+    }
+
+        tbody tr:hover {
+            background-color: rgba(240, 242, 245, 0.7);
+        }
+
+    tbody td {
+        padding: 1rem;
+        font-size: 1rem;
+        color: #333;
+    }
+
+    .employee-info {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+    }
+
+    .avatar {
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        border-radius: 50%;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.8rem;
+        border-radius: 2rem;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+        .status-badge.check-in {
+            background-color: var(--success-bg);
+            color: var(--success-color);
+        }
+
+        .status-badge.check-out {
+            background-color: var(--danger-bg);
+            color: var(--danger-color);
+        }
+
+    /* Error Modal */
+    .error-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .error-content {
+        width: 90%;
+        max-width: 500px;
+        background-color: white;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+        animation: slide-up 0.3s ease-out;
+    }
+
+    @@keyframes slide-up {
+        from {
+            transform: translateY(30px);
+            opacity: 0;
+        }
+
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .error-header {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 1.2rem;
+        background-color: #ffebee;
+        color: var(--danger-color);
+    }
+
+        .error-header i {
+            font-size: 1.5rem;
+        }
+
+        .error-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+    .error-message {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--gray-light);
+    }
+
+        .error-message p {
+            margin: 0;
+            font-size: 1rem;
+            line-height: 1.5;
+            color: var(--gray-dark);
+        }
+
+    .error-actions {
+        padding: 1rem;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+        .error-actions button {
+            padding: 0.6rem 1.2rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+            .error-actions button:hover {
+                background-color: var(--dark-color);
+            }
+
+    /* Responsive adjustments for 10" screen */
+    @@media (max-width: 1024px) {
+        .hero-content {
+            flex-direction: column;
+        }
+
+        .scan-animation {
+            width: 100px;
+            height: 100px;
+            font-size: 3rem;
+        }
+
+        .scan-instruction p {
+            font-size: 1.2rem;
+        }
+    }
+
+
+    .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .modal-content {
+        background-color: white;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+        padding: 1rem;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .huge-button {
+        font-size: 3rem;
+        width: 100%;
+        height: 120px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .huge-button:hover {
+        background-color: #0069d9;
+    }
+
+    .progress-ring-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+    }
+
+    .progress-ring {
+        width: 48px;
+        height: 48px;
+        border: 5px solid rgba(0, 0, 0, 0.1);
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @@keyframes spin {
+        0%
+    {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.7);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
