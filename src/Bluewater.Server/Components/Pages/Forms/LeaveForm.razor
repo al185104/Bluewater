@@ -1,7 +1,13 @@
 @page "/leave"
 @rendermode InteractiveServer
 @attribute [Authorize]
+@using Bluewater.Core.Forms.Enum
 @using Bluewater.UseCases.LeaveCredits
+@using Bluewater.UseCases.Leaves.Create
+@using Bluewater.UseCases.Leaves.Delete
+@using Bluewater.UseCases.Leaves.List
+@using Bluewater.UseCases.Leaves.Update
+@using Bluewater.UserCases.Forms.Enum
 @using MediatR
 @using Bluewater.Server.Global
 @using Microsoft.FluentUI.AspNetCore.Components.Extensions
@@ -24,7 +30,7 @@
 
 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Bottom" HorizontalGap="10">
     <div>
-        <FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Label="Search employee" Placeholder="Name or Barcode..." Style="width: 250px;"/>
+        <FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Label="Search employee" Required Placeholder="Name or Barcode..." Style="width: 250px;"/>
     </div>
     <div>
         <FluentDatePicker Label="Start Date" Value="@InputLeave!.StartDate" ValueChanged="@(e => InputLeave!.StartDate = e)"/>
@@ -37,7 +43,8 @@
             Label="Leave Type"
             Items="@LeaveCredits"
             OptionText="@(o => o.Description)"
-            Style="width: 100%">
+            Style="width: 100%"
+            @onchange="SelectedLeaveCreditOptionChanged">
         </FluentSelect>        
     </div>
     <div>
@@ -49,22 +56,74 @@
     <FluentButton Text="Add" Appearance="Appearance.Accent" OnClick="@(async() => await AddLeaveAsync())" >Add</FluentButton>
 </FluentStack>
 
+@* add a FluentDataGrid here for Leave*@
+<FluentDataGrid Id="shiftsGrid" Items="@LeaveList" TGridItem="LeaveDTO">
+    <PropertyColumn Title="Start Date" Property="@(c => c!.StartDate)" Align="Align.Start" />
+    <PropertyColumn Title="End Date" Property="@(c => c!.EndDate)" Align="Align.Start" />
+    <PropertyColumn Title="Is Half Day" Property="@(c => c!.IsHalfDay)" Align="Align.Start" />
+    <PropertyColumn Title="Status" Property="@(c => c!.Status)" Align="Align.Start"/>
+    <PropertyColumn Title="Employee" Property="@(c => c!.EmployeeId)" Align="Align.Start"/>
+    <PropertyColumn Title="Leave Credit" Property="@(c => c!.LeaveCreditId)" Align="Align.Start"/>
+    <TemplateColumn Title="Actions" Align="@Align.End">
+        <FluentButton aria-label="Approve item" IconEnd="@(new Icons.Regular.Size16.CheckmarkCircle())" OnClick="@(async() => await ApproveLeaveAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending)) />
+        <FluentButton aria-label="Reject item" IconEnd="@(new Icons.Regular.Size16.DismissCircle())" OnClick="@(async() => await RejectedLeaveAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending)) />
+        <FluentButton Appearance=Appearance.Accent aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteLeaveAsync(context))" />
+    </TemplateColumn>
+</FluentDataGrid>
+
+<FluentDialogProvider />
+
+@if (isBusy)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
+
 @code {
     string nameFilter = string.Empty;
     private EmployeeShortDTO? Employee = default!;
     private LeaveDTO? InputLeave = new();
     private IQueryable<LeaveCreditDTO>? LeaveCredits;
+    private IQueryable<LeaveDTO>? LeaveList;
+    private bool isBusy = false;
+    private bool isFirstLoad = true;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {    
-        if(!firstRender) {
-            // get all the available leave credits first.
+    protected override async Task OnInitializedAsync()
+    {
+        if(isFirstLoad)
+        {
             LeaveCredits = GlobalService.LeaveCredits.AsQueryable();
+            await GetLeavesAsync();
         }
-
-        await base.OnAfterRenderAsync(firstRender);
+        await base.OnInitializedAsync();
     }
 
+    // load Leaves List
+    private async Task GetLeavesAsync()
+    {
+        try
+        {
+            isBusy = true;
+            await Task.Delay(10);
+
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListLeaveQuery(null,null));
+                if (result.IsSuccess)
+                    LeaveList = result.Value.AsQueryable();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
 
     private async Task HandleEmployeeFilter(ChangeEventArgs args)
     {
@@ -88,8 +147,115 @@
         }
     }          
 
-    async Task AddLeaveAsync(){
-        await Task.Delay(10);
-    } 
+    async Task AddLeaveAsync()
+    {
+        try
+        {
+            isBusy = true;
+            await Task.Delay(10);
+
+            if (Employee == null || Employee.Id == Guid.Empty)
+                return;
+
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                var result = await mediator.Send(new CreateLeaveCommand(InputLeave!.StartDate, InputLeave!.EndDate, InputLeave.IsHalfDay, Employee!.Id, InputLeave.LeaveCreditId));
+                if (result.IsSuccess)
+                {
+                    InputLeave = new();
+                    HandleClear();
+                    await GetLeavesAsync();
+                }
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private void SelectedLeaveCreditOptionChanged(ChangeEventArgs e)
+    {
+        if (InputLeave != null && e.Value != null && Guid.TryParse(e.Value?.ToString(), out var selectedId))
+            InputLeave!.LeaveCreditId = selectedId;
+    }
+
+    async Task DeleteLeaveAsync(LeaveDTO context)
+    {
+        var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to delete this record?", "Yes", "No", "Delete");
+        var conf = await dialog.Result;
+        if (conf.Cancelled) return;
+
+        try
+        {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var deleteResult = await mediator.Send(new DeleteLeaveCommand(context.Id));
+                if (deleteResult.IsSuccess)
+                {
+                    await GetLeavesAsync();
+                }
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    async Task ApproveLeaveAsync(LeaveDTO context)
+    {
+        var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to approve this leave record?", "Yes", "No", "Approve");
+        var conf = await dialog.Result;
+        if (conf.Cancelled) return;
+        try
+        {
+            isBusy = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new UpdateLeaveCommand(context!.Id, context.StartDate ?? DateTime.Today, context.EndDate ?? DateTime.Today.AddDays(1), context.IsHalfDay, ApplicationStatusDTO.Approved, context!.EmployeeId ?? Guid.Empty, context.LeaveCreditId));
+                if (result.IsSuccess)
+                    await GetLeavesAsync();
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    async Task RejectedLeaveAsync(LeaveDTO context)
+    {
+        var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to Reject this leave record?", "Yes", "No", "Reject");
+        var conf = await dialog.Result;
+        if (conf.Cancelled) return;
+
+        isBusy = true;
+
+        using (var scope = ServiceScopeFactory.CreateScope())
+        {
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+            var result = await mediator.Send(new UpdateLeaveCommand(context!.Id, context.StartDate ?? DateTime.Today, context.EndDate ?? DateTime.Today.AddDays(1), context.IsHalfDay, ApplicationStatusDTO.Rejected, context!.EmployeeId ?? Guid.Empty, context.LeaveCreditId));
+            if (result.IsSuccess)
+                await GetLeavesAsync();
+        }
+    }
 }
 

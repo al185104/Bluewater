@@ -1,5 +1,4 @@
-
-using Bluewater.Core.Forms.Enum;
+﻿using Bluewater.UserCases.Forms.Enum;
 
 namespace Bluewater.UseCases.Leaves;
 
@@ -9,16 +8,18 @@ public record LeaveDTO()
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
     public bool IsHalfDay { get; set; }
-    public ApplicationStatus Status { get; private set; } = ApplicationStatus.NotSet;
+    public ApplicationStatusDTO Status { get; private set; } = ApplicationStatusDTO.NotSet;
+    public Guid? EmployeeId { get; set; }
     public Guid LeaveCreditId { get; set; }
 
-    public LeaveDTO(Guid id, DateTime? startDate, DateTime? endDate, bool isHalfDay, ApplicationStatus status, Guid leaveCreditId) : this()
+    public LeaveDTO(Guid id, DateTime? startDate, DateTime? endDate, bool isHalfDay, ApplicationStatusDTO status, Guid employeeId, Guid leaveCreditId) : this()
     {
         Id = id;
         StartDate = startDate;
         EndDate = endDate;
         IsHalfDay = isHalfDay;
         Status = status;
+        EmployeeId = employeeId;
         LeaveCreditId = leaveCreditId;
     }
 }

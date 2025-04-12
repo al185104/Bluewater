@@ -11,11 +11,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Leaves/Create/" />
-    <Folder Include="Leaves/Delete/" />
+    <Folder Include="LeaveCredits\Get\" />
+    <Folder Include="LeaveCredits\Update\" />
     <Folder Include="Leaves/Get/" />
-    <Folder Include="Leaves/List/" />
-    <Folder Include="Leaves/Update/" />
   </ItemGroup>
 
 </Project>

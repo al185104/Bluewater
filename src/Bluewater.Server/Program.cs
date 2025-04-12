@@ -44,6 +44,8 @@ using Bluewater.Infrastructure.Data;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Bluewater.Core.Forms.LeaveAggregate;
+using Bluewater.Core.LeaveCreditAggregate;
+using Bluewater.UseCases.LeaveCredits.Create;
 
 internal class Program
 {
@@ -96,8 +98,6 @@ internal class Program
     builder.Services.AddDataGridEntityFrameworkAdapter();
     builder.Services.AddScoped<IEmployeeAuthService, EmployeeAuthService>();
     builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
-    // builder.Services.AddScoped<CustomAuthenticationStateProvider>();
-    // builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
   
     if (builder.Environment.IsDevelopment())
     {
@@ -109,22 +109,6 @@ internal class Program
       builder.Services.AddScoped<IEmailSender, MimeKitEmailSender>();
     }
 
-
-    //new
-    // builder.Services.AddHttpContextAccessor();
-    // builder.Services.AddRazorPages(options =>
-    // {
-    //     options.Conventions.AuthorizeAreaFolder("Identity", "/Account");
-    // });
-    // builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-    // .AddCookie(options =>
-    // {
-    //     options.LoginPath = "/Login"; // Redirect if unauthenticated
-    // });    
-    // builder.Services.ConfigureApplicationCookie(options =>
-    // {
-    //     options.LoginPath = "/Login"; // Ensure it matches your route
-    // });   
     builder.Services.ConfigureApplicationCookie(options =>
     {
         options.LoginPath = "/Identity/Account/Login";
@@ -216,6 +200,9 @@ internal class Program
 
       Assembly.GetAssembly(typeof(Attendance)),
       Assembly.GetAssembly(typeof(CreateAttendanceCommand)),
+
+      Assembly.GetAssembly(typeof(LeaveCredit)), // Core
+      Assembly.GetAssembly(typeof(CreateLeaveCreditCommand)), // UseCases
 
       Assembly.GetAssembly(typeof(Leave))
 

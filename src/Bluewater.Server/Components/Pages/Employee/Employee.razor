@@ -155,11 +155,7 @@
         try{
             isBusy = true;
 
-            if(isFirstLoad) {
-
-                @* await pagination.SetCurrentPageIndexAsync(1);
-                await pagination.SetTotalItemCountAsync(100); *@
-                                
+            if(isFirstLoad) {                                
                 await LoadEmployeesAsync();
             }
             isFirstLoad = false;

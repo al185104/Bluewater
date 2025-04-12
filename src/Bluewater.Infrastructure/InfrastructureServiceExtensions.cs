@@ -81,6 +81,10 @@ public static class InfrastructureServiceExtensions
     services.AddScoped<IListShiftQueryService, ListShiftsQueryService>();
     // Employee
     services.AddScoped<IDeleteEmployeeService, DeleteEmployeeService>();
+    // LeaveCredits
+    services.AddScoped<IDeleteLeaveCreditService, DeleteLeaveCreditService>();
+    // Leave
+    services.AddScoped<IDeleteLeaveService, DeleteLeaveService>();
 
     services.AddScoped<IEmailSender, FakeEmailSender>();
 

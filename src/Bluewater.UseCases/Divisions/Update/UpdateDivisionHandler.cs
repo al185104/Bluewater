@@ -1,7 +1,6 @@
 ﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.DivisionAggregate;
-using Bluewater.Core.DivisionAggregate.Specifications;
 
 namespace Bluewater.UseCases.Divisions.Update;
 public class UpdateDivisionHandler(IRepository<Division> _repository) : ICommandHandler<UpdateDivisionCommand, Result<DivisionDTO>>

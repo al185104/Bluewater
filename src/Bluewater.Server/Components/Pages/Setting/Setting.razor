@@ -14,6 +14,10 @@
 @using Bluewater.UseCases.Employees.Create
 @using Bluewater.UseCases.Employees.List
 @using Bluewater.UseCases.Holidays.Delete
+@using Bluewater.UseCases.LeaveCredits
+@using Bluewater.UseCases.LeaveCredits.Create
+@using Bluewater.UseCases.LeaveCredits.Delete
+@using Bluewater.UseCases.LeaveCredits.List
 @using Bluewater.UseCases.Pays.Create
 @using Bluewater.UseCases.Positions.Delete
 @using Bluewater.UseCases.Schedules.Create
@@ -61,7 +65,7 @@
 <h3>Team Settings</h3>
 
 <FluentStack Orientation="Orientation.Vertical">
-    
+
     @* @if (env.IsDevelopment())
     {
         <FluentButton OnClick="@(async () => await CreateDummyEmployees())">Create Dummy Employees</FluentButton>
@@ -69,51 +73,51 @@
         <FluentButton OnClick="@(async () => await CreateDummyTimesheet())">Create Dummy Timesheet</FluentButton>
         <FluentButton OnClick="@(async () => await CreateDummySchedule())">Create Dummy Schedule</FluentButton>
     } *@
-    
+
     <FluentInputFile @ref="@divFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
-        AnchorId="DivImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
-        OnProgressChange="@(e =>
+    AnchorId="DivImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
+    OnProgressChange="@(e =>
             {
                 progressPercent = e.ProgressPercent; 
                 progressTitle = e.ProgressTitle;
             })"
-        OnCompleted="@ImportDivisionAsync" />
+    OnCompleted="@ImportDivisionAsync" />
 
     <FluentInputFile @ref="@deptFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
-        AnchorId="DeptImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
-        OnProgressChange="@(e =>
+    AnchorId="DeptImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
+    OnProgressChange="@(e =>
             {
                 progressPercent = e.ProgressPercent; 
                 progressTitle = e.ProgressTitle;
             })"
-        OnCompleted="@ImportDepartmentAsync" />
+    OnCompleted="@ImportDepartmentAsync" />
 
     <FluentInputFile @ref="@secFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
-        AnchorId="SecImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
-        OnProgressChange="@(e =>
+    AnchorId="SecImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
+    OnProgressChange="@(e =>
             {
                 progressPercent = e.ProgressPercent; 
                 progressTitle = e.ProgressTitle;
             })"
-        OnCompleted="@ImportSectionAsync" />      
+    OnCompleted="@ImportSectionAsync" />      
 
     <FluentInputFile @ref="@posFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
-        AnchorId="PosImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
-        OnProgressChange="@(e =>
+    AnchorId="PosImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
+    OnProgressChange="@(e =>
             {
                 progressPercent = e.ProgressPercent; 
                 progressTitle = e.ProgressTitle;
             })"
-        OnCompleted="@ImportPositionAsync" />
+    OnCompleted="@ImportPositionAsync" />
 
     <FluentInputFile @ref="@charFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
-        AnchorId="CharImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
-        OnProgressChange="@(e =>
+    AnchorId="CharImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
+    OnProgressChange="@(e =>
             {
                 progressPercent = e.ProgressPercent; 
                 progressTitle = e.ProgressTitle;
             })"
-        OnCompleted="@ImportChargingAsync" />
+    OnCompleted="@ImportChargingAsync" />
 
     <FluentProgress Min="0" Max="100" Visible="@(progressPercent > 0)" Value="@progressPercent" />
 
@@ -189,7 +193,7 @@
                 </div>
             </FluentCard>
         </FluentGridItem>
-        
+
         @* section *@
         <FluentGridItem xs="6">
             <FluentCard MinimalStyle="true" AreaRestricted="false">
@@ -302,6 +306,58 @@
                 </div>
             </FluentCard>
         </FluentGridItem>
+
+        @* leave credit *@
+        <FluentGridItem xs="6">
+            <FluentCard MinimalStyle="true" AreaRestricted="false">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h5>Leave Credits</h5>
+                </div>
+                <div>
+                    <FluentStack Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Bottom">
+                        <div>
+                            <FluentTextField @bind-Value="InputLeaveCredit.Code" Name="leaveCreditCode" Label="Code" Required Style="width: 100%;" />
+                        </div>
+                        <div style="flex-grow: 1;">
+                            <FluentTextField @bind-Value="InputLeaveCredit.Description" Name="chargingDescription" Label="Description" Required />
+                        </div>
+                        <div>
+                            <FluentNumberField @bind-Value="InputLeaveCredit.DefaultCredits" Name="leaveDefaultCredits" Label="DefaultCredits" Required />
+                        </div>
+                        <div>
+                            <FluentNumberField @bind-Value="InputLeaveCredit.SortOrder" Name="leaveSortOrder" Label="SortOrder" Required />
+                        </div>
+                        <div>
+                            <FluentSwitch @bind-Value="@InputLeaveCredit!.IsLeaveWithPay" Label="With Pay?">
+                                <span slot="checked-message">Yes</span>
+                                <span slot="unchecked-message">No</span>
+                            </FluentSwitch>
+                        </div>
+                        <div>
+                            <FluentSwitch @bind-Value="@InputLeaveCredit!.IsCanCarryOver" Label="Carry Over?">
+                                <span slot="checked-message">Yes</span>
+                                <span slot="unchecked-message">No</span>
+                            </FluentSwitch>
+                        </div>
+                        <FluentButton Loading="@btnLoading" OnClick="@AddLeaveCreditAsync" Appearance="Appearance.Accent" Style="margin-bottom: 4px">Add</FluentButton>
+                    </FluentStack>
+                </div>
+                <div style="height: 300px; overflow:auto;" tabindex="-1">
+                    <FluentDataGrid Items="@LeaveCredits">
+                        <PropertyColumn Title="Code" Property="@(p => p.Code)" Sortable="true" />
+                        <PropertyColumn Title="Description" Property="@(p => p.Description)" Sortable="true" />
+                        <PropertyColumn Title="Credit" Property="@(p => p.DefaultCredits)" Sortable="true" />
+                        <PropertyColumn Title="Sort" Property="@(p => p.SortOrder)" Sortable="true" />
+                        <PropertyColumn Title="With Pay" Property="@(p => p.IsLeaveWithPay)" Sortable="true" />
+                        <PropertyColumn Title="Carry Over" Property="@(p => p.IsCanCarryOver)" Sortable="true" />
+                        <TemplateColumn Title="Actions" Align="@Align.End">
+                            <FluentButton aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteLeaveCreditAsync(context))" />
+                        </TemplateColumn>
+                    </FluentDataGrid>
+                </div>
+            </FluentCard>
+        </FluentGridItem>
+
     </FluentGrid>
 
     <h3>Employee Details</h3>
@@ -393,7 +449,7 @@
                     </FluentDataGrid>
                 </div>
             </FluentGridItem>
-            
+
             <FluentGridItem xs="3" Style="display: flex; justify-content: stretch ">
                 <FluentStack Orientation="Orientation.Vertical" VerticalAlignment="VerticalAlignment.Top" VerticalGap="4">
                     <FluentTextField @bind-Value="InputHoliday.Name" Name="holidayName" Label="Holiday Name" Style="width: 100%;" Required />
@@ -438,7 +494,7 @@
     public HolidayDTO InputHoliday { get; set; } = new();
     public EmployeeTypeDTO InputEmployeeType { get; set; } = new();
     public LevelDTO InputLevel { get; set; } = new();
-
+    public LeaveCreditDTO InputLeaveCredit { get; set; } = new();
 
     public IQueryable<DivisionDTO> Divisions { get; set; } = default!;
     public IQueryable<DepartmentDTO> Departments { get; set; } = default!;
@@ -448,6 +504,7 @@
     public IQueryable<HolidayDTO> Holidays { get; set; } = default!;
     public IQueryable<EmployeeTypeDTO> EmployeeTypes { get; set; } = default!;
     public IQueryable<LevelDTO> Levels { get; set; } = default!;
+    public IQueryable<LeaveCreditDTO> LeaveCredits { get; set; } = default!;
     private bool _isInitialized;
 
     #region Initialize
@@ -466,6 +523,7 @@
                 Holidays = GlobalService.Holidays.ToList().AsQueryable();
                 EmployeeTypes = GlobalService.EmployeeTypes.ToList().AsQueryable();
                 Levels = GlobalService.Levels.ToList().AsQueryable();
+                LeaveCredits = GlobalService.LeaveCredits.ToList().AsQueryable();
                 _isInitialized = true;
             }
         }
@@ -877,6 +935,27 @@
         }
     }
 
+    private async Task LoadLeaveCredits()
+    {
+        try
+        {
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListLeaveCreditQuery(null, null));
+                if (result.IsSuccess)
+                {
+                    LeaveCredits = result.Value.AsQueryable();
+                    GlobalService.LeaveCredits = new(result.Value.ToList());
+                }
+            }
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
     private async Task LoadPositions()
     {
         try
@@ -1002,7 +1081,7 @@
             btnLoading = false;
         }
     }
-    
+
     async Task AddHoliday()
     {
         try
@@ -1142,7 +1221,7 @@
 
                 if(selectedDepartmentForChargingId == Guid.Empty)
                     selectedDepartmentForChargingId = Departments.First().Id;
-                
+
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new CreateChargingCommand(InputCharging.Name, InputCharging.Description, selectedDepartmentForChargingId));
                 if (result.IsSuccess)
@@ -1150,6 +1229,28 @@
                     await LoadChargings();
                     InputCharging = new();
                 }
+            }
+        }
+        finally
+        {
+            btnLoading = false;
+        }
+    }
+
+    async Task AddLeaveCreditAsync()
+    {
+        try
+        {
+            btnLoading = true;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new CreateLeaveCreditCommand(InputLeaveCredit.Code, InputLeaveCredit.Description, InputLeaveCredit.DefaultCredits, InputLeaveCredit.SortOrder, InputLeaveCredit.IsLeaveWithPay, InputLeaveCredit.IsCanCarryOver));
+                if(result.IsSuccess)
+                {
+                    await LoadLeaveCredits();
+                    InputLeaveCredit = new();
+                }   
             }
         }
         finally
@@ -1291,6 +1392,26 @@
                 var result = await mediator.Send(new DeleteHolidayCommand(item.Id));
                 if (result.IsSuccess)
                     await LoadHolidays();
+            }
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    private async Task DeleteLeaveCreditAsync(LeaveCreditDTO item)
+    {
+        try
+        {
+            isBusy = true;
+            await Task.Delay(10);
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new DeleteLeaveCreditCommand(item.Id));
+                if(result.IsSuccess)
+                    await LoadLeaveCredits();
             }
         }
         finally

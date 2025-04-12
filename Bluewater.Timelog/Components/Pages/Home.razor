@@ -3,6 +3,7 @@
 @using System.Timers
 @using Bluewater.UseCases.Timesheets.Create
 @using MediatR
+@using Microsoft.AspNetCore.Components.Web
 @implements IDisposable
 
 @inject IServiceScopeFactory ServiceScopeFactory
@@ -12,7 +13,8 @@
 style="position: absolute; left: -9999px;"
 @ref="barcodeInputRef"
 @onkeydown="HandleKeyDown"
-@onblur="HandleBlur" />
+@onblur="HandleBlur"
+inputmode="none" />
 
 <div class="hero-container">
     <!-- Hero Header Section -->
@@ -365,7 +367,7 @@ style="position: absolute; left: -9999px;"
 
     /* Larger digital clock */
     .digital-clock {
-        font-size: 2.5rem;
+        font-size: 1.5rem;
         font-weight: 600;
         padding: 0.5rem 1.5rem;
         background-color: var(--dark-color);
@@ -396,7 +398,7 @@ style="position: absolute; left: -9999px;"
     }
 
     .status-header {
-        padding: 1.5rem;
+        padding: 1.0rem;
         border-bottom: 1px solid var(--gray-light);
     }
 
