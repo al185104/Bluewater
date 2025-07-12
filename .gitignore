@@ -371,3 +371,5 @@ FodyWeavers.xsd
 /src/Bluewater.Server/localdb_sit01.db
 /src/Bluewater.Server/localdb_sit01.db-wal
 /src/Bluewater.Server/localdb_sit01.db-shm
+/src/Bluewater.Server/keys/key-0d4a16f7-e058-4df5-b5f0-f33ae256976b.xml
+/src/Bluewater.Server/keys/key-04f203db-476c-4747-be87-0d706367572a.xml
