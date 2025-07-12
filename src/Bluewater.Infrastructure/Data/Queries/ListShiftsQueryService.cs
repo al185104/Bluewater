@@ -10,7 +10,10 @@ public class ListShiftsQueryService(AppDbContext _db) : IListShiftQueryService
   {
     try
     {
-      return await _db.Shifts.Select(s => new ShiftDTO(s.Id, s.Name, s.ShiftStartTime, s.ShiftBreakTime, s.ShiftBreakEndTime, s.ShiftEndTime, s.BreakHours)).ToListAsync();
+      var ret = await _db.Shifts.Select(s => new ShiftDTO(s.Id, s.Name, s.ShiftStartTime, s.ShiftBreakTime, s.ShiftBreakEndTime, s.ShiftEndTime, s.BreakHours))
+        .ToListAsync();
+
+      return ret.OrderBy(i => i.Name);
     }
     catch (DBConcurrencyException)
     {

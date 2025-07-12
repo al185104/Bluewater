@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.PayrollAggregate;
 using Bluewater.Core.PayrollAggregate.Specifications;
@@ -32,7 +32,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
     using (var scope = serviceScopeFactory.CreateScope())
     {
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-      var ret = await mediator.Send(new ListEmployeeQuery(null, null));
+      var ret = await mediator.Send(new ListEmployeeQuery(null, null, request.tenant));
       if (ret.IsSuccess)
         employees = ret.Value
         .Where(c => 
@@ -47,7 +47,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
     using (var scope = serviceScopeFactory.CreateScope())
     {
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var ret = await mediator.Send(new ListAllAttendancesQuery(null, null, request.chargingName ?? string.Empty, request.start, request.end));
+        var ret = await mediator.Send(new ListAllAttendancesQuery(null, null, request.chargingName ?? string.Empty, request.start, request.end, request.tenant));
         if (ret.IsSuccess)
             attendances = ret.Value.ToList();
     }

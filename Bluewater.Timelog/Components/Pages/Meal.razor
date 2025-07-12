@@ -21,7 +21,10 @@ inputmode="none" />
     <div class="hero-header">
         <div class="company-branding">
             <i class="oi oi-timer hero-icon"></i>
-            <h1>Bluewater Daily Time Record</h1>
+            <!-- full title for desktop -->
+            <h1 class="branding-title full-title">Bluewater Daily Time Record</h1>
+            <!-- short title for tablet/mobile -->
+            <h1 class="branding-title short-title">Bluewater DTR</h1>
         </div>
         <div class="digital-clock">@currentTime</div>
     </div>
@@ -193,7 +196,6 @@ inputmode="none" />
         }
     }
 
-
     protected override void OnInitialized()
     {
         // Start the clock timer
@@ -221,12 +223,6 @@ inputmode="none" />
     {
         isCheckIn = checkInMode;
         StateHasChanged();
-    }
-
-    // Method for demo button click simulation
-    private async Task SimulateBarcodeScanned()
-    {
-        await BarcodeScannedAsync($"EMPID-{random.Next(1000, 9999)}");
     }
 
     // If the hidden input ever loses focus, refocus it
@@ -276,58 +272,12 @@ inputmode="none" />
                             OpenModal();
                     }
                 }
-
-                // Process the full barcode
-                //await BarcodeScannedAsync(barcodeBuffer);
-                // Reset the buffer for the next scan
-                //barcodeBuffer = "";
             }
             else if (e.Key.Length == 1)
             {
                 // Append normal characters to the buffer
                 barcodeBuffer += e.Key;
             }
-        }
-        catch (Exception ex)
-        {
-            ShowError($"Failed to process scan: {ex.Message}");
-        }
-    }
-
-    private async Task BarcodeScannedAsync(string barcode)
-    {
-        try
-        {
-            // This would be where the actual barcode processing happens
-            // For demo purposes, we're creating a random employee
-
-            string[] names = {
-                "John Smith", "Emily Johnson", "Michael Wong", "Sarah Davis",
-                "Robert Chen", "Jessica Taylor", "David Rodriguez", "Jennifer Martinez",
-                "William Kim", "Lisa Anderson", "James Wilson", "Patricia Moore",
-                "Daniel Jackson", "Nancy Garcia", "Thomas Lee", "Mary Brown"
-    };
-
-            string employeeName = names[random.Next(names.Length)];
-
-            // Create new record
-            var newRecord = new EmployeeRecord
-                {
-                    EmployeeName = employeeName,
-                    RecordTime = DateTime.Now,
-                    IsCheckIn = isCheckIn
-                };
-
-            // Add to the beginning of the list
-            employeeRecords.Insert(0, newRecord);
-
-            // If more than 20 records, remove the oldest
-            if (employeeRecords.Count > 20)
-            {
-                employeeRecords.RemoveAt(employeeRecords.Count - 1);
-            }
-
-            await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
         {
@@ -531,6 +481,14 @@ inputmode="none" />
         font-size: 4rem;
         animation: pulse 2s infinite;
         cursor: pointer; /* Make it look clickable */
+    }
+
+    .full-title {
+        display: inline;
+    }
+
+    .short-title {
+        display: none;
     }
 
     @@keyframes pulse {
@@ -753,30 +711,49 @@ inputmode="none" />
                 background-color: var(--dark-color);
             }
 
-    /* Responsive adjustments for 10" screen */
-    @@media (max-width: 1024px) {
-        .hero-content {
-            flex-direction: column;
+        /* Responsive adjustments for 10" screen */
+        @@media (max-width: 1024px) {
+            .hero-content {
+                flex-direction: column;
+            }
+
+            .scan-animation {
+                width: 100px;
+                height: 100px;
+                font-size: 3rem;
+            }
+
+            .scan-instruction p {
+                font-size: 1.2rem;
+            }
         }
 
-        .scan-animation {
-            width: 100px;
-            height: 100px;
-            font-size: 3rem;
+        @@media (max-width: 992px) {
+            .status-header
+            {
+                display: none;
+            }
         }
 
-        .scan-instruction p {
-            font-size: 1.2rem;
-        }
-    }
+        @@media (max-width: 992px) {
+            .full-title
 
+        {
+            display: none;
+        }
+
+        .short-title {
+            display: inline;
+        }
+
+        }
 
     .modal-backdrop {
         position: fixed;
         top: 0;
+        right: 0;
+        bottom: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
         display: flex;
         justify-content: center;
@@ -840,15 +817,12 @@ inputmode="none" />
     }
 
     @@keyframes spin {
-        0%
-    {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
     }
 
     .overlay {

@@ -12,7 +12,7 @@ using Bluewater.Core.UserAggregate;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bluewater.Core.EmployeeAggregate;
-public class Employee(string firstName, string lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks) : EntityBase<Guid>, IAggregateRoot
+public class Employee(string firstName, string lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, int mealCredits, Tenant tenant) : EntityBase<Guid>, IAggregateRoot
 {
   // Personal Information
   public string FirstName { get; private set; } = Guard.Against.NullOrEmpty(firstName, nameof(firstName));
@@ -27,6 +27,8 @@ public class Employee(string firstName, string lastName, string? middleName, Dat
   public decimal? Weight { get; private set; } = weight;
   public bool IsDeleted { get; private set; } = false;
   public byte[]? ImageUrl { get; private set; }  = imageUrl;
+  public int MealCredits { get; set; } = mealCredits;
+  public Tenant Tenant { get; set; } = tenant;
   public string? Remarks { get; private set; } = remarks;
   
   public ContactInfo? ContactInfo { get; private set; }
@@ -104,7 +106,7 @@ public class Employee(string firstName, string lastName, string? middleName, Dat
     ChargingId = chargingId;
   }
 
-  public void UpdateEmployee(string firstName, string lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks)
+  public void UpdateEmployee(string firstName, string lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, int mealCredits, Tenant tenant)
   {
     FirstName = Guard.Against.NullOrEmpty(firstName, nameof(firstName));
     LastName = Guard.Against.NullOrEmpty(lastName, nameof(lastName));
@@ -118,6 +120,8 @@ public class Employee(string firstName, string lastName, string? middleName, Dat
     Weight = weight;
     ImageUrl = imageUrl;
     Remarks = remarks;
+    MealCredits = mealCredits;
+    Tenant = tenant;
     UpdatedDate = DateTime.Now;
   }
 }

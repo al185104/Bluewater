@@ -10,7 +10,10 @@ public class ListSectionsQueryService (AppDbContext _db) : IListSectionsQuerySer
   {
     try
     {
-      return await _db.Sections.Select(s => new SectionDTO(s.Id, s.Name, s.Description ?? string.Empty, s.Approved1Id, s.Approved2Id, s.Approved3Id, s.DepartmentId)).ToListAsync();
+      var ret = await _db.Sections.Select(s => new SectionDTO(s.Id, s.Name, s.Description ?? string.Empty, s.Approved1Id, s.Approved2Id, s.Approved3Id, s.DepartmentId))
+        .ToListAsync();
+
+      return ret.OrderBy(i => i.Name);
     }
     catch (DBConcurrencyException)
     {

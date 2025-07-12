@@ -98,7 +98,9 @@ internal class Program
     builder.Services.AddDataGridEntityFrameworkAdapter();
     builder.Services.AddScoped<IEmployeeAuthService, EmployeeAuthService>();
     builder.Services.AddScoped<ILocalStorageService, LocalStorageService>();
-  
+    
+    //builder.Services.AddProtectedBrowserStorage();
+
     if (builder.Environment.IsDevelopment())
     {
       builder.Services.AddScoped<IEmailSender, FakeEmailSender>();

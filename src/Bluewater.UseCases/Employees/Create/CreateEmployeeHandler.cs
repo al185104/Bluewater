@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.EmployeeAggregate;
 using Bluewater.UseCases.Employees.Create;
@@ -20,7 +20,9 @@ public class CreateEmployeeHandler(IRepository<Employee> _repository) : ICommand
         request.Height,
         request.Weight,
         request.ImageUrl,
-        request.Remarks
+        request.Remarks,
+        request.MealCredits,
+        request.Tenant
     );
 
     if (request.ContactInfo != null)

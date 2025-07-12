@@ -13,6 +13,7 @@
 @inject IMediator Mediator
 @inject IDialogService DialogService
 @inject IGlobalService GlobalService
+@attribute [Authorize(Roles = "SuperAdmin")]
 
 <PageTitle>Shifts</PageTitle>
 
@@ -82,10 +83,10 @@ else
     private bool isBusy = false;
     private IQueryable<ShiftDTO>? Shifts;
     private ShiftDTO InputShift { get; set; } = new(){
-        ShiftStartTime = TimeOnly.FromDateTime(DateTime.Today),
-        ShiftBreakTime = TimeOnly.FromDateTime(DateTime.Today),
-        ShiftBreakEndTime = TimeOnly.FromDateTime(DateTime.Today),
-        ShiftEndTime = TimeOnly.FromDateTime(DateTime.Today),
+        ShiftStartTime = null,
+        ShiftBreakTime = null,
+        ShiftBreakEndTime = null,
+        ShiftEndTime = null,
         BreakHours = 1
     };
 

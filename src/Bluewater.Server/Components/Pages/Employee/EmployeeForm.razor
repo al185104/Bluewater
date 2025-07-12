@@ -18,7 +18,7 @@
 @using Bluewater.UseCases.Shifts;
 @inject IGlobalService GlobalService;
 
-@attribute [Authorize]
+@attribute [Authorize(Roles = "SuperAdmin")]
 
 @implements IDialogContentComponent<EmployeeFormDTO>
 
@@ -27,10 +27,10 @@
         <FluentGridItem xs="12"><h4>Personal information</h4></FluentGridItem>
         <FluentGridItem xs="6"><FluentTextField Style="width: 100%" Label="First Name" @bind-Value="@Content.FirstName" required /></FluentGridItem>
         <FluentGridItem xs="6"><FluentTextField Style="width: 100%" Label="Last Name" @bind-Value="@Content.LastName" required /></FluentGridItem>
-        
+
         <FluentGridItem xs="6"><FluentTextField Style="width: 100%" Label="Middle Name" @bind-Value="@Content.MiddleName" /></FluentGridItem>
         <FluentGridItem xs="6"><FluentDatePicker Label="Date of Birth" @bind-Value="@Content.DateOfBirth" Style="width: 100%"/></FluentGridItem>
-        
+
         <FluentGridItem xs="6">
             <FluentSelect TOption="EnumOption"
                 Label="Gender"
@@ -178,9 +178,28 @@
 
         <FluentGridItem xs="6"><FluentNumberField Label="HDMF Con" @bind-Value="@Content.HDMF_Con" Style="width: 100%" /></FluentGridItem>
         <FluentGridItem xs="6"><FluentNumberField Label="HDMF Er" @bind-Value="@Content.HDMF_Er" Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"></FluentGridItem>
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="EnumOption"
+                          Label="Meal Credits"
+                          Items="@mealCreditOptions"
+                          OptionText="@(o => o.Description)"
+                          @bind-SelectedOption="@selectedMealCredit"
+                          Style="width: 100%"
+                          @onchange=HandleMealCreditsSelected>
+            </FluentSelect>
+        </FluentGridItem>
+        <FluentGridItem xs="6">
+            <FluentSelect TOption="EnumOption"
+                          Label="Project"
+                          Items="@tenantOptions"
+                          OptionText="@(o => o.Description)"
+                          @bind-SelectedOption="@selectedTenant"
+                          Style="width: 100%"
+                          @onchange=HandleTenantSelected>
+            </FluentSelect>
+        </FluentGridItem>
 
-        <FluentGridItem xs="12"><h4>Default Schedule</h4></FluentGridItem>
+@*         <FluentGridItem xs="12"><h4>Default Schedule</h4></FluentGridItem>
         <FluentGridItem xs="12">
             <FluentSelect TOption="ShiftDTO"
                 Label="Sunday Shift"
@@ -250,12 +269,13 @@
                 @bind-SelectedOption="@Content.SaturdayShift"
                 Style="width: 100%">
             </FluentSelect>
-        </FluentGridItem>
+        </FluentGridItem> *@
 
 
         <FluentGridItem xs="12"><h4>Login credentials</h4></FluentGridItem>
         <FluentGridItem xs="6"><FluentTextField Label="Username" @bind-Value="@Content.Username" required Style="width: 100%" /></FluentGridItem>
-        <FluentGridItem xs="6"><FluentTextField Label="Password" @bind-Value="@Content.Password" required Style="width: 100%" /></FluentGridItem>
+        <FluentGridItem xs="6"></FluentGridItem>
+        @* <FluentGridItem xs="6"><FluentTextField Label="Password" @bind-Value="@Content.Password" required Style="width: 100%" /></FluentGridItem> *@
 
         <FluentGridItem xs="6">
             <FluentSelect TOption="EnumOption"
@@ -305,6 +325,10 @@
     private EnumOption selectedEmploymentStatus = new(null, null);
     private List<EnumOption> credentialsOptions = new();
     private EnumOption selectedCredential = new(null, null);
+    private List<EnumOption> mealCreditOptions = new();
+    private EnumOption selectedMealCredit = new(null, null);
+    private List<EnumOption> tenantOptions = new();
+    private EnumOption selectedTenant = new(null, null);
     private List<PositionDTO> positions = new();
     private PositionDTO? selectedPosition = null;
     private List<SectionDTO> sections = new();
@@ -334,6 +358,8 @@
             educationalAttainmentOptions = EnumUtilities.GetEnumOptions<EducationalAttainment>();
             employmentStatusOptions = EnumUtilities.GetEnumOptions<Status>();
             credentialsOptions = EnumUtilities.GetEnumOptions<Credential>();
+            mealCreditOptions = EnumUtilities.GetEnumOptions<MealCredit>();
+            tenantOptions = EnumUtilities.GetEnumOptions<Tenant>();
 
             positions = GlobalService.Positions.ToList() ?? new List<PositionDTO>();
             sections = GlobalService.Sections.ToList() ?? new List<SectionDTO>();
@@ -347,14 +373,16 @@
             @* if(Content.PositionId == Guid.Empty)
                 Content.PositionId = positions.FirstOrDefault()?.Id ?? Guid.Empty; *@
             selectedPosition = positions.FirstOrDefault(i => i.Id == Content.PositionId);
-            
+            if(selectedPosition != null)
+                UpdatePosition(selectedPosition.Id);
+
             if(Content.SectionId == Guid.Empty)
                 Content.SectionId = sections.FirstOrDefault(i => i.Id == Content.PositionId)?.Id ?? Guid.Empty;
             if(Content.DepartmentId == Guid.Empty)
                 Content.DepartmentId = departments.FirstOrDefault(i => i.Id == Content.SectionId)?.Id ?? Guid.Empty;
             if(Content.DivisionId == Guid.Empty)
                 Content.DivisionId = divisions.FirstOrDefault(i => i.Id == Content.DepartmentId)?.Id ?? Guid.Empty;
-            
+
             if(Content.ChargingId == Guid.Empty)
                 Content.ChargingId = chargings.FirstOrDefault()?.Id ?? Guid.Empty;
             selectedCharging = chargings.FirstOrDefault(i => i.Id == Content.ChargingId) ?? new ChargingDTO();
@@ -374,6 +402,8 @@
             selectedEducationalAttainment = educationalAttainmentOptions.FirstOrDefault(i => (EducationalAttainment)(i.Value ?? EducationalAttainment.NotSet) == Content.EducationalAttainment) ?? new EnumOption(null, null);
             selectedEmploymentStatus = employmentStatusOptions.FirstOrDefault(i => (Status)(i.Value ?? Status.NotSet) == Content.Status) ?? new EnumOption(null, null);
             selectedCredential = credentialsOptions.FirstOrDefault(i => (Credential)(i.Value ?? Credential.None) == Content.Credential) ?? new EnumOption(null, null);
+            selectedMealCredit = mealCreditOptions.FirstOrDefault(i => (MealCredit)(i.Value ?? MealCredit.Zero) == (MealCredit)Content.MealCredits) ?? new EnumOption(null, null);
+            selectedTenant = tenantOptions.FirstOrDefault(i => (Tenant)(i.Value ?? Tenant.Maribago) == Content.Tenant) ?? new EnumOption(null, null);
 
             IsDisableSupervisedGroup();
         }
@@ -471,6 +501,48 @@
             Content.Credential = Enum.Parse<Credential>(stringValue);
     }
 
+    public void HandleMealCreditsSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+
+        if (string.IsNullOrWhiteSpace(stringValue) || stringValue == "Zero" )
+            Content.MealCredits = (int)MealCredit.Zero;
+        else
+            Content.MealCredits = (int)Enum.Parse<MealCredit>(stringValue);
+    }
+
+    public void HandleTenantSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+
+        if (string.IsNullOrWhiteSpace(stringValue) || stringValue == "Bluewater Maribago")
+            Content.Tenant = Tenant.Maribago;
+        else
+        {
+            switch (stringValue)
+            {
+                case "Bluewater Panglao":
+                    Content.Tenant = Tenant.Panglao;
+                    break;
+                case "Bluewater Sumilon":
+                    Content.Tenant = Tenant.Sumilon;
+                    break;
+                case "Almont Inland Hotel":
+                    Content.Tenant = Tenant.AlmontInland;
+                    break;
+                case "Almont City Hotel":
+                    Content.Tenant = Tenant.AlmontCity;
+                    break;
+                case "Almont Beach Resort":
+                    Content.Tenant = Tenant.AlmontBeach;
+                    break;
+                default:
+                    Content.Tenant = Tenant.Maribago;
+                    break;
+            }
+        }
+    }
+
     public void HandleLevelsSelected(ChangeEventArgs changeEventArgs)
     {
         var stringValue = changeEventArgs.Value?.ToString()!.Trim();
@@ -485,21 +557,25 @@
         var stringValue = changeEventArgs.Value?.ToString()!.Trim();
 
         var position = positions.FirstOrDefault(x => x.Name.Equals(stringValue, StringComparison.InvariantCultureIgnoreCase));
-        if(position != null) {
-            Content.PositionId = position.Id;
+        if(position != null)
+            UpdatePosition(position.Id);
+    }
 
-            var pos = positions.FirstOrDefault(i => i.Id == position.Id); 
-            if(pos == null) return;
-            var sec = sections.FirstOrDefault(i => i.Id == pos.SectionId);
-            if(sec == null) return;
-            var dept = departments.FirstOrDefault(i => i.Id == sec.DepartmentId);
-            if(dept == null) return;
-            var div = divisions.FirstOrDefault(i => i.Id == dept.DivisionId);
-            if(div == null) return;
+    private void UpdatePosition(Guid id)
+    {
+        Content.PositionId = id;
 
-            positionLabel = $"Positions > {sec.Name} > {dept.Name} > {div.Name}";
-            chargings = GlobalService.Chargings.Where(i => i.DepartmentId == dept.Id).ToList();
-        }
+        var pos = positions.FirstOrDefault(i => i.Id == id);
+        if (pos == null) return;
+        var sec = sections.FirstOrDefault(i => i.Id == pos.SectionId);
+        if (sec == null) return;
+        var dept = departments.FirstOrDefault(i => i.Id == sec.DepartmentId);
+        if (dept == null) return;
+        var div = divisions.FirstOrDefault(i => i.Id == dept.DivisionId);
+        if (div == null) return;
+
+        positionLabel = $"Positions > {sec.Name} > {dept.Name} > {div.Name}";
+        chargings = GlobalService.Chargings.Where(i => i.DepartmentId == dept.Id).ToList();
     }
 
     public void HandleChargingsSelected(ChangeEventArgs changeEventArgs)

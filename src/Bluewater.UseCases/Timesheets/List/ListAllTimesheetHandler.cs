@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.UserAggregate;
 using Bluewater.UseCases.Employees;
@@ -16,7 +16,7 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
         using (var scope = serviceScopeFactory.CreateScope())
         {
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-            var ret = await mediator.Send(new ListEmployeeQuery(null, null));
+            var ret = await mediator.Send(new ListEmployeeQuery(null, null, request.tenant));
             if (ret.IsSuccess)
                 employees = ret.Value.ToList();
         }

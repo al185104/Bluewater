@@ -1,5 +1,5 @@
 @using Bluewater.Server.Components.Pages.Schedule;
-
+@attribute [Authorize(Roles = "SuperAdmin")]
 @using Bluewater.Server.Global;
 @using Bluewater.UseCases.Schedules;
 @using Bluewater.UseCases.Shifts;
@@ -17,7 +17,7 @@
                 Label="Sunday Shift"
                 Items="@shifts"
                 Placeholder="Select override Sunday shift"
-                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                OptionText="@(o => o == null ? "--" : $"{o.Name}   :   [{o.ShiftStartTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftBreakTime?.ToString("h:mm:ss tt") ?? "--"}]   [{o.ShiftBreakEndTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftEndTime?.ToString("h:mm:ss tt") ?? "--"}]   ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.SundayShift!.Shift"
                 @onchange="@(e => Content.SundayShift!.IsUpdated = true)"
                 Style="width: 100%">
@@ -31,8 +31,8 @@
             <FluentSelect TOption="ShiftDTO"
                 Label="Monday Shift"
                 Items="@shifts"
-                Placeholder="Select override Monday shift"                
-                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                Placeholder="Select override Monday shift"
+                          OptionText="@(o => o == null ? "--" : $"{o.Name}   :   [{o.ShiftStartTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftBreakTime?.ToString("h:mm:ss tt") ?? "--"}]   [{o.ShiftBreakEndTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftEndTime?.ToString("h:mm:ss tt") ?? "--"}]   ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.MondayShift!.Shift"
                 @onchange="@(e => Content.MondayShift!.IsUpdated = true)"
                 Style="width: 100%">
@@ -47,7 +47,7 @@
                 Label="Tuesday Shift"
                 Items="@shifts"
                 Placeholder="Select override Tuesday shift"
-                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                          OptionText="@(o => o == null ? "--" : $"{o.Name}   :   [{o.ShiftStartTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftBreakTime?.ToString("h:mm:ss tt") ?? "--"}]   [{o.ShiftBreakEndTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftEndTime?.ToString("h:mm:ss tt") ?? "--"}]   ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.TuesdayShift!.Shift"
                 @onchange="@(e => Content.TuesdayShift!.IsUpdated = true)"
                 Style="width: 100%">
@@ -62,7 +62,7 @@
                 Label="Wednesday Shift"
                 Items="@shifts"
                 Placeholder="Select override Wednesday shift"
-                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                          OptionText="@(o => o == null ? "--" : $"{o.Name}   :   [{o.ShiftStartTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftBreakTime?.ToString("h:mm:ss tt") ?? "--"}]   [{o.ShiftBreakEndTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftEndTime?.ToString("h:mm:ss tt") ?? "--"}]   ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.WednesdayShift!.Shift"
                 @onchange="@(e => Content.WednesdayShift!.IsUpdated = true)"
                 Style="width: 100%">
@@ -77,7 +77,7 @@
                 Label="Thursday Shift"
                 Items="@shifts"
                 Placeholder="Select override Thursday shift"
-                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                          OptionText="@(o => o == null ? "--" : $"{o.Name}   :   [{o.ShiftStartTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftBreakTime?.ToString("h:mm:ss tt") ?? "--"}]   [{o.ShiftBreakEndTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftEndTime?.ToString("h:mm:ss tt") ?? "--"}]   ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.ThursdayShift!.Shift"
                 @onchange="@(e => Content.ThursdayShift!.IsUpdated = true)"
                 Style="width: 100%">
@@ -92,7 +92,7 @@
                 Label="Friday Shift"
                 Items="@shifts"
                 Placeholder="Select override Friday shift"
-                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                          OptionText="@(o => o == null ? "--" : $"{o.Name}   :   [{o.ShiftStartTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftBreakTime?.ToString("h:mm:ss tt") ?? "--"}]   [{o.ShiftBreakEndTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftEndTime?.ToString("h:mm:ss tt") ?? "--"}]   ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.FridayShift!.Shift"
                 @onchange="@(e => Content.FridayShift!.IsUpdated = true)"
                 Style="width: 100%">
@@ -107,7 +107,7 @@
                 Label="Saturday Shift"
                 Items="@shifts"
                 Placeholder="Select override Saturday shift"
-                OptionText="@(o => $"{o.Name}   :   [{o.ShiftStartTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftBreakTime!.Value.ToString("h:mm:ss tt")}]    [{o.ShiftBreakEndTime!.Value.ToString("h:mm:ss tt")} - {o.ShiftEndTime!.Value.ToString("h:mm:ss tt")}]    ({o.BreakHours} break hrs)")"
+                          OptionText="@(o => o == null ? "--" : $"{o.Name}   :   [{o.ShiftStartTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftBreakTime?.ToString("h:mm:ss tt") ?? "--"}]   [{o.ShiftBreakEndTime?.ToString("h:mm:ss tt") ?? "--"} - {o.ShiftEndTime?.ToString("h:mm:ss tt") ?? "--"}]   ({o.BreakHours} break hrs)")"
                 @bind-SelectedOption="@Content.SaturdayShift!.Shift"
                 @onchange="@(e => Content.SaturdayShift!.IsUpdated = true)"
                 Style="width: 100%">

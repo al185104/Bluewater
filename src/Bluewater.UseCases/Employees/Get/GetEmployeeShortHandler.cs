@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.EmployeeAggregate;
 using Bluewater.Core.EmployeeAggregate.Specifications;
@@ -19,6 +19,9 @@ public class GetEmployeeShortHandler(IReadRepository<Employee> _repository, ISer
 {
   public async Task<Result<EmployeeShortDTO>> Handle(GetEmployeeShortQuery request, CancellationToken cancellationToken)
   {
+    if(string.IsNullOrWhiteSpace(request.EmployeeName))
+      return Result.NotFound();
+
     var spec = new EmployeeShortByNameSpec(request.EmployeeName);
     var entity = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
 
@@ -75,6 +78,6 @@ public class GetEmployeeShortHandler(IReadRepository<Employee> _repository, ISer
             charging = new ChargingDTO(Guid.Empty, string.Empty, string.Empty, null);
     }    
 
-    return new EmployeeShortDTO(entity.Id, entity.User?.Username ?? string.Empty, $"{entity.LastName}, {entity.FirstName}", department!.Name, section!.Name, charging!.Name);
+    return new EmployeeShortDTO(entity.Id, entity.User?.Username ?? string.Empty, $"{entity.LastName}, {entity.FirstName}", department!.Name, section!.Name, charging!.Name, entity.Tenant);
   }
 }

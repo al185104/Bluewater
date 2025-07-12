@@ -282,6 +282,9 @@ namespace Bluewater.Infrastructure.Migrations
                     b.Property<Guid?>("LevelId")
                         .HasColumnType("TEXT");
 
+                    b.Property<int>("MealCredits")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("MiddleName")
                         .HasColumnType("TEXT");
 
@@ -298,6 +301,9 @@ namespace Bluewater.Infrastructure.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<int>("Status")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Tenant")
                         .HasColumnType("INTEGER");
 
                     b.Property<Guid?>("TypeId")
@@ -502,6 +508,8 @@ namespace Bluewater.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
+
+                    b.HasIndex("LeaveCreditId");
 
                     b.ToTable("Leaves");
                 });
@@ -1778,7 +1786,15 @@ namespace Bluewater.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("EmployeeId");
 
+                    b.HasOne("Bluewater.Core.LeaveCreditAggregate.LeaveCredit", "LeaveCredit")
+                        .WithMany()
+                        .HasForeignKey("LeaveCreditId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Employee");
+
+                    b.Navigation("LeaveCredit");
                 });
 
             modelBuilder.Entity("Bluewater.Core.Forms.OtherEarningAggregate.OtherEarning", b =>

@@ -1,4 +1,5 @@
 ﻿using Ardalis.SharedKernel;
+using Bluewater.Core.EmployeeAggregate.Enum;
 using Bluewater.Core.UserAggregate.Enum;
 
 namespace Bluewater.Core.UserAggregate;

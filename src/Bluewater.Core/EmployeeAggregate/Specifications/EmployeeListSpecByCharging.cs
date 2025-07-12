@@ -1,16 +1,17 @@
 ﻿using Ardalis.Specification;
+using Bluewater.Core.EmployeeAggregate.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bluewater.Core.EmployeeAggregate.Specifications;
 
 public class EmployeeListSpecByCharging : Specification<Employee>
 {
-  public EmployeeListSpecByCharging(int? skip, int? take, string chargingName)
+  public EmployeeListSpecByCharging(int? skip, int? take, string chargingName, Tenant tenant)
   {
     Query
         .AsNoTracking()
         .Include(e => e.Charging)
-        .Where(e => e.Charging != null && e.Charging.Name == chargingName)
+        .Where(e => e.Charging != null && e.Charging.Name == chargingName && e.Tenant == tenant)
         .OrderBy(e => e.LastName);
 
     if (skip.HasValue)

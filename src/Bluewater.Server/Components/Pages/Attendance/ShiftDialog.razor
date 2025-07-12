@@ -2,7 +2,7 @@
 @using Bluewater.Server.Global;
 @using Bluewater.UseCases.Schedules;
 @inject IGlobalService GlobalService;
-@attribute [Authorize]
+@attribute [Authorize(Roles = "SuperAdmin")]
 
 @implements IDialogContentComponent<ShiftDTO>
 

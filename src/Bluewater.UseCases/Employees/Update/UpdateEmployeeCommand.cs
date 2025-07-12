@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Bluewater.Core.EmployeeAggregate.Enum;
 
 namespace Bluewater.UseCases.Employees.Update;
@@ -25,7 +25,9 @@ public record UpdateEmployeeCommand(
       Guid PayId,
       Guid TypeId,
       Guid LevelId,
-      Guid ChargingId
+      Guid ChargingId,
+      int MealCredits,
+      Tenant Tenant
   ) : Ardalis.SharedKernel.ICommand<Result<EmployeeDTO>>;
 
   public record ContactInfo(

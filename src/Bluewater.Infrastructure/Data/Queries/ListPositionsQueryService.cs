@@ -9,7 +9,10 @@ public class ListPositionsQueryService(AppDbContext _db) : IListPositionsQuerySe
   {
     try
     {
-      return await _db.Positions.Select(p => new PositionDTO(p.Id, p.Name, p.Description ?? string.Empty, p.SectionId)).ToListAsync();
+      var ret = await _db.Positions.Select(p => new PositionDTO(p.Id, p.Name, p.Description ?? string.Empty, p.SectionId))
+        .ToListAsync();
+
+      return ret.OrderBy(i => i.Name);
     }
     catch (DbUpdateConcurrencyException)
     {

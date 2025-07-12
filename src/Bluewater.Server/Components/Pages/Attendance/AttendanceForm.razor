@@ -5,8 +5,7 @@
 @using Bluewater.UseCases.Shifts;
 @using MediatR
 @rendermode InteractiveServer
-@attribute [Authorize]
-
+@attribute [Authorize(Roles = "SuperAdmin")]
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
 @inject IGlobalService GlobalService;

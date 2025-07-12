@@ -1,6 +1,7 @@
 ﻿using Ardalis.SharedKernel;
 using Bluewater.Core.EmployeeAggregate;
 using Bluewater.Core.Forms.Enum;
+using Bluewater.Core.LeaveCreditAggregate;
 
 namespace Bluewater.Core.Forms.LeaveAggregate;
 public class Leave (Guid empId, Guid leaveCreditId, DateTime startDate, DateTime endDate, bool isHalfDay) : EntityBase<Guid>, IAggregateRoot
@@ -12,7 +13,7 @@ public class Leave (Guid empId, Guid leaveCreditId, DateTime startDate, DateTime
     public Guid? EmployeeId { get; set; } = empId;
     public Guid LeaveCreditId { get; set; } = leaveCreditId;
     public virtual Employee? Employee { get; set; }
-    //public virtual LeaveCredit? LeaveCredit { get; set; }
+    public virtual LeaveCredit? LeaveCredit { get; set; }
 
     public DateTime CreatedDate { get; private set; } = DateTime.Now;
     public Guid CreateBy { get; private set; } = Guid.Empty;

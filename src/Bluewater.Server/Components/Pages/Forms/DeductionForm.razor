@@ -29,7 +29,13 @@
 
 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Bottom" HorizontalGap="10">
     <div>
-        <FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Label="Search employee" Placeholder="Name..." />
+        @if(GlobalService.IsSuperAdmin)
+        {
+            <FluentSearch Required Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Label="Search employee" Placeholder="Name..." />
+        }
+        else{
+            <FluentSearch Required ReadOnly=true @bind-Value=nameFilter Label="Search employee" Placeholder="Name..." />
+        }
     </div>
     <div>
         <FluentSelect TOption="EnumOption" Label="Deduction Type" Items="@deductionTypes" OptionText="@(o => o.Description)" @onchange=HandleDeductionSelected/>
@@ -69,11 +75,14 @@
     <PropertyColumn Title="End Date" Property="@(c => c!.EndDate)" Align="Align.Start" />
     <PropertyColumn Title="Remarks" Property="@(c => c!.Remarks)" Align="Align.Start" />
     <PropertyColumn Title="Status" Property="@(c => EnumUtilities.GetEnumDescription(c!.Status ?? ApplicationStatusDTO.NotSet))" Align="Align.Start" />
-    <TemplateColumn Title="Actions" Align="@Align.End">
-        <FluentButton aria-label="Approve item" IconEnd="@(new Icons.Regular.Size16.CheckmarkCircle())" OnClick="@(async() => await ApproveDeductionAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending))/>
-        <FluentButton aria-label="Reject item" IconEnd="@(new Icons.Regular.Size16.DismissCircle())" OnClick="@(async() => await RejectDeductionAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending))/>
-        <FluentButton Appearance=Appearance.Accent aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteDeductionAsync(context))"/>
-    </TemplateColumn>
+    @if (GlobalService.CurrentCredential == Core.UserAggregate.Enum.Credential.SuperAdmin)
+    {
+        <TemplateColumn Title="Actions" Align="@Align.End">
+            <FluentButton aria-label="Approve item" IconEnd="@(new Icons.Regular.Size16.CheckmarkCircle())" OnClick="@(async() => await ApproveDeductionAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending))/>
+            <FluentButton aria-label="Reject item" IconEnd="@(new Icons.Regular.Size16.DismissCircle())" OnClick="@(async() => await RejectDeductionAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending))/>
+            <FluentButton Appearance=Appearance.Accent aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteDeductionAsync(context))"/>
+        </TemplateColumn>
+    }
 </FluentDataGrid>
 
 <FluentDialogProvider/>
@@ -97,6 +106,20 @@
     {
         await LoadDeductionsAsync();
         deductionTypes = EnumUtilities.GetEnumOptions<DeductionsTypeDTO>();
+
+        if (!GlobalService.IsSuperAdmin)
+        {
+            nameFilter = GlobalService.CurrentUserName;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new GetEmployeeShortQuery(nameFilter));
+                if (result.IsSuccess)
+                    Employee = result.Value;
+            }            
+        }
+
+        await base.OnInitializedAsync();
     }
 
     async Task LoadDeductionsAsync() {
@@ -105,7 +128,7 @@
             using (var scope = ServiceScopeFactory.CreateScope())
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new ListDeductionQuery(null, null));
+                var result = await mediator.Send(new ListDeductionQuery(null, null, GlobalService.CurrentTenant));
                 if (result.IsSuccess)
                     Deductions = result.Value.AsQueryable();
             }

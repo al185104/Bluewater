@@ -1,6 +1,6 @@
 @page "/schedule"
 @rendermode InteractiveServer
-
+@attribute [Authorize(Roles = "SuperAdmin")]
 @using Bluewater.Server.Helpers
 @using Bluewater.Server.Components.Pages.Schedule
 @using Bluewater.Server.Global
@@ -178,7 +178,7 @@ GridTemplateColumns="0.6fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.3fr">
             using (var scope = ServiceScopeFactory.CreateScope())
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new ListScheduleQuery(null, null, selectCharging.Name, _startDate, _endDate));
+                var result = await mediator.Send(new ListScheduleQuery(null, null, selectCharging.Name, _startDate, _endDate, GlobalService.CurrentTenant));
                 if (result.IsSuccess)
                     EmployeeSchedules = result.Value.AsQueryable();
             }

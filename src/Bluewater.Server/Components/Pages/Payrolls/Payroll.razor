@@ -1,6 +1,6 @@
 @page "/payroll"
 @rendermode InteractiveServer
-@attribute [Authorize]
+@attribute [Authorize(Roles = "SuperAdmin")]
 @using Bluewater.UseCases.Attendances
 @using Bluewater.UseCases.Attendances.Create
 @using Bluewater.UseCases.Attendances.List
@@ -119,6 +119,7 @@
     FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
     List<ServiceChargeDTO> serviceChargeData = new();
     private bool _isInitialized;
+
     protected override async Task OnInitializedAsync()
     {
         if(!_isInitialized) {
@@ -183,7 +184,7 @@
             using (var scope = ServiceScopeFactory.CreateScope())
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new ListPayrollQuery(null, null, selectCharging!.Name, _startDate, _endDate));
+                var result = await mediator.Send(new ListPayrollQuery(null, null, selectCharging!.Name, _startDate, _endDate, GlobalService.CurrentTenant));
                 if (result.IsSuccess)
                     Payrolls = result.Value.AsQueryable();
             }

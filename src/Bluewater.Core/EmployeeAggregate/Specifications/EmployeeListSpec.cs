@@ -1,14 +1,16 @@
-using Ardalis.Specification;
+﻿using Ardalis.Specification;
+using Bluewater.Core.EmployeeAggregate.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bluewater.Core.EmployeeAggregate.Specifications;
 
 public class EmployeeListSpec :  Specification<Employee>
 {
-    public EmployeeListSpec(int? skip, int? take)
+    public EmployeeListSpec(int? skip, int? take, Tenant tenant)
     {
         Query
             .AsNoTracking()
+            .Where(i => i.Tenant == tenant)
             .OrderBy(e => e.LastName);
 
         if (skip.HasValue)

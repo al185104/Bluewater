@@ -2,6 +2,7 @@
 @rendermode InteractiveServer
 @using Bluewater.Core.EmployeeAggregate.Enum
 @using Bluewater.Server.Helpers
+@using Bluewater.UseCases.Helpers;
 @using Bluewater.UseCases.Chargings.Delete
 @using Bluewater.UseCases.Departments.Delete
 @using Bluewater.UseCases.Divisions
@@ -46,8 +47,10 @@
 @using Bluewater.UseCases.Shifts.Create;
 @using CsvHelper;
 @using CsvHelper.Configuration;
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 @using Bluewater.Server.Global;
+@attribute [Authorize(Roles = "SuperAdmin")]
 
 @using Bluewater.UseCases.Shifts.List
 @using Bluewater.UseCases.Timesheets.Create
@@ -59,6 +62,8 @@
 @inject IGlobalService GlobalService
 @inject IDialogService DialogService
 @inject IWebHostEnvironment env
+@inject ILocalStorageService LocalStorage
+@inject IJSRuntime JSRuntime
 
 <PageTitle>System Settings</PageTitle>
 
@@ -73,6 +78,15 @@
         <FluentButton OnClick="@(async () => await CreateDummyTimesheet())">Create Dummy Timesheet</FluentButton>
         <FluentButton OnClick="@(async () => await CreateDummySchedule())">Create Dummy Schedule</FluentButton>
     } *@
+
+    <FluentSelect TOption="EnumOption"
+                  Label="Operation Tenant"
+                  Items="@tenantOptions"
+                  OptionText="@(o => o.Description)"
+                  @bind-SelectedOption="@selectedTenant"
+                  Style="width: 100%"
+                  @onchange=HandleTenantSelected>
+    </FluentSelect>
 
     <FluentInputFile @ref="@divFileUploader" DragDropZoneVisible="false" Mode="InputFileMode.SaveToTemporaryFolder" Multiple="false" 
     AnchorId="DivImportButton" MaximumFileSize="@(100 * 1024 * 1024)" Accept=".csv"
@@ -479,6 +493,8 @@
 <FluentDialogProvider/>
 
 @code {
+    private List<EnumOption> tenantOptions = new();
+    private EnumOption selectedTenant = new(null, null);
     int? progressPercent;
     string? progressTitle;
     FluentInputFileEventArgs[] Files = Array.Empty<FluentInputFileEventArgs>();
@@ -495,6 +511,7 @@
     public EmployeeTypeDTO InputEmployeeType { get; set; } = new();
     public LevelDTO InputLevel { get; set; } = new();
     public LeaveCreditDTO InputLeaveCredit { get; set; } = new();
+    public Tenant InputTenant { get; set; } = Tenant.Maribago;
 
     public IQueryable<DivisionDTO> Divisions { get; set; } = default!;
     public IQueryable<DepartmentDTO> Departments { get; set; } = default!;
@@ -524,6 +541,7 @@
                 EmployeeTypes = GlobalService.EmployeeTypes.ToList().AsQueryable();
                 Levels = GlobalService.Levels.ToList().AsQueryable();
                 LeaveCredits = GlobalService.LeaveCredits.ToList().AsQueryable();
+
                 _isInitialized = true;
             }
         }
@@ -535,6 +553,34 @@
         {
             isBusy = false;
         }
+    }
+    #endregion
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            try
+            {
+                tenantOptions = EnumUtilities.GetEnumOptions<Tenant>();
+
+                var saved = await LocalStorage.GetItemAsync<Tenant>("SelectedTenant");
+                if (saved != default)
+                    InputTenant = saved;
+                else
+                    InputTenant = Tenant.Maribago;
+
+                selectedTenant = tenantOptions.FirstOrDefault(i => (Tenant)(i.Value ?? Tenant.Maribago) == InputTenant) ?? new EnumOption(null, null);
+                GlobalService.CurrentTenant = InputTenant;
+                StateHasChanged();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     #region exports
@@ -843,16 +889,7 @@
             isBusy = false;
         }
     }
-    #endregion
-
-    // generic method that gets a list and selects a random index
-    private Guid GetRandomId<T>(List<T> list) where T : class
-    {
-        var random = new Random();
-        return list.OrderBy(p => random.Next()).FirstOrDefault()?.GetType().GetProperty("Id")?.GetValue(list.FirstOrDefault()) as Guid? ?? Guid.Empty;
-    }
-
-    #endregion
+    #endregion    
 
     #region Load Data
     private async Task LoadEmployeeTypes()
@@ -1422,6 +1459,48 @@
     #endregion
 
     #region Private Methods
+    // generic method that gets a list and selects a random index
+    private Guid GetRandomId<T>(List<T> list) where T : class
+    {
+        var random = new Random();
+        return list.OrderBy(p => random.Next()).FirstOrDefault()?.GetType().GetProperty("Id")?.GetValue(list.FirstOrDefault()) as Guid? ?? Guid.Empty;
+    }
+
+    private async Task HandleTenantSelected(ChangeEventArgs changeEventArgs)
+    {
+        var stringValue = changeEventArgs.Value?.ToString()!.Trim();
+
+        if (string.IsNullOrWhiteSpace(stringValue) || stringValue == "Bluewater Maribago")
+            InputTenant = Tenant.Maribago;
+        else
+        {
+            switch (stringValue)
+            {
+                case "Bluewater Panglao":
+                    InputTenant = Tenant.Panglao;
+                    break;
+                case "Bluewater Sumilon":
+                    InputTenant = Tenant.Sumilon;
+                    break;
+                case "Almont Inland Hotel":
+                    InputTenant = Tenant.AlmontInland;
+                    break;
+                case "Almont City Hotel":
+                    InputTenant = Tenant.AlmontCity;
+                    break;
+                case "Almont Beach Resort":
+                    InputTenant = Tenant.AlmontBeach;
+                    break;
+                default:
+                    InputTenant = Tenant.Maribago;
+                    break;
+            }
+        }
+
+        GlobalService.CurrentTenant = InputTenant;
+        await LocalStorage.SetItemAsync("SelectedTenant", InputTenant);
+    }
+
     private async Task CreateDummyEmployees()
     {
         int dummyCount = 0;
@@ -1485,6 +1564,8 @@
                     Weight: 70 + i,
                     ImageUrl: null,
                     Remarks: $"Employee {i + 1} is a sample entry.",
+                    MealCredits: 1,
+                    Tenant: Tenant.Maribago,
                     ContactInfo: new ContactInfo(
                         Email: $"employee{i + 1}@example.com",
                         TelNumber: null,
@@ -1600,7 +1681,7 @@
             using(var scope = ServiceScopeFactory.CreateScope())
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new ListEmployeeQuery(null, null));
+                var result = await mediator.Send(new ListEmployeeQuery(null, null, GlobalService.CurrentTenant));
                 if (result.IsSuccess) {
                     employeeIds = result.Value.Select(e => e.Id).ToList();
                 }
@@ -1657,7 +1738,7 @@
             using(var scope = ServiceScopeFactory.CreateScope())
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new ListEmployeeQuery(null, null));
+                var result = await mediator.Send(new ListEmployeeQuery(null, null, GlobalService.CurrentTenant));
                 if (result.IsSuccess) {
                     employeeIds = result.Value.Select(e => e.Id).ToList();
                 }

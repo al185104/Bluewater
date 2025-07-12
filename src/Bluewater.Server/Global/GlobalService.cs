@@ -20,6 +20,8 @@ using Bluewater.UseCases.Shifts.List;
 using Bluewater.UseCases.Shifts;
 using Bluewater.UseCases.LeaveCredits.List;
 using Bluewater.UseCases.LeaveCredits;
+using Bluewater.Core.EmployeeAggregate.Enum;
+using Bluewater.Core.UserAggregate.Enum;
 
 namespace Bluewater.Server.Global;
 
@@ -35,6 +37,11 @@ public class GlobalService : IGlobalService
     public List<LevelDTO> Levels { get; set; } = new();
     public List<ShiftDTO> Shifts { get; set; } = new();
     public List<LeaveCreditDTO> LeaveCredits { get; set; } = new();
+    public Tenant CurrentTenant { get; set; } = Tenant.Maribago;
+    public string CurrentUserId { get; set; } = string.Empty;
+    public string CurrentUserName { get; set; } = string.Empty;
+    public Credential CurrentCredential { get; set; } = new();
+    public bool IsSuperAdmin { get; set; } = false;
 
     private readonly IServiceScopeFactory ServiceScopeFactory;
     private readonly IMediator Mediator;

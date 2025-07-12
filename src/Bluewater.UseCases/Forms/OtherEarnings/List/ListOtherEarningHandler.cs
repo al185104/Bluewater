@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.Forms.OtherEarningAggregate;
 using Bluewater.Core.OtherEarningAggregate.Specifications;
@@ -9,7 +9,7 @@ internal class ListOtherEarningHandler(IRepository<OtherEarning> _repository) : 
 {
   public async Task<Result<IEnumerable<OtherEarningDTO>>> Handle(ListOtherEarningQuery request, CancellationToken cancellationToken)
   {
-    var spec = new OtherEarningAllSpec();
+    var spec = new OtherEarningAllSpec(request.tenant);
     var result = await _repository.ListAsync(spec, cancellationToken);
     return Result.Success(result.Select(s => new OtherEarningDTO(s.Id, s.EmployeeId, $"{s.Employee!.LastName}, {s.Employee!.FirstName}", (OtherEarningTypeDTO?)s.EarningType ?? default, s.TotalAmount, s.IsActive, s.Date, (ApplicationStatusDTO)s.Status)));
   }

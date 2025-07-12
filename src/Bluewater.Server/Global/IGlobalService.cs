@@ -1,4 +1,4 @@
-using Bluewater.UseCases.Positions;
+﻿using Bluewater.UseCases.Positions;
 using Bluewater.UseCases.Sections;
 using Bluewater.UseCases.Departments;
 using Bluewater.UseCases.Divisions;
@@ -8,6 +8,8 @@ using Bluewater.UseCases.EmployeeTypes;
 using Bluewater.UseCases.Levels;
 using Bluewater.UseCases.Shifts;
 using Bluewater.UseCases.LeaveCredits;
+using Bluewater.Core.EmployeeAggregate.Enum;
+using Bluewater.Core.UserAggregate.Enum;
 
 namespace Bluewater.Server.Global;
 
@@ -23,6 +25,11 @@ public interface IGlobalService
     public List<LevelDTO> Levels { get; set; } 
     public List<ShiftDTO> Shifts { get; set; }
     public List<LeaveCreditDTO> LeaveCredits { get; set; }
+    public Tenant CurrentTenant { get; set; }
+    public string CurrentUserId { get; set; }
+    public string CurrentUserName { get; set; }
+    public Credential CurrentCredential { get; set; }
+    public bool IsSuperAdmin { get; set; }
 
     Task LoadDataAsync();
     (DateOnly startDate, DateOnly endDate) GetStartDateAndEndDateOfWeekByDate(DateTime date);

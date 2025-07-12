@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.EmployeeAggregate;
 using Bluewater.UseCases.Chargings;
@@ -31,7 +31,7 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
   public async Task<Result<IEnumerable<EmployeeDTO>>> Handle(ListEmployeeQuery request, CancellationToken cancellationToken)
   {
     try {
-        var spec = new EmployeeListSpec(request.skip, request.take);
+        var spec = new EmployeeListSpec(request.skip, request.take, request.tenant);
         var employees = await _repository.ListAsync(spec, cancellationToken);
         if(employees == null) return Result.NotFound();
 
@@ -198,7 +198,9 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
                 charging?.Name,
                 pay,
                 type?.Name,
-                level?.Name
+                level?.Name,
+                entity.MealCredits,
+                entity.Tenant
             ));
         }
 

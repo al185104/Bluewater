@@ -13,6 +13,7 @@
 @using Microsoft.FluentUI.AspNetCore.Components.Extensions
 @using Bluewater.UseCases.Employees
 @using Bluewater.UseCases.Leaves;
+@using Bluewater.UseCases.Helpers;
 
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
@@ -30,7 +31,14 @@
 
 <FluentStack Orientation="Orientation.Horizontal" VerticalAlignment="VerticalAlignment.Bottom" HorizontalGap="10">
     <div>
-        <FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Label="Search employee" Required Placeholder="Name or Barcode..." Style="width: 250px;"/>
+        @if (GlobalService.IsSuperAdmin)
+        {
+            <FluentSearch Autofocus=true @onchange="@(async(args) => await HandleEmployeeFilter(args))" @bind-Value=nameFilter @bind-Value:after="HandleClear" Label="Search employee" Required Placeholder="Name or Barcode..." Style="width: 250px;"/>
+        }
+        else
+        {
+            <FluentSearch ReadOnly=true @bind-Value=nameFilter Label="Search employee" Required Placeholder="Name or Barcode..." Style="width: 250px;" />
+        }
     </div>
     <div>
         <FluentDatePicker Label="Start Date" Value="@InputLeave!.StartDate" ValueChanged="@(e => InputLeave!.StartDate = e)"/>
@@ -49,8 +57,8 @@
     </div>
     <div>
         <FluentSwitch @bind-Value="@InputLeave!.IsHalfDay" Label="Type">
-            <span slot="checked-message">Full day</span>
-            <span slot="unchecked-message">Half day</span>
+            <span slot="unchecked-message">Full day</span>
+            <span slot="checked-message">Half day</span>
         </FluentSwitch>        
     </div>
     <FluentButton Text="Add" Appearance="Appearance.Accent" OnClick="@(async() => await AddLeaveAsync())" >Add</FluentButton>
@@ -58,17 +66,22 @@
 
 @* add a FluentDataGrid here for Leave*@
 <FluentDataGrid Id="shiftsGrid" Items="@LeaveList" TGridItem="LeaveDTO">
+    <PropertyColumn Title="Name" Property="@(c => c!.EmployeeName)" Align="Align.Start"/>
     <PropertyColumn Title="Start Date" Property="@(c => c!.StartDate)" Align="Align.Start" />
     <PropertyColumn Title="End Date" Property="@(c => c!.EndDate)" Align="Align.Start" />
-    <PropertyColumn Title="Is Half Day" Property="@(c => c!.IsHalfDay)" Align="Align.Start" />
-    <PropertyColumn Title="Status" Property="@(c => c!.Status)" Align="Align.Start"/>
-    <PropertyColumn Title="Employee" Property="@(c => c!.EmployeeId)" Align="Align.Start"/>
-    <PropertyColumn Title="Leave Credit" Property="@(c => c!.LeaveCreditId)" Align="Align.Start"/>
-    <TemplateColumn Title="Actions" Align="@Align.End">
-        <FluentButton aria-label="Approve item" IconEnd="@(new Icons.Regular.Size16.CheckmarkCircle())" OnClick="@(async() => await ApproveLeaveAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending)) />
-        <FluentButton aria-label="Reject item" IconEnd="@(new Icons.Regular.Size16.DismissCircle())" OnClick="@(async() => await RejectedLeaveAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending)) />
-        <FluentButton Appearance=Appearance.Accent aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteLeaveAsync(context))" />
+    <TemplateColumn Title="Day Type" Align="Align.Start">
+        <FluentLabel>@(context.IsHalfDay ? "Half day" : "Full day")</FluentLabel>
     </TemplateColumn>
+    <PropertyColumn Title="Leave Type" Property="@(c => c!.LeaveCreditName)" Align="Align.Start"/>
+    <PropertyColumn Title="Status" Property="@(c => EnumUtilities.GetEnumDescription(c!.Status))" Align="Align.Start" />
+    @if (GlobalService.CurrentCredential == Core.UserAggregate.Enum.Credential.SuperAdmin)
+    {
+        <TemplateColumn Title="Actions" Align="@Align.End">
+            <FluentButton aria-label="Approve item" IconEnd="@(new Icons.Regular.Size16.CheckmarkCircle())" OnClick="@(async() => await ApproveLeaveAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending)) />
+            <FluentButton aria-label="Reject item" IconEnd="@(new Icons.Regular.Size16.DismissCircle())" OnClick="@(async() => await RejectedLeaveAsync(context))" Disabled=@(!(context.Status == ApplicationStatusDTO.NotSet || context.Status == ApplicationStatusDTO.Pending)) />
+            <FluentButton Appearance=Appearance.Accent aria-label="Delete item" IconEnd="@(new Icons.Regular.Size16.Delete())" OnClick="@(async() => await DeleteLeaveAsync(context))" />
+        </TemplateColumn>
+    }
 </FluentDataGrid>
 
 <FluentDialogProvider />
@@ -95,6 +108,18 @@
         {
             LeaveCredits = GlobalService.LeaveCredits.AsQueryable();
             await GetLeavesAsync();
+
+            if (!GlobalService.IsSuperAdmin)
+            {
+                nameFilter = GlobalService.CurrentUserName;
+                using (var scope = ServiceScopeFactory.CreateScope())
+                {
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                    var result = await mediator.Send(new GetEmployeeShortQuery(nameFilter));
+                    if (result.IsSuccess)
+                        Employee = result.Value;
+                }
+            }
         }
         await base.OnInitializedAsync();
     }
@@ -110,7 +135,7 @@
             using (var scope = ServiceScopeFactory.CreateScope())
             {
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new ListLeaveQuery(null,null));
+                var result = await mediator.Send(new ListLeaveQuery(null,null,GlobalService.CurrentTenant));
                 if (result.IsSuccess)
                     LeaveList = result.Value.AsQueryable();
             }
@@ -182,8 +207,12 @@
 
     private void SelectedLeaveCreditOptionChanged(ChangeEventArgs e)
     {
-        if (InputLeave != null && e.Value != null && Guid.TryParse(e.Value?.ToString(), out var selectedId))
-            InputLeave!.LeaveCreditId = selectedId;
+        if (InputLeave != null && e.Value != null)
+        {
+            var _leaveCredit = LeaveCredits?.FirstOrDefault(i => i.Description.Equals(e.Value.ToString(), StringComparison.OrdinalIgnoreCase));
+            if (_leaveCredit != null)
+                InputLeave!.LeaveCreditId = _leaveCredit.Id;
+        }
     }
 
     async Task DeleteLeaveAsync(LeaveDTO context)

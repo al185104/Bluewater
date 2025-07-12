@@ -1,6 +1,6 @@
 @page  "/employee"
 @rendermode @(new InteractiveServerRenderMode(prerender:false))
-@attribute [Authorize]
+@attribute [Authorize(Roles = "SuperAdmin")]
 @using Bluewater.Server.Components.Pages.Employee
 @using Bluewater.Server.Helpers
 @using Bluewater.UseCases.Employees
@@ -138,7 +138,7 @@
                 int skip = (pagination.CurrentPageIndex) * pagination.ItemsPerPage;
                 int take = pagination.ItemsPerPage;
 
-                var result = await mediator.Send(new ListEmployeeQuery(skip,take));
+                var result = await mediator.Send(new ListEmployeeQuery(skip,take, GlobalService.CurrentTenant));
                 if (result.IsSuccess){
                     return GridItemsProviderResult.From<EmployeeDTO>(result.Value.ToList(), 200);
                 }
@@ -186,33 +186,33 @@
             if(file != null) {
                 var ret = await CsvUtility.ImportFromCSV<EmployeeImportDTO>(file.LocalFile!.FullName);
                 if(ret.Item1 != null) {
-                    foreach(var e in ret.Item1) {
+                    foreach(var emp in ret.Item1) {
 
 
-                        Guid? positionId = GlobalService.Positions.FirstOrDefault(i => i.Name.Equals(e.Position, StringComparison.InvariantCultureIgnoreCase))?.Id;
-                        Guid? chargingId = GlobalService.Chargings.FirstOrDefault(i => i.Name.Equals(e.ChargingCode, StringComparison.InvariantCultureIgnoreCase))?.Id;
+                        Guid? positionId = GlobalService.Positions.FirstOrDefault(i => i.Name.Equals(emp.Position, StringComparison.InvariantCultureIgnoreCase))?.Id;
+                        Guid? chargingId = GlobalService.Chargings.FirstOrDefault(i => i.Name.Equals(emp.ChargingCode, StringComparison.InvariantCultureIgnoreCase))?.Id;
 
-                        var type = GlobalService.EmployeeTypes.FirstOrDefault(i => i.Name.Equals(e.EmployeeType, StringComparison.InvariantCultureIgnoreCase));
-                        var level = GlobalService.Levels.FirstOrDefault(i => i.Name.Equals(e.Rank, StringComparison.InvariantCultureIgnoreCase));
+                        var type = GlobalService.EmployeeTypes.FirstOrDefault(i => i.Name.Equals(emp.EmployeeType, StringComparison.InvariantCultureIgnoreCase));
+                        var level = GlobalService.Levels.FirstOrDefault(i => i.Name.Equals(emp.Rank, StringComparison.InvariantCultureIgnoreCase));
 
                         Guid userId = Guid.Empty;
                         using (var scope = ServiceScopeFactory.CreateScope())
                         {
                             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                            var result = await mediator.Send(new CreateUserCommand(e.EmployeeID ?? string.Empty, e.EmployeeID ?? string.Empty, Credential.Employee, null, false));
+                            var result = await mediator.Send(new CreateUserCommand(emp.EmployeeID ?? string.Empty, emp.EmployeeID ?? string.Empty, Credential.Employee, null, false));
                             if (result.IsSuccess)
                                 userId = result.Value;
                         }
 
                         // create pay
                         Guid payId = Guid.Empty;
-                        if(!string.IsNullOrEmpty(e.EmployeeType)) {
+                        if(!string.IsNullOrEmpty(emp.EmployeeType)) {
                             using (var scope = ServiceScopeFactory.CreateScope())
                             {
-                                var (dailyRate, hourlyRate) = GlobalService.GetRatesByEmployeeType(e.MonthlyRate.HasValue ? e.MonthlyRate.Value : 0, e.EmployeeType.Equals("Regular", StringComparison.InvariantCultureIgnoreCase));
-                                
+                                var (dailyRate, hourlyRate) = GlobalService.GetRatesByEmployeeType(emp.MonthlyRate.HasValue ? emp.MonthlyRate.Value : 0, emp.EmployeeType.Equals("Regular", StringComparison.InvariantCultureIgnoreCase));
+
                                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                                var result = await mediator.Send(new CreatePayCommand(e.MonthlyRate ?? 0, dailyRate, hourlyRate, 200 , 200));
+                                var result = await mediator.Send(new CreatePayCommand(emp.MonthlyRate ?? 0, dailyRate, hourlyRate, 200 , 200));
                                 if (result.IsSuccess)
                                     payId = result.Value;
                             }
@@ -222,15 +222,15 @@
                         {
                             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                             await mediator.Send(new CreateEmployeeCommand(
-                                e.FirstName ?? string.Empty, e.LastName ?? string.Empty, e.MiddleName, e.BirthDate, 
-                                Enum.TryParse<Gender>(e.Gender, true, out var genderResult) ? genderResult : Gender.NotSet, 
-                                Enum.TryParse<CivilStatus>(e.CivilStatus, true, out var civilStatusResult) ? civilStatusResult : CivilStatus.Single, BloodType.NotSet,
-                                Enum.TryParse<Status>(e.Status, true, out var status) ? status : Status.NotSet, null, null, null, null,
+                                emp.FirstName ?? string.Empty, emp.LastName ?? string.Empty, emp.MiddleName, emp.BirthDate, 
+                                Enum.TryParse<Gender>(emp.Gender, true, out var genderResult) ? genderResult : Gender.NotSet, 
+                                Enum.TryParse<CivilStatus>(emp.CivilStatus, true, out var civilStatusResult) ? civilStatusResult : CivilStatus.Single, BloodType.NotSet,
+                                Enum.TryParse<Status>(emp.Status, true, out var status) ? status : Status.NotSet, null, null, null, null,
                                 new Bluewater.UseCases.Employees.Create.ContactInfo(
                                     Email: null,
                                     TelNumber: null,
-                                    MobileNumber: e.CellNo,
-                                    Address: e.Address,
+                                    MobileNumber: emp.CellNo,
+                                    Address: emp.Address,
                                     ProvincialAddress: null,
                                     MothersMaidenName: null,
                                     FathersName: null,
@@ -242,21 +242,22 @@
                                 ),
                                 new Bluewater.UseCases.Employees.Create.EducationInfo(EducationalAttainment.NotSet, null, null),
                                 new Bluewater.UseCases.Employees.Create.EmploymentInfo(
-                                    DateHired: e.DateHired,
+                                    DateHired: emp.DateHired,
                                     DateRegularized: null,
                                     DateResigned: null,
                                     DateTerminated: null,
-                                    TinNo: e.TINNo,
-                                    SssNo: e.SSSNo,
-                                    HdmfNo: e.PagIbigID,
-                                    PhicNo: e.PhilHealthID,
-                                    BankAccount: e.BankAccount,
+                                    TinNo: emp.TINNo,
+                                    SssNo: emp.SSSNo,
+                                    HdmfNo: emp.PagIbigID,
+                                    PhicNo: emp.PhilHealthID,
+                                    BankAccount: emp.BankAccount,
                                     HasServiceCharge: false // Default as it is not available in the import data                                    
                                 ),
-                                userId, positionId, payId, type?.Id, level?.Id, chargingId));
+                                userId, positionId, payId, type?.Id, level?.Id, chargingId,
+                                emp.MealCredits ?? 1, Enum.TryParse<Tenant>(emp.Tenant, true, out var tenant) ? tenant : Tenant.Maribago));
                         }
                     }
-                     
+
                     await LoadEmployeesAsync();
                 }
                 else 
@@ -303,9 +304,8 @@
 
                 int skip = (pagination.CurrentPageIndex - 1) * pagination.ItemsPerPage;
                 int take = pagination.ItemsPerPage;
-                
-                @* var result = await mediator.Send(new ListEmployeeQuery(skip, take)); *@
-                var result = await mediator.Send(new ListEmployeeQuery(null,null));
+
+                var result = await mediator.Send(new ListEmployeeQuery(null,null, GlobalService.CurrentTenant));
                 if (result.IsSuccess){
                     Employees = result.Value.AsQueryable();
                 }
@@ -324,7 +324,7 @@
             var dialog = await DialogService.ShowConfirmationAsync($"Are you sure you want to delete {employee.LastName}, {employee.FirstName}?", "Yes", "No", "Delete");
             var conf = await dialog.Result;
             if (conf.Cancelled) return;
-         
+
             isBusy = true;
 
             using (var scope = ServiceScopeFactory.CreateScope())
@@ -335,9 +335,10 @@
                     await LoadEmployeesAsync();
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
+            Console.WriteLine(ex.Message);
+            await DialogService.ShowErrorAsync($"Unable to delete {employee.LastName}, {employee.FirstName}","");
         }
         finally
         {
@@ -373,7 +374,7 @@
             employee.EmploymentInfo!.DateHired, employee.EmploymentInfo!.DateRegularized, employee.EmploymentInfo!.DateResigned, employee.EmploymentInfo!.DateTerminated, employee.EmploymentInfo!.TinNo, employee.EmploymentInfo!.SssNo, employee.EmploymentInfo!.PagibigNo, employee.EmploymentInfo!.PhilHealthNo, employee.EmploymentInfo!.BankAccount, employee.EmploymentInfo!.HasServiceCharge,
             employee.Pay!.Id, employee.Pay!.BasicPay, employee.Pay!.DailyRate, employee.Pay!.HourlyRate, employee.Pay!.HDMF_Con, employee.Pay!.HDMF_Er,
             employee.User!.Id, employee.User!.Username, employee.User!.PasswordHash, credential, employee.User!.SupervisedGroup, employee.User!.IsGlobalSupervisor,
-            positionId, sectionId, departmentId, divisionId, typeId, levelId, chargingId,
+            positionId, sectionId, departmentId, divisionId, typeId, levelId, chargingId, employee.MealCredits, employee.Tenant,
             defaultSchedules[0].Id == Guid.Empty ? null : defaultSchedules[0], 
             defaultSchedules[1].Id == Guid.Empty ? null : defaultSchedules[1],
             defaultSchedules[2].Id == Guid.Empty ? null : defaultSchedules[2],
@@ -434,7 +435,8 @@
                             new Bluewater.UseCases.Employees.Update.ContactInfo(e.Email, e.TelNumber, e.MobileNumber, e.Address, e.ProvincialAddress, e.MothersMaidenName, e.FathersName, e.EmergencyContact, e.RelationshipContact, e.AddressContact, e.TelNoContact, e.MobileNoContact),
                             new Bluewater.UseCases.Employees.Update.EducationInfo(e.EducationalAttainment, e.CourseGraduated, e.UniversityGraduated),
                             new Bluewater.UseCases.Employees.Update.EmploymentInfo(e.DateHired, e.DateRegularized, e.DateResigned, e.DateTerminated, e.TinNo, e.SssNo, e.HdmfNo, e.PhicNo, e.BankAccount, e.HasServiceCharge),
-                            e.UserId ?? Guid.Empty, e.PositionId, e.PayId ?? Guid.Empty, e.TypeId, e.LevelId, e.ChargingId));
+                            e.UserId ?? Guid.Empty, e.PositionId, e.PayId ?? Guid.Empty, e.TypeId, e.LevelId, e.ChargingId,
+                            e.MealCredits, e.Tenant));
                         if (ret.IsSuccess) {
                             empId = ret.Value.Id;
                             await LoadEmployeesAsync();
@@ -463,7 +465,7 @@
             null,null,null,null,null,null,null,null,null,false,
             null,null,null,null,null,null,
             null,null,null,Credential.None,null,isGlobalSupervisor: false,
-            Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty
+            Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty,Guid.Empty, 0, Tenant.Maribago
         );
 
         IDialogReference _dialog = await DialogService.ShowPanelAsync<EmployeeForm>(employee, new DialogParameters<EmployeeFormDTO>
@@ -521,7 +523,7 @@
                             new Bluewater.UseCases.Employees.Create.ContactInfo(e.Email, e.TelNumber, e.MobileNumber, e.Address, e.ProvincialAddress, e.MothersMaidenName, e.FathersName, e.EmergencyContact, e.RelationshipContact, e.AddressContact, e.TelNoContact, e.MobileNoContact),
                             new Bluewater.UseCases.Employees.Create.EducationInfo(e.EducationalAttainment, e.CourseGraduated, e.UniversityGraduated),
                             new Bluewater.UseCases.Employees.Create.EmploymentInfo(e.DateHired, e.DateRegularized, e.DateResigned, e.DateTerminated, e.TinNo, e.SssNo, e.HdmfNo, e.PhicNo, e.BankAccount, e.HasServiceCharge),
-                            userId, e.PositionId, payId, e.TypeId, e.LevelId, e.ChargingId));
+                            userId, e.PositionId, payId, e.TypeId, e.LevelId, e.ChargingId, e.MealCredits, e.Tenant));
                         if (ret.IsSuccess){
                             empId = ret.Value;
                             await LoadEmployeesAsync();

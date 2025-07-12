@@ -32,7 +32,7 @@ internal class ListEmployeeByChargingHandler(IRepository<Employee> _repository, 
   {
     try
     {
-      var spec = new EmployeeListSpecByCharging(request.skip, request.take, request.chargingName);
+      var spec = new EmployeeListSpecByCharging(request.skip, request.take, request.chargingName, request.tenant);
       var employees = await _repository.ListAsync(spec, cancellationToken);
       if (employees == null) return Result.NotFound();
 

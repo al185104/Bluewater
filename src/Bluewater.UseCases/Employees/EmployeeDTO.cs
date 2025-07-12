@@ -1,4 +1,4 @@
-using Bluewater.Core.EmployeeAggregate.Enum;
+﻿using Bluewater.Core.EmployeeAggregate.Enum;
 using Bluewater.UseCases.Pays;
 using Bluewater.UseCases.Users;
 
@@ -31,8 +31,10 @@ public record EmployeeDTO()
     public PayDTO? Pay { get; set; }
     public string? Type { get; set; }
     public string? Level { get; set; }
-    
-    public EmployeeDTO(Guid id, string firstName, string lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, ContactInfoDTO? contactInfo, EducationInfoDTO? educationInfo, EmploymentInfoDTO? employmentInfo, UserDTO? user, string? position, string? section, string? department, string? division, string? charging, PayDTO? pay, string? type, string? level) : this()
+    public int MealCredits { get; set; }
+    public Tenant Tenant { get; set; } = Tenant.Maribago;
+
+    public EmployeeDTO(Guid id, string firstName, string lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, ContactInfoDTO? contactInfo, EducationInfoDTO? educationInfo, EmploymentInfoDTO? employmentInfo, UserDTO? user, string? position, string? section, string? department, string? division, string? charging, PayDTO? pay, string? type, string? level, int? mealCredit = 0, Tenant? tenant = Tenant.Maribago) : this()
     {
         Id = id;
         FirstName = firstName;
@@ -59,7 +61,9 @@ public record EmployeeDTO()
         Pay = pay;
         Type = type;
         Level = level;
-    }
+        MealCredits = mealCredit ?? 0;
+        Tenant = tenant ?? Tenant.Maribago;
+  }
 }
 
 public record ContactInfoDTO(

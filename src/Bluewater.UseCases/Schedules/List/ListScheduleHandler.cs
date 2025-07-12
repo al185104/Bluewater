@@ -8,6 +8,7 @@ using Bluewater.UseCases.Shifts;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
+
 namespace Bluewater.UseCases.Schedules.List;
 
 internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListScheduleQuery, Result<IEnumerable<EmployeeScheduleDTO>>>
@@ -18,7 +19,7 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
     using (var scope = serviceScopeFactory.CreateScope())
     {
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var ret = await mediator.Send(new ListEmployeeQuery(null, null));
+        var ret = await mediator.Send(new ListEmployeeQuery(null, null, request.tenant));
         if (ret.IsSuccess)
             employees = ret.Value.Where(i => i.Charging != null && i.Charging.Equals(request.chargingName, StringComparison.InvariantCultureIgnoreCase)).ToList();
     }

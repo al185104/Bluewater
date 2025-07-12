@@ -9,7 +9,10 @@ public class ListDivisionsQueryService(AppDbContext _db) : IListDivisionsQuerySe
   {
     try
     {
-      return await _db.Divisions.Select(d => new DivisionDTO(d.Id, d.Name, d.Description ?? string.Empty)).ToListAsync();
+      var ret = await _db.Divisions.Select(d => new DivisionDTO(d.Id, d.Name, d.Description ?? string.Empty))
+        .ToListAsync();
+
+      return ret.OrderBy(i => i.Name);
     }
     catch (DbUpdateConcurrencyException)
     {

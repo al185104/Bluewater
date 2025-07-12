@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Bluewater.Core.EmployeeAggregate.Enum;
 namespace Bluewater.UseCases.Employees.Create;
 
@@ -23,7 +23,9 @@ namespace Bluewater.UseCases.Employees.Create;
       Guid? PayId,
       Guid? TypeId,
       Guid? LevelId,
-      Guid? ChargingId
+      Guid? ChargingId,
+      int MealCredits,
+      Tenant Tenant
   ) : Ardalis.SharedKernel.ICommand<Result<Guid>>;
 
   public record ContactInfo(

@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.EmployeeAggregate;
 using Bluewater.UseCases.Chargings;
@@ -32,7 +32,7 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
     var existingEmployee = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (existingEmployee == null) return Result.NotFound();
 
-    existingEmployee.UpdateEmployee(request.FirstName, request.LastName, request.MiddleName, request.DateOfBirth, request.Gender, request.CivilStatus, request.BloodType, request.Status, request.Height, request.Weight, request.ImageUrl, request.Remarks);
+    existingEmployee.UpdateEmployee(request.FirstName, request.LastName, request.MiddleName, request.DateOfBirth, request.Gender, request.CivilStatus, request.BloodType, request.Status, request.Height, request.Weight, request.ImageUrl, request.Remarks, request.MealCredits, request.Tenant);
 
     if(request.ContactInfo != null)
     {
@@ -77,10 +77,16 @@ public class UpdateEmployeeHandler(IRepository<Employee> _repository, IServiceSc
         ));
     }
 
-//    if(request.UserId != Guid.Empty && request.PositionId != Guid.Empty && request.PayId != Guid.Empty && request.TypeId != Guid.Empty && request.LevelId != Guid.Empty && request.ChargingId != Guid.Empty)
-        existingEmployee.SetExternalKeys(request.UserId, request.PositionId, request.PayId, request.TypeId, request.LevelId, request.ChargingId);
+    existingEmployee.SetExternalKeys(request.UserId, request.PositionId, request.PayId, request.TypeId, request.LevelId, request.ChargingId);
 
-    await _repository.UpdateAsync(existingEmployee, cancellationToken);
+    try { 
+      await _repository.UpdateAsync(existingEmployee, cancellationToken);
+    }
+    catch (Exception ex)
+    {
+      Console.WriteLine(ex.Message);
+      throw;
+    }
 
     var contact = new ContactInfoDTO(
         existingEmployee.ContactInfo!.Email,

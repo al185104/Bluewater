@@ -1,4 +1,4 @@
-namespace Bluewater.UseCases.Employees;
+﻿namespace Bluewater.UseCases.Employees;
 using System.ComponentModel.DataAnnotations;
 
 public class EmployeeImportDTO
@@ -89,4 +89,11 @@ public class EmployeeImportDTO
 
     [Display(Name = "Monthly Rate")]
     public decimal? MonthlyRate { get; set; }
+
+    [Display(Name = "Meal Credit")]
+    public int? MealCredits { get; set; }
+
+    //[Display(Name = "Tenant")]
+    [Display(Name = "Project")]
+    public string Tenant { get; set; } = string.Empty;
 }

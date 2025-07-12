@@ -1,8 +1,10 @@
 ﻿@page "/"
 
 @attribute [Authorize]
-
+@rendermode InteractiveServer
 @inject IJSRuntime JSRuntime
+@using Bluewater.Core.EmployeeAggregate.Enum
+@using Bluewater.UseCases.Employees.Get
 @using Bluewater.UseCases.Positions;
 @using Bluewater.UseCases.Positions.List;
 @using Bluewater.UseCases.Sections;
@@ -19,25 +21,34 @@
 @using Bluewater.UseCases.EmployeeTypes.List;
 @using Bluewater.UseCases.Levels;
 @using Bluewater.UseCases.Levels.List;
+@using Bluewater.UseCases.Helpers;
 @using Bluewater.Server.Global;
+@using Bluewater.Core.UserAggregate.Enum;
 
 @using MediatR;
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using System.Security.Claims
 @inject IServiceScopeFactory ServiceScopeFactory
 @inject IMediator Mediator
 @inject IGlobalService GlobalService
+@inject ILocalStorageService LocalStorage
+@inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<IdentityUser> UserManager
 
 <PageTitle>Home</PageTitle>
 
 <div class="home-page-container">
     <!-- Left Content: Welcome Message -->
     <div class="welcome-container">
-        <h1>Welcome to the Human Resource Management System of Bluewater Maribago</h1>
+        <h1>Welcome to the Human Resource Management System of @(CurrentTenant)</h1>
         <p>
-At Bluewater Maribago, we recognize that our people are our greatest asset, and we are dedicated to creating an environment where every team member feels empowered, supported, and valued. Our Human Resource Management System is here to streamline your daily operations, helping you manage employee records, performance evaluations, payroll, and benefits—all in one centralized platform.
+            At @(CurrentTenant), we recognize that our people are our greatest asset, and we are dedicated to creating an environment where every team member feels empowered, supported, and valued. Our Human Resource Management System is here to streamline your daily operations, helping you manage employee records, performance evaluations, payroll, and benefits—all in one centralized platform.
 
 This system is designed to offer you unparalleled convenience, efficiency, and transparency, giving you quick access to the resources and tools you need to succeed in your role. Whether you are managing employee schedules, facilitating training programs, or tracking career development, our platform ensures you have the data and insights required to make informed decisions that drive the success of our team.
 
-At Bluewater Maribago, we are committed to fostering a workplace culture that nurtures growth, collaboration, and innovation. Through this platform, we aim to enhance your experience, making HR processes more streamlined so that you can focus on what truly matters—developing our people and elevating the employee experience.
+            At @(CurrentTenant), we are committed to fostering a workplace culture that nurtures growth, collaboration, and innovation. Through this platform, we aim to enhance your experience, making HR processes more streamlined so that you can focus on what truly matters—developing our people and elevating the employee experience.
 
 Explore, engage, and empower—this platform is your key to unlocking a more efficient, modern, and proactive approach to Human Resource management. Welcome to the future of HR at Bluewater Maribago!
         </p>
@@ -110,153 +121,6 @@ Explore, engage, and empower—this platform is your key to unlocking a more eff
     }    
 </style>
 
-@* 
-<style>
-    .home-page-container {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 20px;
-    }
-
-    .welcome-container {
-        flex: 2;
-        padding: 20px;
-    }
-
-    .updates-container {
-        flex: 1;
-        padding: 20px;
-        border-left: 2px solid #ddd;
-    }
-
-    .updates-container FluentAccordion {
-        width: 100%;
-    }
-
-    .welcome-container {
-        text-align: left;
-        padding: 20px;
-        max-width: 100%;
-    }
-    h1 {
-        color: #0077be;
-        margin-bottom: 20px;
-    }
-    p {
-        font-size: 18px;
-        line-height: 1.6;
-    }
-</style>
-
-
-<PageTitle>Home</PageTitle>
-
-<div class="home-page-container">
-    <!-- Left Content: Welcome Message -->
-    <div class="welcome-container">
-        <h1>Welcome to the Human Resource Management System of Bluewater Maribago</h1>
-        <p>
-At Bluewater Maribago, we recognize that our people are our greatest asset, and we are dedicated to creating an environment where every team member feels empowered, supported, and valued. Our Human Resource Management System is here to streamline your daily operations, helping you manage employee records, performance evaluations, payroll, and benefits—all in one centralized platform.
-
-This system is designed to offer you unparalleled convenience, efficiency, and transparency, giving you quick access to the resources and tools you need to succeed in your role. Whether you are managing employee schedules, facilitating training programs, or tracking career development, our platform ensures you have the data and insights required to make informed decisions that drive the success of our team.
-
-At Bluewater Maribago, we are committed to fostering a workplace culture that nurtures growth, collaboration, and innovation. Through this platform, we aim to enhance your experience, making HR processes more streamlined so that you can focus on what truly matters—developing our people and elevating the employee experience.
-
-Explore, engage, and empower—this platform is your key to unlocking a more efficient, modern, and proactive approach to Human Resource management. Welcome to the future of HR at Bluewater Maribago!
-        </p>
-    </div>
-
-    <!-- Right Content: Updates Section -->
-    <div class="updates-container">
-        <FluentAccordion>
-            <FluentAccordionItem IsExpanded="true" Header="Probie Calculation">
-                <ul>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> regular / non-regular update the readonly
-                    </li>
-                </ul>
-            </FluentAccordionItem>
-            
-            <FluentAccordionItem IsExpanded="true" Header="Schedule">
-                <ul>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> no charging
-                    </li>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> no section
-                    </li>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> add id number
-                    </li>
-                </ul>
-            </FluentAccordionItem>
-            
-            <FluentAccordionItem IsExpanded="true" Header="General Updates">
-                <ul>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> barcode all over the place
-                    </li>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> attendance - total absences between work and late
-                    </li>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> add color to edited
-                    </li>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> payroll - hide 0 earnings/deductions
-                    </li>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> report - keep the old design
-                    </li>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> timesheet API
-                    </li>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> meal credit API
-                    </li>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> barcode and bank account in reports
-                    </li>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> use xlsx for reports
-                    </li>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> auto hide 0 from reports
-                    </li>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size20.Checkmark())" Style="color: green;" /> loading visible
-                    </li>
-                </ul>
-            </FluentAccordionItem>
-
-            <FluentAccordionItem IsExpanded="true" Header="In Progress">
-                <ul>
-                    <li>
-                        <FluentIcon Value="@(new Icons.Filled.Size16.Hourglass())" Style="color: orange;" /> meal credit in the device
-                    </li>
-                </ul>
-            </FluentAccordionItem>
-        </FluentAccordion>
-    </div>
-</div> *@
-
-
-@* <PageTitle>Home</PageTitle>
-
-    <div class="welcome-container">
-        <h1>Welcome to the Human Resource Management System of Bluewater Maribago</h1>
-        <p>
-At Bluewater Maribago, we recognize that our people are our greatest asset, and we are dedicated to creating an environment where every team member feels empowered, supported, and valued. Our Human Resource Management System is here to streamline your daily operations, helping you manage employee records, performance evaluations, payroll, and benefits—all in one centralized platform.
-
-This system is designed to offer you unparalleled convenience, efficiency, and transparency, giving you quick access to the resources and tools you need to succeed in your role. Whether you are managing employee schedules, facilitating training programs, or tracking career development, our platform ensures you have the data and insights required to make informed decisions that drive the success of our team.
-
-At Bluewater Maribago, we are committed to fostering a workplace culture that nurtures growth, collaboration, and innovation. Through this platform, we aim to enhance your experience, making HR processes more streamlined so that you can focus on what truly matters—developing our people and elevating the employee experience.
-
-Explore, engage, and empower—this platform is your key to unlocking a more efficient, modern, and proactive approach to Human Resource management. Welcome to the future of HR at Bluewater Maribago!
-        </p>
-    </div> *@
-    
 @if (isBusy)
 {
     <div class="overlay">
@@ -275,19 +139,92 @@ Explore, engage, and empower—this platform is your key to unlocking a more eff
     public IQueryable<EmployeeTypeDTO> EmployeeTypes { get; set; } = default!;
     public IQueryable<LevelDTO> Levels { get; set; } = default!;    
 
-    protected override async Task OnInitializedAsync()
+    public string CurrentTenant
     {
-        try
+        get => EnumUtilities.GetEnumDescription(GlobalService.CurrentTenant);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            isBusy = true;
-            await GlobalService.LoadDataAsync();
+            try
+            {
+                isBusy = true;
+                await GlobalService.LoadDataAsync();
+
+                ClearGlobalUser();
+
+                // 1) Ask the AuthenticationStateProvider for the current ClaimsPrincipal
+                var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+                var user = authState.User;
+
+                // 2) Check if they’re actually logged in
+                if (user.Identity?.IsAuthenticated == true)
+                {
+                    var rolesFromClaims = user.Claims
+                                    .Where(c => c.Type == ClaimTypes.Role)
+                                    .Select(c => c.Value)
+                                    .ToList();
+
+                    GlobalService.IsSuperAdmin = rolesFromClaims.Contains("SuperAdmin");
+
+                    if (rolesFromClaims.Any())
+                    {
+                        if (Enum.TryParse(typeof(Credential), rolesFromClaims.First(), out var credential))
+                        {
+                            GlobalService.CurrentCredential = (Credential)credential;
+                        }
+                    }
+
+                    if (!string.IsNullOrEmpty(user.Identity.Name))
+                    {
+                        GlobalService.CurrentUserId = user.Identity.Name;
+                        if (int.TryParse(user.Identity.Name, out int employeeId))
+                        {
+                            using (var scope = ServiceScopeFactory.CreateScope())
+                            {
+                                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                                var result = await mediator.Send(new GetEmployeeByBarcodeQuery(user.Identity.Name));
+                                if (result != null && result.IsSuccess)
+                                {
+                                    GlobalService.CurrentTenant = result.Value.Tenant;
+                                    GlobalService.CurrentUserName = result.Value.Name;
+                                }
+                            }
+                        }
+                        //else if (user.Identity.Name.Equals("hrisadmin"))
+                        else
+                        {
+                            var saved = await LocalStorage.GetItemAsync<Tenant>("SelectedTenant");
+                            if (saved != default)
+                                GlobalService.CurrentTenant = saved;
+                            else
+                                GlobalService.CurrentTenant = Tenant.Maribago;
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+                throw;
+            }
+            finally
+            {
+                isBusy = false;
+                StateHasChanged();
+            }
         }
-        catch (Exception)
-        {
-            throw;
-        }
-        finally{
-            isBusy = false;
-        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+
+    private void ClearGlobalUser()
+    {
+        GlobalService.CurrentUserId = string.Empty;
+        GlobalService.CurrentUserName = string.Empty;
+        GlobalService.CurrentCredential = Credential.None;
+        GlobalService.IsSuperAdmin = false;
+        GlobalService.CurrentTenant = Tenant.Maribago;
     }
 }

@@ -1,6 +1,6 @@
 @page "/timesheet"
 @rendermode InteractiveServer
-
+@attribute [Authorize(Roles = "SuperAdmin")]
 @using Bluewater.Server.Global
 @using Bluewater.UseCases.Timesheets
 @using Bluewater.UseCases.Timesheets.Create

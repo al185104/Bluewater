@@ -1,0 +1,129 @@
+﻿@page "/meals"
+@using Bluewater.Server.Global
+@using Bluewater.UseCases.Chargings
+@using Bluewater.UseCases.MealCredits
+@using Bluewater.UseCases.MealCredits.List
+@using MediatR
+@inject IServiceScopeFactory ServiceScopeFactory
+@inject IGlobalService GlobalService
+@rendermode InteractiveServer
+@attribute [Authorize(Roles = "SuperAdmin")]
+
+<PageTitle>Payroll</PageTitle>
+
+<FluentGrid>
+    <FluentGridItem xs="6">
+        <h3>Meals</h3>
+        <FluentStack HorizontalGap="20" Orientation="Orientation.Horizontal" HorizontalAlignment="HorizontalAlignment.Left" VerticalAlignment="VerticalAlignment.Center">
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronLeft())" Appearance="Appearance.Accent" OnClick="@(async() => await ChangePayrollPeriod(-1))" />
+            <h5 style="margin: 0; vertical-align: middle;">from @startDate.ToString("MMM-dd") to @endDate.ToString("MMM-dd")</h5>
+            <FluentButton IconStart="@(new Icons.Regular.Size16.ChevronRight())" Appearance="Appearance.Accent" OnClick="@(async() => await ChangePayrollPeriod(1))" />
+        </FluentStack>
+    </FluentGridItem>
+    <FluentGridItem xs="6">
+        <FluentStack Orientation="Orientation.Horizontal" HorizontalGap="10" HorizontalAlignment="HorizontalAlignment.Right" VerticalAlignment="VerticalAlignment.Center">
+            <div>
+                <FluentSelect TOption="ChargingDTO"
+                              Label="Select charging"
+                              Items="@Chargings"
+                              Id="charging-listbox"
+                              Placeholder="Make a selection..."
+                              OptionValue="@(p => p.Id.ToString())"
+                              OptionText="@(p => p.Name)"
+                              @bind-SelectedOption="@selectCharging" />
+            </div>
+
+            <FluentButton IconStart="@(new Icons.Regular.Size16.Search())" Appearance="Appearance.Outline" OnClick="@(async() => await LoadMealsAsync(searchDate))" Style="margin-top: 20px;">Search</FluentButton>
+        </FluentStack>
+    </FluentGridItem>
+</FluentGrid>
+
+@if (MealCredits != null && MealCredits.Any())
+{
+    <br>
+    <FluentLabel> Total Meal Count: @MealCredits.Sum(i => i.MealCount)</FluentLabel>
+    <FluentDataGrid Items="@MealCredits" TGridItem="MealCreditsSummaryDTO" SelectionMode="SelectionMode.Single" @bind-SelectedItem="@selectCharging">
+        <PropertyColumn Title="Name" Property="@(c => c!.EmployeeName)" Align="Align.Start" Sortable="true" />
+        <PropertyColumn Title="Count" Property="@(c => c!.MealCount)" Align="Align.Start" Sortable="true" />
+    </FluentDataGrid>
+}
+else
+{
+    <p>No meal credits found for the selected period.</p>
+}
+
+
+
+@if (isBusy == true)
+{
+    <div class="overlay">
+        <FluentProgressRing />
+    </div>
+}
+
+@code {
+    private bool isBusy = false;
+    private DateTime searchDate = DateTime.Now;
+    private DateOnly startDate;
+    private DateOnly endDate;
+    private IQueryable<ChargingDTO> Chargings { get; set; } = default!;
+    private ChargingDTO? selectCharging = default!;
+    private bool _isInitialized;
+    private IQueryable<MealCreditsSummaryDTO> MealCredits { get; set; } = default!;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!_isInitialized)
+        {
+            Chargings = GlobalService.Chargings.ToList().AsQueryable();
+            var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(searchDate));
+            startDate = _startDate;
+            endDate = _endDate;
+            await Task.Delay(100); // Simulate a delay for initialization.
+            _isInitialized = true;
+        }
+    }
+
+
+    private async Task ChangePayrollPeriod(int direction)
+    {
+        // Convert the current searchDate (a DateTime) to DateOnly.
+        var currentDateOnly = new DateOnly(searchDate.Year, searchDate.Month, searchDate.Day);
+        var currentPeriod = GlobalService.GetStartDateAndEndDateOfPayslip(currentDateOnly);
+
+        // Use direction: -1 for previous, +1 for next.
+        DateOnly newPeriodDate = direction < 0
+            ? currentPeriod.startDate.AddDays(-1)   // previous period: one day before the current period starts
+            : currentPeriod.endDate.AddDays(1);       // next period: one day after the current period ends
+
+        // Update the searchDate from the new payroll period anchor date.
+        searchDate = new DateTime(newPeriodDate.Year, newPeriodDate.Month, newPeriodDate.Day);
+
+        // Load the meals data for the new period.
+        await LoadMealsAsync(searchDate, true);
+    }
+
+    private async Task LoadMealsAsync(DateTime date, bool forceReload = false)
+    {
+        try
+        {
+            isBusy = true;
+
+            var (_startDate, _endDate) = GlobalService.GetStartDateAndEndDateOfPayslip(DateOnly.FromDateTime(date));
+            startDate = _startDate;
+            endDate = _endDate;
+            using (var scope = ServiceScopeFactory.CreateScope())
+            {
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var result = await mediator.Send(new ListGroupedMealsQuery(null, null, selectCharging!.Name, _startDate, _endDate, GlobalService.CurrentTenant));
+                if (result.IsSuccess)
+                    MealCredits = result.Value.AsQueryable();
+            }
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+}

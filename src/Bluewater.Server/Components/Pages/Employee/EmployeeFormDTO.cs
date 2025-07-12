@@ -1,4 +1,4 @@
-using Bluewater.Core.EmployeeAggregate.Enum;
+﻿using Bluewater.Core.EmployeeAggregate.Enum;
 using Bluewater.Core.UserAggregate.Enum;
 using Bluewater.UseCases.Schedules;
 using Bluewater.UseCases.Shifts;
@@ -79,6 +79,10 @@ public record EmployeeFormDTO()
     public Guid LevelId { get; set; }
     public Guid ChargingId { get; set; }
 
+    // meal credits
+    public int MealCredits { get; set; } = 0;
+    public Tenant Tenant { get; set; } = Tenant.Maribago;
+
     // weekly schedule
     public ScheduleDTO? SundaySchedule { get; set; } 
     public ScheduleDTO? MondaySchedule { get; set; }
@@ -139,7 +143,7 @@ public record EmployeeFormDTO()
         DateTime? dateHired, DateTime? dateRegularized, DateTime? dateResigned, DateTime? dateTerminated, string? tinNo, string? sssNo, string? hdmfNo, string? phicNo, string? bankAccount, bool hasServiceCharge,
         Guid? payId, decimal? basicPay, decimal? dailyRate, decimal? hourlyRate, decimal? hdmf_con, decimal? hdmf_er, 
         Guid? userId, string? username, string? password, Credential credential, Guid? supervisedGroup, bool isGlobalSupervisor,
-        Guid positionId, Guid sectionId, Guid departmentId, Guid divisionId, Guid typeId, Guid levelId, Guid chargingId,
+        Guid positionId, Guid sectionId, Guid departmentId, Guid divisionId, Guid typeId, Guid levelId, Guid chargingId, int mealCredits, Tenant tenant,
         ScheduleDTO? sunday = null, ScheduleDTO? monday = null, ScheduleDTO? tuesday = null, ScheduleDTO? wednesday = null, ScheduleDTO? thursday = null, ScheduleDTO? friday = null, ScheduleDTO? saturday = null) : this()
     {
         Id = id;
@@ -206,5 +210,7 @@ public record EmployeeFormDTO()
         ThursdaySchedule = thursday;
         FridaySchedule = friday;
         SaturdaySchedule = saturday;
+        MealCredits = mealCredits;
+        Tenant = tenant;
     }
 }

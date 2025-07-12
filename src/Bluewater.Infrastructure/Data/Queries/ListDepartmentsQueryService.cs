@@ -9,7 +9,10 @@ public class ListDepartmentsQueryService(AppDbContext _db) : IListDepartmentsQue
   {
     try
     {
-      return await _db.Departments.Select(d => new DepartmentDTO(d.Id, d.Name, d.Description ?? string.Empty, d.DivisionId)).ToListAsync();
+      var ret = await _db.Departments.Select(d => new DepartmentDTO(d.Id, d.Name, d.Description ?? string.Empty, d.DivisionId))
+        .ToListAsync();
+
+      return ret.OrderBy(i => i.Name);
     }
     catch (DbUpdateConcurrencyException)
     {
