@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.11.35312.102
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11018.127 d18.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bluewater.Core", "src\Bluewater.Core\Bluewater.Core.csproj", "{3565A888-4DC7-4B28-AEE3-5E0BDF806C96}"
 EndProject
@@ -20,6 +20,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bluewater.Server", "src\Bluewater.Server\Bluewater.Server.csproj", "{7FEC9E7C-BCB7-4748-8CFA-3657344B4DF2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bluewater.Timelog", "Bluewater.Timelog\Bluewater.Timelog.csproj", "{D88FD3A9-FA44-4819-8987-7494F8CB9B8C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bluewater.App", "src\Bluewater.App\Bluewater.App.csproj", "{31A5524D-9944-454B-888F-8C2E6DBEF2D9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,6 +65,10 @@ Global
 		{D88FD3A9-FA44-4819-8987-7494F8CB9B8C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D88FD3A9-FA44-4819-8987-7494F8CB9B8C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D88FD3A9-FA44-4819-8987-7494F8CB9B8C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31A5524D-9944-454B-888F-8C2E6DBEF2D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31A5524D-9944-454B-888F-8C2E6DBEF2D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31A5524D-9944-454B-888F-8C2E6DBEF2D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31A5524D-9944-454B-888F-8C2E6DBEF2D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
