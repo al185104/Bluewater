@@ -7,6 +7,8 @@ using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.OpenApi.Models;
+using OpenApiEndpointConventionBuilderExtensions = Microsoft.AspNetCore.OpenApi.OpenApiEndpointConventionBuilderExtensions;
+using OpenApiEndpointRouteBuilderExtensions = Microsoft.AspNetCore.OpenApi.OpenApiEndpointRouteBuilderExtensions;
 
 namespace Bluewater.Web.UseCases;
 
@@ -35,9 +37,9 @@ internal static class UseCaseEndpointExtensions
 
     var group = app.MapGroup("/usecases");
     group.WithTags("UseCases");
-    group.WithOpenApi();
+    OpenApiEndpointRouteBuilderExtensions.WithOpenApi(group);
 
-    group.MapGet("/", () => descriptors.Select(d => new
+    var listBuilder = group.MapGet("/", () => descriptors.Select(d => new
     {
       d.Kind,
       Category = d.CategorySegments,
@@ -47,8 +49,9 @@ internal static class UseCaseEndpointExtensions
       ResultType = d.ResultType.FullName,
       ResultValueType = d.ResultValueType?.FullName
     }))
-    .WithName("UseCases.List")
-    .WithOpenApi(op =>
+    .WithName("UseCases.List");
+
+    OpenApiEndpointConventionBuilderExtensions.WithOpenApi(listBuilder, op =>
     {
       op.Summary = "List available Bluewater use case endpoints.";
       return op;
@@ -76,7 +79,8 @@ internal static class UseCaseEndpointExtensions
       });
 
       builder.WithName($"UseCases.{localDescriptor.DisplayName}");
-      builder.WithOpenApi(op =>
+
+      OpenApiEndpointConventionBuilderExtensions.WithOpenApi(builder, op =>
       {
         op.Summary = $"Execute {localDescriptor.DisplayName}.";
         op.OperationId ??= $"UseCases_{localDescriptor.DisplayName.Replace('.', '_')}";
