@@ -1,21 +1,17 @@
-﻿using System.Reflection;
 using Ardalis.ListStartupServices;
 using Ardalis.SharedKernel;
 using Bluewater.Core.ContributorAggregate;
-using Bluewater.Core.DepartmentAggregate;
-using Bluewater.Core.DivisionAggregate;
 using Bluewater.Core.Interfaces;
 using Bluewater.Infrastructure;
 using Bluewater.Infrastructure.Data;
 using Bluewater.Infrastructure.Email;
 using Bluewater.UseCases.Contributors.Create;
-using Bluewater.UseCases.Departments.Create;
-using Bluewater.UseCases.Divisions.Create;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using MediatR;
 using Serilog;
 using Serilog.Extensions.Logging;
+using Bluewater.Web.UseCases;
 
 var logger = Log.Logger = new LoggerConfiguration()
   .Enrich.FromLogContext()
@@ -84,6 +80,8 @@ else
 app.UseFastEndpoints()
     .UseSwaggerGen(); // Includes AddFileServer and static files middleware
 
+app.MapUseCaseEndpoints();
+
 //app.UseHttpsRedirection();
 
 await SeedDatabase(app);
@@ -112,17 +110,11 @@ static async Task SeedDatabase(WebApplication app)
 void ConfigureMediatR()
 {
   var mediatRAssemblies = new[]
-{
-  Assembly.GetAssembly(typeof(Contributor)), // Core
-  Assembly.GetAssembly(typeof(CreateContributorCommand)), // UseCases
-
-  Assembly.GetAssembly(typeof(Division)), // Core
-  Assembly.GetAssembly(typeof(CreateDivisionCommand)), // UseCases
-
-  Assembly.GetAssembly(typeof(Department)), // Core
-  Assembly.GetAssembly(typeof(CreateDepartmentCommand)) // UseCases
-};
-  builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(mediatRAssemblies!));
+  {
+    typeof(Contributor).Assembly,
+    typeof(CreateContributorCommand).Assembly
+  };
+  builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(mediatRAssemblies));
   builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
   builder.Services.AddScoped<IDomainEventDispatcher, MediatRDomainEventDispatcher>();
 }
