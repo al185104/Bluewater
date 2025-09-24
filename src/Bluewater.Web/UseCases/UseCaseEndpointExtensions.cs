@@ -6,7 +6,7 @@ using System.Threading;
 using Ardalis.Result;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.OpenApi;
 using OpenApiEndpointConventionBuilderExtensions = Microsoft.AspNetCore.OpenApi.OpenApiEndpointConventionBuilderExtensions;
 using OpenApiEndpointRouteBuilderExtensions = Microsoft.AspNetCore.OpenApi.OpenApiEndpointRouteBuilderExtensions;
 
@@ -62,7 +62,7 @@ internal static class UseCaseEndpointExtensions
       var localDescriptor = descriptor;
       var methods = localDescriptor.IsCommand ? new[] { "POST" } : new[] { "GET", "POST" };
 
-      var builder = group.MapMethods($"/{localDescriptor.Route}", methods, async (HttpContext context, IMediator mediator, CancellationToken ct) =>
+      Delegate handler = new Func<HttpContext, IMediator, CancellationToken, Task<IResult>>(async (context, mediator, ct) =>
       {
         var requestObject = await BindRequestAsync(context, localDescriptor.RequestType, ct);
 
@@ -77,6 +77,8 @@ internal static class UseCaseEndpointExtensions
         var response = await mediator.Send(requestObject, ct);
         return ConvertResult(response, localDescriptor);
       });
+
+      var builder = group.MapMethods($"/{localDescriptor.Route}", methods, handler);
 
       builder.WithName($"UseCases.{localDescriptor.DisplayName}");
 
