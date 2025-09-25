@@ -30,7 +30,7 @@ public class GetById(IMediator _mediator) : Endpoint<GetDepartmentByIdRequest, D
 
     if (result.IsSuccess)
     {
-      Response = new DepartmentRecord(result.Value.Id, result.Value.Name, result.Value.Description);
+      Response = new DepartmentRecord(result.Value.Id, result.Value.Name, result.Value.Description, result.Value.DivisionId);
     }
   }
 }

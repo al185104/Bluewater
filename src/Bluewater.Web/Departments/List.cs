@@ -26,7 +26,9 @@ public class List(IMediator _mediator) : EndpointWithoutRequest<DepartmentListRe
     {
       Response = new DepartmentListResponse
       {
-        Departments = result.Value.Select(c => new DepartmentRecord(c.Id, c.Name, c.Description)).ToList()
+        Departments = result.Value
+          .Select(c => new DepartmentRecord(c.Id, c.Name, c.Description, c.DivisionId))
+          .ToList()
       };
     }
   }

@@ -1,4 +1,5 @@
-﻿using Bluewater.UseCases.Departments.Create;
+using System;
+using Bluewater.UseCases.Departments.Create;
 using FastEndpoints;
 using MediatR;
 
@@ -13,7 +14,15 @@ public class Create(IMediator _mediator) : Endpoint<CreateDepartmentRequest, Cre
   {
     Post(CreateDepartmentRequest.Route);
     AllowAnonymous();
-    Summary(s => { s.ExampleRequest = new CreateDepartmentRequest { Name = "Department Name", Description = "Department Description" }; });
+    Summary(s =>
+    {
+      s.ExampleRequest = new CreateDepartmentRequest
+      {
+        Name = "Department Name",
+        Description = "Department Description",
+        DivisionId = Guid.NewGuid()
+      };
+    });
   }
 
   public override async Task HandleAsync(CreateDepartmentRequest request, CancellationToken cancellationToken)
@@ -21,7 +30,7 @@ public class Create(IMediator _mediator) : Endpoint<CreateDepartmentRequest, Cre
     var result = await _mediator.Send(new CreateDepartmentCommand(request.Name!, request.Description, request.DivisionId), cancellationToken);
     if (result.IsSuccess)
     {
-      Response = new CreateDepartmentResponse(result.Value, request.Name!, request.Description);
+      Response = new CreateDepartmentResponse(result.Value, request.Name!, request.Description, request.DivisionId);
       return;
     }
   }
