@@ -1,3 +1,3 @@
-﻿namespace Bluewater.Web.Departments;
+namespace Bluewater.Web.Departments;
 
-public record DepartmentRecord(Guid Id, string Name, string? Description);
+public record DepartmentRecord(Guid Id, string Name, string? Description, Guid DivisionId);

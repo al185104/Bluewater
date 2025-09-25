@@ -40,7 +40,7 @@ public class Update(IMediator _mediator) : Endpoint<UpdateDepartmentRequest, Upd
     if (queryResult.IsSuccess)
     {
       var dto = queryResult.Value;
-      Response = new UpdateDepartmentResponse(new DepartmentRecord(dto.Id, dto.Name, dto.Description));
+      Response = new UpdateDepartmentResponse(new DepartmentRecord(dto.Id, dto.Name, dto.Description, dto.DivisionId));
       return;
     }
   }
