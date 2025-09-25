@@ -1,16 +1,22 @@
 ﻿using System.Reflection;
 using Ardalis.ListStartupServices;
 using Ardalis.SharedKernel;
+using Bluewater.Core.ChargingAggregate;
 using Bluewater.Core.ContributorAggregate;
 using Bluewater.Core.DepartmentAggregate;
 using Bluewater.Core.DivisionAggregate;
+using Bluewater.Core.EmployeeAggregate;
+using Bluewater.Core.EmployeeTypeAggregate;
 using Bluewater.Core.Interfaces;
 using Bluewater.Infrastructure;
 using Bluewater.Infrastructure.Data;
 using Bluewater.Infrastructure.Email;
+using Bluewater.UseCases.Chargings.Create;
 using Bluewater.UseCases.Contributors.Create;
 using Bluewater.UseCases.Departments.Create;
 using Bluewater.UseCases.Divisions.Create;
+using Bluewater.UseCases.Employees.Create;
+using Bluewater.UseCases.EmployeeTypes.Create;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using MediatR;
@@ -120,7 +126,16 @@ void ConfigureMediatR()
   Assembly.GetAssembly(typeof(CreateDivisionCommand)), // UseCases
 
   Assembly.GetAssembly(typeof(Department)), // Core
-  Assembly.GetAssembly(typeof(CreateDepartmentCommand)) // UseCases
+  Assembly.GetAssembly(typeof(CreateDepartmentCommand)), // UseCases
+
+  Assembly.GetAssembly(typeof(Employee)), // Core
+  Assembly.GetAssembly(typeof(CreateEmployeeCommand)), // UseCases
+
+  Assembly.GetAssembly(typeof(EmployeeType)), // Core
+  Assembly.GetAssembly(typeof(CreateEmployeeTypeCommand)), // UseCases
+
+  Assembly.GetAssembly(typeof(Charging)), // Core
+  Assembly.GetAssembly(typeof(CreateChargingCommand)) // UseCases
 };
   builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(mediatRAssemblies!));
   builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
