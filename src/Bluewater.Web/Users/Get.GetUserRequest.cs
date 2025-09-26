@@ -4,7 +4,7 @@ namespace Bluewater.Web.Users;
 
 public class GetUserRequest
 {
-  public const string Route = "/Users/{barcode}";
+  public const string Route = "/Users/barcode/{barcode}";
 
   [Required]
   public string barcode { get; set; } = null!;
