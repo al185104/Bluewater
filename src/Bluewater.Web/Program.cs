@@ -7,7 +7,11 @@ using Bluewater.Core.DepartmentAggregate;
 using Bluewater.Core.DivisionAggregate;
 using Bluewater.Core.EmployeeAggregate;
 using Bluewater.Core.EmployeeTypeAggregate;
+using Bluewater.Core.Forms.LeaveAggregate;
+using Bluewater.Core.HolidayAggregate;
 using Bluewater.Core.Interfaces;
+using Bluewater.Core.LeaveCreditAggregate;
+using Bluewater.Core.LevelAggregate;
 using Bluewater.Infrastructure;
 using Bluewater.Infrastructure.Data;
 using Bluewater.Infrastructure.Email;
@@ -17,6 +21,10 @@ using Bluewater.UseCases.Departments.Create;
 using Bluewater.UseCases.Divisions.Create;
 using Bluewater.UseCases.Employees.Create;
 using Bluewater.UseCases.EmployeeTypes.Create;
+using Bluewater.UseCases.Holidays.Create;
+using Bluewater.UseCases.LeaveCredits.Create;
+using Bluewater.UseCases.Leaves.Create;
+using Bluewater.UseCases.Levels.Create;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using MediatR;
@@ -135,7 +143,19 @@ void ConfigureMediatR()
   Assembly.GetAssembly(typeof(CreateEmployeeTypeCommand)), // UseCases
 
   Assembly.GetAssembly(typeof(Charging)), // Core
-  Assembly.GetAssembly(typeof(CreateChargingCommand)) // UseCases
+  Assembly.GetAssembly(typeof(CreateChargingCommand)), // UseCases
+
+  Assembly.GetAssembly(typeof(Holiday)), // Core
+  Assembly.GetAssembly(typeof(CreateHolidayCommand)), // UseCases
+
+  Assembly.GetAssembly(typeof(LeaveCredit)), // Core
+  Assembly.GetAssembly(typeof(CreateLeaveCreditCommand)), // UseCases
+
+  Assembly.GetAssembly(typeof(Leave)), // Core
+  Assembly.GetAssembly(typeof(CreateLeaveCommand)), // UseCases
+
+  Assembly.GetAssembly(typeof(Level)), // Core
+  Assembly.GetAssembly(typeof(CreateLevelCommand)) // UseCases
 };
   builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(mediatRAssemblies!));
   builder.Services.AddScoped(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
