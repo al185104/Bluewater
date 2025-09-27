@@ -1,4 +1,4 @@
-using Bluewater.Core.EmployeeAggregate.Enum;
+﻿using Bluewater.Core.EmployeeAggregate.Enum;
 using Bluewater.UseCases.Employees;
 
 namespace Bluewater.Web.Employees;
@@ -51,8 +51,8 @@ internal static class EmployeeMapper
             dto.EmploymentInfo.DateTerminated,
             dto.EmploymentInfo.TinNo,
             dto.EmploymentInfo.SssNo,
-            dto.EmploymentInfo.HdmfNo,
-            dto.EmploymentInfo.PhicNo,
+            dto.EmploymentInfo.PagibigNo,
+            dto.EmploymentInfo.PhilHealthNo,
             dto.EmploymentInfo.BankAccount,
             dto.EmploymentInfo.HasServiceCharge),
       dto.User is null

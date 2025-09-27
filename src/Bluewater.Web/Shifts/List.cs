@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Bluewater.UseCases.Shifts;
 using Bluewater.UseCases.Shifts.List;
 using FastEndpoints;
@@ -20,7 +20,7 @@ public class List(IMediator _mediator) : EndpointWithoutRequest<ShiftListRespons
 
   public override async Task HandleAsync(CancellationToken cancellationToken)
   {
-    Result<IEnumerable<ShiftDTO>> result = await _mediator.Send(new ListShiftsQuery(null, null), cancellationToken);
+    Result<IEnumerable<ShiftDTO>> result = await _mediator.Send(new ListShiftQuery(null, null), cancellationToken);
 
     if (result.IsSuccess)
     {

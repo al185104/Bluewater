@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Bluewater.UseCases.Employees.Create;
 using FastEndpoints;
 using MediatR;
@@ -34,7 +34,7 @@ public class Create(IMediator _mediator) : Endpoint<CreateEmployeeRequest, Creat
       req.Remarks,
       req.ContactInfo is null
         ? null
-        : new CreateEmployeeCommand.ContactInfo(
+        : new ContactInfo(
             req.ContactInfo.Email,
             req.ContactInfo.TelNumber,
             req.ContactInfo.MobileNumber,
@@ -49,13 +49,13 @@ public class Create(IMediator _mediator) : Endpoint<CreateEmployeeRequest, Creat
             req.ContactInfo.MobileNoContact),
       req.EducationInfo is null
         ? null
-        : new CreateEmployeeCommand.EducationInfo(
+        : new EducationInfo(
             req.EducationInfo.EducationalAttainment,
             req.EducationInfo.CourseGraduated,
             req.EducationInfo.UniversityGraduated),
       req.EmploymentInfo is null
         ? null
-        : new CreateEmployeeCommand.EmploymentInfo(
+        : new EmploymentInfo(
             req.EmploymentInfo.DateHired,
             req.EmploymentInfo.DateRegularized,
             req.EmploymentInfo.DateResigned,

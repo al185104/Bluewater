@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Employees.Update;
 using FastEndpoints;
@@ -36,7 +36,7 @@ public class Update(IMediator _mediator) : Endpoint<UpdateEmployeeRequest, Updat
       req.Remarks,
       req.ContactInfo is null
         ? null
-        : new UpdateEmployeeCommand.ContactInfo(
+        : new ContactInfo(
             req.ContactInfo.Email,
             req.ContactInfo.TelNumber,
             req.ContactInfo.MobileNumber,
@@ -51,13 +51,13 @@ public class Update(IMediator _mediator) : Endpoint<UpdateEmployeeRequest, Updat
             req.ContactInfo.MobileNoContact),
       req.EducationInfo is null
         ? null
-        : new UpdateEmployeeCommand.EducationInfo(
+        : new EducationInfo(
             req.EducationInfo.EducationalAttainment,
             req.EducationInfo.CourseGraduated,
             req.EducationInfo.UniversityGraduated),
       req.EmploymentInfo is null
         ? null
-        : new UpdateEmployeeCommand.EmploymentInfo(
+        : new EmploymentInfo(
             req.EmploymentInfo.DateHired,
             req.EmploymentInfo.DateRegularized,
             req.EmploymentInfo.DateResigned,
