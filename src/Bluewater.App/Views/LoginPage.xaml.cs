@@ -1,13 +1,12 @@
-﻿using Bluewater.App.ViewModels;
+using Bluewater.App.ViewModels;
 
 namespace Bluewater.App.Views;
 
 public partial class LoginPage : ContentPage
 {
-	public LoginPage(LoginViewModel vm)
-	{
-		InitializeComponent();
+  public LoginPage(LoginViewModel vm)
+  {
+    InitializeComponent();
     BindingContext = vm;
   }
-
 }

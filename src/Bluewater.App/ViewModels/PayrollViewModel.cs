@@ -2,6 +2,6 @@ using Bluewater.App.ViewModels.Base;
 
 namespace Bluewater.App.ViewModels;
 
-public partial class LoginViewModel : BaseViewModel
+public partial class PayrollViewModel : BaseViewModel
 {
 }

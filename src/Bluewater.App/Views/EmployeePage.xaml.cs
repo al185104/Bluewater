@@ -1,9 +1,12 @@
+using Bluewater.App.ViewModels;
+
 namespace Bluewater.App.Views;
 
 public partial class EmployeePage : ContentPage
 {
-	public EmployeePage()
-	{
-		InitializeComponent();
-	}
+  public EmployeePage(EmployeeViewModel vm)
+  {
+    InitializeComponent();
+    BindingContext = vm;
+  }
 }

@@ -1,9 +1,12 @@
+using Bluewater.App.ViewModels;
+
 namespace Bluewater.App.Views;
 
-public partial class TimesheetsPage : ContentPage
+public partial class TimesheetPage : ContentPage
 {
-	public TimesheetsPage()
-	{
-		InitializeComponent();
-	}
+  public TimesheetPage(TimesheetViewModel vm)
+  {
+    InitializeComponent();
+    BindingContext = vm;
+  }
 }
