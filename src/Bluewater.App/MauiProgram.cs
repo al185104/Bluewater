@@ -30,10 +30,34 @@ public static class MauiProgram
 #endif
 
     // pages
+    builder.Services.AddSingleton<AttendancePage>();
+    builder.Services.AddSingleton<EmployeePage>();
+    builder.Services.AddSingleton<HomePage>();
+    builder.Services.AddSingleton<LeavePage>();
     builder.Services.AddSingleton<LoginPage>();
+    builder.Services.AddSingleton<MealCreditPage>();
+    builder.Services.AddSingleton<PayrollPage>();
+    builder.Services.AddSingleton<ProfilePage>();
+    builder.Services.AddSingleton<SchedulePage>();
+    builder.Services.AddSingleton<SettingPage>();
+    builder.Services.AddSingleton<ShiftsPage>();
+    builder.Services.AddSingleton<TimesheetPage>();
+    builder.Services.AddSingleton<UserPage>();
 
     // viewmodels
+    builder.Services.AddSingleton<AttendanceViewModel>();
+    builder.Services.AddSingleton<EmployeeViewModel>();
+    builder.Services.AddSingleton<HomeViewModel>();
+    builder.Services.AddSingleton<LeaveViewModel>();
     builder.Services.AddSingleton<LoginViewModel>();
+    builder.Services.AddSingleton<MealCreditViewModel>();
+    builder.Services.AddSingleton<PayrollViewModel>();
+    builder.Services.AddSingleton<ProfileViewModel>();
+    builder.Services.AddSingleton<ScheduleViewModel>();
+    builder.Services.AddSingleton<SettingViewModel>();
+    builder.Services.AddSingleton<ShiftsViewModel>();
+    builder.Services.AddSingleton<TimesheetViewModel>();
+    builder.Services.AddSingleton<UserViewModel>();
 
     return builder.Build();
   }

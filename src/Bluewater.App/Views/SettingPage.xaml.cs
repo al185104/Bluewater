@@ -1,9 +1,12 @@
+using Bluewater.App.ViewModels;
+
 namespace Bluewater.App.Views;
 
-public partial class SettingsPage : ContentPage
+public partial class SettingPage : ContentPage
 {
-	public SettingsPage()
-	{
-		InitializeComponent();
-	}
+  public SettingPage(SettingViewModel vm)
+  {
+    InitializeComponent();
+    BindingContext = vm;
+  }
 }
