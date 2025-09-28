@@ -2,12 +2,39 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Bluewater.App.Views.LoginPage"
-             xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
-             Title="LoginPage">
-    <VerticalStackLayout x:DataType="vm:LoginViewModel">
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+             xmlns:vm="clr-namespace:Bluewater.App.ViewModels">
+
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style TargetType="Label" BasedOn="{StaticResource BodyTextStyle}"/>
+            <Style TargetType="Entry" BasedOn="{StaticResource InputTextStyle}"/>
+            <Style TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}"/>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    
+    
+    <VerticalStackLayout x:DataType="vm:LoginViewModel" 
+        WidthRequest="600"
+        Spacing="15"
+        Padding="10"
+        HorizontalOptions="Center"
+        VerticalOptions="Center">
+        <Image Source="bluewater.png" HeightRequest="400" Aspect="AspectFit"/>
+        <Entry Placeholder="Username"/>
+        <Entry Placeholder="Password" IsPassword="True"/>
+        <Button Text="Login" Command="{Binding LoginCommand}"/>
+        <Label Text="Forgot password?" VerticalTextAlignment="Center"/>
+        <Grid ColumnDefinitions="*,40" HorizontalOptions="Fill">
+            <Label Grid.Column="0" Text="Remember sign in details" VerticalTextAlignment="Center" HorizontalOptions="Fill" HorizontalTextAlignment="Start"/>
+            <Switch Grid.Column="1" HorizontalOptions="End"/>
+        </Grid>
+        <Label VerticalTextAlignment="Center" HorizontalTextAlignment="Center">
+            <Label.FormattedText>
+                <FormattedString>
+                    <Span Text="Don't have an account? "/>
+                    <Span Text="Register"/>
+                </FormattedString>
+            </Label.FormattedText>
+        </Label>
     </VerticalStackLayout>
 </ContentPage>

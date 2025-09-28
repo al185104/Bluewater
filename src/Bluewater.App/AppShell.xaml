@@ -3,12 +3,60 @@
     x:Class="Bluewater.App.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:Bluewater.App"
+    xmlns:views="clr-namespace:Bluewater.App.Views"
+    xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+    Shell.FlyoutBehavior="Flyout"
     Title="Bluewater.App">
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Route="LoginPage"
+        FlyoutItemIsVisible="False"
+        Shell.FlyoutBehavior="Disabled"
+        ContentTemplate="{DataTemplate views:LoginPage}"/>
+
+    <FlyoutItem Title="Home" Icon="{FontImageSource Glyph={x:Static helpers:Icon.Home}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
+        <ShellContent Route="HomePage" ContentTemplate="{DataTemplate views:HomePage}"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Employee" Icon="{FontImageSource Glyph={x:Static helpers:Icon.Users}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
+        <ShellContent Route="EmployeePage" ContentTemplate="{DataTemplate views:EmployeePage}"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Shifts" Icon="{FontImageSource Glyph={x:Static helpers:Icon.Moon}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
+        <ShellContent Route="ShiftsPage" ContentTemplate="{DataTemplate views:ShiftsPage}"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Schedules" Icon="{FontImageSource Glyph={x:Static helpers:Icon.Clock}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
+        <ShellContent Route="SchedulePage" ContentTemplate="{DataTemplate views:SchedulePage}"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Meal Credit" Icon="{FontImageSource Glyph={x:Static helpers:Icon.Coffee}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
+        <ShellContent Route="MealCreditPage" ContentTemplate="{DataTemplate views:MealCreditPage}"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Leaves" Icon="{FontImageSource Glyph={x:Static helpers:Icon.Map}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
+        <ShellContent Route="LeavePage" ContentTemplate="{DataTemplate views:LeavePage}"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Timesheet" Icon="{FontImageSource Glyph={x:Static helpers:Icon.Calendar}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
+        <ShellContent Route="TimesheetPage" ContentTemplate="{DataTemplate views:TimesheetPage}"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Attendance" Icon="{FontImageSource Glyph={x:Static helpers:Icon.Users}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
+        <ShellContent Route="AttendancePage" ContentTemplate="{DataTemplate views:AttendancePage}"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Payroll" Icon="{FontImageSource Glyph={x:Static helpers:Icon.CreditCard}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
+        <ShellContent Route="PayrollPage" ContentTemplate="{DataTemplate views:PayrollPage}"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Users" Icon="{FontImageSource Glyph={x:Static helpers:Icon.User}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
+        <ShellContent Route="UserPage" ContentTemplate="{DataTemplate views:UserPage}"/>
+    </FlyoutItem>
+
+    <FlyoutItem Title="Settings" Icon="{FontImageSource Glyph={x:Static helpers:Icon.Settings}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
+        <ShellContent Route="SettingPage" ContentTemplate="{DataTemplate views:SettingPage}"/>
+    </FlyoutItem>
+
 
 </Shell>

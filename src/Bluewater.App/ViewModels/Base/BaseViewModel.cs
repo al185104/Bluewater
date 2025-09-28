@@ -10,7 +10,7 @@ namespace Bluewater.App.ViewModels.Base;
 public partial class BaseViewModel : ObservableObject
 {
   [ObservableProperty]
-  public partial bool IsBusy { get; private set; }
+  public partial bool IsBusy { get; set; }
 
   public virtual Task InitializeAsync() => Task.CompletedTask;
 }
