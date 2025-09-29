@@ -120,11 +120,12 @@
 	  </MauiXaml>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="Converters\" />
-	  <Folder Include="Models\" />
-	  <Folder Include="Services\" />
-	</ItemGroup>
+        <ItemGroup>
+          <Folder Include="Converters\" />
+          <Folder Include="Interfaces\" />
+          <Folder Include="Models\" />
+          <Folder Include="Services\" />
+        </ItemGroup>
 
 	<ItemGroup>
 	  <Compile Update="Views\SettingPage.xaml.cs">

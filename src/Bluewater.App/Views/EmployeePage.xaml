@@ -1,12 +1,103 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Bluewater.App.Models"
              x:Class="Bluewater.App.Views.EmployeePage"
-             Title="EmployeePage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Employees">
+  <Grid Padding="16" RowDefinitions="Auto,*" RowSpacing="16">
+    <Label Text="Employees"
+           FontAttributes="Bold"
+           FontSize="24" />
+
+    <Grid Grid.Row="1">
+      <CollectionView ItemsSource="{Binding Employees}"
+                      SelectionMode="None"
+                      VerticalOptions="FillAndExpand">
+        <CollectionView.EmptyView>
+          <VerticalStackLayout HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               Spacing="8">
+            <Label Text="No employees found" />
+            <Label Text="Employees will appear here once they are available." FontSize="12" />
+          </VerticalStackLayout>
+        </CollectionView.EmptyView>
+        <CollectionView.ItemTemplate>
+          <DataTemplate x:DataType="models:EmployeeSummary">
+            <Border StrokeThickness="1"
+                    Padding="12"
+                    Margin="0,0,0,12">
+              <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+              </Border.StrokeShape>
+              <VerticalStackLayout Spacing="4">
+                <Label Text="{Binding FullName}" FontAttributes="Bold" FontSize="16" />
+
+                <Label Text="{Binding PositionDisplay}" FontSize="13" TextColor="{AppThemeBinding Light=#666666, Dark=#BBBBBB}">
+                  <Label.Triggers>
+                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                      <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                    <Trigger TargetType="Label" Property="Text" Value="">
+                      <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                  </Label.Triggers>
+                </Label>
+
+                <Label Text="{Binding DepartmentDisplay}" FontSize="13" TextColor="{AppThemeBinding Light=#666666, Dark=#BBBBBB}">
+                  <Label.Triggers>
+                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                      <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                    <Trigger TargetType="Label" Property="Text" Value="">
+                      <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                  </Label.Triggers>
+                </Label>
+
+                <Label Text="{Binding SectionDisplay}" FontSize="13" TextColor="{AppThemeBinding Light=#666666, Dark=#BBBBBB}">
+                  <Label.Triggers>
+                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                      <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                    <Trigger TargetType="Label" Property="Text" Value="">
+                      <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                  </Label.Triggers>
+                </Label>
+
+                <Label Text="{Binding TypeLevelDisplay}" FontSize="13" TextColor="{AppThemeBinding Light=#666666, Dark=#BBBBBB}">
+                  <Label.Triggers>
+                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                      <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                    <Trigger TargetType="Label" Property="Text" Value="">
+                      <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                  </Label.Triggers>
+                </Label>
+
+                <Label Text="{Binding EmailDisplay}"
+                       FontSize="13"
+                       TextColor="{AppThemeBinding Light=#0A84FF, Dark=#63A4FF}">
+                  <Label.Triggers>
+                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
+                      <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                    <Trigger TargetType="Label" Property="Text" Value="">
+                      <Setter Property="IsVisible" Value="False" />
+                    </Trigger>
+                  </Label.Triggers>
+                </Label>
+              </VerticalStackLayout>
+            </Border>
+          </DataTemplate>
+        </CollectionView.ItemTemplate>
+      </CollectionView>
+
+      <ActivityIndicator IsRunning="{Binding IsBusy}"
+                         IsVisible="{Binding IsBusy}"
+                         HorizontalOptions="Center"
+                         VerticalOptions="Center" />
+    </Grid>
+  </Grid>
 </ContentPage>

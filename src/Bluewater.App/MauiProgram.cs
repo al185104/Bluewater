@@ -1,4 +1,8 @@
-﻿using Bluewater.App.ViewModels;
+﻿using System;
+using System.Net.Http;
+using Bluewater.App.Interfaces;
+using Bluewater.App.Services;
+using Bluewater.App.ViewModels;
 using Bluewater.App.Views;
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
@@ -9,6 +13,8 @@ public static class MauiProgram
 {
   public static MauiApp CreateMauiApp()
   {
+    const string ApiBaseAddress = "https://localhost:57679";
+
     var builder = MauiApp.CreateBuilder();
     builder
       .UseMauiApp<App>()
@@ -28,6 +34,27 @@ public static class MauiProgram
 #if DEBUG
 		builder.Logging.AddDebug();
 #endif
+
+    // services
+    builder.Services.AddSingleton(sp =>
+    {
+#if DEBUG
+      var handler = new HttpClientHandler
+      {
+        ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+      };
+#else
+      var handler = new HttpClientHandler();
+#endif
+
+      return new HttpClient(handler)
+      {
+        BaseAddress = new Uri(ApiBaseAddress)
+      };
+    });
+
+    builder.Services.AddSingleton<IApiClient, ApiClient>();
+    builder.Services.AddSingleton<IEmployeeApiService, EmployeeApiService>();
 
     // pages
     builder.Services.AddSingleton<AttendancePage>();

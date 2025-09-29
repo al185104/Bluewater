@@ -9,4 +9,14 @@ public partial class EmployeePage : ContentPage
     InitializeComponent();
     BindingContext = vm;
   }
+
+  protected override async void OnAppearing()
+  {
+    base.OnAppearing();
+
+    if (BindingContext is EmployeeViewModel viewModel)
+    {
+      await viewModel.InitializeAsync();
+    }
+  }
 }
