@@ -114,7 +114,7 @@ static async Task SeedDatabase(WebApplication app)
     var context = services.GetRequiredService<AppDbContext>();
     //          context.Database.Migrate();
     context.Database.EnsureCreated();
-    await Task.Delay(10);
+    await EmployeeDataSeeder.SeedAsync(context);
   }
   catch (Exception ex)
   {
