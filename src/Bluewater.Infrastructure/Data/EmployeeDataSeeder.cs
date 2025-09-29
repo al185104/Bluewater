@@ -25,6 +25,8 @@ public static class EmployeeDataSeeder
 {
   private const string PrimaryUsername = "jdoe";
   private const string SecondaryUsername = "mlopez";
+  private const string TertiaryUsername = "kchan";
+  private const string QuaternaryUsername = "areyes";
   private const string DivisionName = "Hotel Operations";
   private const string DepartmentName = "Front Office";
   private const string SectionName = "Reception";
@@ -69,28 +71,34 @@ public static class EmployeeDataSeeder
     var charging = await GetOrCreateChargingAsync(context, department, cancellationToken);
     await EnsureLeaveCreditsAsync(context, cancellationToken);
 
-    return new SeedReferenceData(users.PrimaryUser, users.SecondaryUser, position, pay, employeeType, level, charging);
+    return new SeedReferenceData(users, position, pay, employeeType, level, charging);
   }
 
-  private static async Task<(AppUser PrimaryUser, AppUser SecondaryUser)> EnsureAppUsersAsync(AppDbContext context, CancellationToken cancellationToken)
+  private static readonly IReadOnlyList<AppUserSeedInfo> AppUsersToSeed = new List<AppUserSeedInfo>
   {
-    var primaryUser = await context.AppUsers.FirstOrDefaultAsync(u => u.Username == PrimaryUsername, cancellationToken);
-    var secondaryUser = await context.AppUsers.FirstOrDefaultAsync(u => u.Username == SecondaryUsername, cancellationToken);
+    new(PrimaryUsername, Credential.Employee, null, false),
+    new(SecondaryUsername, Credential.Supervisor, null, true),
+    new(TertiaryUsername, Credential.Employee, null, false),
+    new(QuaternaryUsername, Credential.Manager, null, false)
+  };
 
+  private static async Task<IReadOnlyDictionary<string, AppUser>> EnsureAppUsersAsync(AppDbContext context, CancellationToken cancellationToken)
+  {
+    var users = new Dictionary<string, AppUser>();
     var hasChanges = false;
 
-    if (primaryUser is null)
+    foreach (var appUser in AppUsersToSeed)
     {
-      primaryUser = new AppUser(PrimaryUsername, "HASHED_PASSWORD", Credential.Employee, null);
-      context.AppUsers.Add(primaryUser);
-      hasChanges = true;
-    }
+      var user = await context.AppUsers.FirstOrDefaultAsync(u => u.Username == appUser.Username, cancellationToken);
 
-    if (secondaryUser is null)
-    {
-      secondaryUser = new AppUser(SecondaryUsername, "HASHED_PASSWORD", Credential.Supervisor, null, true);
-      context.AppUsers.Add(secondaryUser);
-      hasChanges = true;
+      if (user is null)
+      {
+        user = new AppUser(appUser.Username, "HASHED_PASSWORD", appUser.Credential, appUser.SupervisedGroup, appUser.IsGlobalSupervisor);
+        context.AppUsers.Add(user);
+        hasChanges = true;
+      }
+
+      users[appUser.Username] = user;
     }
 
     if (hasChanges)
@@ -98,7 +106,7 @@ public static class EmployeeDataSeeder
       await context.SaveChangesAsync(cancellationToken);
     }
 
-    return (primaryUser!, secondaryUser!);
+    return users;
   }
 
   private static async Task<Division> GetOrCreateDivisionAsync(AppDbContext context, CancellationToken cancellationToken)
@@ -285,7 +293,7 @@ public static class EmployeeDataSeeder
       hasServiceCharge: true));
 
     primaryEmployee.SetExternalKeys(
-      references.PrimaryUser.Id,
+      references.Users[PrimaryUsername].Id,
       references.Position.Id,
       references.Pay.Id,
       references.EmployeeType.Id,
@@ -340,14 +348,124 @@ public static class EmployeeDataSeeder
       hasServiceCharge: false));
 
     secondaryEmployee.SetExternalKeys(
-      references.SecondaryUser.Id,
+      references.Users[SecondaryUsername].Id,
       references.Position.Id,
       references.Pay.Id,
       references.EmployeeType.Id,
       references.Level.Id,
       references.Charging.Id);
 
-    return new List<Employee> { primaryEmployee, secondaryEmployee };
+    var tertiaryEmployee = new Employee(
+      firstName: "Kevin",
+      lastName: "Chan",
+      middleName: "D",
+      dateOfBirth: new DateTime(1992, 11, 2),
+      gender: Gender.Male,
+      civilStatus: CivilStatus.Single,
+      bloodType: BloodType.BPositive,
+      status: Status.Active,
+      height: 170m,
+      weight: 68m,
+      imageUrl: null,
+      remarks: "Night shift specialist",
+      mealCredits: 4,
+      tenant: Tenant.Sumilon);
+
+    tertiaryEmployee.SetContactInfo(new ContactInfo(
+      email: "kevin.chan@example.com",
+      telNumber: "032-789-4561",
+      mobileNumber: "0918-222-3344",
+      address: "88 Marina Way, Lapu-Lapu",
+      provincialAddress: "18 Coastal Road, Cebu",
+      mothersMaidenName: "Lisa Wong",
+      fathersName: "Richard Chan",
+      emergencyContact: "Liam Chan",
+      relationshipContact: "Brother",
+      addressContact: "88 Marina Way, Lapu-Lapu",
+      telNoContact: "032-789-8899",
+      mobileNoContact: "0918-555-6677"));
+
+    tertiaryEmployee.SetEducationInfo(new EducationInfo(
+      educationalAttainment: EducationalAttainment.Bachelors,
+      courseGraduated: "Information Technology",
+      universityGraduated: "University of Cebu"));
+
+    tertiaryEmployee.SetEmploymentInfo(new EmploymentInfo(
+      dateHired: new DateTime(2020, 1, 10),
+      dateRegularized: new DateTime(2020, 7, 10),
+      dateResigned: null,
+      dateTerminated: null,
+      tinNo: "112-233-445",
+      sssNo: "55-7890123-4",
+      hdmfNo: "HM-223344556",
+      phicNo: "PH-223344556",
+      bankAccount: "5566778899",
+      hasServiceCharge: true));
+
+    tertiaryEmployee.SetExternalKeys(
+      references.Users[TertiaryUsername].Id,
+      references.Position.Id,
+      references.Pay.Id,
+      references.EmployeeType.Id,
+      references.Level.Id,
+      references.Charging.Id);
+
+    var quaternaryEmployee = new Employee(
+      firstName: "Ariana",
+      lastName: "Reyes",
+      middleName: "S",
+      dateOfBirth: new DateTime(1987, 5, 28),
+      gender: Gender.Female,
+      civilStatus: CivilStatus.Married,
+      bloodType: BloodType.ABNegative,
+      status: Status.Active,
+      height: 160m,
+      weight: 58m,
+      imageUrl: null,
+      remarks: "Training coordinator",
+      mealCredits: 6,
+      tenant: Tenant.Maribago);
+
+    quaternaryEmployee.SetContactInfo(new ContactInfo(
+      email: "ariana.reyes@example.com",
+      telNumber: "032-445-8899",
+      mobileNumber: "0917-222-7788",
+      address: "55 Coral Street, Lapu-Lapu",
+      provincialAddress: "12 Garden Lane, Cebu",
+      mothersMaidenName: "Sofia Santos",
+      fathersName: "Ramon Reyes",
+      emergencyContact: "Miguel Reyes",
+      relationshipContact: "Husband",
+      addressContact: "55 Coral Street, Lapu-Lapu",
+      telNoContact: "032-445-7700",
+      mobileNoContact: "0917-888-9900"));
+
+    quaternaryEmployee.SetEducationInfo(new EducationInfo(
+      educationalAttainment: EducationalAttainment.Bachelors,
+      courseGraduated: "Business Administration",
+      universityGraduated: "University of San Carlos"));
+
+    quaternaryEmployee.SetEmploymentInfo(new EmploymentInfo(
+      dateHired: new DateTime(2012, 4, 2),
+      dateRegularized: new DateTime(2012, 10, 2),
+      dateResigned: null,
+      dateTerminated: null,
+      tinNo: "667-889-001",
+      sssNo: "12-3456789-0",
+      hdmfNo: "HM-667788990",
+      phicNo: "PH-667788990",
+      bankAccount: "4433221100",
+      hasServiceCharge: false));
+
+    quaternaryEmployee.SetExternalKeys(
+      references.Users[QuaternaryUsername].Id,
+      references.Position.Id,
+      references.Pay.Id,
+      references.EmployeeType.Id,
+      references.Level.Id,
+      references.Charging.Id);
+
+    return new List<Employee> { primaryEmployee, secondaryEmployee, tertiaryEmployee, quaternaryEmployee };
   }
 
   private static IEnumerable<Dependent> CreateDependents(Employee employee)
@@ -365,5 +483,7 @@ public static class EmployeeDataSeeder
     };
   }
 
-  private record SeedReferenceData(AppUser PrimaryUser, AppUser SecondaryUser, Position Position, Pay Pay, EmployeeType EmployeeType, Level Level, Charging Charging);
+  private record SeedReferenceData(IReadOnlyDictionary<string, AppUser> Users, Position Position, Pay Pay, EmployeeType EmployeeType, Level Level, Charging Charging);
+
+  private sealed record AppUserSeedInfo(string Username, Credential Credential, Guid? SupervisedGroup, bool IsGlobalSupervisor);
 }
