@@ -55,6 +55,7 @@ public static class MauiProgram
 
     builder.Services.AddSingleton<IApiClient, ApiClient>();
     builder.Services.AddSingleton<IEmployeeApiService, EmployeeApiService>();
+    builder.Services.AddSingleton<IShiftApiService, ShiftApiService>();
 
     // pages
     builder.Services.AddSingleton<AttendancePage>();
