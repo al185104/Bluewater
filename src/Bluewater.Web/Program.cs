@@ -116,6 +116,7 @@ static async Task SeedDatabase(WebApplication app)
     context.Database.EnsureCreated();
     await ShiftDataSeeder.SeedAsync(context);
     await EmployeeDataSeeder.SeedAsync(context);
+    await ScheduleDataSeeder.SeedAsync(context);
   }
   catch (Exception ex)
   {
