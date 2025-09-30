@@ -16,4 +16,15 @@ public class LeaveCredit(string leaveCode, string leaveDescription, decimal defa
   public Guid UpdateBy { get; private set; } = Guid.Empty;
 
   public LeaveCredit() : this(string.Empty, string.Empty, 0, false, false, 0) { }
+
+  public void UpdateLeaveCredit(string leaveCode, string leaveDescription, decimal defaultCredits, bool isLeaveWithPay, bool isCanCarryOver, int sortOrder)
+  {
+    LeaveCode = leaveCode;
+    LeaveDescription = leaveDescription;
+    DefaultCredits = defaultCredits;
+    IsLeaveWithPay = isLeaveWithPay;
+    IsCanCarryOver = isCanCarryOver;
+    SortOrder = sortOrder;
+    UpdatedDate = DateTime.Now;
+  }
 }
