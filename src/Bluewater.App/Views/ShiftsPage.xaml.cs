@@ -9,4 +9,14 @@ public partial class ShiftsPage : ContentPage
     InitializeComponent();
     BindingContext = vm;
   }
+
+  protected override async void OnAppearing()
+  {
+    base.OnAppearing();
+
+    if (BindingContext is ShiftsViewModel viewModel)
+    {
+      await viewModel.InitializeAsync();
+    }
+  }
 }

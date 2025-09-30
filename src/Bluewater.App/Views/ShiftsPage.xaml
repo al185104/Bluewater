@@ -1,12 +1,102 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Bluewater.App.Models"
              x:Class="Bluewater.App.Views.ShiftsPage"
-             Title="ShiftsPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             Title="Shifts">
+  <Grid Padding="16" RowDefinitions="Auto,Auto,*" RowSpacing="16">
+    <Label Text="Shifts"
+           FontAttributes="Bold"
+           FontSize="24" />
+
+    <HorizontalStackLayout Grid.Row="1" Spacing="12">
+      <Button Text="Add"
+              Command="{Binding AddShiftCommand}" />
+      <Button Text="Save"
+              Command="{Binding SaveShiftCommand}"
+              IsEnabled="{Binding CanSaveSelectedShift}" />
+      <Button Text="Update"
+              Command="{Binding UpdateShiftCommand}"
+              IsEnabled="{Binding CanUpdateSelectedShift}" />
+    </HorizontalStackLayout>
+
+    <Grid Grid.Row="2">
+      <CollectionView ItemsSource="{Binding Shifts}"
+                      SelectedItem="{Binding SelectedShift}"
+                      SelectionMode="Single"
+                      VerticalOptions="FillAndExpand">
+        <CollectionView.EmptyView>
+          <VerticalStackLayout HorizontalOptions="Center"
+                               VerticalOptions="Center"
+                               Spacing="8">
+            <Label Text="No shifts found" />
+            <Label Text="Shifts will appear here once they are available."
+                   FontSize="12" />
+          </VerticalStackLayout>
+        </CollectionView.EmptyView>
+        <CollectionView.ItemTemplate>
+          <DataTemplate x:DataType="models:ShiftSummary">
+            <Border StrokeThickness="1"
+                    Padding="12"
+                    Margin="0,0,0,12">
+              <Border.StrokeShape>
+                <RoundRectangle CornerRadius="12" />
+              </Border.StrokeShape>
+              <Grid ColumnDefinitions="*,Auto"
+                    RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                    RowSpacing="8">
+                <Entry Grid.ColumnSpan="2"
+                       Placeholder="Shift name"
+                       Text="{Binding Name}" />
+
+                <Label Grid.Row="1"
+                       Text="Start"
+                       VerticalOptions="Center" />
+                <Entry Grid.Row="1"
+                       Grid.Column="1"
+                       Placeholder="HH:mm"
+                       Text="{Binding ShiftStartTime}" />
+
+                <Label Grid.Row="2"
+                       Text="Break Start"
+                       VerticalOptions="Center" />
+                <Entry Grid.Row="2"
+                       Grid.Column="1"
+                       Placeholder="HH:mm"
+                       Text="{Binding ShiftBreakTime}" />
+
+                <Label Grid.Row="3"
+                       Text="Break End"
+                       VerticalOptions="Center" />
+                <Entry Grid.Row="3"
+                       Grid.Column="1"
+                       Placeholder="HH:mm"
+                       Text="{Binding ShiftBreakEndTime}" />
+
+                <Label Grid.Row="4"
+                       Text="End"
+                       VerticalOptions="Center" />
+                <Entry Grid.Row="4"
+                       Grid.Column="1"
+                       Placeholder="HH:mm"
+                       Text="{Binding ShiftEndTime}" />
+
+                <Label Grid.Row="5"
+                       Text="Break Hours"
+                       VerticalOptions="Center" />
+                <Label Grid.Row="5"
+                       Grid.Column="1"
+                       Text="{Binding BreakHoursDisplay}" />
+              </Grid>
+            </Border>
+          </DataTemplate>
+        </CollectionView.ItemTemplate>
+      </CollectionView>
+
+      <ActivityIndicator IsRunning="{Binding IsBusy}"
+                         IsVisible="{Binding IsBusy}"
+                         HorizontalOptions="Center"
+                         VerticalOptions="Center" />
+    </Grid>
+  </Grid>
 </ContentPage>
