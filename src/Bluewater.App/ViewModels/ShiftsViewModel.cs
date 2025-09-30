@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -24,7 +24,7 @@ public partial class ShiftsViewModel : BaseViewModel
   public ObservableCollection<ShiftSummary> Shifts { get; } = new();
 
   [ObservableProperty]
-  private ShiftSummary? selectedShift;
+  public partial ShiftSummary? SelectedShift { get; set; }
 
   public bool CanSaveSelectedShift => SelectedShift is not null && SelectedShift.Id == Guid.Empty;
 

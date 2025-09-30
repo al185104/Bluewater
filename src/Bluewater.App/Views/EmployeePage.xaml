@@ -5,14 +5,10 @@
              x:Class="Bluewater.App.Views.EmployeePage"
              Title="Employees">
   <Grid Padding="16" RowDefinitions="Auto,*" RowSpacing="16">
-    <Label Text="Employees"
-           FontAttributes="Bold"
-           FontSize="24" />
-
     <Grid Grid.Row="1">
       <CollectionView ItemsSource="{Binding Employees}"
                       SelectionMode="None"
-                      VerticalOptions="FillAndExpand">
+                      VerticalOptions="Fill">
         <CollectionView.EmptyView>
           <VerticalStackLayout HorizontalOptions="Center"
                                VerticalOptions="Center"
