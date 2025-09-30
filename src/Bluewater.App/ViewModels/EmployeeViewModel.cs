@@ -14,7 +14,8 @@ public partial class EmployeeViewModel : BaseViewModel
   private readonly IEmployeeApiService employeeApiService;
   private bool hasInitialized;
 
-  public EmployeeViewModel(IEmployeeApiService employeeApiService)
+  public EmployeeViewModel(IEmployeeApiService employeeApiService, IActivityTraceService activityTraceService)
+    : base(activityTraceService)
   {
     this.employeeApiService = employeeApiService;
   }

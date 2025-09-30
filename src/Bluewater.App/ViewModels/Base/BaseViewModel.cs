@@ -1,16 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Bluewater.App.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Bluewater.App.ViewModels.Base;
 
-public partial class BaseViewModel : ObservableObject
+public abstract partial class BaseViewModel : ObservableObject
 {
+  protected BaseViewModel(IActivityTraceService activityTraceService)
+  {
+    ActivityTraceService = activityTraceService;
+  }
+
+  protected IActivityTraceService ActivityTraceService { get; }
+
   [ObservableProperty]
   public partial bool IsBusy { get; set; }
+
+  protected Task TraceCommandAsync(string name, object? args = null)
+  {
+    return ActivityTraceService.LogCommandAsync(name, args);
+  }
 
   public virtual Task InitializeAsync() => Task.CompletedTask;
 }
