@@ -264,10 +264,35 @@ public static class EmployeeDataSeeder
   private static string BuildKey(params string[] values) => string.Join("::", values);
 
   private const string EmployeeTypeName = "Regular";
-  private const string LevelName = "Level 1";
+  private const string LevelName = "Associate";
   private const decimal DefaultBasicPay = 28000m;
   private const decimal DefaultDailyRate = 1076.92m;
   private const decimal DefaultHourlyRate = 134.62m;
+
+  private static readonly IReadOnlyList<EmployeeTypeSeedInfo> EmployeeTypeSeeds = new List<EmployeeTypeSeedInfo>
+  {
+    new("Regular", "REG"),
+    new("Probationary", "PROBATIONARY"),
+    new("Confi", "CONFI"),
+    new("On leave", "ON_LEAVE"),
+    new("On call", "ON_CALL"),
+    new("OJT", "OJT"),
+    new("Separated", "SEPARATED"),
+    new("Managers", "MANAGERS"),
+    new("Blue Bubble", "BLUE_BUBBLE"),
+    new("AHI", "AHI"),
+    new("ACGSI", "ACGSI"),
+    new("Special Project", "SPECIAL_PROJECT"),
+    new("Agency", "AGENCY"),
+    new("Amuma", "AMUMA")
+  };
+
+  private static readonly IReadOnlyList<LevelSeedInfo> LevelSeeds = new List<LevelSeedInfo>
+  {
+    new("Associate", "ASSOCIATE"),
+    new("Manager", "MANAGER"),
+    new("Supervisor", "SUPERVISOR")
+  };
 
   public static async Task SeedAsync(AppDbContext context, CancellationToken cancellationToken = default)
   {
@@ -457,30 +482,62 @@ public static class EmployeeDataSeeder
 
   private static async Task<EmployeeType> GetOrCreateEmployeeTypeAsync(AppDbContext context, CancellationToken cancellationToken)
   {
-    var type = await context.Types.FirstOrDefaultAsync(t => t.Name == EmployeeTypeName, cancellationToken);
+    EmployeeType? defaultType = null;
+    var hasChanges = false;
 
-    if (type is null)
+    foreach (var seed in EmployeeTypeSeeds)
     {
-      type = new EmployeeType(EmployeeTypeName, "REG", true);
-      context.Types.Add(type);
+      var type = await context.Types.FirstOrDefaultAsync(t => t.Name == seed.Name, cancellationToken);
+
+      if (type is null)
+      {
+        type = new EmployeeType(seed.Name, seed.Value, true);
+        context.Types.Add(type);
+        hasChanges = true;
+      }
+
+      if (seed.Name.Equals(EmployeeTypeName, StringComparison.OrdinalIgnoreCase))
+      {
+        defaultType = type;
+      }
+    }
+
+    if (hasChanges)
+    {
       await context.SaveChangesAsync(cancellationToken);
     }
 
-    return type;
+    return defaultType ?? throw new InvalidOperationException("Default employee type could not be created.");
   }
 
   private static async Task<Level> GetOrCreateLevelAsync(AppDbContext context, CancellationToken cancellationToken)
   {
-    var level = await context.Levels.FirstOrDefaultAsync(l => l.Name == LevelName, cancellationToken);
+    Level? defaultLevel = null;
+    var hasChanges = false;
 
-    if (level is null)
+    foreach (var seed in LevelSeeds)
     {
-      level = new Level(LevelName, "1", true);
-      context.Levels.Add(level);
+      var level = await context.Levels.FirstOrDefaultAsync(l => l.Name == seed.Name, cancellationToken);
+
+      if (level is null)
+      {
+        level = new Level(seed.Name, seed.Value, true);
+        context.Levels.Add(level);
+        hasChanges = true;
+      }
+
+      if (seed.Name.Equals(LevelName, StringComparison.OrdinalIgnoreCase))
+      {
+        defaultLevel = level;
+      }
+    }
+
+    if (hasChanges)
+    {
       await context.SaveChangesAsync(cancellationToken);
     }
 
-    return level;
+    return defaultLevel ?? throw new InvalidOperationException("Default level could not be created.");
   }
 
   private static async Task EnsureLeaveCreditsAsync(AppDbContext context, CancellationToken cancellationToken)
@@ -766,6 +823,10 @@ public static class EmployeeDataSeeder
   private sealed record SectionSeed(string Section, IReadOnlyList<string> Positions);
 
   private sealed record EmployeeAssignment(string Division, string Department, string Charging, string Section, string Position);
+
+  private sealed record EmployeeTypeSeedInfo(string Name, string Value);
+
+  private sealed record LevelSeedInfo(string Name, string Value);
 
   private sealed record OrganizationSeedResult(
     IReadOnlyDictionary<string, Division> Divisions,
