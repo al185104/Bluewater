@@ -74,14 +74,26 @@ public static class InfrastructureServiceExtensions
     // Holidays
     services.AddScoped<IDeleteHolidayService, DeleteHolidayService>();
     // Employee Types
+    services.AddScoped<ICreateEmployeeTypeService, CreateEmployeeTypeService>();
+    services.AddScoped<IListEmployeeTypeService, ListEmployeeTypeService>();
+    services.AddScoped<IGetEmployeeTypeService, GetEmployeeTypeService>();
+    services.AddScoped<IUpdateEmployeeTypeService, UpdateEmployeeTypeService>();
     services.AddScoped<IDeleteEmployeeTypeService, DeleteEmployeeTypeService>();
     // Employee Levels
+    services.AddScoped<ICreateLevelService, CreateLevelService>();
+    services.AddScoped<IListLevelService, ListLevelService>();
+    services.AddScoped<IGetLevelService, GetLevelService>();
+    services.AddScoped<IUpdateLevelService, UpdateLevelService>();
     services.AddScoped<IDeleteLevelService, DeleteLevelService>();
     // Shifts
     services.AddScoped<IListShiftQueryService, ListShiftsQueryService>();
     // Employee
     services.AddScoped<IDeleteEmployeeService, DeleteEmployeeService>();
     // LeaveCredits
+    services.AddScoped<ICreateLeaveCreditService, CreateLeaveCreditService>();
+    services.AddScoped<IListLeaveCreditService, ListLeaveCreditService>();
+    services.AddScoped<IGetLeaveCreditService, GetLeaveCreditService>();
+    services.AddScoped<IUpdateLeaveCreditService, UpdateLeaveCreditService>();
     services.AddScoped<IDeleteLeaveCreditService, DeleteLeaveCreditService>();
     // Leave
     services.AddScoped<IDeleteLeaveService, DeleteLeaveService>();
