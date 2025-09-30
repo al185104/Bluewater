@@ -542,21 +542,27 @@ public static class EmployeeDataSeeder
 
   private static async Task EnsureLeaveCreditsAsync(AppDbContext context, CancellationToken cancellationToken)
   {
-    var created = false;
-
-    if (!await context.LeaveCredits.AnyAsync(lc => lc.LeaveCode == "VL", cancellationToken))
+    var defaultLeaveCredits = new (string Code, string Description, decimal DefaultCredits, bool IsWithPay, bool IsCarryOver, int SortOrder)[]
     {
-      context.LeaveCredits.Add(new LeaveCredit("VL", "Vacation Leave", 10, true, true, 1));
-      created = true;
+      ("VL", "Vacation Leave", 10, true, true, 1),
+      ("SL", "Sick Leave", 10, true, false, 2),
+      ("ML", "Maternity Leave", 105, true, false, 3),
+      ("PL", "Paternity Leave", 7, true, false, 4),
+      ("EL", "Emergency Leave", 5, true, false, 5)
+    };
+
+    var hasChanges = false;
+
+    foreach (var leave in defaultLeaveCredits)
+    {
+      if (!await context.LeaveCredits.AnyAsync(lc => lc.LeaveCode == leave.Code, cancellationToken))
+      {
+        context.LeaveCredits.Add(new LeaveCredit(leave.Code, leave.Description, leave.DefaultCredits, leave.IsWithPay, leave.IsCarryOver, leave.SortOrder));
+        hasChanges = true;
+      }
     }
 
-    if (!await context.LeaveCredits.AnyAsync(lc => lc.LeaveCode == "SL", cancellationToken))
-    {
-      context.LeaveCredits.Add(new LeaveCredit("SL", "Sick Leave", 10, true, false, 2));
-      created = true;
-    }
-
-    if (created)
+    if (hasChanges)
     {
       await context.SaveChangesAsync(cancellationToken);
     }
