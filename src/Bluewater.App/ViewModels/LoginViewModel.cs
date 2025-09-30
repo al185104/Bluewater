@@ -1,4 +1,5 @@
-﻿using Bluewater.App.ViewModels.Base;
+using Bluewater.App.Interfaces;
+using Bluewater.App.ViewModels.Base;
 using Bluewater.App.Views;
 using CommunityToolkit.Mvvm.Input;
 
@@ -6,13 +7,19 @@ namespace Bluewater.App.ViewModels;
 
 public partial class LoginViewModel : BaseViewModel
 {
+  public LoginViewModel(IActivityTraceService activityTraceService)
+    : base(activityTraceService)
+  {
+  }
+
   [RelayCommand]
   async Task LoginAsync()
   {
     try
     {
       IsBusy = true;
-      await Shell.Current.GoToAsync($"//{nameof(HomePage)}");
+      await TraceCommandAsync("Login", new { Target = nameof(HomePage) }).ConfigureAwait(false);
+      await Shell.Current.GoToAsync($"//{nameof(HomePage)}").ConfigureAwait(false);
     }
     finally
     {

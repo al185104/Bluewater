@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -16,7 +16,8 @@ public partial class ShiftsViewModel : BaseViewModel
   private readonly IShiftApiService shiftApiService;
   private bool hasInitialized;
 
-  public ShiftsViewModel(IShiftApiService shiftApiService)
+  public ShiftsViewModel(IShiftApiService shiftApiService, IActivityTraceService activityTraceService)
+    : base(activityTraceService)
   {
     this.shiftApiService = shiftApiService;
   }
@@ -41,7 +42,7 @@ public partial class ShiftsViewModel : BaseViewModel
   }
 
   [RelayCommand]
-  private void AddShift()
+  private async Task AddShift()
   {
     var newShift = new ShiftSummary
     {
@@ -56,6 +57,11 @@ public partial class ShiftsViewModel : BaseViewModel
 
     Shifts.Add(newShift);
     SelectedShift = newShift;
+
+    await TraceCommandAsync("AddShift", new
+    {
+      ShiftCount = Shifts.Count
+    }).ConfigureAwait(false);
   }
 
   [RelayCommand(CanExecute = nameof(CanSaveSelectedShift))]
@@ -66,7 +72,13 @@ public partial class ShiftsViewModel : BaseViewModel
       return;
     }
 
-    await PersistShiftAsync(SelectedShift, isNew: true);
+    await TraceCommandAsync("SaveShift", new
+    {
+      ShiftId = SelectedShift.Id,
+      SelectedShift.Name
+    }).ConfigureAwait(false);
+
+    await PersistShiftAsync(SelectedShift, isNew: true).ConfigureAwait(false);
   }
 
   [RelayCommand(CanExecute = nameof(CanUpdateSelectedShift))]
@@ -77,7 +89,13 @@ public partial class ShiftsViewModel : BaseViewModel
       return;
     }
 
-    await PersistShiftAsync(SelectedShift, isNew: false);
+    await TraceCommandAsync("UpdateShift", new
+    {
+      ShiftId = SelectedShift.Id,
+      SelectedShift.Name
+    }).ConfigureAwait(false);
+
+    await PersistShiftAsync(SelectedShift, isNew: false).ConfigureAwait(false);
   }
 
   private async Task PersistShiftAsync(ShiftSummary shift, bool isNew)
@@ -92,8 +110,8 @@ public partial class ShiftsViewModel : BaseViewModel
       IsBusy = true;
 
       ShiftSummary? result = isNew
-        ? await shiftApiService.CreateShiftAsync(shift)
-        : await shiftApiService.UpdateShiftAsync(shift);
+        ? await shiftApiService.CreateShiftAsync(shift).ConfigureAwait(false)
+        : await shiftApiService.UpdateShiftAsync(shift).ConfigureAwait(false);
 
       if (result is null)
       {
@@ -114,7 +132,7 @@ public partial class ShiftsViewModel : BaseViewModel
       }
 
       hasInitialized = false;
-      await LoadShiftsAsync(result.Id);
+      await LoadShiftsAsync(result.Id).ConfigureAwait(false);
     }
     catch (Exception ex)
     {
@@ -139,7 +157,7 @@ public partial class ShiftsViewModel : BaseViewModel
       SelectedShift = null;
       Shifts.Clear();
 
-      IReadOnlyList<ShiftSummary> shifts = await shiftApiService.GetShiftsAsync();
+      IReadOnlyList<ShiftSummary> shifts = await shiftApiService.GetShiftsAsync().ConfigureAwait(false);
 
       foreach (ShiftSummary shift in shifts.OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase))
       {
