@@ -11,4 +11,5 @@ public interface IApiClient
     string requestUri,
     TRequest request,
     CancellationToken cancellationToken = default);
+  Task<bool> DeleteAsync(string requestUri, CancellationToken cancellationToken = default);
 }
