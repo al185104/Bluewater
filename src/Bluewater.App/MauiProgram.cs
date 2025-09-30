@@ -61,6 +61,10 @@ public static class MauiProgram
     builder.Services.AddSingleton<IPositionApiService, PositionApiService>();
     builder.Services.AddSingleton<ISectionApiService, SectionApiService>();
     builder.Services.AddSingleton<IChargingApiService, ChargingApiService>();
+    builder.Services.AddSingleton<ILeaveApiService, LeaveApiService>();
+    builder.Services.AddSingleton<IAttendanceApiService, AttendanceApiService>();
+    builder.Services.AddSingleton<IPayrollApiService, PayrollApiService>();
+    builder.Services.AddSingleton<IScheduleApiService, ScheduleApiService>();
 
     // pages
     builder.Services.AddSingleton<AttendancePage>();
