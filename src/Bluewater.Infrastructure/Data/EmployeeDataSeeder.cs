@@ -27,13 +27,244 @@ public static class EmployeeDataSeeder
   private const string SecondaryUsername = "mlopez";
   private const string TertiaryUsername = "kchan";
   private const string QuaternaryUsername = "areyes";
-  private const string DivisionName = "Hotel Operations";
-  private const string DepartmentName = "Front Office";
-  private const string SectionName = "Reception";
-  private const string PositionName = "Front Desk Officer";
+  private static readonly IReadOnlyList<DivisionSeed> OrganizationSeeds = new List<DivisionSeed>
+  {
+    new("AG", new List<DepartmentSeed>
+    {
+      new("Accounting", new List<ChargingSeed>
+      {
+        new("FD", new List<SectionSeed>
+        {
+          new("FDCostC", new List<string> { "Accounting Associate" }),
+          new("FDGA", new List<string> { "Accounting Associate", "Junior Accountant", "Receiving Clerk (Warehouse)" }),
+          new("FDTC", new List<string> { "Accounting Associate" }),
+          new("FTAC", new List<string> { "General Cashier" }),
+          new("ADMIN", new List<string> { "Liaison Officer" })
+        })
+      }),
+      new("IT", new List<ChargingSeed>
+      {
+        new("FD", new List<SectionSeed>
+        {
+          new("ITD", new List<string> { "IT Specialist", "IT Supervisor", "Assistant IT Manager", "IT Manager" })
+        })
+      }),
+      new("Purchasing", new List<ChargingSeed>
+      {
+        new("MMO", new List<SectionSeed>
+        {
+          new("MMO", new List<string> { "Purchaser", "Purchasing Associate", "Purchasing Supervisor", "Stock Clerk", "Driver/Purchaser" })
+        })
+      }),
+      new("SSD", new List<ChargingSeed>
+      {
+        new("SSD", new List<SectionSeed>
+        {
+          new("SSD", new List<string> { "Safety & Security Supervisor", "Safety & Security Manager", "Security Team Leader" })
+        }),
+        new("SSD_A", new List<SectionSeed>
+        {
+          new("SSD", new List<string> { "House Detective" })
+        })
+      })
+    }),
+    new("SM", new List<DepartmentSeed>
+    {
+      new("Banquet Sales", new List<ChargingSeed>
+      {
+        new("BSC", new List<SectionSeed>
+        {
+          new("BQT", new List<string> { "Banquet Sales Coordinator", "Sales Account Manager", "Sales Account Executive" })
+        })
+      }),
+      new("MarComm", new List<ChargingSeed>
+      {
+        new("SM", new List<SectionSeed>
+        {
+          new("SM", new List<string> { "Graphic Designer", "Senior Graphic Designer", "Copywriter", "MarComm Associate" })
+        })
+      }),
+      new("Reservations", new List<ChargingSeed>
+      {
+        new("ROC", new List<SectionSeed>
+        {
+          new("ROC", new List<string> { "Reservations Officer (Cebu)", "Reservations Associate" })
+        }),
+        new("SM", new List<SectionSeed>
+        {
+          new("SM", new List<string> { "Admin Staff" })
+        }),
+        new("SMM", new List<SectionSeed>
+        {
+          new("ROM", new List<string> { "Reservations Officer (Manila)", "Reservations Specialist (Manila)", "Reservations Team Leader", "Assistant Reservations Manager", "Reservations Manager", "Rooms Revenue Manager" })
+        })
+      })
+    }),
+    new("CO", new List<DepartmentSeed>
+    {
+      new("Corporate", new List<ChargingSeed>
+      {
+        new("COD", new List<SectionSeed>
+        {
+          new("90001", new List<string> { "Liaison Officer" })
+        })
+      })
+    }),
+    new("FBDIV", new List<DepartmentSeed>
+    {
+      new("F&B Production", new List<ChargingSeed>
+      {
+        new("FBAll", new List<SectionSeed>
+        {
+          new("AP", new List<string> { "Chef de Partie", "Commis II", "Pantry II" }),
+          new("AS", new List<string> { "On-call Steward" })
+        }),
+        new("FBAll_A", new List<SectionSeed>
+        {
+          new("AP", new List<string> { "Commis III" })
+        }),
+        new("FBASC", new List<SectionSeed>
+        {
+          new("KPB", new List<string> { "Baker II", "Baker III", "Pastry II" }),
+          new("KP", new List<string> { "Commis I", "Commis II" }),
+          new("KS", new List<string> { "Stewarding Supervisor" })
+        }),
+        new("FBASC_A", new List<SectionSeed>
+        {
+          new("KP", new List<string> { "Commis III" })
+        }),
+        new("FBBan", new List<SectionSeed>
+        {
+          new("BCP", new List<string> { "Commis II" })
+        }),
+        new("FBCo", new List<SectionSeed>
+        {
+          new("COP", new List<string> { "Chef de Partie", "Commis II" })
+        }),
+        new("FBMJ", new List<SectionSeed>
+        {
+          new("MJP", new List<string> { "Commis II" })
+        }),
+        new("FBMJ_A", new List<SectionSeed>
+        {
+          new("MJP", new List<string> { "Commis III" })
+        })
+      }),
+      new("F&B Service", new List<ChargingSeed>
+      {
+        new("FBAll", new List<SectionSeed>
+        {
+          new("AS", new List<string> { "Bar Captain", "Bartender", "F&B Service Associate", "On-call Waiter" })
+        }),
+        new("FBASC", new List<SectionSeed>
+        {
+          new("ADMO", new List<string> { "F&B Supervisor" })
+        }),
+        new("FBBan", new List<SectionSeed>
+        {
+          new("BCS", new List<string> { "Banquet Captain", "Banquet Operation Supervisor", "F&B Service Associate" })
+        }),
+        new("FBCo", new List<SectionSeed>
+        {
+          new("COS", new List<string> { "Bartender", "Outlet Cashier", "F&B Service Associate" })
+        }),
+        new("FBRecA", new List<SectionSeed>
+        {
+          new("Recbar", new List<string> { "F&B Service Associate" })
+        })
+      })
+    }),
+    new("RMDIV", new List<DepartmentSeed>
+    {
+      new("Front Office", new List<ChargingSeed>
+      {
+        new("FO", new List<SectionSeed>
+        {
+          new("BS", new List<string> { "Airport Representative", "Bellman" }),
+          new("GT", new List<string> { "Bellman" }),
+          new("FDC", new List<string> { "Front Office Associate" }),
+          new("TO", new List<string> { "Front Office Associate" })
+        })
+      }),
+      new("Grounds & Garden", new List<ChargingSeed>
+      {
+        new("GG", new List<SectionSeed>
+        {
+          new("GRN", new List<string> { "Garden Staff" }),
+          new("GRD", new List<string> { "Grounds & Garden Associate", "Ground Associate", "Grounds & Garden Specialist", "Grounds & Garden Supervisor" })
+        })
+      }),
+      new("Housekeeping", new List<ChargingSeed>
+      {
+        new("HSKPNG", new List<SectionSeed>
+        {
+          new("HADM", new List<string> { "Housekeeping Coordinator", "Housekeeping Team Leader", "Housekeeping Supervisor" }),
+          new("GR", new List<string> { "Linen Attendant", "Room Attendant", "Senior Room Attendant" }),
+          new("PA", new List<string> { "Public Area Attendant" })
+        })
+      })
+    }),
+    new("HRD", new List<DepartmentSeed>
+    {
+      new("Housekeeping", new List<ChargingSeed>
+      {
+        new("HRD", new List<SectionSeed>
+        {
+          new("HRS", new List<string> { "Public Area Attendant" })
+        })
+      }),
+      new("HR", new List<ChargingSeed>
+      {
+        new("HRD", new List<SectionSeed>
+        {
+          new("HRS", new List<string> { "Company Nurse", "Corporate Recruiter", "Corporate Training Manager", "Corporate Assistant OD Manager", "Assistant HR Manager", "HR Manager", "OD Manager", "HR Associate", "HR Associate - CompBen", "CompBen Specialist", "HR Officer", "Training & Development Officer", "Assistant Training & Development Manager" })
+        })
+      })
+    }),
+    new("POMEC", new List<DepartmentSeed>
+    {
+      new("POMEC", new List<ChargingSeed>
+      {
+        new("POMEC", new List<SectionSeed>
+        {
+          new("BM", new List<string> { "Carpenter", "Function Team/Helper", "Mason", "Mechanic", "Painter", "Plumber", "POMEC Special Project", "RAC Technician", "Welder" }),
+          new("ES", new List<string> { "Electrical Technician", "RAC Technician" }),
+          new("PADM", new List<string> { "Plan Systems Engineer/Contracted Services", "POMEC Coordinator" })
+        }),
+        new("SP", new List<SectionSeed>
+        {
+          new("SPS", new List<string> { "Electrical Engineer", "Quantity Surveyor", "Shift Engineer" })
+        }),
+        new("FBASC", new List<SectionSeed>
+        {
+          new("ADMK", new List<string> { "Electronic Technician" })
+        })
+      })
+    }),
+    new("OOD", new List<DepartmentSeed>
+    {
+      new("SSD", new List<ChargingSeed>
+      {
+        new("SR", new List<SectionSeed>
+        {
+          new("SR", new List<string> { "Lifeguard/Pool Attendant" })
+        })
+      })
+    })
+  };
+
+  private static readonly IReadOnlyDictionary<string, EmployeeAssignment> EmployeeAssignments = new Dictionary<string, EmployeeAssignment>(StringComparer.OrdinalIgnoreCase)
+  {
+    [PrimaryUsername] = new("AG", "Accounting", "FD", "FDGA", "Accounting Associate"),
+    [SecondaryUsername] = new("SM", "Reservations", "ROC", "ROC", "Reservations Associate"),
+    [TertiaryUsername] = new("FBDIV", "F&B Production", "FBAll", "AP", "Commis II"),
+    [QuaternaryUsername] = new("HRD", "HR", "HRD", "HRS", "HR Manager")
+  };
+
+  private static string BuildKey(params string[] values) => string.Join("::", values);
+
   private const string EmployeeTypeName = "Regular";
   private const string LevelName = "Level 1";
-  private const string ChargingName = "Front Office Charging";
   private const decimal DefaultBasicPay = 28000m;
   private const decimal DefaultDailyRate = 1076.92m;
   private const decimal DefaultHourlyRate = 134.62m;
@@ -61,17 +292,13 @@ public static class EmployeeDataSeeder
   private static async Task<SeedReferenceData> EnsureReferenceDataAsync(AppDbContext context, CancellationToken cancellationToken)
   {
     var users = await EnsureAppUsersAsync(context, cancellationToken);
-    var division = await GetOrCreateDivisionAsync(context, cancellationToken);
-    var department = await GetOrCreateDepartmentAsync(context, division, cancellationToken);
-    var section = await GetOrCreateSectionAsync(context, department, cancellationToken);
-    var position = await GetOrCreatePositionAsync(context, section, cancellationToken);
+    var organization = await EnsureOrganizationStructureAsync(context, cancellationToken);
     var pay = await GetOrCreatePayAsync(context, cancellationToken);
     var employeeType = await GetOrCreateEmployeeTypeAsync(context, cancellationToken);
     var level = await GetOrCreateLevelAsync(context, cancellationToken);
-    var charging = await GetOrCreateChargingAsync(context, department, cancellationToken);
     await EnsureLeaveCreditsAsync(context, cancellationToken);
 
-    return new SeedReferenceData(users, position, pay, employeeType, level, charging);
+    return new SeedReferenceData(users, pay, employeeType, level, organization);
   }
 
   private static readonly IReadOnlyList<AppUserSeedInfo> AppUsersToSeed = new List<AppUserSeedInfo>
@@ -109,60 +336,109 @@ public static class EmployeeDataSeeder
     return users;
   }
 
-  private static async Task<Division> GetOrCreateDivisionAsync(AppDbContext context, CancellationToken cancellationToken)
+  private static async Task<OrganizationSeedResult> EnsureOrganizationStructureAsync(AppDbContext context, CancellationToken cancellationToken)
   {
-    var division = await context.Divisions.FirstOrDefaultAsync(d => d.Name == DivisionName, cancellationToken);
+    var divisions = new Dictionary<string, Division>(StringComparer.OrdinalIgnoreCase);
+    var departments = new Dictionary<string, Department>(StringComparer.OrdinalIgnoreCase);
+    var chargings = new Dictionary<string, Charging>(StringComparer.OrdinalIgnoreCase);
+    var sections = new Dictionary<string, Section>(StringComparer.OrdinalIgnoreCase);
+    var positions = new Dictionary<string, Position>(StringComparer.OrdinalIgnoreCase);
 
-    if (division is null)
+    foreach (var divisionSeed in OrganizationSeeds)
     {
-      division = new Division(DivisionName, "Oversees resort operations");
-      context.Divisions.Add(division);
-      await context.SaveChangesAsync(cancellationToken);
+      var division = await context.Divisions.FirstOrDefaultAsync(d => d.Name == divisionSeed.Division, cancellationToken);
+
+      if (division is null)
+      {
+        division = new Division(divisionSeed.Division, null);
+        context.Divisions.Add(division);
+        await context.SaveChangesAsync(cancellationToken);
+      }
+
+      divisions[BuildKey(divisionSeed.Division)] = division;
+
+      foreach (var departmentSeed in divisionSeed.Departments)
+      {
+        var department = await context.Departments.FirstOrDefaultAsync(d => d.Name == departmentSeed.Department && d.DivisionId == division.Id, cancellationToken);
+
+        if (department is null)
+        {
+          department = new Department(departmentSeed.Department, null, division.Id);
+          context.Departments.Add(department);
+          await context.SaveChangesAsync(cancellationToken);
+        }
+
+        departments[BuildKey(divisionSeed.Division, departmentSeed.Department)] = department;
+
+        foreach (var chargingSeed in departmentSeed.Chargings)
+        {
+          var charging = await context.Chargings.FirstOrDefaultAsync(c => c.Name == chargingSeed.Charging && c.DepartmentId == department.Id, cancellationToken);
+
+          if (charging is null)
+          {
+            charging = new Charging(chargingSeed.Charging, null, department.Id);
+            context.Chargings.Add(charging);
+            await context.SaveChangesAsync(cancellationToken);
+          }
+
+          chargings[BuildKey(divisionSeed.Division, departmentSeed.Department, chargingSeed.Charging)] = charging;
+
+          foreach (var sectionSeed in chargingSeed.Sections)
+          {
+            var section = await context.Sections.FirstOrDefaultAsync(s => s.Name == sectionSeed.Section && s.DepartmentId == department.Id, cancellationToken);
+
+            if (section is null)
+            {
+              section = new Section(sectionSeed.Section, null, null, null, null, department.Id);
+              context.Sections.Add(section);
+              await context.SaveChangesAsync(cancellationToken);
+            }
+
+            sections[BuildKey(divisionSeed.Division, departmentSeed.Department, sectionSeed.Section)] = section;
+
+            foreach (var positionName in sectionSeed.Positions)
+            {
+              var position = await context.Positions.FirstOrDefaultAsync(p => p.Name == positionName && p.SectionId == section.Id, cancellationToken);
+
+              if (position is null)
+              {
+                position = new Position(positionName, null, section.Id);
+                context.Positions.Add(position);
+                await context.SaveChangesAsync(cancellationToken);
+              }
+
+              positions[BuildKey(divisionSeed.Division, departmentSeed.Department, sectionSeed.Section, positionName)] = position;
+            }
+          }
+        }
+      }
     }
 
-    return division;
+    return new OrganizationSeedResult(divisions, departments, chargings, sections, positions);
   }
 
-  private static async Task<Department> GetOrCreateDepartmentAsync(AppDbContext context, Division division, CancellationToken cancellationToken)
+  private static (Position Position, Charging Charging) ResolveOrganizationReferences(SeedReferenceData references, string username)
   {
-    var department = await context.Departments.FirstOrDefaultAsync(d => d.Name == DepartmentName, cancellationToken);
-
-    if (department is null)
+    if (!EmployeeAssignments.TryGetValue(username, out var assignment))
     {
-      department = new Department(DepartmentName, "Responsible for guest engagement", division.Id);
-      context.Departments.Add(department);
-      await context.SaveChangesAsync(cancellationToken);
+      throw new InvalidOperationException($"No organization assignment configured for user '{username}'.");
     }
 
-    return department;
-  }
+    var positionKey = BuildKey(assignment.Division, assignment.Department, assignment.Section, assignment.Position);
 
-  private static async Task<Section> GetOrCreateSectionAsync(AppDbContext context, Department department, CancellationToken cancellationToken)
-  {
-    var section = await context.Sections.FirstOrDefaultAsync(s => s.Name == SectionName, cancellationToken);
-
-    if (section is null)
+    if (!references.Organization.Positions.TryGetValue(positionKey, out var position))
     {
-      section = new Section(SectionName, "Front desk reception", null, null, null, department.Id);
-      context.Sections.Add(section);
-      await context.SaveChangesAsync(cancellationToken);
+      throw new InvalidOperationException($"Position '{assignment.Position}' for section '{assignment.Section}' under department '{assignment.Department}' in division '{assignment.Division}' was not found.");
     }
 
-    return section;
-  }
+    var chargingKey = BuildKey(assignment.Division, assignment.Department, assignment.Charging);
 
-  private static async Task<Position> GetOrCreatePositionAsync(AppDbContext context, Section section, CancellationToken cancellationToken)
-  {
-    var position = await context.Positions.FirstOrDefaultAsync(p => p.Name == PositionName, cancellationToken);
-
-    if (position is null)
+    if (!references.Organization.Chargings.TryGetValue(chargingKey, out var charging))
     {
-      position = new Position(PositionName, "Greets guests and manages check-in/out", section.Id);
-      context.Positions.Add(position);
-      await context.SaveChangesAsync(cancellationToken);
+      throw new InvalidOperationException($"Charging '{assignment.Charging}' for department '{assignment.Department}' in division '{assignment.Division}' was not found.");
     }
 
-    return position;
+    return (position, charging);
   }
 
   private static async Task<Pay> GetOrCreatePayAsync(AppDbContext context, CancellationToken cancellationToken)
@@ -207,20 +483,6 @@ public static class EmployeeDataSeeder
     return level;
   }
 
-  private static async Task<Charging> GetOrCreateChargingAsync(AppDbContext context, Department department, CancellationToken cancellationToken)
-  {
-    var charging = await context.Chargings.FirstOrDefaultAsync(c => c.Name == ChargingName, cancellationToken);
-
-    if (charging is null)
-    {
-      charging = new Charging(ChargingName, "Default charging for front office", department.Id);
-      context.Chargings.Add(charging);
-      await context.SaveChangesAsync(cancellationToken);
-    }
-
-    return charging;
-  }
-
   private static async Task EnsureLeaveCreditsAsync(AppDbContext context, CancellationToken cancellationToken)
   {
     var created = false;
@@ -257,7 +519,7 @@ public static class EmployeeDataSeeder
       height: 175m,
       weight: 72m,
       imageUrl: null,
-      remarks: "Front desk lead",
+      remarks: "Leads general accounting operations",
       mealCredits: 5,
       tenant: Tenant.Maribago);
 
@@ -292,13 +554,15 @@ public static class EmployeeDataSeeder
       bankAccount: "0123456789",
       hasServiceCharge: true));
 
+    var primaryReferences = ResolveOrganizationReferences(references, PrimaryUsername);
+
     primaryEmployee.SetExternalKeys(
       references.Users[PrimaryUsername].Id,
-      references.Position.Id,
+      primaryReferences.Position.Id,
       references.Pay.Id,
       references.EmployeeType.Id,
       references.Level.Id,
-      references.Charging.Id);
+      primaryReferences.Charging.Id);
 
     var secondaryEmployee = new Employee(
       firstName: "Maria",
@@ -312,7 +576,7 @@ public static class EmployeeDataSeeder
       height: 165m,
       weight: 60m,
       imageUrl: null,
-      remarks: "Handles concierge requests",
+      remarks: "Coordinates guest reservations and inquiries",
       mealCredits: 3,
       tenant: Tenant.Panglao);
 
@@ -347,13 +611,15 @@ public static class EmployeeDataSeeder
       bankAccount: "9876543210",
       hasServiceCharge: false));
 
+    var secondaryReferences = ResolveOrganizationReferences(references, SecondaryUsername);
+
     secondaryEmployee.SetExternalKeys(
       references.Users[SecondaryUsername].Id,
-      references.Position.Id,
+      secondaryReferences.Position.Id,
       references.Pay.Id,
       references.EmployeeType.Id,
       references.Level.Id,
-      references.Charging.Id);
+      secondaryReferences.Charging.Id);
 
     var tertiaryEmployee = new Employee(
       firstName: "Kevin",
@@ -367,7 +633,7 @@ public static class EmployeeDataSeeder
       height: 170m,
       weight: 68m,
       imageUrl: null,
-      remarks: "Night shift specialist",
+      remarks: "Supports hot kitchen production for F&B",
       mealCredits: 4,
       tenant: Tenant.Sumilon);
 
@@ -402,13 +668,15 @@ public static class EmployeeDataSeeder
       bankAccount: "5566778899",
       hasServiceCharge: true));
 
+    var tertiaryReferences = ResolveOrganizationReferences(references, TertiaryUsername);
+
     tertiaryEmployee.SetExternalKeys(
       references.Users[TertiaryUsername].Id,
-      references.Position.Id,
+      tertiaryReferences.Position.Id,
       references.Pay.Id,
       references.EmployeeType.Id,
       references.Level.Id,
-      references.Charging.Id);
+      tertiaryReferences.Charging.Id);
 
     var quaternaryEmployee = new Employee(
       firstName: "Ariana",
@@ -422,7 +690,7 @@ public static class EmployeeDataSeeder
       height: 160m,
       weight: 58m,
       imageUrl: null,
-      remarks: "Training coordinator",
+      remarks: "Leads the human resources team",
       mealCredits: 6,
       tenant: Tenant.Maribago);
 
@@ -457,13 +725,15 @@ public static class EmployeeDataSeeder
       bankAccount: "4433221100",
       hasServiceCharge: false));
 
+    var quaternaryReferences = ResolveOrganizationReferences(references, QuaternaryUsername);
+
     quaternaryEmployee.SetExternalKeys(
       references.Users[QuaternaryUsername].Id,
-      references.Position.Id,
+      quaternaryReferences.Position.Id,
       references.Pay.Id,
       references.EmployeeType.Id,
       references.Level.Id,
-      references.Charging.Id);
+      quaternaryReferences.Charging.Id);
 
     return new List<Employee> { primaryEmployee, secondaryEmployee, tertiaryEmployee, quaternaryEmployee };
   }
@@ -483,7 +753,24 @@ public static class EmployeeDataSeeder
     };
   }
 
-  private record SeedReferenceData(IReadOnlyDictionary<string, AppUser> Users, Position Position, Pay Pay, EmployeeType EmployeeType, Level Level, Charging Charging);
+  private record SeedReferenceData(IReadOnlyDictionary<string, AppUser> Users, Pay Pay, EmployeeType EmployeeType, Level Level, OrganizationSeedResult Organization);
 
   private sealed record AppUserSeedInfo(string Username, Credential Credential, Guid? SupervisedGroup, bool IsGlobalSupervisor);
+
+  private sealed record DivisionSeed(string Division, IReadOnlyList<DepartmentSeed> Departments);
+
+  private sealed record DepartmentSeed(string Department, IReadOnlyList<ChargingSeed> Chargings);
+
+  private sealed record ChargingSeed(string Charging, IReadOnlyList<SectionSeed> Sections);
+
+  private sealed record SectionSeed(string Section, IReadOnlyList<string> Positions);
+
+  private sealed record EmployeeAssignment(string Division, string Department, string Charging, string Section, string Position);
+
+  private sealed record OrganizationSeedResult(
+    IReadOnlyDictionary<string, Division> Divisions,
+    IReadOnlyDictionary<string, Department> Departments,
+    IReadOnlyDictionary<string, Charging> Chargings,
+    IReadOnlyDictionary<string, Section> Sections,
+    IReadOnlyDictionary<string, Position> Positions);
 }
