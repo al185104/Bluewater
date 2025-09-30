@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bluewater.App.Interfaces;
@@ -117,8 +117,13 @@ public class DivisionApiService(IApiClient apiClient) : IDivisionApiService
     return $"Divisions?{query}";
   }
 
-  private static DivisionSummary MapToSummary(DivisionDto dto)
+  private static DivisionSummary MapToSummary(DivisionDto? dto)
   {
+    if(dto is null)
+    {
+      throw new ArgumentNullException(nameof(dto));
+    }
+
     return new DivisionSummary
     {
       Id = dto.Id,

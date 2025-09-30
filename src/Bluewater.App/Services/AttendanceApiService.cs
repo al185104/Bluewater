@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -213,8 +213,13 @@ public class AttendanceApiService(IApiClient apiClient) : IAttendanceApiService
     return $"Attendances/All?{query}";
   }
 
-  private static AttendanceSummary MapToSummary(AttendanceDto dto)
+  private static AttendanceSummary MapToSummary(AttendanceDto? dto)
   {
+    if (dto is null)
+    {
+      throw new ArgumentNullException(nameof(dto));
+    }
+
     return new AttendanceSummary
     {
       Id = dto.Id,
@@ -273,8 +278,13 @@ public class AttendanceApiService(IApiClient apiClient) : IAttendanceApiService
     };
   }
 
-  private static EmployeeAttendanceSummary MapToEmployeeSummary(EmployeeAttendanceDto dto)
+  private static EmployeeAttendanceSummary MapToEmployeeSummary(EmployeeAttendanceDto? dto)
   {
+    if (dto is null)
+    {
+      throw new ArgumentNullException(nameof(dto));
+    }
+
     return new EmployeeAttendanceSummary
     {
       EmployeeId = dto.EmployeeId,

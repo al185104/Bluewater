@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.Interfaces;
@@ -29,8 +29,8 @@ public class UpdateLeaveCreditHandler(IUpdateLeaveCreditService _updateLeaveCred
         ResultStatus.Unauthorized => Result<LeaveCreditDTO>.Unauthorized(),
         ResultStatus.Forbidden => Result<LeaveCreditDTO>.Forbidden(),
         ResultStatus.CriticalError => Result<LeaveCreditDTO>.CriticalError(updateResult.Errors.ToArray()),
-        ResultStatus.Error => Result<LeaveCreditDTO>.Error(updateResult.Errors.ToArray()),
-        _ => Result<LeaveCreditDTO>.Error(new[] { "Unable to update leave credit." })
+        ResultStatus.Error => Result<LeaveCreditDTO>.Error(updateResult.Errors.First()),
+        _ => Result<LeaveCreditDTO>.Error("Unable to update leave credit.")
       };
     }
 

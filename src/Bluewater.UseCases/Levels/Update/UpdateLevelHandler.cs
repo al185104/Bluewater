@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.Interfaces;
@@ -19,8 +19,8 @@ public class UpdateLevelHandler(IUpdateLevelService _updateLevelService) : IComm
         ResultStatus.Unauthorized => Result<LevelDTO>.Unauthorized(),
         ResultStatus.Forbidden => Result<LevelDTO>.Forbidden(),
         ResultStatus.CriticalError => Result<LevelDTO>.CriticalError(updateResult.Errors.ToArray()),
-        ResultStatus.Error => Result<LevelDTO>.Error(updateResult.Errors.ToArray()),
-        _ => Result<LevelDTO>.Error(new[] { "Unable to update level." })
+        ResultStatus.Error => Result<LevelDTO>.Error(updateResult.Errors.First()),
+        _ => Result<LevelDTO>.Error("Unable to update level.")
       };
     }
 

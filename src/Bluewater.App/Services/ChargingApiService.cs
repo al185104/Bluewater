@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bluewater.App.Interfaces;
@@ -118,8 +118,13 @@ public class ChargingApiService(IApiClient apiClient) : IChargingApiService
     return $"Chargings?{query}";
   }
 
-  private static ChargingSummary MapToSummary(ChargingDto dto)
+  private static ChargingSummary MapToSummary(ChargingDto? dto)
   {
+    if(dto is null)
+    {
+      throw new ArgumentNullException(nameof(dto));
+    }
+
     return new ChargingSummary
     {
       Id = dto.Id,

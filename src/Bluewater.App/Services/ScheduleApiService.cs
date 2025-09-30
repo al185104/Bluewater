@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -34,7 +34,7 @@ public class ScheduleApiService(IApiClient apiClient) : IScheduleApiService
 
     return response.Employees
       .Where(dto => dto is not null)
-      .Select(MapToEmployeeSummary)
+      .Select(dto => MapToEmployeeSummary(dto!))
       .ToList();
   }
 
@@ -186,7 +186,7 @@ public class ScheduleApiService(IApiClient apiClient) : IScheduleApiService
       Charging = dto.Charging,
       Shifts = dto.Shifts?
         .Where(shift => shift is not null)
-        .Select(MapShiftInfo)
+        .Select(dto => MapShiftInfo(dto!))
         .ToList() ?? new List<ScheduleShiftInfoSummary>()
     };
   }

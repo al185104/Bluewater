@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -48,8 +48,9 @@ public class PayrollApiService(IApiClient apiClient) : IPayrollApiService
     }
 
     return response.Payrolls
+      .OfType<PayrollSummaryDto>()
       .Where(dto => dto is not null)
-      .Select(MapToGroupedSummary)
+      .Select(dto => MapToGroupedSummary(dto!))
       .ToList();
   }
 
@@ -310,8 +311,13 @@ public class PayrollApiService(IApiClient apiClient) : IPayrollApiService
     };
   }
 
-  private static PayrollSummary MapToSummary(PayrollDto dto)
+  private static PayrollSummary MapToSummary(PayrollDto? dto)
   {
+    if( dto is null)
+    {
+      throw new ArgumentNullException(nameof(dto));
+    } 
+
     return new PayrollSummary
     {
       Id = dto.Id,

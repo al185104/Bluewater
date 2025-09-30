@@ -1,5 +1,6 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
+using Bluewater.Core.Helpers;
 using Bluewater.Core.Interfaces;
 using Bluewater.Core.LevelAggregate;
 using Microsoft.Extensions.Logging;
@@ -18,12 +19,12 @@ public class UpdateLevelService(IRepository<Level> _repository, ILogger<UpdateLe
 
     if (string.IsNullOrWhiteSpace(name))
     {
-      return Result<Level>.Invalid(new[] { new ValidationError(nameof(name), "Level name is required.") });
+      return Result<Level>.Invalid(new[] { ValidationErrorExtension.ToValidationError(nameof(name), "Level name is required.") });
     }
 
     if (string.IsNullOrWhiteSpace(value))
     {
-      return Result<Level>.Invalid(new[] { new ValidationError(nameof(value), "Level value is required.") });
+      return Result<Level>.Invalid(new[] { ValidationErrorExtension.ToValidationError(nameof(value), "Level value is required.") });
     }
 
     existing.UpdateLevel(name, value, isActive);

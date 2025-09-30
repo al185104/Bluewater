@@ -1,4 +1,4 @@
-using System.Linq;
+﻿using System.Linq;
 using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.Interfaces;
@@ -19,8 +19,8 @@ public class UpdateEmployeeTypeHandler(IUpdateEmployeeTypeService _updateEmploye
         ResultStatus.Unauthorized => Result<EmployeeTypeDTO>.Unauthorized(),
         ResultStatus.Forbidden => Result<EmployeeTypeDTO>.Forbidden(),
         ResultStatus.CriticalError => Result<EmployeeTypeDTO>.CriticalError(updateResult.Errors.ToArray()),
-        ResultStatus.Error => Result<EmployeeTypeDTO>.Error(updateResult.Errors.ToArray()),
-        _ => Result<EmployeeTypeDTO>.Error(new[] { "Unable to update employee type." })
+        ResultStatus.Error => Result<EmployeeTypeDTO>.Error(updateResult.Errors.First()),
+        _ => Result<EmployeeTypeDTO>.Error("Unable to update employee type.")
       };
     }
 

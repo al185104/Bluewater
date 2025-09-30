@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bluewater.App.Interfaces;
@@ -156,8 +156,13 @@ public class LeaveApiService(IApiClient apiClient) : ILeaveApiService
     return $"Leaves?{query}";
   }
 
-  private static LeaveSummary MapToSummary(LeaveDto dto)
+  private static LeaveSummary MapToSummary(LeaveDto? dto)
   {
+    if(dto is null)
+    {
+      throw new ArgumentNullException(nameof(dto));
+    } 
+
     return new LeaveSummary
     {
       Id = dto.Id,

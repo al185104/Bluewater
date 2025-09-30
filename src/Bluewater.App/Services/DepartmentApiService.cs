@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bluewater.App.Interfaces;
@@ -120,8 +120,13 @@ public class DepartmentApiService(IApiClient apiClient) : IDepartmentApiService
     return $"Departments?{query}";
   }
 
-  private static DepartmentSummary MapToSummary(DepartmentDto dto)
+  private static DepartmentSummary MapToSummary(DepartmentDto? dto)
   {
+    if(dto is null)
+    {
+      throw new ArgumentNullException(nameof(dto));
+    }
+
     return new DepartmentSummary
     {
       Id = dto.Id,

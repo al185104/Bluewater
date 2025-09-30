@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bluewater.App.Interfaces;
@@ -23,8 +23,9 @@ public class PositionApiService(IApiClient apiClient) : IPositionApiService
     }
 
     return response.Positions
+      .OfType<PositionDto>()
       .Where(dto => dto is not null)
-      .Select(MapToSummary)
+      .Select(dto => MapToSummary(dto!))
       .ToList();
   }
 

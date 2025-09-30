@@ -1,6 +1,7 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.EmployeeTypeAggregate;
+using Bluewater.Core.Helpers;
 using Bluewater.Core.Interfaces;
 using Microsoft.Extensions.Logging;
 
@@ -12,12 +13,12 @@ public class CreateEmployeeTypeService(IRepository<EmployeeType> _repository, IL
   {
     if (string.IsNullOrWhiteSpace(name))
     {
-      return Result<Guid>.Invalid(new[] { new ValidationError(nameof(name), "Employee type name is required.") });
+      return Result<Guid>.Invalid(new[] { ValidationErrorExtension.ToValidationError(nameof(name), "Employee type name is required.") });
     }
 
     if (string.IsNullOrWhiteSpace(value))
     {
-      return Result<Guid>.Invalid(new[] { new ValidationError(nameof(value), "Employee type value is required.") });
+      return Result<Guid>.Invalid(new[] { ValidationErrorExtension.ToValidationError(nameof(value), "Employee type value is required.") });
     }
 
     var employeeType = new EmployeeType(name, value, isActive);
