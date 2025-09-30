@@ -1,17 +1,19 @@
+using Microsoft.Extensions.DependencyInjection;
+
 namespace Bluewater.App;
 
 public partial class App : Application
 {
-  private readonly AppShell appShell;
+  private readonly IServiceProvider serviceProvider;
 
-  public App(AppShell appShell)
+  public App(IServiceProvider serviceProvider)
   {
     InitializeComponent();
-    this.appShell = appShell;
+    this.serviceProvider = serviceProvider;
   }
 
   protected override Window CreateWindow(IActivationState? activationState)
   {
-    return new Window(appShell);
+    return new Window(serviceProvider.GetRequiredService<AppShell>());
   }
 }
