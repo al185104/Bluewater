@@ -55,6 +55,20 @@ public class ApiClient(HttpClient httpClient) : IApiClient
     return await SendAsync<TResponse>(message, cancellationToken);
   }
 
+  public async Task<bool> DeleteAsync(string requestUri, CancellationToken cancellationToken = default)
+  {
+    using var message = new HttpRequestMessage(HttpMethod.Delete, requestUri);
+    using HttpResponseMessage response = await httpClient.SendAsync(message, cancellationToken);
+
+    if (response.StatusCode == HttpStatusCode.NotFound)
+    {
+      return false;
+    }
+
+    response.EnsureSuccessStatusCode();
+    return true;
+  }
+
   private async Task<T?> SendAsync<T>(HttpRequestMessage message, CancellationToken cancellationToken)
   {
     using HttpResponseMessage response = await httpClient.SendAsync(message, cancellationToken);
