@@ -5,8 +5,8 @@ namespace Bluewater.App.ViewModels;
 
 public partial class MealCreditViewModel : BaseViewModel
 {
-  public MealCreditViewModel(IActivityTraceService activityTraceService)
-    : base(activityTraceService)
+  public MealCreditViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
+    : base(activityTraceService, exceptionHandlingService)
   {
   }
 }

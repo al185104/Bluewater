@@ -5,8 +5,8 @@ namespace Bluewater.App.ViewModels;
 
 public partial class ProfileViewModel : BaseViewModel
 {
-  public ProfileViewModel(IActivityTraceService activityTraceService)
-    : base(activityTraceService)
+  public ProfileViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
+    : base(activityTraceService, exceptionHandlingService)
   {
   }
 }

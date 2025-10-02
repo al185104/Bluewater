@@ -5,8 +5,8 @@ namespace Bluewater.App.ViewModels;
 
 public partial class SettingViewModel : BaseViewModel
 {
-  public SettingViewModel(IActivityTraceService activityTraceService)
-    : base(activityTraceService)
+  public SettingViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
+    : base(activityTraceService, exceptionHandlingService)
   {
   }
 }

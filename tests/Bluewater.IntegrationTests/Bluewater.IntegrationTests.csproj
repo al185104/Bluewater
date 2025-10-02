@@ -19,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Bluewater.Infrastructure\Bluewater.Infrastructure.csproj" />
     <ProjectReference Include="..\Bluewater.UnitTests\Bluewater.UnitTests.csproj" />
+    <ProjectReference Include="..\..\src\Bluewater.App\Bluewater.App.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -5,8 +5,8 @@ namespace Bluewater.App.ViewModels;
 
 public partial class TimesheetViewModel : BaseViewModel
 {
-  public TimesheetViewModel(IActivityTraceService activityTraceService)
-    : base(activityTraceService)
+  public TimesheetViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
+    : base(activityTraceService, exceptionHandlingService)
   {
   }
 }

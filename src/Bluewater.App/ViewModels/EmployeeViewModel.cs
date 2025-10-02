@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
@@ -14,8 +13,11 @@ public partial class EmployeeViewModel : BaseViewModel
   private readonly IEmployeeApiService employeeApiService;
   private bool hasInitialized;
 
-  public EmployeeViewModel(IEmployeeApiService employeeApiService, IActivityTraceService activityTraceService)
-    : base(activityTraceService)
+  public EmployeeViewModel(
+    IEmployeeApiService employeeApiService,
+    IActivityTraceService activityTraceService,
+    IExceptionHandlingService exceptionHandlingService)
+    : base(activityTraceService, exceptionHandlingService)
   {
     this.employeeApiService = employeeApiService;
   }
@@ -46,7 +48,7 @@ public partial class EmployeeViewModel : BaseViewModel
     }
     catch (Exception ex)
     {
-      Debug.WriteLine($"Failed to load employees: {ex.Message}");
+      ExceptionHandlingService.Handle(ex, "Loading employees");
     }
     finally
     {

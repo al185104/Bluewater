@@ -5,6 +5,7 @@ using Bluewater.App.Services;
 using Bluewater.App.ViewModels;
 using Bluewater.App.Views;
 using CommunityToolkit.Maui;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace Bluewater.App;
@@ -66,6 +67,7 @@ public static class MauiProgram
     builder.Services.AddSingleton<IPayrollApiService, PayrollApiService>();
     builder.Services.AddSingleton<IScheduleApiService, ScheduleApiService>();
     builder.Services.AddSingleton<IActivityTraceService, ActivityTraceService>();
+    builder.Services.AddSingleton<IExceptionHandlingService, ExceptionHandlingService>();
 
     builder.Services.AddSingleton<AppShell>();
 
@@ -99,6 +101,11 @@ public static class MauiProgram
     builder.Services.AddSingleton<TimesheetViewModel>();
     builder.Services.AddSingleton<UserViewModel>();
 
-    return builder.Build();
+    MauiApp app = builder.Build();
+
+    IExceptionHandlingService exceptionHandlingService = app.Services.GetRequiredService<IExceptionHandlingService>();
+    exceptionHandlingService.Initialize();
+
+    return app;
   }
 }

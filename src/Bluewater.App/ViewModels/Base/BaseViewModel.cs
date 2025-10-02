@@ -5,12 +5,15 @@ namespace Bluewater.App.ViewModels.Base;
 
 public abstract partial class BaseViewModel : ObservableObject
 {
-  protected BaseViewModel(IActivityTraceService activityTraceService)
+  protected BaseViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
   {
     ActivityTraceService = activityTraceService;
+    ExceptionHandlingService = exceptionHandlingService;
   }
 
   protected IActivityTraceService ActivityTraceService { get; }
+
+  protected IExceptionHandlingService ExceptionHandlingService { get; }
 
   [ObservableProperty]
   public partial bool IsBusy { get; set; }
