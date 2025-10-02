@@ -5,8 +5,8 @@ namespace Bluewater.App.ViewModels;
 
 public partial class ScheduleViewModel : BaseViewModel
 {
-  public ScheduleViewModel(IActivityTraceService activityTraceService)
-    : base(activityTraceService)
+  public ScheduleViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
+    : base(activityTraceService, exceptionHandlingService)
   {
   }
 }

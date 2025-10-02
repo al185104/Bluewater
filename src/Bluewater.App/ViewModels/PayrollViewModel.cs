@@ -5,8 +5,8 @@ namespace Bluewater.App.ViewModels;
 
 public partial class PayrollViewModel : BaseViewModel
 {
-  public PayrollViewModel(IActivityTraceService activityTraceService)
-    : base(activityTraceService)
+  public PayrollViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
+    : base(activityTraceService, exceptionHandlingService)
   {
   }
 }

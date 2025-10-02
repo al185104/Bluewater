@@ -5,8 +5,8 @@ namespace Bluewater.App.ViewModels;
 
 public partial class AttendanceViewModel : BaseViewModel
 {
-  public AttendanceViewModel(IActivityTraceService activityTraceService)
-    : base(activityTraceService)
+  public AttendanceViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
+    : base(activityTraceService, exceptionHandlingService)
   {
   }
 }

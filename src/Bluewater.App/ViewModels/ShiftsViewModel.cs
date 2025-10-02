@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
@@ -16,8 +15,11 @@ public partial class ShiftsViewModel : BaseViewModel
   private readonly IShiftApiService shiftApiService;
   private bool hasInitialized;
 
-  public ShiftsViewModel(IShiftApiService shiftApiService, IActivityTraceService activityTraceService)
-    : base(activityTraceService)
+  public ShiftsViewModel(
+    IShiftApiService shiftApiService,
+    IActivityTraceService activityTraceService,
+    IExceptionHandlingService exceptionHandlingService)
+    : base(activityTraceService, exceptionHandlingService)
   {
     this.shiftApiService = shiftApiService;
   }
@@ -136,7 +138,7 @@ public partial class ShiftsViewModel : BaseViewModel
     }
     catch (Exception ex)
     {
-      Debug.WriteLine($"Failed to persist shift: {ex.Message}");
+      ExceptionHandlingService.Handle(ex, "Persisting shift");
     }
     finally
     {
@@ -178,7 +180,7 @@ public partial class ShiftsViewModel : BaseViewModel
     }
     catch (Exception ex)
     {
-      Debug.WriteLine($"Failed to load shifts: {ex.Message}");
+      ExceptionHandlingService.Handle(ex, "Loading shifts");
     }
     finally
     {

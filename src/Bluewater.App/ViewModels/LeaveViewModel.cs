@@ -5,8 +5,8 @@ namespace Bluewater.App.ViewModels;
 
 public partial class LeaveViewModel : BaseViewModel
 {
-  public LeaveViewModel(IActivityTraceService activityTraceService)
-    : base(activityTraceService)
+  public LeaveViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
+    : base(activityTraceService, exceptionHandlingService)
   {
   }
 }

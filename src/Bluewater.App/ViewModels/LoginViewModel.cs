@@ -7,8 +7,8 @@ namespace Bluewater.App.ViewModels;
 
 public partial class LoginViewModel : BaseViewModel
 {
-  public LoginViewModel(IActivityTraceService activityTraceService)
-    : base(activityTraceService)
+  public LoginViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
+    : base(activityTraceService, exceptionHandlingService)
   {
   }
 
