@@ -8,6 +8,7 @@ using CommunityToolkit.Maui.Views;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Dispatching;
 
 namespace Bluewater.App.Services;
 
@@ -121,9 +122,19 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
 
   private void ShowOutOfSyncPopup(PresentationException presentationException)
   {
-    MainThread.BeginInvokeOnMainThread(() =>
+    ArgumentNullException.ThrowIfNull(presentationException);
+
+    IDispatcher? dispatcher = Application.Current?.Dispatcher;
+
+    if (dispatcher is null)
     {
-      if (Application.Current?.MainPage is null)
+      logger?.LogWarning("Unable to display error popup because the dispatcher is unavailable.");
+      return;
+    }
+
+    void DisplayPopup()
+    {
+      if (Application.Current?.MainPage is not Page mainPage)
       {
         logger?.LogWarning("Unable to display error popup because the main page is unavailable.");
         return;
@@ -138,8 +149,17 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
       popup.Closed += OnPopupClosed;
 
       activePopup = popup;
-      Application.Current.MainPage.ShowPopup(popup);
-    });
+      mainPage.ShowPopup(popup);
+    }
+
+    if (dispatcher.IsDispatchRequired)
+    {
+      dispatcher.Dispatch(DisplayPopup);
+    }
+    else
+    {
+      DisplayPopup();
+    }
   }
 
   private void OnPopupClosed(object? sender, PopupClosedEventArgs e)
