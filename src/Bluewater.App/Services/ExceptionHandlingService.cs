@@ -37,9 +37,12 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
     TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
-    if (Microsoft.UI.Xaml.Application.Current is not null) {
+#if WINDOWS
+    if (Microsoft.UI.Xaml.Application.Current is not null)
+    {
       Microsoft.UI.Xaml.Application.Current.UnhandledException += OnApplicationUnhandledException;
     }
+#endif
 
     isInitialized = true;
   }
@@ -72,11 +75,13 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     e.SetObserved();
   }
 
+#if WINDOWS
   private void OnApplicationUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
   {
     ProcessException("Application", e.Exception, context: null);
     e.Handled = true;
   }
+#endif
 
   private void ProcessException(string source, Exception exception, string? context, bool isTerminating = false)
   {
@@ -205,7 +210,11 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
     TaskScheduler.UnobservedTaskException -= OnUnobservedTaskException;
 
+#if WINDOWS
     if (Microsoft.UI.Xaml.Application.Current is not null)
+    {
       Microsoft.UI.Xaml.Application.Current.UnhandledException -= OnApplicationUnhandledException;
+    }
+#endif
   }
 }
