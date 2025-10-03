@@ -5,7 +5,6 @@ using Bluewater.App.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Dispatching;
 
 namespace Bluewater.App.Services;
 
@@ -14,7 +13,6 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
   private readonly IActivityTraceService activityTraceService;
   private readonly ILogger<ExceptionHandlingService>? logger;
   private bool isInitialized;
-  private IDispatcher? dispatcher;
 
   public ExceptionHandlingService(
     IActivityTraceService activityTraceService,
@@ -34,10 +32,9 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
     TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
-    dispatcher = Application.Current?.Dispatcher;
-    if (dispatcher is not null)
+    if (Application.Current is not null)
     {
-      dispatcher.UnhandledException += OnDispatcherUnhandledException;
+      Application.Current.UnhandledException += OnApplicationUnhandledException;
     }
 
     isInitialized = true;
@@ -71,9 +68,9 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     e.SetObserved();
   }
 
-  private void OnDispatcherUnhandledException(object? sender, DispatcherUnhandledExceptionEventArgs e)
+  private void OnApplicationUnhandledException(object? sender, Microsoft.Maui.Controls.UnhandledExceptionEventArgs e)
   {
-    LogException("Dispatcher", e.Exception, context: null);
+    LogException("Application", e.Exception, context: null);
   }
 
   private void LogException(string source, Exception exception, string? context, bool isTerminating = false)
@@ -131,9 +128,9 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
     TaskScheduler.UnobservedTaskException -= OnUnobservedTaskException;
 
-    if (dispatcher is not null)
+    if (Application.Current is not null)
     {
-      dispatcher.UnhandledException -= OnDispatcherUnhandledException;
+      Application.Current.UnhandledException -= OnApplicationUnhandledException;
     }
   }
 }
