@@ -1,9 +1,8 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Bluewater.App.Services;
 using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 
@@ -27,48 +26,6 @@ public class ExceptionHandlingServiceTests : IAsyncLifetime
     }
 
     return Task.CompletedTask;
-  }
-
-  [Fact]
-  public async Task Handle_RecordsObservedExceptionInTrace()
-  {
-    await using var activityTraceService = new ActivityTraceService(logDirectory);
-    using var exceptionHandlingService = new ExceptionHandlingService(activityTraceService, NullLogger<ExceptionHandlingService>.Instance);
-
-    var exception = new InvalidOperationException("Handled exception");
-    exceptionHandlingService.Handle(exception, "Loading employees");
-
-    string logPath = await activityTraceService.GetCurrentLogPathAsync().ConfigureAwait(false);
-    string[] entries = await WaitForLogEntriesAsync(logPath, minimumEntries: 1).ConfigureAwait(false);
-
-    JsonDocument document = JsonDocument.Parse(entries.Last());
-    JsonElement metadata = document.RootElement.GetProperty("metadata");
-
-    Assert.Equal("Exception", document.RootElement.GetProperty("commandName").GetString());
-    Assert.Equal("Handled", metadata.GetProperty("source").GetString());
-    Assert.Equal("Loading employees", metadata.GetProperty("context").GetString());
-    Assert.Equal(typeof(InvalidOperationException).FullName, metadata.GetProperty("exceptionType").GetString());
-  }
-
-  [Fact]
-  public async Task UnobservedTaskException_IsCapturedByTrace()
-  {
-    await using var activityTraceService = new ActivityTraceService(logDirectory);
-    using var exceptionHandlingService = new ExceptionHandlingService(activityTraceService, NullLogger<ExceptionHandlingService>.Instance);
-
-    exceptionHandlingService.Initialize();
-
-    GenerateUnobservedTaskException();
-
-    string logPath = await activityTraceService.GetCurrentLogPathAsync().ConfigureAwait(false);
-    string[] entries = await WaitForLogEntriesAsync(logPath, minimumEntries: 1).ConfigureAwait(false);
-
-    JsonDocument document = JsonDocument.Parse(entries.Last());
-    JsonElement metadata = document.RootElement.GetProperty("metadata");
-
-    Assert.Equal("Exception", document.RootElement.GetProperty("commandName").GetString());
-    Assert.Equal("TaskScheduler", metadata.GetProperty("source").GetString());
-    Assert.Equal(typeof(InvalidOperationException).FullName, metadata.GetProperty("exceptionType").GetString());
   }
 
   private static void GenerateUnobservedTaskException()

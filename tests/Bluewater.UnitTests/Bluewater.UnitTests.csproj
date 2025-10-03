@@ -3,6 +3,7 @@
 
   <PropertyGroup>
     <PreserveCompilationContext>true</PreserveCompilationContext>
+    <TargetFramework>net9.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
@@ -39,7 +40,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Bluewater.Core\Bluewater.Core.csproj" />
     <ProjectReference Include="..\..\src\Bluewater.UseCases\Bluewater.UseCases.csproj" />
-    <ProjectReference Include="..\..\src\Bluewater.App\Bluewater.App.csproj" />
   </ItemGroup>
 
 </Project>

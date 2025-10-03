@@ -1,4 +1,4 @@
-using Bluewater.App.Interfaces;
+﻿using Bluewater.App.Interfaces;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Bluewater.App.ViewModels.Base;
@@ -11,9 +11,9 @@ public abstract partial class BaseViewModel : ObservableObject
     ExceptionHandlingService = exceptionHandlingService;
   }
 
-  protected IActivityTraceService ActivityTraceService { get; }
+  protected readonly IActivityTraceService ActivityTraceService;
 
-  protected IExceptionHandlingService ExceptionHandlingService { get; }
+  protected readonly IExceptionHandlingService ExceptionHandlingService;
 
   [ObservableProperty]
   public partial bool IsBusy { get; set; }

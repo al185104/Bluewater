@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Bluewater.App.Interfaces;
@@ -32,12 +32,16 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
     TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
-    if (Application.Current is not null)
-    {
-      Application.Current.UnhandledException += OnApplicationUnhandledException;
+    if (Microsoft.UI.Xaml.Application.Current is not null) {
+      Microsoft.UI.Xaml.Application.Current.UnhandledException += OnApplicationUnhandledException;
     }
 
     isInitialized = true;
+  }
+
+  private void OnApplicationUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+  {
+    LogException("Application", e.Exception, context: null);
   }
 
   public void Handle(Exception exception, string context)
@@ -66,11 +70,6 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
   {
     LogException("TaskScheduler", e.Exception, context: null);
     e.SetObserved();
-  }
-
-  private void OnApplicationUnhandledException(object? sender, Microsoft.Maui.Controls.UnhandledExceptionEventArgs e)
-  {
-    LogException("Application", e.Exception, context: null);
   }
 
   private void LogException(string source, Exception exception, string? context, bool isTerminating = false)
@@ -128,9 +127,7 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
     TaskScheduler.UnobservedTaskException -= OnUnobservedTaskException;
 
-    if (Application.Current is not null)
-    {
-      Application.Current.UnhandledException -= OnApplicationUnhandledException;
-    }
+    if (Microsoft.UI.Xaml.Application.Current is not null)
+      Microsoft.UI.Xaml.Application.Current.UnhandledException -= OnApplicationUnhandledException;
   }
 }
