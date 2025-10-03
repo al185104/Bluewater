@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Bluewater.App.Exceptions;
 using Bluewater.App.Interfaces;
+using Bluewater.App.Views;
+using CommunityToolkit.Maui.Views;
 using Microsoft.Extensions.Logging;
-using Microsoft.Maui;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 
 namespace Bluewater.App.Services;
@@ -12,6 +15,7 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
 {
   private readonly IActivityTraceService activityTraceService;
   private readonly ILogger<ExceptionHandlingService>? logger;
+  private Popup? activePopup;
   private bool isInitialized;
 
   public ExceptionHandlingService(
@@ -39,11 +43,6 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     isInitialized = true;
   }
 
-  private void OnApplicationUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
-  {
-    LogException("Application", e.Exception, context: null);
-  }
-
   public void Handle(Exception exception, string context)
   {
     if (exception is null)
@@ -51,14 +50,14 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
       throw new ArgumentNullException(nameof(exception));
     }
 
-    LogException("Handled", exception, context);
+    ProcessException("Handled", exception, context);
   }
 
   private void OnUnhandledException(object? sender, UnhandledExceptionEventArgs e)
   {
     if (e.ExceptionObject is Exception exception)
     {
-      LogException("AppDomain", exception, context: null, e.IsTerminating);
+      ProcessException("AppDomain", exception, context: null, e.IsTerminating);
     }
     else
     {
@@ -68,8 +67,34 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
 
   private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
   {
-    LogException("TaskScheduler", e.Exception, context: null);
+    ProcessException("TaskScheduler", e.Exception, context: null);
     e.SetObserved();
+  }
+
+  private void OnApplicationUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+  {
+    ProcessException("Application", e.Exception, context: null);
+    e.Handled = true;
+  }
+
+  private void ProcessException(string source, Exception exception, string? context, bool isTerminating = false)
+  {
+    LogException(source, exception, context, isTerminating);
+
+    PresentationException presentationException = ConvertToPresentationException(exception);
+    ShowOutOfSyncPopup(presentationException);
+  }
+
+  private static PresentationException ConvertToPresentationException(Exception exception)
+  {
+    if (exception is PresentationException presentationException)
+    {
+      return presentationException;
+    }
+
+    return exception.InnerException is PresentationException innerPresentation
+      ? innerPresentation
+      : new PresentationException(exception);
   }
 
   private void LogException(string source, Exception exception, string? context, bool isTerminating = false)
@@ -92,6 +117,39 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     }
 
     _ = WriteTraceAsync("Exception", metadata);
+  }
+
+  private void ShowOutOfSyncPopup(PresentationException presentationException)
+  {
+    MainThread.BeginInvokeOnMainThread(() =>
+    {
+      if (Application.Current?.MainPage is null)
+      {
+        logger?.LogWarning("Unable to display error popup because the main page is unavailable.");
+        return;
+      }
+
+      if (activePopup is not null)
+      {
+        return;
+      }
+
+      var popup = new OutOfSyncPopup(presentationException);
+      popup.Closed += OnPopupClosed;
+
+      activePopup = popup;
+      Application.Current.MainPage.ShowPopup(popup);
+    });
+  }
+
+  private void OnPopupClosed(object? sender, PopupClosedEventArgs e)
+  {
+    if (sender is Popup popup)
+    {
+      popup.Closed -= OnPopupClosed;
+    }
+
+    activePopup = null;
   }
 
   private void LogMessage(string source, string message)
