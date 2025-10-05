@@ -6,6 +6,7 @@
     xmlns:views="clr-namespace:Bluewater.App.Views"
     xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
     Shell.FlyoutBehavior="Flyout"
+    Shell.NavBarIsVisible="False"
     Title="Bluewater.App">
 
     <ShellContent

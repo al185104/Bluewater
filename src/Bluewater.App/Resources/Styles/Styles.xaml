@@ -413,86 +413,14 @@
 
     <!-- Global content page background styling -->
     <LinearGradientBrush x:Key="AppContentPageBackgroundBrush" EndPoint="0,1">
-        <GradientStop Color="#F7F8FF" Offset="0" />
-        <GradientStop Color="#F4E8FF" Offset="0.55" />
-        <GradientStop Color="#FFE3F0" Offset="1" />
+        <GradientStop Color="#80dae0f3" Offset="0" />
+        <GradientStop Color="#048aa5d5" Offset="0.55" />
+        <GradientStop Color="#001d70b8" Offset="1" />
     </LinearGradientBrush>
-
-    <RadialGradientBrush x:Key="AppContentPageBlobBrushOne" Radius="0.85" Center="0.35,0.3">
-        <GradientStop Color="#80FFF5FF" Offset="0" />
-        <GradientStop Color="#40FFCFE8" Offset="0.55" />
-        <GradientStop Color="#00FFCFE8" Offset="1" />
-    </RadialGradientBrush>
-
-    <RadialGradientBrush x:Key="AppContentPageBlobBrushTwo" Radius="0.9" Center="0.55,0.5">
-        <GradientStop Color="#66FFF5FF" Offset="0" />
-        <GradientStop Color="#40FFCFE8" Offset="0.6" />
-        <GradientStop Color="#00FFCFE8" Offset="1" />
-    </RadialGradientBrush>
-
-    <RadialGradientBrush x:Key="AppContentPageBlobBrushThree" Radius="0.8" Center="0.6,0.6">
-        <GradientStop Color="#70FFF5FF" Offset="0" />
-        <GradientStop Color="#40FFCFE8" Offset="0.6" />
-        <GradientStop Color="#00FFCFE8" Offset="1" />
-    </RadialGradientBrush>
-
-    <RadialGradientBrush x:Key="AppContentPageBlobBrushFour" Radius="0.95" Center="0.25,0.55">
-        <GradientStop Color="#59FFF5FF" Offset="0" />
-        <GradientStop Color="#40FFCFE8" Offset="0.5" />
-        <GradientStop Color="#00FFCFE8" Offset="1" />
-    </RadialGradientBrush>
-
-    <RadialGradientBrush x:Key="AppContentPageBlobBrushFive" Radius="0.9" Center="0.7,0.15">
-        <GradientStop Color="#66FFF5FF" Offset="0" />
-        <GradientStop Color="#40FFCFE8" Offset="0.5" />
-        <GradientStop Color="#00FFCFE8" Offset="1" />
-    </RadialGradientBrush>
 
     <ControlTemplate x:Key="AppContentPageTemplate">
         <Grid>
-            <Grid>
-                <Grid.Background>
-                    <StaticResource ResourceKey="AppContentPageBackgroundBrush" />
-                </Grid.Background>
-
-                <Grid InputTransparent="True">
-                    <shapes:Ellipse WidthRequest="320"
-                                    HeightRequest="260"
-                                    Fill="{StaticResource AppContentPageBlobBrushOne}"
-                                    HorizontalOptions="Start"
-                                    VerticalOptions="Start"
-                                    Margin="-120,-80,0,0" />
-
-                    <shapes:Ellipse WidthRequest="260"
-                                    HeightRequest="220"
-                                    Fill="{StaticResource AppContentPageBlobBrushTwo}"
-                                    HorizontalOptions="End"
-                                    VerticalOptions="Start"
-                                    Margin="0,60,-80,0" />
-
-                    <shapes:Ellipse WidthRequest="340"
-                                    HeightRequest="280"
-                                    Fill="{StaticResource AppContentPageBlobBrushThree}"
-                                    HorizontalOptions="End"
-                                    VerticalOptions="End"
-                                    Margin="0,0,-140,-120" />
-
-                    <shapes:Ellipse WidthRequest="220"
-                                    HeightRequest="190"
-                                    Fill="{StaticResource AppContentPageBlobBrushFour}"
-                                    HorizontalOptions="Start"
-                                    VerticalOptions="Center"
-                                    Margin="-60,40,0,-40" />
-
-                    <shapes:Ellipse WidthRequest="200"
-                                    HeightRequest="170"
-                                    Fill="{StaticResource AppContentPageBlobBrushFive}"
-                                    HorizontalOptions="Center"
-                                    VerticalOptions="Start"
-                                    Margin="0,-40,0,0" />
-                </Grid>
-            </Grid>
-
+            <Grid Background="{StaticResource AppContentPageBackgroundBrush}"/>
             <ContentPresenter Margin="{TemplateBinding Padding}" />
         </Grid>
     </ControlTemplate>
