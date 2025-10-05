@@ -60,10 +60,13 @@ public partial class EmployeeViewModel : BaseViewModel
       Employees.Clear();
       IReadOnlyList<EmployeeSummary> employees = await employeeApiService.GetEmployeesAsync();
 
+      int index = 0;
+
       foreach (EmployeeSummary employee in employees
         .OrderBy(e => e.LastName ?? string.Empty)
         .ThenBy(e => e.FirstName ?? string.Empty))
       {
+        employee.RowIndex = index++;
         Employees.Add(employee);
       }
 
