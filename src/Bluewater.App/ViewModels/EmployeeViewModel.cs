@@ -5,6 +5,7 @@ using System.Linq;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
+using CommunityToolkit.Mvvm.Input;
 
 namespace Bluewater.App.ViewModels;
 
@@ -23,6 +24,28 @@ public partial class EmployeeViewModel : BaseViewModel
   }
 
   public ObservableCollection<EmployeeSummary> Employees { get; } = new();
+
+  [RelayCommand]
+  private async Task EditEmployeeAsync(EmployeeSummary? employee)
+  {
+    if (employee is null)
+    {
+      return;
+    }
+
+    await TraceCommandAsync(nameof(EditEmployeeAsync), employee.Id);
+  }
+
+  [RelayCommand]
+  private async Task DeleteEmployeeAsync(EmployeeSummary? employee)
+  {
+    if (employee is null)
+    {
+      return;
+    }
+
+    await TraceCommandAsync(nameof(DeleteEmployeeAsync), employee.Id);
+  }
 
   public override async Task InitializeAsync()
   {
