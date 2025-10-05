@@ -413,38 +413,39 @@
 
     <!-- Global content page background styling -->
     <LinearGradientBrush x:Key="AppContentPageBackgroundBrush" EndPoint="0,1">
-        <GradientStop Color="#F9FBFF" Offset="0" />
-        <GradientStop Color="#F1F6FB" Offset="1" />
+        <GradientStop Color="#F7F8FF" Offset="0" />
+        <GradientStop Color="#F4E8FF" Offset="0.55" />
+        <GradientStop Color="#FFE3F0" Offset="1" />
     </LinearGradientBrush>
 
     <RadialGradientBrush x:Key="AppContentPageBlobBrushOne" Radius="0.85" Center="0.35,0.3">
-        <GradientStop Color="#80FFFFFF" Offset="0" />
-        <GradientStop Color="#4DAEC8FF" Offset="0.55" />
-        <GradientStop Color="#00AEC8FF" Offset="1" />
+        <GradientStop Color="#80FFF5FF" Offset="0" />
+        <GradientStop Color="#40FFCFE8" Offset="0.55" />
+        <GradientStop Color="#00FFCFE8" Offset="1" />
     </RadialGradientBrush>
 
     <RadialGradientBrush x:Key="AppContentPageBlobBrushTwo" Radius="0.9" Center="0.55,0.5">
-        <GradientStop Color="#66FFFFFF" Offset="0" />
-        <GradientStop Color="#4098E0FF" Offset="0.6" />
-        <GradientStop Color="#0098E0FF" Offset="1" />
+        <GradientStop Color="#66FFF5FF" Offset="0" />
+        <GradientStop Color="#40FFCFE8" Offset="0.6" />
+        <GradientStop Color="#00FFCFE8" Offset="1" />
     </RadialGradientBrush>
 
     <RadialGradientBrush x:Key="AppContentPageBlobBrushThree" Radius="0.8" Center="0.6,0.6">
-        <GradientStop Color="#70FFFFFF" Offset="0" />
-        <GradientStop Color="#3F85C7FF" Offset="0.6" />
-        <GradientStop Color="#0085C7FF" Offset="1" />
+        <GradientStop Color="#70FFF5FF" Offset="0" />
+        <GradientStop Color="#40FFCFE8" Offset="0.6" />
+        <GradientStop Color="#00FFCFE8" Offset="1" />
     </RadialGradientBrush>
 
     <RadialGradientBrush x:Key="AppContentPageBlobBrushFour" Radius="0.95" Center="0.25,0.55">
-        <GradientStop Color="#59FFFFFF" Offset="0" />
-        <GradientStop Color="#3385C7FF" Offset="0.5" />
-        <GradientStop Color="#0085C7FF" Offset="1" />
+        <GradientStop Color="#59FFF5FF" Offset="0" />
+        <GradientStop Color="#40FFCFE8" Offset="0.5" />
+        <GradientStop Color="#00FFCFE8" Offset="1" />
     </RadialGradientBrush>
 
     <RadialGradientBrush x:Key="AppContentPageBlobBrushFive" Radius="0.9" Center="0.7,0.15">
-        <GradientStop Color="#66FFFFFF" Offset="0" />
-        <GradientStop Color="#338FCFFF" Offset="0.5" />
-        <GradientStop Color="#008FCFFF" Offset="1" />
+        <GradientStop Color="#66FFF5FF" Offset="0" />
+        <GradientStop Color="#40FFCFE8" Offset="0.5" />
+        <GradientStop Color="#00FFCFE8" Offset="1" />
     </RadialGradientBrush>
 
     <ControlTemplate x:Key="AppContentPageTemplate">
