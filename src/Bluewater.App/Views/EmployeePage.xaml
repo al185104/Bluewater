@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:Bluewater.App.Models"
              xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
+             xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
              x:Class="Bluewater.App.Views.EmployeePage"
              x:Name="EmployeePageView"
              Title="Employees">
@@ -10,14 +11,8 @@
     <ResourceDictionary>
       <Style x:Key="EmployeeRowBorderStyle" TargetType="Border">
         <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="Stroke" Value="{AppThemeBinding Light=#E0E0E0, Dark=#303030}" />
-        <Setter Property="Padding" Value="12,8" />
-        <Setter Property="Margin" Value="0,0,0,4" />
-        <Setter Property="StrokeShape">
-          <Setter.Value>
-            <RoundRectangle CornerRadius="8" />
-          </Setter.Value>
-        </Setter>
+        <Setter Property="Stroke" Value="Transparent" />
+        <Setter Property="Padding" Value="8" />
       </Style>
 
       <DataTemplate x:Key="EmployeePrimaryTemplate" x:DataType="models:EmployeeSummary">
@@ -34,6 +29,7 @@
                      IsVisible="{Binding HasImage}"
                      HeightRequest="40"
                      WidthRequest="40"
+                     Background="LightGray"
                      Aspect="AspectFill">
                 <Image.Clip>
                   <EllipseGeometry Center="20,20" RadiusX="20" RadiusY="20" />
@@ -46,20 +42,18 @@
             <Label Grid.Column="4" Text="{Binding Section}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
             <Label Grid.Column="5" Text="{Binding Type}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
             <Label Grid.Column="6" Text="{Binding Level}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-            <Label Grid.Column="7"
-                   Text="{Binding Email}"
-                   FontSize="13"
-                   TextColor="{AppThemeBinding Light=#0A84FF, Dark=#63A4FF}" />
+            <Label Grid.Column="7" Text="{Binding Email}" LineBreakMode="TailTruncation" FontSize="13"/>
             <HorizontalStackLayout Grid.Column="8" Spacing="8" HorizontalOptions="End" VerticalOptions="Center">
-              <Button Text="Edit"
-                      Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.EditEmployeeCommand}"
-                      CommandParameter="{Binding .}"
-                      StyleClass="TableActionButton" />
-              <Button Text="Delete"
-                      Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.DeleteEmployeeCommand}"
-                      CommandParameter="{Binding .}"
-                      StyleClass="TableActionButton"
-                      TextColor="{AppThemeBinding Light=#D14343, Dark=#FF8B8B}" />
+                <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.EditEmployeeCommand}" CommandParameter="{Binding .}" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer  Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.DeleteEmployeeCommand}" CommandParameter="{Binding .}" />
+                    </Label.GestureRecognizers>
+                </Label>
             </HorizontalStackLayout>
           </Grid>
         </Border>
@@ -67,7 +61,7 @@
 
       <DataTemplate x:Key="EmployeeAlternateTemplate" x:DataType="models:EmployeeSummary">
         <Border Style="{StaticResource EmployeeRowBorderStyle}"
-                BackgroundColor="{AppThemeBinding Light=#F7F7F7, Dark=#262626}">
+                BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
           <Grid ColumnSpacing="12"
                 ColumnDefinitions="Auto,2*,*,*,*,*,*,*,Auto"
                 VerticalOptions="Center">
@@ -91,20 +85,18 @@
             <Label Grid.Column="4" Text="{Binding Section}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
             <Label Grid.Column="5" Text="{Binding Type}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
             <Label Grid.Column="6" Text="{Binding Level}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-            <Label Grid.Column="7"
-                   Text="{Binding Email}"
-                   FontSize="13"
-                   TextColor="{AppThemeBinding Light=#0A84FF, Dark=#63A4FF}" />
+            <Label Grid.Column="7" Text="{Binding Email}" LineBreakMode="TailTruncation" FontSize="13" />
             <HorizontalStackLayout Grid.Column="8" Spacing="8" HorizontalOptions="End" VerticalOptions="Center">
-              <Button Text="Edit"
-                      Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.EditEmployeeCommand}"
-                      CommandParameter="{Binding .}"
-                      StyleClass="TableActionButton" />
-              <Button Text="Delete"
-                      Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.DeleteEmployeeCommand}"
-                      CommandParameter="{Binding .}"
-                      StyleClass="TableActionButton"
-                      TextColor="{AppThemeBinding Light=#D14343, Dark=#FF8B8B}" />
+                            <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.EditEmployeeCommand}" CommandParameter="{Binding .}" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer  Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.DeleteEmployeeCommand}" CommandParameter="{Binding .}" />
+                    </Label.GestureRecognizers>
+                </Label>
             </HorizontalStackLayout>
           </Grid>
         </Border>
@@ -120,49 +112,50 @@
       <CollectionView ItemsSource="{Binding Employees}"
                       SelectionMode="None"
                       VerticalOptions="Fill"
-                      ItemTemplateSelector="{StaticResource EmployeeRowTemplateSelector}">
+                      ItemTemplate="{StaticResource EmployeeRowTemplateSelector}">
         <CollectionView.Header>
-          <Grid ColumnSpacing="12"
-                Padding="12,8"
-                BackgroundColor="{AppThemeBinding Light=#0A84FF, Dark=#1F5AA8}"
-                ColumnDefinitions="Auto,2*,*,*,*,*,*,*,Auto">
-            <Label Text="Photo"
-                   TextColor="White"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="1"
-                   Text="Name"
-                   TextColor="White"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="2"
-                   Text="Position"
-                   TextColor="White"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="3"
-                   Text="Department"
-                   TextColor="White"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="4"
-                   Text="Section"
-                   TextColor="White"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="5"
-                   Text="Type"
-                   TextColor="White"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="6"
-                   Text="Level"
-                   TextColor="White"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="7"
-                   Text="Email"
-                   TextColor="White"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="8"
-                   Text="Actions"
-                   TextColor="White"
-                   HorizontalOptions="End"
-                   FontAttributes="Bold" />
-          </Grid>
+            <Border StrokeShape="RoundRectangle 10 10 0 0" BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                <Grid ColumnSpacing="12"
+        Padding="20"
+        ColumnDefinitions="Auto,2*,*,*,*,*,*,*,Auto">
+                    <Label Text="Photo"
+            TextColor="White"
+            FontAttributes="Bold" />
+                    <Label Grid.Column="1"
+            Text="Name"
+            TextColor="White"
+            FontAttributes="Bold" />
+                    <Label Grid.Column="2"
+            Text="Position"
+            TextColor="White"
+            FontAttributes="Bold" />
+                    <Label Grid.Column="3"
+            Text="Department"
+            TextColor="White"
+            FontAttributes="Bold" />
+                    <Label Grid.Column="4"
+            Text="Section"
+            TextColor="White"
+            FontAttributes="Bold" />
+                    <Label Grid.Column="5"
+            Text="Type"
+            TextColor="White"
+            FontAttributes="Bold" />
+                    <Label Grid.Column="6"
+            Text="Level"
+            TextColor="White"
+            FontAttributes="Bold" />
+                    <Label Grid.Column="7"
+            Text="Email"
+            TextColor="White"
+            FontAttributes="Bold" />
+                    <Label Grid.Column="8"
+            Text="Actions"
+            TextColor="White"
+            HorizontalOptions="End"
+            FontAttributes="Bold" />
+                </Grid>
+            </Border>
         </CollectionView.Header>
         <CollectionView.EmptyView>
           <VerticalStackLayout HorizontalOptions="Center"
