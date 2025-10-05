@@ -3,12 +3,74 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:Bluewater.App.Models"
              x:Class="Bluewater.App.Views.EmployeePage"
+             x:Name="EmployeePageView"
              Title="Employees">
   <Grid Padding="16" RowDefinitions="Auto,*" RowSpacing="16">
     <Grid Grid.Row="1">
       <CollectionView ItemsSource="{Binding Employees}"
+                      AlternationCount="2"
                       SelectionMode="None"
                       VerticalOptions="Fill">
+        <CollectionView.Resources>
+          <Style TargetType="Border">
+            <Setter Property="StrokeThickness" Value="1" />
+            <Setter Property="Stroke" Value="{AppThemeBinding Light=#E0E0E0, Dark=#303030}" />
+            <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}" />
+            <Setter Property="Padding" Value="12,8" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+            <Setter Property="StrokeShape">
+              <Setter.Value>
+                <RoundRectangle CornerRadius="8" />
+              </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+              <Trigger TargetType="Border"
+                       Property="ItemsView.AlternationIndex"
+                       Value="1">
+                <Setter Property="BackgroundColor" Value="{AppThemeBinding Light=#F7F7F7, Dark=#262626}" />
+              </Trigger>
+            </Style.Triggers>
+          </Style>
+        </CollectionView.Resources>
+        <CollectionView.Header>
+          <Grid ColumnSpacing="12"
+                Padding="12,8"
+                BackgroundColor="{AppThemeBinding Light=#0A84FF, Dark=#1F5AA8}"
+                ColumnDefinitions="2*,*,*,*,*,*,*,Auto">
+            <Label Text="Name"
+                   TextColor="White"
+                   FontAttributes="Bold" />
+            <Label Grid.Column="1"
+                   Text="Position"
+                   TextColor="White"
+                   FontAttributes="Bold" />
+            <Label Grid.Column="2"
+                   Text="Department"
+                   TextColor="White"
+                   FontAttributes="Bold" />
+            <Label Grid.Column="3"
+                   Text="Section"
+                   TextColor="White"
+                   FontAttributes="Bold" />
+            <Label Grid.Column="4"
+                   Text="Type"
+                   TextColor="White"
+                   FontAttributes="Bold" />
+            <Label Grid.Column="5"
+                   Text="Level"
+                   TextColor="White"
+                   FontAttributes="Bold" />
+            <Label Grid.Column="6"
+                   Text="Email"
+                   TextColor="White"
+                   FontAttributes="Bold" />
+            <Label Grid.Column="7"
+                   Text="Actions"
+                   TextColor="White"
+                   HorizontalOptions="End"
+                   FontAttributes="Bold" />
+          </Grid>
+        </CollectionView.Header>
         <CollectionView.EmptyView>
           <VerticalStackLayout HorizontalOptions="Center"
                                VerticalOptions="Center"
@@ -19,72 +81,30 @@
         </CollectionView.EmptyView>
         <CollectionView.ItemTemplate>
           <DataTemplate x:DataType="models:EmployeeSummary">
-            <Border StrokeThickness="1"
-                    Padding="12"
-                    Margin="0,0,0,12">
-              <Border.StrokeShape>
-                <RoundRectangle CornerRadius="12" />
-              </Border.StrokeShape>
-              <VerticalStackLayout Spacing="4">
-                <Label Text="{Binding FullName}" FontAttributes="Bold" FontSize="16" />
-
-                <Label Text="{Binding PositionDisplay}" FontSize="13" TextColor="{AppThemeBinding Light=#666666, Dark=#BBBBBB}">
-                  <Label.Triggers>
-                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
-                      <Setter Property="IsVisible" Value="False" />
-                    </Trigger>
-                    <Trigger TargetType="Label" Property="Text" Value="">
-                      <Setter Property="IsVisible" Value="False" />
-                    </Trigger>
-                  </Label.Triggers>
-                </Label>
-
-                <Label Text="{Binding DepartmentDisplay}" FontSize="13" TextColor="{AppThemeBinding Light=#666666, Dark=#BBBBBB}">
-                  <Label.Triggers>
-                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
-                      <Setter Property="IsVisible" Value="False" />
-                    </Trigger>
-                    <Trigger TargetType="Label" Property="Text" Value="">
-                      <Setter Property="IsVisible" Value="False" />
-                    </Trigger>
-                  </Label.Triggers>
-                </Label>
-
-                <Label Text="{Binding SectionDisplay}" FontSize="13" TextColor="{AppThemeBinding Light=#666666, Dark=#BBBBBB}">
-                  <Label.Triggers>
-                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
-                      <Setter Property="IsVisible" Value="False" />
-                    </Trigger>
-                    <Trigger TargetType="Label" Property="Text" Value="">
-                      <Setter Property="IsVisible" Value="False" />
-                    </Trigger>
-                  </Label.Triggers>
-                </Label>
-
-                <Label Text="{Binding TypeLevelDisplay}" FontSize="13" TextColor="{AppThemeBinding Light=#666666, Dark=#BBBBBB}">
-                  <Label.Triggers>
-                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
-                      <Setter Property="IsVisible" Value="False" />
-                    </Trigger>
-                    <Trigger TargetType="Label" Property="Text" Value="">
-                      <Setter Property="IsVisible" Value="False" />
-                    </Trigger>
-                  </Label.Triggers>
-                </Label>
-
-                <Label Text="{Binding EmailDisplay}"
+            <Border>
+              <Grid ColumnSpacing="12" ColumnDefinitions="2*,*,*,*,*,*,*,Auto" VerticalOptions="Center">
+                <Label Text="{Binding FullName}" FontAttributes="Bold" FontSize="14" />
+                <Label Grid.Column="1" Text="{Binding Position}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                <Label Grid.Column="2" Text="{Binding Department}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                <Label Grid.Column="3" Text="{Binding Section}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                <Label Grid.Column="4" Text="{Binding Type}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                <Label Grid.Column="5" Text="{Binding Level}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                <Label Grid.Column="6"
+                       Text="{Binding Email}"
                        FontSize="13"
-                       TextColor="{AppThemeBinding Light=#0A84FF, Dark=#63A4FF}">
-                  <Label.Triggers>
-                    <Trigger TargetType="Label" Property="Text" Value="{x:Null}">
-                      <Setter Property="IsVisible" Value="False" />
-                    </Trigger>
-                    <Trigger TargetType="Label" Property="Text" Value="">
-                      <Setter Property="IsVisible" Value="False" />
-                    </Trigger>
-                  </Label.Triggers>
-                </Label>
-              </VerticalStackLayout>
+                       TextColor="{AppThemeBinding Light=#0A84FF, Dark=#63A4FF}" />
+                <HorizontalStackLayout Grid.Column="7" Spacing="8" HorizontalOptions="End" VerticalOptions="Center">
+                  <Button Text="Edit"
+                          Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.EditEmployeeCommand}"
+                          CommandParameter="{Binding .}"
+                          StyleClass="TableActionButton" />
+                  <Button Text="Delete"
+                          Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.DeleteEmployeeCommand}"
+                          CommandParameter="{Binding .}"
+                          StyleClass="TableActionButton"
+                          TextColor="{AppThemeBinding Light=#D14343, Dark=#FF8B8B}" />
+                </HorizontalStackLayout>
+              </Grid>
             </Border>
           </DataTemplate>
         </CollectionView.ItemTemplate>
