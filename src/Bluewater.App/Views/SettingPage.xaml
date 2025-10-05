@@ -6,6 +6,61 @@
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:model="clr-namespace:Bluewater.App.Models"
              Title="SettingsPage">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="SettingsRowBorderStyle" TargetType="Border">
+                <Setter Property="StrokeThickness" Value="1" />
+                <Setter Property="Stroke" Value="Transparent" />
+                <Setter Property="Padding" Value="12" />
+                <Setter Property="Margin" Value="0,0,0,12" />
+            </Style>
+
+            <DataTemplate x:Key="DivisionTemplate" x:DataType="model:DivisionSummary">
+                <Border Style="{StaticResource SettingsRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                    <Label Text="{Binding Name}"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="DepartmentTemplate" x:DataType="model:DepartmentSummary">
+                <Border Style="{StaticResource SettingsRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                    <Label Text="{Binding Name}"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="SectionTemplate" x:DataType="model:SectionSummary">
+                <Border Style="{StaticResource SettingsRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                    <Label Text="{Binding Name}"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ChargingTemplate" x:DataType="model:ChargingSummary">
+                <Border Style="{StaticResource SettingsRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                    <Label Text="{Binding Name}"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="PositionTemplate" x:DataType="model:PositionSummary">
+                <Border Style="{StaticResource SettingsRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                    <Label Text="{Binding Name}"
+                           FontSize="14"
+                           TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                </Border>
+            </DataTemplate>
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <Grid VerticalOptions="Fill" HorizontalOptions="Fill"
           Padding="20,0">
         <ScrollView Padding="20">
@@ -16,9 +71,7 @@
                     </toolkit:Expander.Header>
                     <CollectionView ItemsSource="{Binding Divisions}" HeightRequest="300">
                         <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="model:DivisionSummary">
-                                <Label Text="{Binding Name}"/>
-                            </DataTemplate>
+                            <StaticResource ResourceKey="DivisionTemplate" />
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </toolkit:Expander>
@@ -28,9 +81,7 @@
                     </toolkit:Expander.Header>
                     <CollectionView ItemsSource="{Binding Departments}" HeightRequest="300">
                         <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="model:DepartmentSummary">
-                                <Label Text="{Binding Name}"/>
-                            </DataTemplate>
+                            <StaticResource ResourceKey="DepartmentTemplate" />
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </toolkit:Expander>
@@ -40,9 +91,7 @@
                     </toolkit:Expander.Header>
                     <CollectionView ItemsSource="{Binding Sections}" HeightRequest="300">
                         <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="model:SectionSummary">
-                                <Label Text="{Binding Name}"/>
-                            </DataTemplate>
+                            <StaticResource ResourceKey="SectionTemplate" />
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </toolkit:Expander>
@@ -52,9 +101,7 @@
                     </toolkit:Expander.Header>
                     <CollectionView ItemsSource="{Binding Chargings}" HeightRequest="300">
                         <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="model:ChargingSummary">
-                                <Label Text="{Binding Name}"/>
-                            </DataTemplate>
+                            <StaticResource ResourceKey="ChargingTemplate" />
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </toolkit:Expander>
@@ -65,9 +112,7 @@
                     <CollectionView ItemsSource="{Binding Positions}"
                     HeightRequest="300">
                         <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="model:PositionSummary">
-                                <Label Text="{Binding Name}"/>
-                            </DataTemplate>
+                            <StaticResource ResourceKey="PositionTemplate" />
                         </CollectionView.ItemTemplate>
                     </CollectionView>
                 </toolkit:Expander>
