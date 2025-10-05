@@ -2,11 +2,78 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Bluewater.App.Views.SettingPage"
+             xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
+             xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+             xmlns:model="clr-namespace:Bluewater.App.Models"
              Title="SettingsPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <Grid VerticalOptions="Fill" HorizontalOptions="Fill"
+          Padding="20,0">
+        <ScrollView Padding="20">
+            <VerticalStackLayout x:DataType="vm:SettingViewModel" Spacing="20">
+                <toolkit:Expander>
+                    <toolkit:Expander.Header>
+                        <Label Text="Divisions" Style="{StaticResource HeadingTextStyle}" BackgroundColor="{StaticResource Secondary}" Padding="20,10"/>
+                    </toolkit:Expander.Header>
+                    <CollectionView ItemsSource="{Binding Divisions}" HeightRequest="300">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="model:DivisionSummary">
+                                <Label Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </toolkit:Expander>
+                <toolkit:Expander>
+                    <toolkit:Expander.Header>
+                        <Label Text="Departments" Style="{StaticResource HeadingTextStyle}"/>
+                    </toolkit:Expander.Header>
+                    <CollectionView ItemsSource="{Binding Departments}" HeightRequest="300">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="model:DepartmentSummary">
+                                <Label Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </toolkit:Expander>
+                <toolkit:Expander>
+                    <toolkit:Expander.Header>
+                        <Label Text="Sections" Style="{StaticResource HeadingTextStyle}"/>
+                    </toolkit:Expander.Header>
+                    <CollectionView ItemsSource="{Binding Sections}" HeightRequest="300">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="model:SectionSummary">
+                                <Label Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </toolkit:Expander>
+                <toolkit:Expander>
+                    <toolkit:Expander.Header>
+                        <Label Text="Chargings" Style="{StaticResource HeadingTextStyle}"/>
+                    </toolkit:Expander.Header>
+                    <CollectionView ItemsSource="{Binding Chargings}" HeightRequest="300">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="model:ChargingSummary">
+                                <Label Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </toolkit:Expander>
+                <toolkit:Expander>
+                    <toolkit:Expander.Header>
+                        <Label Text="Positions" Style="{StaticResource HeadingTextStyle}"/>
+                    </toolkit:Expander.Header>
+                    <CollectionView ItemsSource="{Binding Positions}"
+                    HeightRequest="300">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="model:PositionSummary">
+                                <Label Text="{Binding Name}"/>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </toolkit:Expander>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+
 </ContentPage>

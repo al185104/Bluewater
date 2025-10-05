@@ -1,10 +1,10 @@
-using System;
+﻿using System;
 
 namespace Bluewater.App.Exceptions;
 
 public sealed class PresentationException : Exception
 {
-  public const string GenericErrorMessage = "Something went wrong. Please try again later.";
+  public const string GenericErrorMessage = "Something went wrong. Please try again later or contact your administrator.";
 
   public PresentationException()
     : base(GenericErrorMessage)

@@ -1,4 +1,4 @@
-using Bluewater.App.ViewModels;
+﻿using Bluewater.App.ViewModels;
 
 namespace Bluewater.App.Views;
 
@@ -10,9 +10,9 @@ public partial class EmployeePage : ContentPage
     BindingContext = vm;
   }
 
-  protected override async void OnAppearing()
+  protected override async void OnBindingContextChanged()
   {
-    base.OnAppearing();
+    base.OnBindingContextChanged();
 
     if (BindingContext is EmployeeViewModel viewModel)
     {

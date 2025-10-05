@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Bluewater.App.Exceptions;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Views;
+using CommunityToolkit.Maui.Extensions;
 using CommunityToolkit.Maui.Views;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.ApplicationModel;
@@ -139,7 +140,7 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
 
     void DisplayPopup()
     {
-      if (Application.Current?.MainPage is not Page mainPage)
+      if (Application.Current?.Windows[0].Page is not Page mainPage)
       {
         logger?.LogWarning("Unable to display error popup because the main page is unavailable.");
         return;
@@ -167,13 +168,12 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     }
   }
 
-  private void OnPopupClosed(object? sender, PopupClosedEventArgs e)
+  private void OnPopupClosed(object? sender, EventArgs e)
   {
     if (sender is Popup popup)
     {
       popup.Closed -= OnPopupClosed;
     }
-
     activePopup = null;
   }
 

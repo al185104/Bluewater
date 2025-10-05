@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Bluewater.App.Exceptions;
 using CommunityToolkit.Maui.Views;
 
@@ -14,8 +14,8 @@ public partial class OutOfSyncPopup : Popup
     BindingContext = exception;
   }
 
-  private void OnDismissRequested(object? sender, EventArgs e)
+  private async void OnDismissRequested(object? sender, EventArgs e)
   {
-    Close();
+    await CloseAsync();
   }
 }

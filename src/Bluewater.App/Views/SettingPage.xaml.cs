@@ -1,4 +1,4 @@
-using Bluewater.App.ViewModels;
+﻿using Bluewater.App.ViewModels;
 
 namespace Bluewater.App.Views;
 
@@ -8,5 +8,14 @@ public partial class SettingPage : ContentPage
   {
     InitializeComponent();
     BindingContext = vm;
+  }
+
+  protected override async void OnBindingContextChanged()
+  {
+    base.OnBindingContextChanged();
+    if (BindingContext is SettingViewModel viewModel)
+    {
+      await viewModel.InitializeAsync();
+    }
   }
 }
