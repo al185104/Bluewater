@@ -64,7 +64,8 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
       Position = dto.Position,
       Type = dto.Type,
       Level = dto.Level,
-      Email = dto.ContactInfo?.Email
+      Email = dto.ContactInfo?.Email,
+      Image = dto.Image
     };
   }
 }

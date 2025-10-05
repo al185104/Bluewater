@@ -20,6 +20,7 @@ public class EmployeeDto
   public string? Department { get; set; }
   public string? Type { get; set; }
   public string? Level { get; set; }
+  public string? Image { get; set; }
 }
 
 public class ContactInfoDto
