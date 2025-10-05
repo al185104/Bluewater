@@ -417,19 +417,34 @@
         <GradientStop Color="#F1F6FB" Offset="1" />
     </LinearGradientBrush>
 
-    <RadialGradientBrush x:Key="AppContentPageBlobBrushOne" Radius="0.8" Center="0.35,0.3">
+    <RadialGradientBrush x:Key="AppContentPageBlobBrushOne" Radius="0.85" Center="0.35,0.3">
+        <GradientStop Color="#80FFFFFF" Offset="0" />
+        <GradientStop Color="#4DAEC8FF" Offset="0.55" />
+        <GradientStop Color="#00AEC8FF" Offset="1" />
+    </RadialGradientBrush>
+
+    <RadialGradientBrush x:Key="AppContentPageBlobBrushTwo" Radius="0.9" Center="0.55,0.5">
         <GradientStop Color="#66FFFFFF" Offset="0" />
-        <GradientStop Color="#33AEC8FF" Offset="1" />
+        <GradientStop Color="#4098E0FF" Offset="0.6" />
+        <GradientStop Color="#0098E0FF" Offset="1" />
     </RadialGradientBrush>
 
-    <RadialGradientBrush x:Key="AppContentPageBlobBrushTwo" Radius="0.85" Center="0.55,0.5">
-        <GradientStop Color="#44FFFFFF" Offset="0" />
-        <GradientStop Color="#3398E0FF" Offset="1" />
+    <RadialGradientBrush x:Key="AppContentPageBlobBrushThree" Radius="0.8" Center="0.6,0.6">
+        <GradientStop Color="#70FFFFFF" Offset="0" />
+        <GradientStop Color="#3F85C7FF" Offset="0.6" />
+        <GradientStop Color="#0085C7FF" Offset="1" />
     </RadialGradientBrush>
 
-    <RadialGradientBrush x:Key="AppContentPageBlobBrushThree" Radius="0.75" Center="0.6,0.6">
-        <GradientStop Color="#55FFFFFF" Offset="0" />
-        <GradientStop Color="#3385C7FF" Offset="1" />
+    <RadialGradientBrush x:Key="AppContentPageBlobBrushFour" Radius="0.95" Center="0.25,0.55">
+        <GradientStop Color="#59FFFFFF" Offset="0" />
+        <GradientStop Color="#3385C7FF" Offset="0.5" />
+        <GradientStop Color="#0085C7FF" Offset="1" />
+    </RadialGradientBrush>
+
+    <RadialGradientBrush x:Key="AppContentPageBlobBrushFive" Radius="0.9" Center="0.7,0.15">
+        <GradientStop Color="#66FFFFFF" Offset="0" />
+        <GradientStop Color="#338FCFFF" Offset="0.5" />
+        <GradientStop Color="#008FCFFF" Offset="1" />
     </RadialGradientBrush>
 
     <ControlTemplate x:Key="AppContentPageTemplate">
@@ -460,6 +475,20 @@
                                     HorizontalOptions="End"
                                     VerticalOptions="End"
                                     Margin="0,0,-140,-120" />
+
+                    <shapes:Ellipse WidthRequest="220"
+                                    HeightRequest="190"
+                                    Fill="{StaticResource AppContentPageBlobBrushFour}"
+                                    HorizontalOptions="Start"
+                                    VerticalOptions="Center"
+                                    Margin="-60,40,0,-40" />
+
+                    <shapes:Ellipse WidthRequest="200"
+                                    HeightRequest="170"
+                                    Fill="{StaticResource AppContentPageBlobBrushFive}"
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Start"
+                                    Margin="0,-40,0,0" />
                 </Grid>
             </Grid>
 
