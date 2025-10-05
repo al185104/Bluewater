@@ -15,6 +15,8 @@ public class EmployeeSummary
   public string? Type { get; init; }
   public string? Level { get; init; }
   public string? Email { get; init; }
+  public string? Image { get; init; }
+  public int RowIndex { get; set; }
 
   public string FullName
   {
@@ -55,6 +57,8 @@ public class EmployeeSummary
   }
 
   public string EmailDisplay => string.IsNullOrWhiteSpace(Email) ? string.Empty : Email;
+
+  public bool HasImage => !string.IsNullOrWhiteSpace(Image);
 
   private static string FormatDetail(string label, string? value)
   {
