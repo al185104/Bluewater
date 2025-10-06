@@ -5,14 +5,14 @@
              xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:model="clr-namespace:Bluewater.App.Models"
+             xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
              Title="SettingsPage">
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style x:Key="SettingsRowBorderStyle" TargetType="Border">
-                <Setter Property="StrokeThickness" Value="1" />
                 <Setter Property="Stroke" Value="Transparent" />
                 <Setter Property="Padding" Value="12" />
-                <Setter Property="Margin" Value="0,0,0,12" />
+                <Setter Property="Margin" Value="8,0,8,12" />
             </Style>
 
             <DataTemplate x:Key="DivisionTemplate" x:DataType="model:DivisionSummary">
@@ -67,54 +67,69 @@
             <VerticalStackLayout x:DataType="vm:SettingViewModel" Spacing="20">
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
-                        <Label Text="Divisions" Style="{StaticResource HeadingTextStyle}" BackgroundColor="{StaticResource Secondary}" Padding="20,10"/>
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}"/>
+                                    <Span Text="Divisions" Style="{StaticResource HeadingTextStyle}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                     </toolkit:Expander.Header>
-                    <CollectionView ItemsSource="{Binding Divisions}" HeightRequest="300">
-                        <CollectionView.ItemTemplate>
-                            <StaticResource ResourceKey="DivisionTemplate" />
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                    <CollectionView ItemsSource="{Binding Divisions}" HeightRequest="300" ItemTemplate="{StaticResource DivisionTemplate}"/>
                 </toolkit:Expander>
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
-                        <Label Text="Departments" Style="{StaticResource HeadingTextStyle}"/>
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}"/>
+                                    <Span Text="Departments" Style="{StaticResource HeadingTextStyle}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                     </toolkit:Expander.Header>
-                    <CollectionView ItemsSource="{Binding Departments}" HeightRequest="300">
-                        <CollectionView.ItemTemplate>
-                            <StaticResource ResourceKey="DepartmentTemplate" />
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                    <CollectionView ItemsSource="{Binding Departments}" HeightRequest="300" ItemTemplate="{StaticResource DepartmentTemplate}"/>
                 </toolkit:Expander>
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
-                        <Label Text="Sections" Style="{StaticResource HeadingTextStyle}"/>
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}"/>
+                                    <Span Text="Sections" Style="{StaticResource HeadingTextStyle}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                     </toolkit:Expander.Header>
-                    <CollectionView ItemsSource="{Binding Sections}" HeightRequest="300">
-                        <CollectionView.ItemTemplate>
-                            <StaticResource ResourceKey="SectionTemplate" />
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                    <CollectionView ItemsSource="{Binding Sections}" HeightRequest="300" ItemTemplate="{StaticResource SectionTemplate}"/>
                 </toolkit:Expander>
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
-                        <Label Text="Chargings" Style="{StaticResource HeadingTextStyle}"/>
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}"/>
+                                    <Span Text="Chargings" Style="{StaticResource HeadingTextStyle}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                     </toolkit:Expander.Header>
-                    <CollectionView ItemsSource="{Binding Chargings}" HeightRequest="300">
-                        <CollectionView.ItemTemplate>
-                            <StaticResource ResourceKey="ChargingTemplate" />
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                    <CollectionView ItemsSource="{Binding Chargings}" HeightRequest="300" ItemTemplate="{StaticResource ChargingTemplate}"/>
                 </toolkit:Expander>
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
-                        <Label Text="Positions" Style="{StaticResource HeadingTextStyle}"/>
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}"/>
+                                    <Span Text="Positions" Style="{StaticResource HeadingTextStyle}"/>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                     </toolkit:Expander.Header>
-                    <CollectionView ItemsSource="{Binding Positions}"
-                    HeightRequest="300">
-                        <CollectionView.ItemTemplate>
-                            <StaticResource ResourceKey="PositionTemplate" />
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                    <CollectionView ItemsSource="{Binding Positions}" ItemTemplate="{StaticResource PositionTemplate}"
+                    HeightRequest="300"/>
                 </toolkit:Expander>
 
             </VerticalStackLayout>
