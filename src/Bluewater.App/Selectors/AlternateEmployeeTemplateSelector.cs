@@ -11,12 +11,12 @@ public class AlternateEmployeeTemplateSelector : DataTemplateSelector
 
   protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
   {
-    if (item is not EmployeeSummary employee)
+    if (item is not IRowIndexed rowIndexed)
     {
       return PrimaryTemplate ?? AlternateTemplate ?? new DataTemplate();
     }
 
-    if (employee.RowIndex % 2 == 1 && AlternateTemplate is not null)
+    if (rowIndexed.RowIndex % 2 == 1 && AlternateTemplate is not null)
     {
       return AlternateTemplate;
     }

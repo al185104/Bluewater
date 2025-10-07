@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Bluewater.App.Models;
 
-public class EmployeeSummary
+public class EmployeeSummary : IRowIndexed
 {
   public Guid Id { get; init; }
   public string FirstName { get; init; } = string.Empty;

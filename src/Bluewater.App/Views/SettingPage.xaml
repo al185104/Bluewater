@@ -1,135 +1,608 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Bluewater.App.Views.SettingPage"
              xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
              xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
              xmlns:model="clr-namespace:Bluewater.App.Models"
              xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+             xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
+             x:Class="Bluewater.App.Views.SettingPage"
+             x:Name="SettingPageView"
              Title="SettingsPage">
     <ContentPage.Resources>
         <ResourceDictionary>
             <Style x:Key="SettingsRowBorderStyle" TargetType="Border">
+                <Setter Property="StrokeThickness" Value="1" />
                 <Setter Property="Stroke" Value="Transparent" />
-                <Setter Property="Padding" Value="12" />
-                <Setter Property="Margin" Value="8,0,8,12" />
+                <Setter Property="Padding" Value="8" />
             </Style>
 
-            <DataTemplate x:Key="DivisionTemplate" x:DataType="model:DivisionSummary">
+            <DataTemplate x:Key="DivisionPrimaryTemplate" x:DataType="model:DivisionSummary">
                 <Border Style="{StaticResource SettingsRowBorderStyle}"
                         BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
-                    <Label Text="{Binding Name}"
-                           FontSize="14"
-                           TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2*,*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Name}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Description}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="2"
+                                               Spacing="8"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.EditDivisionCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.DeleteDivisionCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
                 </Border>
             </DataTemplate>
 
-            <DataTemplate x:Key="DepartmentTemplate" x:DataType="model:DepartmentSummary">
+            <DataTemplate x:Key="DivisionAlternateTemplate" x:DataType="model:DivisionSummary">
                 <Border Style="{StaticResource SettingsRowBorderStyle}"
-                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
-                    <Label Text="{Binding Name}"
-                           FontSize="14"
-                           TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2*,*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Name}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Description}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="2"
+                                               Spacing="8"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.EditDivisionCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.DeleteDivisionCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
                 </Border>
             </DataTemplate>
 
-            <DataTemplate x:Key="SectionTemplate" x:DataType="model:SectionSummary">
+            <DataTemplate x:Key="DepartmentPrimaryTemplate" x:DataType="model:DepartmentSummary">
                 <Border Style="{StaticResource SettingsRowBorderStyle}"
                         BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
-                    <Label Text="{Binding Name}"
-                           FontSize="14"
-                           TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2*,*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Name}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Description}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="2"
+                                               Spacing="8"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.EditDepartmentCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.DeleteDepartmentCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
                 </Border>
             </DataTemplate>
 
-            <DataTemplate x:Key="ChargingTemplate" x:DataType="model:ChargingSummary">
+            <DataTemplate x:Key="DepartmentAlternateTemplate" x:DataType="model:DepartmentSummary">
                 <Border Style="{StaticResource SettingsRowBorderStyle}"
-                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
-                    <Label Text="{Binding Name}"
-                           FontSize="14"
-                           TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2*,*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Name}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Description}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="2"
+                                               Spacing="8"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.EditDepartmentCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.DeleteDepartmentCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
                 </Border>
             </DataTemplate>
 
-            <DataTemplate x:Key="PositionTemplate" x:DataType="model:PositionSummary">
+            <DataTemplate x:Key="SectionPrimaryTemplate" x:DataType="model:SectionSummary">
                 <Border Style="{StaticResource SettingsRowBorderStyle}"
                         BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
-                    <Label Text="{Binding Name}"
-                           FontSize="14"
-                           TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2*,*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Name}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Description}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="2"
+                                               Spacing="8"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.EditSectionCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.DeleteSectionCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
                 </Border>
             </DataTemplate>
+
+            <DataTemplate x:Key="SectionAlternateTemplate" x:DataType="model:SectionSummary">
+                <Border Style="{StaticResource SettingsRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2*,*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Name}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Description}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="2"
+                                               Spacing="8"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.EditSectionCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.DeleteSectionCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ChargingPrimaryTemplate" x:DataType="model:ChargingSummary">
+                <Border Style="{StaticResource SettingsRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2*,*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Name}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Description}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="2"
+                                               Spacing="8"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.EditChargingCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.DeleteChargingCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ChargingAlternateTemplate" x:DataType="model:ChargingSummary">
+                <Border Style="{StaticResource SettingsRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2*,*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Name}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Description}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="2"
+                                               Spacing="8"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.EditChargingCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.DeleteChargingCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="PositionPrimaryTemplate" x:DataType="model:PositionSummary">
+                <Border Style="{StaticResource SettingsRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2*,*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Name}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Description}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="2"
+                                               Spacing="8"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.EditPositionCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.DeletePositionCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="PositionAlternateTemplate" x:DataType="model:PositionSummary">
+                <Border Style="{StaticResource SettingsRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2*,*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Name}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Description}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="2"
+                                               Spacing="8"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.EditPositionCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference SettingPageView}, Path=BindingContext.DeletePositionCommand}" CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <selectors:AlternateEmployeeTemplateSelector x:Key="DivisionTemplateSelector"
+                                                          PrimaryTemplate="{StaticResource DivisionPrimaryTemplate}"
+                                                          AlternateTemplate="{StaticResource DivisionAlternateTemplate}" />
+            <selectors:AlternateEmployeeTemplateSelector x:Key="DepartmentTemplateSelector"
+                                                          PrimaryTemplate="{StaticResource DepartmentPrimaryTemplate}"
+                                                          AlternateTemplate="{StaticResource DepartmentAlternateTemplate}" />
+            <selectors:AlternateEmployeeTemplateSelector x:Key="SectionTemplateSelector"
+                                                          PrimaryTemplate="{StaticResource SectionPrimaryTemplate}"
+                                                          AlternateTemplate="{StaticResource SectionAlternateTemplate}" />
+            <selectors:AlternateEmployeeTemplateSelector x:Key="ChargingTemplateSelector"
+                                                          PrimaryTemplate="{StaticResource ChargingPrimaryTemplate}"
+                                                          AlternateTemplate="{StaticResource ChargingAlternateTemplate}" />
+            <selectors:AlternateEmployeeTemplateSelector x:Key="PositionTemplateSelector"
+                                                          PrimaryTemplate="{StaticResource PositionPrimaryTemplate}"
+                                                          AlternateTemplate="{StaticResource PositionAlternateTemplate}" />
         </ResourceDictionary>
     </ContentPage.Resources>
-    <Grid VerticalOptions="Fill" HorizontalOptions="Fill"
+    <Grid VerticalOptions="Fill"
+          HorizontalOptions="Fill"
           Padding="20,0">
         <ScrollView Padding="20">
-            <VerticalStackLayout x:DataType="vm:SettingViewModel" Spacing="20">
+            <VerticalStackLayout x:DataType="vm:SettingViewModel"
+                                 Spacing="20">
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
                         <Label>
                             <Label.FormattedText>
                                 <FormattedString>
-                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}"/>
-                                    <Span Text="Divisions" Style="{StaticResource HeadingTextStyle}"/>
+                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" />
+                                    <Span Text="Divisions" Style="{StaticResource HeadingTextStyle}" />
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
                     </toolkit:Expander.Header>
-                    <CollectionView ItemsSource="{Binding Divisions}" HeightRequest="300" ItemTemplate="{StaticResource DivisionTemplate}"/>
+                    <CollectionView ItemsSource="{Binding Divisions}"
+                                    SelectionMode="None"
+                                    HeightRequest="300"
+                                    ItemTemplate="{StaticResource DivisionTemplateSelector}">
+                        <CollectionView.Header>
+                            <Border StrokeShape="RoundRectangle 10 10 0 0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                                <Grid ColumnSpacing="12"
+                                      Padding="20"
+                                      ColumnDefinitions="2*,*,Auto">
+                                    <Label Text="Name"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="1"
+                                           Text="Description"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="2"
+                                           Text="Actions"
+                                           TextColor="White"
+                                           HorizontalOptions="End"
+                                           FontAttributes="Bold" />
+                                </Grid>
+                            </Border>
+                        </CollectionView.Header>
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 Spacing="8">
+                                <Label Text="No divisions found" />
+                                <Label Text="Divisions will appear here once they are available." FontSize="12" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
                 </toolkit:Expander>
+
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
                         <Label>
                             <Label.FormattedText>
                                 <FormattedString>
-                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}"/>
-                                    <Span Text="Departments" Style="{StaticResource HeadingTextStyle}"/>
+                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" />
+                                    <Span Text="Departments" Style="{StaticResource HeadingTextStyle}" />
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
                     </toolkit:Expander.Header>
-                    <CollectionView ItemsSource="{Binding Departments}" HeightRequest="300" ItemTemplate="{StaticResource DepartmentTemplate}"/>
+                    <CollectionView ItemsSource="{Binding Departments}"
+                                    SelectionMode="None"
+                                    HeightRequest="300"
+                                    ItemTemplate="{StaticResource DepartmentTemplateSelector}">
+                        <CollectionView.Header>
+                            <Border StrokeShape="RoundRectangle 10 10 0 0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                                <Grid ColumnSpacing="12"
+                                      Padding="20"
+                                      ColumnDefinitions="2*,*,Auto">
+                                    <Label Text="Name"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="1"
+                                           Text="Description"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="2"
+                                           Text="Actions"
+                                           TextColor="White"
+                                           HorizontalOptions="End"
+                                           FontAttributes="Bold" />
+                                </Grid>
+                            </Border>
+                        </CollectionView.Header>
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 Spacing="8">
+                                <Label Text="No departments found" />
+                                <Label Text="Departments will appear here once they are available." FontSize="12" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
                 </toolkit:Expander>
+
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
                         <Label>
                             <Label.FormattedText>
                                 <FormattedString>
-                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}"/>
-                                    <Span Text="Sections" Style="{StaticResource HeadingTextStyle}"/>
+                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" />
+                                    <Span Text="Sections" Style="{StaticResource HeadingTextStyle}" />
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
                     </toolkit:Expander.Header>
-                    <CollectionView ItemsSource="{Binding Sections}" HeightRequest="300" ItemTemplate="{StaticResource SectionTemplate}"/>
+                    <CollectionView ItemsSource="{Binding Sections}"
+                                    SelectionMode="None"
+                                    HeightRequest="300"
+                                    ItemTemplate="{StaticResource SectionTemplateSelector}">
+                        <CollectionView.Header>
+                            <Border StrokeShape="RoundRectangle 10 10 0 0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                                <Grid ColumnSpacing="12"
+                                      Padding="20"
+                                      ColumnDefinitions="2*,*,Auto">
+                                    <Label Text="Name"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="1"
+                                           Text="Description"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="2"
+                                           Text="Actions"
+                                           TextColor="White"
+                                           HorizontalOptions="End"
+                                           FontAttributes="Bold" />
+                                </Grid>
+                            </Border>
+                        </CollectionView.Header>
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 Spacing="8">
+                                <Label Text="No sections found" />
+                                <Label Text="Sections will appear here once they are available." FontSize="12" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
                 </toolkit:Expander>
+
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
                         <Label>
                             <Label.FormattedText>
                                 <FormattedString>
-                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}"/>
-                                    <Span Text="Chargings" Style="{StaticResource HeadingTextStyle}"/>
+                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" />
+                                    <Span Text="Chargings" Style="{StaticResource HeadingTextStyle}" />
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
                     </toolkit:Expander.Header>
-                    <CollectionView ItemsSource="{Binding Chargings}" HeightRequest="300" ItemTemplate="{StaticResource ChargingTemplate}"/>
+                    <CollectionView ItemsSource="{Binding Chargings}"
+                                    SelectionMode="None"
+                                    HeightRequest="300"
+                                    ItemTemplate="{StaticResource ChargingTemplateSelector}">
+                        <CollectionView.Header>
+                            <Border StrokeShape="RoundRectangle 10 10 0 0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                                <Grid ColumnSpacing="12"
+                                      Padding="20"
+                                      ColumnDefinitions="2*,*,Auto">
+                                    <Label Text="Name"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="1"
+                                           Text="Description"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="2"
+                                           Text="Actions"
+                                           TextColor="White"
+                                           HorizontalOptions="End"
+                                           FontAttributes="Bold" />
+                                </Grid>
+                            </Border>
+                        </CollectionView.Header>
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 Spacing="8">
+                                <Label Text="No chargings found" />
+                                <Label Text="Chargings will appear here once they are available." FontSize="12" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
                 </toolkit:Expander>
+
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
                         <Label>
                             <Label.FormattedText>
                                 <FormattedString>
-                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}"/>
-                                    <Span Text="Positions" Style="{StaticResource HeadingTextStyle}"/>
+                                    <Span Text="{x:Static helpers:Icon.ChevronRight}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" />
+                                    <Span Text="Positions" Style="{StaticResource HeadingTextStyle}" />
                                 </FormattedString>
                             </Label.FormattedText>
                         </Label>
                     </toolkit:Expander.Header>
-                    <CollectionView ItemsSource="{Binding Positions}" ItemTemplate="{StaticResource PositionTemplate}"
-                    HeightRequest="300"/>
+                    <CollectionView ItemsSource="{Binding Positions}"
+                                    SelectionMode="None"
+                                    HeightRequest="300"
+                                    ItemTemplate="{StaticResource PositionTemplateSelector}">
+                        <CollectionView.Header>
+                            <Border StrokeShape="RoundRectangle 10 10 0 0"
+                                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                                <Grid ColumnSpacing="12"
+                                      Padding="20"
+                                      ColumnDefinitions="2*,*,Auto">
+                                    <Label Text="Name"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="1"
+                                           Text="Description"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="2"
+                                           Text="Actions"
+                                           TextColor="White"
+                                           HorizontalOptions="End"
+                                           FontAttributes="Bold" />
+                                </Grid>
+                            </Border>
+                        </CollectionView.Header>
+                        <CollectionView.EmptyView>
+                            <VerticalStackLayout HorizontalOptions="Center"
+                                                 VerticalOptions="Center"
+                                                 Spacing="8">
+                                <Label Text="No positions found" />
+                                <Label Text="Positions will appear here once they are available." FontSize="12" />
+                            </VerticalStackLayout>
+                        </CollectionView.EmptyView>
+                    </CollectionView>
                 </toolkit:Expander>
 
             </VerticalStackLayout>
