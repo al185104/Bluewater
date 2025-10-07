@@ -2,7 +2,7 @@ using System;
 
 namespace Bluewater.App.Models;
 
-public class SectionSummary
+public class SectionSummary : IRowIndexed
 {
   public Guid Id { get; set; }
   public string Name { get; set; } = string.Empty;
@@ -11,4 +11,5 @@ public class SectionSummary
   public string? Approved2Id { get; set; }
   public string? Approved3Id { get; set; }
   public Guid DepartmentId { get; set; }
+  public int RowIndex { get; set; }
 }
