@@ -5,6 +5,7 @@ using System.Linq;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace Bluewater.App.ViewModels;
@@ -13,6 +14,15 @@ public partial class EmployeeViewModel : BaseViewModel
 {
   private readonly IEmployeeApiService employeeApiService;
   private bool hasInitialized;
+
+  [ObservableProperty]
+  private EditableEmployee? editableEmployee;
+
+  [ObservableProperty]
+  private bool isEditorOpen;
+
+  [ObservableProperty]
+  private string editorTitle = string.Empty;
 
   public EmployeeViewModel(
     IEmployeeApiService employeeApiService,
@@ -33,7 +43,36 @@ public partial class EmployeeViewModel : BaseViewModel
       return;
     }
 
+    EditableEmployee = EditableEmployee.FromSummary(employee);
+    EditorTitle = $"Edit {EditableEmployee.FullName}";
+    IsEditorOpen = true;
+
     await TraceCommandAsync(nameof(EditEmployeeAsync), employee.Id);
+  }
+
+  [RelayCommand]
+  private void UpdateEmployee()
+  {
+    if (EditableEmployee is null)
+    {
+      return;
+    }
+
+    EmployeeSummary? existing = Employees.FirstOrDefault(e => e.Id == EditableEmployee.Id);
+
+    if (existing is null)
+    {
+      IsEditorOpen = false;
+      return;
+    }
+
+    int index = Employees.IndexOf(existing);
+    EmployeeSummary updated = EditableEmployee.ToSummary(existing.RowIndex);
+    Employees[index] = updated;
+
+    IsEditorOpen = false;
+    EditorTitle = string.Empty;
+    EditableEmployee = null;
   }
 
   [RelayCommand]

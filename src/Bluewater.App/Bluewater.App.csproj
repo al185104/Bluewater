@@ -79,12 +79,15 @@
 	  <MauiXaml Update="Resources\Styles\Custom.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="Views\AttendancePage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="Views\EmployeePage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
+          <MauiXaml Update="Views\AttendancePage.xaml">
+            <Generator>MSBuild:Compile</Generator>
+          </MauiXaml>
+          <MauiXaml Update="Views\Controls\SlideInEditorView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+          </MauiXaml>
+          <MauiXaml Update="Views\EmployeePage.xaml">
+            <Generator>MSBuild:Compile</Generator>
+          </MauiXaml>
 	  <MauiXaml Update="Views\HomePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -128,9 +131,12 @@
         </ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Views\SettingPage.xaml.cs">
-	    <DependentUpon>SettingPage.xaml</DependentUpon>
-	  </Compile>
+          <Compile Update="Views\SettingPage.xaml.cs">
+            <DependentUpon>SettingPage.xaml</DependentUpon>
+          </Compile>
+          <Compile Update="Views\Controls\SlideInEditorView.xaml.cs">
+            <DependentUpon>SlideInEditorView.xaml</DependentUpon>
+          </Compile>
 	  <Compile Update="Views\TimesheetPage.xaml.cs">
 	    <DependentUpon>TimesheetPage.xaml</DependentUpon>
 	  </Compile>
