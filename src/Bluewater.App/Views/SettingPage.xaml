@@ -6,6 +6,7 @@
              xmlns:model="clr-namespace:Bluewater.App.Models"
              xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
              xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
+             xmlns:controls="clr-namespace:Bluewater.App.Views.Controls"
              x:Class="Bluewater.App.Views.SettingPage"
              x:Name="SettingPageView"
              Title="SettingsPage">
@@ -364,10 +365,11 @@
                                                           AlternateTemplate="{StaticResource PositionAlternateTemplate}" />
         </ResourceDictionary>
     </ContentPage.Resources>
-    <Grid VerticalOptions="Fill"
-          HorizontalOptions="Fill"
-          Padding="20,0">
-        <ScrollView Padding="20">
+    <Grid>
+        <Grid VerticalOptions="Fill"
+              HorizontalOptions="Fill"
+              Padding="20,0">
+            <ScrollView Padding="20">
             <VerticalStackLayout x:DataType="vm:SettingViewModel"
                                  Spacing="20">
                 <toolkit:Expander>
@@ -606,7 +608,24 @@
                 </toolkit:Expander>
 
             </VerticalStackLayout>
-        </ScrollView>
+            </ScrollView>
+        </Grid>
+        <controls:SlideInEditorView IsOpen="{Binding IsEditorOpen}"
+                                    Title="{Binding EditorTitle}"
+                                    UpdateCommand="{Binding UpdateSettingCommand}"
+                                    HorizontalOptions="End"
+                                    VerticalOptions="Fill"
+                                    UpdateButtonText="Update Setting">
+            <controls:SlideInEditorView.EditorContent>
+                <VerticalStackLayout Spacing="12">
+                    <Entry Text="{Binding EditableSetting.Name}"
+                           Placeholder="Name" />
+                    <Editor Text="{Binding EditableSetting.Description}"
+                            Placeholder="Description"
+                            AutoSize="TextChanges" />
+                </VerticalStackLayout>
+            </controls:SlideInEditorView.EditorContent>
+        </controls:SlideInEditorView>
     </Grid>
 
 </ContentPage>
