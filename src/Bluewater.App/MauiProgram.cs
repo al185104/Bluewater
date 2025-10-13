@@ -72,34 +72,34 @@ public static class MauiProgram
     builder.Services.AddSingleton<AppShell>();
 
     // pages
-    builder.Services.AddSingleton<AttendancePage>();
-    builder.Services.AddSingleton<EmployeePage>();
-    builder.Services.AddSingleton<HomePage>();
-    builder.Services.AddSingleton<LeavePage>();
-    builder.Services.AddSingleton<LoginPage>();
-    builder.Services.AddSingleton<MealCreditPage>();
-    builder.Services.AddSingleton<PayrollPage>();
-    builder.Services.AddSingleton<ProfilePage>();
-    builder.Services.AddSingleton<SchedulePage>();
-    builder.Services.AddSingleton<SettingPage>();
-    builder.Services.AddSingleton<ShiftsPage>();
-    builder.Services.AddSingleton<TimesheetPage>();
-    builder.Services.AddSingleton<UserPage>();
+    builder.Services.AddTransient<AttendancePage>();
+    builder.Services.AddTransient<EmployeePage>();
+    builder.Services.AddTransient<HomePage>();
+    builder.Services.AddTransient<LeavePage>();
+    builder.Services.AddTransient<LoginPage>();
+    builder.Services.AddTransient<MealCreditPage>();
+    builder.Services.AddTransient<PayrollPage>();
+    builder.Services.AddTransient<ProfilePage>();
+    builder.Services.AddTransient<SchedulePage>();
+    builder.Services.AddTransient<SettingPage>();
+    builder.Services.AddTransient<ShiftsPage>();
+    builder.Services.AddTransient<TimesheetPage>();
+    builder.Services.AddTransient<UserPage>();
 
     // viewmodels
-    builder.Services.AddSingleton<AttendanceViewModel>();
-    builder.Services.AddSingleton<EmployeeViewModel>();
-    builder.Services.AddSingleton<HomeViewModel>();
-    builder.Services.AddSingleton<LeaveViewModel>();
-    builder.Services.AddSingleton<LoginViewModel>();
-    builder.Services.AddSingleton<MealCreditViewModel>();
-    builder.Services.AddSingleton<PayrollViewModel>();
-    builder.Services.AddSingleton<ProfileViewModel>();
-    builder.Services.AddSingleton<ScheduleViewModel>();
-    builder.Services.AddSingleton<SettingViewModel>();
-    builder.Services.AddSingleton<ShiftsViewModel>();
-    builder.Services.AddSingleton<TimesheetViewModel>();
-    builder.Services.AddSingleton<UserViewModel>();
+    builder.Services.AddTransient<AttendanceViewModel>();
+    builder.Services.AddTransient<EmployeeViewModel>();
+    builder.Services.AddTransient<HomeViewModel>();
+    builder.Services.AddTransient<LeaveViewModel>();
+    builder.Services.AddTransient<LoginViewModel>();
+    builder.Services.AddTransient<MealCreditViewModel>();
+    builder.Services.AddTransient<PayrollViewModel>();
+    builder.Services.AddTransient<ProfileViewModel>();
+    builder.Services.AddTransient<ScheduleViewModel>();
+    builder.Services.AddTransient<SettingViewModel>();
+    builder.Services.AddTransient<ShiftsViewModel>();
+    builder.Services.AddTransient<TimesheetViewModel>();
+    builder.Services.AddTransient<UserViewModel>();
 
     MauiApp app = builder.Build();
 
