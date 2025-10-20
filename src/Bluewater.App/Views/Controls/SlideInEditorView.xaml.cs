@@ -95,44 +95,96 @@ public partial class SlideInEditorView : ContentView
       return;
     }
 
-    if (PanelBorder.Width <= 0)
-    {
-      PanelBorder.WidthRequest = Math.Max(0, Width / 2);
-    }
-
-    if (!hasInitializedTranslation)
-    {
-      PanelBorder.TranslationX = PanelBorder.WidthRequest;
-      hasInitializedTranslation = true;
-    }
-
     isAnimating = true;
 
-    if (isOpen)
+    try
     {
-      OverlayLayer.IsVisible = true;
-      OverlayLayer.InputTransparent = false;
-      PanelBorder.IsVisible = true;
+      await EnsurePanelWidthAsync();
+
       double targetWidth = PanelBorder.Width > 0 ? PanelBorder.Width : PanelBorder.WidthRequest;
-      PanelBorder.TranslationX = targetWidth;
-      await Task.WhenAll(
-        OverlayLayer.FadeTo(1, AnimationDuration, Easing.SinOut),
-        PanelBorder.TranslateTo(0, 0, AnimationDuration, Easing.SinOut));
-      InputTransparent = false;
+
+      if (isOpen)
+      {
+        OverlayLayer.IsVisible = true;
+        OverlayLayer.InputTransparent = false;
+        PanelBorder.IsVisible = true;
+        PanelBorder.TranslationX = targetWidth;
+        await Task.WhenAll(
+          OverlayLayer.FadeTo(1, AnimationDuration, Easing.SinOut),
+          PanelBorder.TranslateTo(0, 0, AnimationDuration, Easing.SinOut));
+        InputTransparent = false;
+      }
+      else
+      {
+        await Task.WhenAll(
+          PanelBorder.TranslateTo(targetWidth, 0, AnimationDuration, Easing.SinIn),
+          OverlayLayer.FadeTo(0, AnimationDuration, Easing.SinIn));
+        PanelBorder.IsVisible = false;
+        OverlayLayer.InputTransparent = true;
+        OverlayLayer.IsVisible = false;
+        InputTransparent = true;
+      }
+    }
+    finally
+    {
+      isAnimating = false;
+    }
+  }
+
+  private async Task EnsurePanelWidthAsync()
+  {
+    if (PanelBorder.Width > 0 || PanelBorder.WidthRequest > 0)
+    {
+      InitializeTranslationIfNeeded(PanelBorder.Width > 0 ? PanelBorder.Width : PanelBorder.WidthRequest);
+      return;
+    }
+
+    if (Width > 0)
+    {
+      double initialWidth = Math.Max(0, Width / 2);
+      PanelBorder.WidthRequest = initialWidth;
+      InitializeTranslationIfNeeded(initialWidth);
+      return;
+    }
+
+    var completionSource = new TaskCompletionSource();
+
+    void Handler(object? sender, EventArgs args)
+    {
+      if (Width <= 0)
+      {
+        return;
+      }
+
+      SizeChanged -= Handler;
+      completionSource.TrySetResult();
+    }
+
+    SizeChanged += Handler;
+
+    if (Width > 0)
+    {
+      SizeChanged -= Handler;
     }
     else
     {
-      double targetWidth = PanelBorder.Width > 0 ? PanelBorder.Width : PanelBorder.WidthRequest;
-      await Task.WhenAll(
-        PanelBorder.TranslateTo(targetWidth, 0, AnimationDuration, Easing.SinIn),
-        OverlayLayer.FadeTo(0, AnimationDuration, Easing.SinIn));
-      PanelBorder.IsVisible = false;
-      OverlayLayer.InputTransparent = true;
-      OverlayLayer.IsVisible = false;
-      InputTransparent = true;
+      await completionSource.Task;
     }
 
-    isAnimating = false;
+    double targetWidth = Math.Max(0, Width / 2);
+    PanelBorder.WidthRequest = targetWidth;
+    InitializeTranslationIfNeeded(targetWidth);
+  }
+
+  private void InitializeTranslationIfNeeded(double panelWidth)
+  {
+    if (hasInitializedTranslation || panelWidth <= 0)
+    {
+      return;
+    }
+
+    PanelBorder.TranslationX = panelWidth;
+    hasInitializedTranslation = true;
   }
 
   protected override void OnHandlerChanged()
