@@ -4,13 +4,19 @@
              x:Class="Bluewater.App.Views.Controls.SlideInEditorView"
              x:Name="RootView">
   <Grid>
+    <Grid x:Name="OverlayLayer"
+          BackgroundColor="#80000000"
+          InputTransparent="True"
+          IsVisible="False"
+          Opacity="0" />
+
     <Border x:Name="PanelBorder"
             BackgroundColor="{AppThemeBinding Light=#F8FAFC, Dark=#1E1E1E}"
-            StrokeShape="RoundRectangle 12"
             Padding="24"
             HorizontalOptions="End"
             VerticalOptions="Fill"
-            IsVisible="False">
+            IsVisible="False"
+            ZIndex="1">
       <Grid RowDefinitions="Auto,*,Auto" RowSpacing="16">
         <Label Text="{Binding Source={x:Reference RootView}, Path=Title}"
                FontAttributes="Bold"
