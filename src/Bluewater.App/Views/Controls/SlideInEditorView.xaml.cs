@@ -14,8 +14,6 @@ public partial class SlideInEditorView : ContentView
   public SlideInEditorView()
   {
     InitializeComponent();
-    SizeChanged += OnSizeChanged;
-    //IsHitTestVisible = false;
   }
 
   public static readonly BindableProperty TitleProperty = BindableProperty.Create(
@@ -112,21 +110,44 @@ public partial class SlideInEditorView : ContentView
 
     if (isOpen)
     {
-      //IsHitTestVisible = true;
+      OverlayLayer.IsVisible = true;
+      OverlayLayer.InputTransparent = false;
       PanelBorder.IsVisible = true;
       double targetWidth = PanelBorder.Width > 0 ? PanelBorder.Width : PanelBorder.WidthRequest;
       PanelBorder.TranslationX = targetWidth;
-      await PanelBorder.TranslateTo(0, 0, AnimationDuration, Easing.SinOut);
+      await Task.WhenAll(
+        OverlayLayer.FadeTo(1, AnimationDuration, Easing.SinOut),
+        PanelBorder.TranslateTo(0, 0, AnimationDuration, Easing.SinOut));
+      InputTransparent = false;
     }
     else
     {
       double targetWidth = PanelBorder.Width > 0 ? PanelBorder.Width : PanelBorder.WidthRequest;
-      await PanelBorder.TranslateTo(targetWidth, 0, AnimationDuration, Easing.SinIn);
+      await Task.WhenAll(
+        PanelBorder.TranslateTo(targetWidth, 0, AnimationDuration, Easing.SinIn),
+        OverlayLayer.FadeTo(0, AnimationDuration, Easing.SinIn));
       PanelBorder.IsVisible = false;
-      //IsHitTestVisible = false;
+      OverlayLayer.InputTransparent = true;
+      OverlayLayer.IsVisible = false;
+      InputTransparent = true;
     }
 
     isAnimating = false;
+  }
+
+  protected override void OnHandlerChanged()
+  {
+    if (Handler is null)
+    {
+      SizeChanged -= OnSizeChanged;
+    }
+    else
+    {
+      SizeChanged -= OnSizeChanged;
+      SizeChanged += OnSizeChanged;
+    }
+
+    base.OnHandlerChanged();
   }
 
   private void OnSizeChanged(object? sender, EventArgs e)
