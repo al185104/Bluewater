@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -9,34 +9,34 @@ public partial class EditableEmployee : ObservableObject
   public Guid Id { get; set; }
 
   [ObservableProperty]
-  private string firstName = string.Empty;
+  public partial string FirstName { get; set; }
 
   [ObservableProperty]
-  private string lastName = string.Empty;
+  public partial string LastName { get; set; }
 
   [ObservableProperty]
-  private string? middleName;
+  public partial string? MiddleName { get ; set; }
 
   [ObservableProperty]
-  private string? position;
+  public partial string? Position { get; set; }
 
   [ObservableProperty]
-  private string? department;
+  public partial string? Department { get; set; }
 
   [ObservableProperty]
-  private string? section;
+  public partial string? Section { get; set; }
 
   [ObservableProperty]
-  private string? type;
+  public partial string? Type { get; set; }
 
   [ObservableProperty]
-  private string? level;
+  public partial string? Level { get; set; }
 
   [ObservableProperty]
-  private string? email;
+  public partial string? Email { get; set; }
 
   [ObservableProperty]
-  private string? image;
+  public partial string? Image { get; set; }
 
   public string FullName
   {

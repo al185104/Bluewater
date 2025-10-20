@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -16,13 +16,13 @@ public partial class EmployeeViewModel : BaseViewModel
   private bool hasInitialized;
 
   [ObservableProperty]
-  private EditableEmployee? editableEmployee;
+  public partial EditableEmployee? EditableEmployee { get; set; }
 
   [ObservableProperty]
-  private bool isEditorOpen;
+  public partial bool IsEditorOpen { get; set; }
 
   [ObservableProperty]
-  private string editorTitle = string.Empty;
+  public partial string EditorTitle { get; set; } = null!;
 
   public EmployeeViewModel(
     IEmployeeApiService employeeApiService,

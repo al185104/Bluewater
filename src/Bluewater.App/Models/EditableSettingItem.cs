@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Bluewater.App.Models;
@@ -19,10 +19,10 @@ public partial class EditableSettingItem : ObservableObject
   public SettingItemType Type { get; set; }
 
   [ObservableProperty]
-  private string name = string.Empty;
+  public partial string Name { get; set; }
 
   [ObservableProperty]
-  private string? description;
+  public partial string? Description { get; set; }
 
   public DivisionSummary ToDivision(int rowIndex)
   {

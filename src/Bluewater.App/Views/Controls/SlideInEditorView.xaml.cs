@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
@@ -15,7 +15,7 @@ public partial class SlideInEditorView : ContentView
   {
     InitializeComponent();
     SizeChanged += OnSizeChanged;
-    IsHitTestVisible = false;
+    //IsHitTestVisible = false;
   }
 
   public static readonly BindableProperty TitleProperty = BindableProperty.Create(
@@ -112,7 +112,7 @@ public partial class SlideInEditorView : ContentView
 
     if (isOpen)
     {
-      IsHitTestVisible = true;
+      //IsHitTestVisible = true;
       PanelBorder.IsVisible = true;
       double targetWidth = PanelBorder.Width > 0 ? PanelBorder.Width : PanelBorder.WidthRequest;
       PanelBorder.TranslationX = targetWidth;
@@ -123,7 +123,7 @@ public partial class SlideInEditorView : ContentView
       double targetWidth = PanelBorder.Width > 0 ? PanelBorder.Width : PanelBorder.WidthRequest;
       await PanelBorder.TranslateTo(targetWidth, 0, AnimationDuration, Easing.SinIn);
       PanelBorder.IsVisible = false;
-      IsHitTestVisible = false;
+      //IsHitTestVisible = false;
     }
 
     isAnimating = false;

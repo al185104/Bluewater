@@ -88,7 +88,7 @@ public static class MauiProgram
 
     // viewmodels
     builder.Services.AddTransient<AttendanceViewModel>();
-    builder.Services.AddTransient<EmployeeViewModel>();
+    builder.Services.AddSingleton<EmployeeViewModel>();
     builder.Services.AddTransient<HomeViewModel>();
     builder.Services.AddTransient<LeaveViewModel>();
     builder.Services.AddTransient<LoginViewModel>();

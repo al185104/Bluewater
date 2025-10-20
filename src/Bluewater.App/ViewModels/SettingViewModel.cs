@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Bluewater.App.Interfaces;
@@ -19,13 +19,13 @@ public partial class SettingViewModel : BaseViewModel
   private readonly IPositionApiService _positionApiService;
 
   [ObservableProperty]
-  private EditableSettingItem? editableSetting;
+  public partial EditableSettingItem? EditableSetting { get; set; }
 
   [ObservableProperty]
-  private bool isEditorOpen;
+  public partial bool IsEditorOpen { get; set; }
 
   [ObservableProperty]
-  private string editorTitle = string.Empty;
+  public partial string EditorTitle { get; set; }
 
   public ObservableCollection<DivisionSummary> Divisions { get; } = new();
   public ObservableCollection<DepartmentSummary> Departments { get; } = new();

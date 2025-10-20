@@ -108,8 +108,9 @@
                                                     AlternateTemplate="{StaticResource EmployeeAlternateTemplate}" />
     </ResourceDictionary>
   </ContentPage.Resources>
-  <Grid>
-    <Grid Padding="16" RowDefinitions="Auto,*" RowSpacing="16">
+  <Grid ColumnDefinitions="*,*">
+    <Grid Grid.Column="0" Grid.ColumnSpan="2" Padding="16" RowDefinitions="Auto,*" RowSpacing="16">
+      <Label Text="Employees" Style="{StaticResource HeadingTextStyle}"/>
       <Grid Grid.Row="1">
         <CollectionView ItemsSource="{Binding Employees}"
                         SelectionMode="None"
@@ -178,11 +179,12 @@
     <controls:SlideInEditorView IsOpen="{Binding IsEditorOpen}"
                                 Title="{Binding EditorTitle}"
                                 UpdateCommand="{Binding UpdateEmployeeCommand}"
-                                HorizontalOptions="End"
-                                VerticalOptions="Fill"
+                                HorizontalOptions="Fill"
+                                VerticalOptions="Fill" 
+                                Grid.Column="1"
                                 UpdateButtonText="Update Employee">
       <controls:SlideInEditorView.EditorContent>
-        <VerticalStackLayout Spacing="12">
+        <VerticalStackLayout Spacing="12" HorizontalOptions="Fill">
           <Entry Text="{Binding EditableEmployee.FirstName}"
                  Placeholder="First name" />
           <Entry Text="{Binding EditableEmployee.LastName}"
