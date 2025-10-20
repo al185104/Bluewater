@@ -5,6 +5,7 @@
              xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
              xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
              xmlns:controls="clr-namespace:Bluewater.App.Views.Controls"
+             xmlns:appViews="clr-namespace:Bluewater.App.Views"
              x:Class="Bluewater.App.Views.EmployeePage"
              x:Name="EmployeePageView"
              Title="Employees">
@@ -176,33 +177,14 @@
                            VerticalOptions="Center" />
       </Grid>
     </Grid>
-    <controls:SlideInEditorView IsOpen="{Binding IsEditorOpen}"
-                                Title="{Binding EditorTitle}"
-                                UpdateCommand="{Binding UpdateEmployeeCommand}"
-                                HorizontalOptions="Fill"
-                                VerticalOptions="Fill" 
-                                Grid.Column="1"
-                                UpdateButtonText="Update Employee">
-      <controls:SlideInEditorView.EditorContent>
-        <VerticalStackLayout Spacing="12" HorizontalOptions="Fill">
-          <Entry Text="{Binding EditableEmployee.FirstName}"
-                 Placeholder="First name" />
-          <Entry Text="{Binding EditableEmployee.LastName}"
-                 Placeholder="Last name" />
-          <Entry Text="{Binding EditableEmployee.Email}"
-                 Placeholder="Email" />
-          <Entry Text="{Binding EditableEmployee.Position}"
-                 Placeholder="Position" />
-          <Entry Text="{Binding EditableEmployee.Department}"
-                 Placeholder="Department" />
-          <Entry Text="{Binding EditableEmployee.Section}"
-                 Placeholder="Section" />
-          <Entry Text="{Binding EditableEmployee.Type}"
-                 Placeholder="Type" />
-          <Entry Text="{Binding EditableEmployee.Level}"
-                 Placeholder="Level" />
-        </VerticalStackLayout>
-      </controls:SlideInEditorView.EditorContent>
-    </controls:SlideInEditorView>
+    <appViews:EmployeeDetailsView Grid.Column="1"
+                                  HorizontalOptions="Fill"
+                                  VerticalOptions="Fill"
+                                  IsOpen="{Binding IsEditorOpen}"
+                                  Title="{Binding EditorTitle}"
+                                  EditableEmployee="{Binding EditableEmployee}"
+                                  UpdateCommand="{Binding UpdateEmployeeCommand}"
+                                  PrimaryButtonText="{Binding EditorPrimaryActionText}"
+                                  CloseCommand="{Binding CloseEditorCommand}" />
   </Grid>
 </ContentPage>

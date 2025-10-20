@@ -14,6 +14,7 @@ public partial class EmployeeViewModel : BaseViewModel
 {
   private readonly IEmployeeApiService employeeApiService;
   private bool hasInitialized;
+  private const string DefaultPrimaryActionText = "Save Employee";
 
   [ObservableProperty]
   public partial EditableEmployee? EditableEmployee { get; set; }
@@ -22,7 +23,10 @@ public partial class EmployeeViewModel : BaseViewModel
   public partial bool IsEditorOpen { get; set; }
 
   [ObservableProperty]
-  public partial string EditorTitle { get; set; } = null!;
+  public partial string EditorTitle { get; set; } = string.Empty;
+
+  [ObservableProperty]
+  public partial string EditorPrimaryActionText { get; set; } = DefaultPrimaryActionText;
 
   public EmployeeViewModel(
     IEmployeeApiService employeeApiService,
@@ -45,6 +49,7 @@ public partial class EmployeeViewModel : BaseViewModel
 
     EditableEmployee = EditableEmployee.FromSummary(employee);
     EditorTitle = $"Edit {EditableEmployee.FullName}";
+    EditorPrimaryActionText = "Update Employee";
     IsEditorOpen = true;
 
     await TraceCommandAsync(nameof(EditEmployeeAsync), employee.Id);
@@ -62,7 +67,7 @@ public partial class EmployeeViewModel : BaseViewModel
 
     if (existing is null)
     {
-      IsEditorOpen = false;
+      CloseEditor();
       return;
     }
 
@@ -70,8 +75,15 @@ public partial class EmployeeViewModel : BaseViewModel
     EmployeeSummary updated = EditableEmployee.ToSummary(existing.RowIndex);
     Employees[index] = updated;
 
+    CloseEditor();
+  }
+
+  [RelayCommand]
+  private void CloseEditor()
+  {
     IsEditorOpen = false;
     EditorTitle = string.Empty;
+    EditorPrimaryActionText = DefaultPrimaryActionText;
     EditableEmployee = null;
   }
 

@@ -38,6 +38,12 @@ public partial class SlideInEditorView : ContentView
   public static readonly BindableProperty UpdateButtonTextProperty = BindableProperty.Create(
     nameof(UpdateButtonText), typeof(string), typeof(SlideInEditorView), "Update");
 
+  public static readonly BindableProperty CloseCommandProperty = BindableProperty.Create(
+    nameof(CloseCommand), typeof(ICommand), typeof(SlideInEditorView));
+
+  public static readonly BindableProperty CloseCommandParameterProperty = BindableProperty.Create(
+    nameof(CloseCommandParameter), typeof(object), typeof(SlideInEditorView));
+
   public string Title
   {
     get => (string)GetValue(TitleProperty);
@@ -78,6 +84,18 @@ public partial class SlideInEditorView : ContentView
   {
     get => (string)GetValue(UpdateButtonTextProperty);
     set => SetValue(UpdateButtonTextProperty, value);
+  }
+
+  public ICommand? CloseCommand
+  {
+    get => (ICommand?)GetValue(CloseCommandProperty);
+    set => SetValue(CloseCommandProperty, value);
+  }
+
+  public object? CloseCommandParameter
+  {
+    get => GetValue(CloseCommandParameterProperty);
+    set => SetValue(CloseCommandParameterProperty, value);
   }
 
   private static void OnIsOpenChanged(BindableObject bindable, object oldValue, object newValue)
@@ -216,6 +234,30 @@ public partial class SlideInEditorView : ContentView
     if (!IsOpen)
     {
       PanelBorder.TranslationX = targetWidth;
+    }
+  }
+
+  private void OnOverlayTapped(object? sender, TappedEventArgs e)
+  {
+    Close();
+  }
+
+  private void OnCloseButtonClicked(object? sender, EventArgs e)
+  {
+    Close();
+  }
+
+  private void Close()
+  {
+    if (CloseCommand?.CanExecute(CloseCommandParameter) == true)
+    {
+      CloseCommand.Execute(CloseCommandParameter);
+      return;
+    }
+
+    if (IsOpen)
+    {
+      IsOpen = false;
     }
   }
 }
