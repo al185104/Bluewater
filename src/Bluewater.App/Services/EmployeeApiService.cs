@@ -59,13 +59,73 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
       FirstName = dto.FirstName,
       LastName = dto.LastName,
       MiddleName = dto.MiddleName,
+      DateOfBirth = dto.DateOfBirth,
+      Gender = dto.Gender,
+      CivilStatus = dto.CivilStatus,
+      BloodType = dto.BloodType,
+      Status = dto.Status,
+      Height = dto.Height,
+      Weight = dto.Weight,
+      Remarks = dto.Remarks,
+      MealCredits = dto.MealCredits,
+      Tenant = dto.Tenant,
       Department = dto.Department,
       Section = dto.Section,
       Position = dto.Position,
       Type = dto.Type,
       Level = dto.Level,
-      Email = dto.ContactInfo?.Email,
-      Image = dto.Image
+      Image = dto.Image,
+      IsDeleted = dto.IsDeleted,
+      UserId = dto.UserId,
+      PositionId = dto.PositionId,
+      PayId = dto.PayId,
+      TypeId = dto.TypeId,
+      LevelId = dto.LevelId,
+      ChargingId = dto.ChargingId,
+      CreatedDate = dto.CreatedDate,
+      CreateBy = dto.CreateBy,
+      UpdatedDate = dto.UpdatedDate,
+      UpdateBy = dto.UpdateBy,
+      ContactInfo = dto.ContactInfo is null
+        ? new ContactInfoSummary()
+        : new ContactInfoSummary
+        {
+          Email = dto.ContactInfo.Email,
+          TelNumber = dto.ContactInfo.TelNumber,
+          MobileNumber = dto.ContactInfo.MobileNumber,
+          Address = dto.ContactInfo.Address,
+          ProvincialAddress = dto.ContactInfo.ProvincialAddress,
+          MothersMaidenName = dto.ContactInfo.MothersMaidenName,
+          FathersName = dto.ContactInfo.FathersName,
+          EmergencyContact = dto.ContactInfo.EmergencyContact,
+          RelationshipContact = dto.ContactInfo.RelationshipContact,
+          AddressContact = dto.ContactInfo.AddressContact,
+          TelNoContact = dto.ContactInfo.TelNoContact,
+          MobileNoContact = dto.ContactInfo.MobileNoContact
+        },
+      EducationInfo = dto.EducationInfo is null
+        ? new EducationInfoSummary()
+        : new EducationInfoSummary
+        {
+          EducationalAttainment = dto.EducationInfo.EducationalAttainment,
+          CourseGraduated = dto.EducationInfo.CourseGraduated,
+          UniversityGraduated = dto.EducationInfo.UniversityGraduated
+        },
+      EmploymentInfo = dto.EmploymentInfo is null
+        ? new EmploymentInfoSummary()
+        : new EmploymentInfoSummary
+        {
+          DateHired = dto.EmploymentInfo.DateHired,
+          DateRegularized = dto.EmploymentInfo.DateRegularized,
+          DateResigned = dto.EmploymentInfo.DateResigned,
+          DateTerminated = dto.EmploymentInfo.DateTerminated,
+          TinNo = dto.EmploymentInfo.TinNo,
+          SssNo = dto.EmploymentInfo.SssNo,
+          HdmfNo = dto.EmploymentInfo.HdmfNo,
+          PhicNo = dto.EmploymentInfo.PhicNo,
+          BankAccount = dto.EmploymentInfo.BankAccount,
+          HasServiceCharge = dto.EmploymentInfo.HasServiceCharge
+        }
     };
   }
 }
