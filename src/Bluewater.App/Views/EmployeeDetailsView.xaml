@@ -53,6 +53,14 @@
             </Grid>
 
             <VerticalStackLayout Spacing="4">
+              <Label Text="Middle name"
+                     Style="{StaticResource CaptionTextStyle}" />
+              <Entry Text="{Binding MiddleName}"
+                     Placeholder="Middle name"
+                     Keyboard="Default" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
               <Label Text="Email"
                      Style="{StaticResource CaptionTextStyle}" />
               <Entry Text="{Binding Email}"
@@ -95,6 +103,13 @@
                      Style="{StaticResource CaptionTextStyle}" />
               <Entry Text="{Binding Level}"
                      Placeholder="Level" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="4">
+              <Label Text="Image URL"
+                     Style="{StaticResource CaptionTextStyle}" />
+              <Entry Text="{Binding Image}"
+                     Placeholder="Image URL" />
             </VerticalStackLayout>
           </VerticalStackLayout>
         </ScrollView>
