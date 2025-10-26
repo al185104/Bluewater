@@ -2,6 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Bluewater.App.Views.Controls.SlideInEditorView"
+			 xmlns:helper="clr-namespace:Bluewater.App.Helpers"
              x:Name="RootView">
   <Grid>
     <Grid x:Name="OverlayLayer"
@@ -28,7 +29,9 @@
                  FontSize="20"
                  VerticalOptions="Center" />
           <Button Grid.Column="1"
-                  Text="Close"
+                  Text="{x:Static helper:Icon.XCircle}"
+				  FontFamily="Icons"
+				  FontSize="Medium"
                   SemanticProperties.Hint="Close the editor"
                   BackgroundColor="Transparent"
                   TextColor="{AppThemeBinding Light=#1F2937, Dark=#F3F4F6}"

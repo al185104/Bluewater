@@ -9,182 +9,264 @@
              x:Class="Bluewater.App.Views.EmployeePage"
              x:Name="EmployeePageView"
              Title="Employees">
-  <ContentPage.Resources>
-    <ResourceDictionary>
-      <Style x:Key="EmployeeRowBorderStyle" TargetType="Border">
-        <Setter Property="StrokeThickness" Value="1" />
-        <Setter Property="Stroke" Value="Transparent" />
-        <Setter Property="Padding" Value="8" />
-      </Style>
-
-      <DataTemplate x:Key="EmployeePrimaryTemplate" x:DataType="models:EmployeeSummary">
-        <Border Style="{StaticResource EmployeeRowBorderStyle}"
-                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
-          <Grid ColumnSpacing="12"
-                ColumnDefinitions="Auto,2*,*,*,*,*,*,*,Auto"
-                VerticalOptions="Center">
-            <Grid WidthRequest="40"
-                  HeightRequest="40"
-                  VerticalOptions="Center"
-                  HorizontalOptions="Start">
-              <Image Source="{Binding Image}"
-                     IsVisible="{Binding HasImage}"
-                     HeightRequest="40"
-                     WidthRequest="40"
-                     Background="LightGray"
-                     Aspect="AspectFill">
-                <Image.Clip>
-                  <EllipseGeometry Center="20,20" RadiusX="20" RadiusY="20" />
-                </Image.Clip>
-              </Image>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="EmployeeRowBorderStyle"
+                   TargetType="Border">
+                <Setter Property="StrokeThickness"
+                        Value="1" />
+                <Setter Property="Stroke"
+                        Value="Transparent" />
+                <Setter Property="Padding"
+                        Value="8" />
+            </Style>
+            <DataTemplate x:Key="EmployeePrimaryTemplate"
+                          x:DataType="models:EmployeeSummary">
+                <Border Style="{StaticResource EmployeeRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="Auto,2*,*,*,*,*,*,*,Auto"
+                          VerticalOptions="Center">
+                        <Grid WidthRequest="40"
+                              HeightRequest="40"
+                              VerticalOptions="Center"
+                              HorizontalOptions="Start">
+                            <Image Source="{Binding Image}"
+                                   IsVisible="{Binding HasImage}"
+                                   HeightRequest="40"
+                                   WidthRequest="40"
+                                   Background="LightGray"
+                                   Aspect="AspectFill">
+                                <Image.Clip>
+                                    <EllipseGeometry Center="20,20"
+                                                     RadiusX="20"
+                                                     RadiusY="20" />
+                                </Image.Clip>
+                            </Image>
+                        </Grid>
+                        <Label Grid.Column="1"
+                               Text="{Binding FullName}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Label Grid.Column="2"
+                               Text="{Binding Position}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="3"
+                               Text="{Binding Department}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="4"
+                               Text="{Binding Section}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="5"
+                               Text="{Binding Type}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="6"
+                               Text="{Binding Level}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="7"
+                               Text="{Binding Email}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13" />
+                        <HorizontalStackLayout Grid.Column="8"
+                                               Spacing="10"
+											   Padding="10,0"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icon.Edit}"
+                                   FontFamily="Icons"
+                                   Style="{StaticResource HeadingTextStyle}"
+                                   TextColor="{StaticResource TextSecondaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.EditEmployeeCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{x:Static helpers:Icon.Trash}"
+                                   FontFamily="Icons"
+                                   Style="{StaticResource HeadingTextStyle}"
+                                   TextColor="{StaticResource TextPrimaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.DeleteEmployeeCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate x:Key="EmployeeAlternateTemplate"
+                          x:DataType="models:EmployeeSummary">
+                <Border Style="{StaticResource EmployeeRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="Auto,2*,*,*,*,*,*,*,Auto"
+                          VerticalOptions="Center">
+                        <Grid WidthRequest="40"
+                              HeightRequest="40"
+                              VerticalOptions="Center"
+                              HorizontalOptions="Start">
+                            <Image Source="{Binding Image}"
+                                   IsVisible="{Binding HasImage}"
+                                   HeightRequest="40"
+                                   WidthRequest="40"
+                                   Aspect="AspectFill">
+                                <Image.Clip>
+                                    <EllipseGeometry Center="20,20"
+                                                     RadiusX="20"
+                                                     RadiusY="20" />
+                                </Image.Clip>
+                            </Image>
+                        </Grid>
+                        <Label Grid.Column="1"
+                               Text="{Binding FullName}"
+                               FontAttributes="Bold"
+                               FontSize="14" />
+                        <Label Grid.Column="2"
+                               Text="{Binding Position}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="3"
+                               Text="{Binding Department}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="4"
+                               Text="{Binding Section}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="5"
+                               Text="{Binding Type}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="6"
+                               Text="{Binding Level}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="7"
+                               Text="{Binding Email}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13" />
+                        <HorizontalStackLayout Grid.Column="8"
+                                               Spacing="10"
+											   Padding="10,0"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="Center">
+                            <Label Text="{x:Static helpers:Icon.Edit}"
+                                   FontFamily="Icons"
+                                   Style="{StaticResource HeadingTextStyle}"
+                                   TextColor="{StaticResource TextSecondaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.EditEmployeeCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                            <Label Text="{x:Static helpers:Icon.Trash}"
+                                   FontFamily="Icons"
+                                   Style="{StaticResource HeadingTextStyle}"
+                                   TextColor="{StaticResource TextPrimaryColor}">
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.DeleteEmployeeCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <selectors:AlternateEmployeeTemplateSelector x:Key="EmployeeRowTemplateSelector"
+                                                         PrimaryTemplate="{StaticResource EmployeePrimaryTemplate}"
+                                                         AlternateTemplate="{StaticResource EmployeeAlternateTemplate}" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <Grid>
+        <Grid Grid.Column="0"
+              Grid.ColumnSpan="2"
+              Padding="20,40"
+              RowDefinitions="Auto,*"
+              RowSpacing="16">
+            <Label Text="Employees"
+                   Style="{StaticResource HeadingTextStyle}" />
+            <Grid Grid.Row="1">
+                <CollectionView ItemsSource="{Binding Employees}"
+                                SelectionMode="None"
+                                VerticalOptions="Fill"
+                                ItemTemplate="{StaticResource EmployeeRowTemplateSelector}">
+                    <CollectionView.Header>
+                        <Border StrokeShape="RoundRectangle 10 10 0 0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                            <Grid ColumnSpacing="12"
+                                  Padding="20"
+                                  ColumnDefinitions="Auto,2*,*,*,*,*,*,*,Auto">
+                                <Label Text="Photo"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="1"
+                                       Text="Name"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="2"
+                                       Text="Position"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="3"
+                                       Text="Department"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="4"
+                                       Text="Section"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="5"
+                                       Text="Type"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="6"
+                                       Text="Level"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="7"
+                                       Text="Email"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="8"
+                                       Text="Actions"
+                                       TextColor="White"
+                                       HorizontalOptions="End"
+                                       FontAttributes="Bold" />
+                            </Grid>
+                        </Border>
+                    </CollectionView.Header>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout HorizontalOptions="Center"
+                                             VerticalOptions="Center"
+                                             Spacing="8">
+                            <Label Text="No employees found" 
+								   HorizontalTextAlignment="Center" 
+								   FontAttributes="Bold"/>
+                            <Label Text="Employees will appear here once they are available."
+                                   FontSize="12" 
+								   HorizontalTextAlignment="Center"/>
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
             </Grid>
-            <Label Grid.Column="1" Text="{Binding FullName}" FontAttributes="Bold" FontSize="14" />
-            <Label Grid.Column="2" Text="{Binding Position}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-            <Label Grid.Column="3" Text="{Binding Department}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-            <Label Grid.Column="4" Text="{Binding Section}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-            <Label Grid.Column="5" Text="{Binding Type}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-            <Label Grid.Column="6" Text="{Binding Level}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-            <Label Grid.Column="7" Text="{Binding Email}" LineBreakMode="TailTruncation" FontSize="13"/>
-            <HorizontalStackLayout Grid.Column="8" Spacing="8" HorizontalOptions="End" VerticalOptions="Center">
-                <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.EditEmployeeCommand}" CommandParameter="{Binding .}" />
-                    </Label.GestureRecognizers>
-                </Label>
-                <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer  Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.DeleteEmployeeCommand}" CommandParameter="{Binding .}" />
-                    </Label.GestureRecognizers>
-                </Label>
-            </HorizontalStackLayout>
-          </Grid>
-        </Border>
-      </DataTemplate>
-
-      <DataTemplate x:Key="EmployeeAlternateTemplate" x:DataType="models:EmployeeSummary">
-        <Border Style="{StaticResource EmployeeRowBorderStyle}"
-                BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
-          <Grid ColumnSpacing="12"
-                ColumnDefinitions="Auto,2*,*,*,*,*,*,*,Auto"
-                VerticalOptions="Center">
-            <Grid WidthRequest="40"
-                  HeightRequest="40"
-                  VerticalOptions="Center"
-                  HorizontalOptions="Start">
-              <Image Source="{Binding Image}"
-                     IsVisible="{Binding HasImage}"
-                     HeightRequest="40"
-                     WidthRequest="40"
-                     Aspect="AspectFill">
-                <Image.Clip>
-                  <EllipseGeometry Center="20,20" RadiusX="20" RadiusY="20" />
-                </Image.Clip>
-              </Image>
-            </Grid>
-            <Label Grid.Column="1" Text="{Binding FullName}" FontAttributes="Bold" FontSize="14" />
-            <Label Grid.Column="2" Text="{Binding Position}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-            <Label Grid.Column="3" Text="{Binding Department}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-            <Label Grid.Column="4" Text="{Binding Section}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-            <Label Grid.Column="5" Text="{Binding Type}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-            <Label Grid.Column="6" Text="{Binding Level}" FontSize="13" TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-            <Label Grid.Column="7" Text="{Binding Email}" LineBreakMode="TailTruncation" FontSize="13" />
-            <HorizontalStackLayout Grid.Column="8" Spacing="8" HorizontalOptions="End" VerticalOptions="Center">
-                            <Label Text="{x:Static helpers:Icon.Edit}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextSecondaryColor}">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.EditEmployeeCommand}" CommandParameter="{Binding .}" />
-                    </Label.GestureRecognizers>
-                </Label>
-                <Label Text="{x:Static helpers:Icon.Trash}" FontFamily="Icons" Style="{StaticResource HeadingTextStyle}" TextColor="{StaticResource TextPrimaryColor}">
-                    <Label.GestureRecognizers>
-                        <TapGestureRecognizer  Command="{Binding Source={x:Reference EmployeePageView}, Path=BindingContext.DeleteEmployeeCommand}" CommandParameter="{Binding .}" />
-                    </Label.GestureRecognizers>
-                </Label>
-            </HorizontalStackLayout>
-          </Grid>
-        </Border>
-      </DataTemplate>
-
-      <selectors:AlternateEmployeeTemplateSelector x:Key="EmployeeRowTemplateSelector"
-                                                    PrimaryTemplate="{StaticResource EmployeePrimaryTemplate}"
-                                                    AlternateTemplate="{StaticResource EmployeeAlternateTemplate}" />
-    </ResourceDictionary>
-  </ContentPage.Resources>
-  <Grid ColumnDefinitions="*,*">
-    <Grid Grid.Column="0" Grid.ColumnSpan="2" Padding="16" RowDefinitions="Auto,*" RowSpacing="16">
-      <Label Text="Employees" Style="{StaticResource HeadingTextStyle}"/>
-      <Grid Grid.Row="1">
-        <CollectionView ItemsSource="{Binding Employees}"
-                        SelectionMode="None"
-                        VerticalOptions="Fill"
-                        ItemTemplate="{StaticResource EmployeeRowTemplateSelector}">
-        <CollectionView.Header>
-            <Border StrokeShape="RoundRectangle 10 10 0 0" BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
-                <Grid ColumnSpacing="12"
-        Padding="20"
-        ColumnDefinitions="Auto,2*,*,*,*,*,*,*,Auto">
-                    <Label Text="Photo"
-            TextColor="White"
-            FontAttributes="Bold" />
-                    <Label Grid.Column="1"
-            Text="Name"
-            TextColor="White"
-            FontAttributes="Bold" />
-                    <Label Grid.Column="2"
-            Text="Position"
-            TextColor="White"
-            FontAttributes="Bold" />
-                    <Label Grid.Column="3"
-            Text="Department"
-            TextColor="White"
-            FontAttributes="Bold" />
-                    <Label Grid.Column="4"
-            Text="Section"
-            TextColor="White"
-            FontAttributes="Bold" />
-                    <Label Grid.Column="5"
-            Text="Type"
-            TextColor="White"
-            FontAttributes="Bold" />
-                    <Label Grid.Column="6"
-            Text="Level"
-            TextColor="White"
-            FontAttributes="Bold" />
-                    <Label Grid.Column="7"
-            Text="Email"
-            TextColor="White"
-            FontAttributes="Bold" />
-                    <Label Grid.Column="8"
-            Text="Actions"
-            TextColor="White"
-            HorizontalOptions="End"
-            FontAttributes="Bold" />
-                </Grid>
-            </Border>
-        </CollectionView.Header>
-        <CollectionView.EmptyView>
-          <VerticalStackLayout HorizontalOptions="Center"
-                               VerticalOptions="Center"
-                               Spacing="8">
-            <Label Text="No employees found" />
-            <Label Text="Employees will appear here once they are available." FontSize="12" />
-          </VerticalStackLayout>
-        </CollectionView.EmptyView>
-      </CollectionView>
-
-        <ActivityIndicator IsRunning="{Binding IsBusy}"
-                           IsVisible="{Binding IsBusy}"
-                           HorizontalOptions="Center"
-                           VerticalOptions="Center" />
-      </Grid>
+        </Grid>
+        <appViews:EmployeeDetailsView HorizontalOptions="Fill"
+                                      VerticalOptions="Fill"
+									  IsVisible="{Binding IsEditorOpen}"
+                                      IsOpen="{Binding IsEditorOpen}"
+                                      Title="{Binding EditorTitle}"
+                                      EditableEmployee="{Binding EditableEmployee}"
+                                      UpdateCommand="{Binding UpdateEmployeeCommand}"
+                                      PrimaryButtonText="{Binding EditorPrimaryActionText}"
+                                      CloseCommand="{Binding CloseEditorCommand}" />
     </Grid>
-    <appViews:EmployeeDetailsView Grid.Column="1"
-                                  HorizontalOptions="Fill"
-                                  VerticalOptions="Fill"
-                                  IsOpen="{Binding IsEditorOpen}"
-                                  Title="{Binding EditorTitle}"
-                                  EditableEmployee="{Binding EditableEmployee}"
-                                  UpdateCommand="{Binding UpdateEmployeeCommand}"
-                                  PrimaryButtonText="{Binding EditorPrimaryActionText}"
-                                  CloseCommand="{Binding CloseEditorCommand}" />
-  </Grid>
 </ContentPage>

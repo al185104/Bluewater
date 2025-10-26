@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -12,124 +9,124 @@ namespace Bluewater.App.ViewModels;
 
 public partial class EmployeeViewModel : BaseViewModel
 {
-  private readonly IEmployeeApiService employeeApiService;
-  private bool hasInitialized;
-  private const string DefaultPrimaryActionText = "Save Employee";
+		private readonly IEmployeeApiService employeeApiService;
+		private bool hasInitialized;
+		private const string DefaultPrimaryActionText = "Save Employee";
 
-  [ObservableProperty]
-  public partial EditableEmployee? EditableEmployee { get; set; }
+		[ObservableProperty]
+		public partial EditableEmployee? EditableEmployee { get; set; }
 
-  [ObservableProperty]
-  public partial bool IsEditorOpen { get; set; }
+		[ObservableProperty]
+		public partial bool IsEditorOpen { get; set; }
 
-  [ObservableProperty]
-  public partial string EditorTitle { get; set; } = string.Empty;
+		[ObservableProperty]
+		public partial string EditorTitle { get; set; } = string.Empty;
 
-  [ObservableProperty]
-  public partial string EditorPrimaryActionText { get; set; } = DefaultPrimaryActionText;
+		[ObservableProperty]
+		public partial string EditorPrimaryActionText { get; set; } = DefaultPrimaryActionText;
 
-  public EmployeeViewModel(
-    IEmployeeApiService employeeApiService,
-    IActivityTraceService activityTraceService,
-    IExceptionHandlingService exceptionHandlingService)
-    : base(activityTraceService, exceptionHandlingService)
-  {
-    this.employeeApiService = employeeApiService;
-  }
+		public EmployeeViewModel(
+			IEmployeeApiService employeeApiService,
+			IActivityTraceService activityTraceService,
+			IExceptionHandlingService exceptionHandlingService)
+			: base(activityTraceService, exceptionHandlingService)
+		{
+				this.employeeApiService = employeeApiService;
+		}
 
-  public ObservableCollection<EmployeeSummary> Employees { get; } = new();
+		public ObservableCollection<EmployeeSummary> Employees { get; } = new();
 
-  [RelayCommand]
-  private async Task EditEmployeeAsync(EmployeeSummary? employee)
-  {
-    if (employee is null)
-    {
-      return;
-    }
+		[RelayCommand]
+		private async Task EditEmployeeAsync(EmployeeSummary? employee)
+		{
+				if (employee is null)
+				{
+						return;
+				}
 
-    EditableEmployee = EditableEmployee.FromSummary(employee);
-    EditorTitle = $"Edit {EditableEmployee.FullName}";
-    EditorPrimaryActionText = "Update Employee";
-    IsEditorOpen = true;
+				EditableEmployee = EditableEmployee.FromSummary(employee);
+				EditorTitle = $"Edit {EditableEmployee.FullName}";
+				EditorPrimaryActionText = "Update Employee";
+				IsEditorOpen = true;
 
-    await TraceCommandAsync(nameof(EditEmployeeAsync), employee.Id);
-  }
+				await TraceCommandAsync(nameof(EditEmployeeAsync), employee.Id);
+		}
 
-  [RelayCommand]
-  private void UpdateEmployee()
-  {
-    if (EditableEmployee is null)
-    {
-      return;
-    }
+		[RelayCommand]
+		private void UpdateEmployee()
+		{
+				if (EditableEmployee is null)
+				{
+						return;
+				}
 
-    EmployeeSummary? existing = Employees.FirstOrDefault(e => e.Id == EditableEmployee.Id);
+				EmployeeSummary? existing = Employees.FirstOrDefault(e => e.Id == EditableEmployee.Id);
 
-    if (existing is null)
-    {
-      CloseEditor();
-      return;
-    }
+				if (existing is null)
+				{
+						CloseEditor();
+						return;
+				}
 
-    int index = Employees.IndexOf(existing);
-    EmployeeSummary updated = EditableEmployee.ToSummary(existing.RowIndex);
-    Employees[index] = updated;
+				int index = Employees.IndexOf(existing);
+				EmployeeSummary updated = EditableEmployee.ToSummary(existing.RowIndex);
+				Employees[index] = updated;
 
-    CloseEditor();
-  }
+				CloseEditor();
+		}
 
-  [RelayCommand]
-  private void CloseEditor()
-  {
-    IsEditorOpen = false;
-    EditorTitle = string.Empty;
-    EditorPrimaryActionText = DefaultPrimaryActionText;
-    EditableEmployee = null;
-  }
+		[RelayCommand]
+		private void CloseEditor()
+		{
+				IsEditorOpen = false;
+				EditorTitle = string.Empty;
+				EditorPrimaryActionText = DefaultPrimaryActionText;
+				EditableEmployee = null;
+		}
 
-  [RelayCommand]
-  private async Task DeleteEmployeeAsync(EmployeeSummary? employee)
-  {
-    if (employee is null)
-    {
-      return;
-    }
+		[RelayCommand]
+		private async Task DeleteEmployeeAsync(EmployeeSummary? employee)
+		{
+				if (employee is null)
+				{
+						return;
+				}
 
-    await TraceCommandAsync(nameof(DeleteEmployeeAsync), employee.Id);
-  }
+				await TraceCommandAsync(nameof(DeleteEmployeeAsync), employee.Id);
+		}
 
-  public override async Task InitializeAsync()
-  {
-    if (IsBusy || hasInitialized)
-    {
-      return;
-    }
+		public override async Task InitializeAsync()
+		{
+				if (IsBusy || hasInitialized)
+				{
+						return;
+				}
 
-    try
-    {
-      IsBusy = true;
-      Employees.Clear();
-      IReadOnlyList<EmployeeSummary> employees = await employeeApiService.GetEmployeesAsync();
+				try
+				{
+						IsBusy = true;
+						Employees.Clear();
+						IReadOnlyList<EmployeeSummary> employees = await employeeApiService.GetEmployeesAsync();
 
-      int index = 0;
+						int index = 0;
 
-      foreach (EmployeeSummary employee in employees
-        .OrderBy(e => e.LastName ?? string.Empty)
-        .ThenBy(e => e.FirstName ?? string.Empty))
-      {
-        employee.RowIndex = index++;
-        Employees.Add(employee);
-      }
+						foreach (EmployeeSummary employee in employees
+							.OrderBy(e => e.LastName ?? string.Empty)
+							.ThenBy(e => e.FirstName ?? string.Empty))
+						{
+								employee.RowIndex = index++;
+								Employees.Add(employee);
+						}
 
-      hasInitialized = true;
-    }
-    catch (Exception ex)
-    {
-      ExceptionHandlingService.Handle(ex, "Loading employees");
-    }
-    finally
-    {
-      IsBusy = false;
-    }
-  }
+						hasInitialized = true;
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Loading employees");
+				}
+				finally
+				{
+						IsBusy = false;
+				}
+		}
 }
