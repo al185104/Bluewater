@@ -1,54 +1,53 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Bluewater.App.Views.Controls.SlideInEditorView"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 x:Class="Bluewater.App.Views.Controls.SlideInEditorView"
 			 xmlns:helper="clr-namespace:Bluewater.App.Helpers"
-             x:Name="RootView">
-  <Grid>
-    <Grid x:Name="OverlayLayer"
-          BackgroundColor="#80000000"
-          InputTransparent="True"
-          IsVisible="False"
-          Opacity="0">
-      <Grid.GestureRecognizers>
-        <TapGestureRecognizer Tapped="OnOverlayTapped" />
-      </Grid.GestureRecognizers>
-    </Grid>
-
-    <Border x:Name="PanelBorder"
-            BackgroundColor="{AppThemeBinding Light=#F8FAFC, Dark=#1E1E1E}"
-            Padding="24"
-            HorizontalOptions="End"
-            VerticalOptions="Fill"
-            IsVisible="False"
-            ZIndex="1">
-      <Grid RowDefinitions="Auto,*,Auto" RowSpacing="16">
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-          <Label Text="{Binding Source={x:Reference RootView}, Path=Title}"
-                 FontAttributes="Bold"
-                 FontSize="20"
-                 VerticalOptions="Center" />
-          <Button Grid.Column="1"
-                  Text="{x:Static helper:Icon.XCircle}"
-				  FontFamily="Icons"
-				  FontSize="Medium"
-                  SemanticProperties.Hint="Close the editor"
-                  BackgroundColor="Transparent"
-                  TextColor="{AppThemeBinding Light=#1F2937, Dark=#F3F4F6}"
-                  Padding="8,4"
-                  Clicked="OnCloseButtonClicked" />
-        </Grid>
-
-        <ScrollView Grid.Row="1">
-          <ContentPresenter Content="{Binding Source={x:Reference RootView}, Path=EditorContent}" />
-        </ScrollView>
-
-        <Button Grid.Row="2"
-                Text="{Binding Source={x:Reference RootView}, Path=UpdateButtonText}"
-                Command="{Binding Source={x:Reference RootView}, Path=UpdateCommand}"
-                CommandParameter="{Binding Source={x:Reference RootView}, Path=UpdateCommandParameter}"
-                IsEnabled="{Binding Source={x:Reference RootView}, Path=IsUpdateEnabled}" />
-      </Grid>
-    </Border>
-  </Grid>
+			 x:Name="RootView">
+	<Grid>
+		<Grid x:Name="OverlayLayer"
+			  BackgroundColor="#80000000"
+			  InputTransparent="True"
+			  IsVisible="False"
+			  Opacity="0">
+			<Grid.GestureRecognizers>
+				<TapGestureRecognizer Tapped="OnOverlayTapped" />
+			</Grid.GestureRecognizers>
+		</Grid>
+		<Border x:Name="PanelBorder"
+				BackgroundColor="{AppThemeBinding Light=#F8FAFC, Dark=#1E1E1E}"
+				Padding="24"
+				HorizontalOptions="End"
+				VerticalOptions="Fill"
+				IsVisible="False"
+				ZIndex="1">
+			<Grid RowDefinitions="Auto,*,Auto"
+				  RowSpacing="16">
+				<Grid ColumnDefinitions="*,Auto"
+					  ColumnSpacing="12">
+					<Label Text="{Binding Source={x:Reference RootView}, Path=Title}"
+						   FontAttributes="Bold"
+						   FontSize="20"
+						   VerticalOptions="Center" />
+					<Button Grid.Column="1"
+							Text="{x:Static helper:Icon.XCircle}"
+							FontFamily="Icons"
+							FontSize="Medium"
+							SemanticProperties.Hint="Close the editor"
+							BackgroundColor="Transparent"
+							TextColor="{AppThemeBinding Light=#1F2937, Dark=#F3F4F6}"
+							Padding="8,4"
+							Clicked="OnCloseButtonClicked" />
+				</Grid>
+				<ScrollView Grid.Row="1" >
+					<ContentPresenter Content="{Binding Source={x:Reference RootView}, Path=EditorContent}" />
+				</ScrollView>
+				<Button Grid.Row="2"
+						Text="{Binding Source={x:Reference RootView}, Path=UpdateButtonText}"
+						Command="{Binding Source={x:Reference RootView}, Path=UpdateCommand}"
+						CommandParameter="{Binding Source={x:Reference RootView}, Path=UpdateCommandParameter}"
+						IsEnabled="{Binding Source={x:Reference RootView}, Path=IsUpdateEnabled}" />
+			</Grid>
+		</Border>
+	</Grid>
 </ContentView>

@@ -1,119 +1,119 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:models="clr-namespace:Bluewater.App.Models"
-             xmlns:controls="clr-namespace:Bluewater.App.Views.Controls"
-             x:Class="Bluewater.App.Views.EmployeeDetailsView"
-             x:Name="RootView">
-  <controls:SlideInEditorView x:Name="EditorView"
-                              Title="{Binding Source={x:Reference RootView}, Path=Title}"
-                              IsOpen="{Binding Source={x:Reference RootView}, Path=IsOpen}"
-                              UpdateCommand="{Binding Source={x:Reference RootView}, Path=UpdateCommand}"
-                              UpdateCommandParameter="{Binding Source={x:Reference RootView}, Path=UpdateCommandParameter}"
-                              UpdateButtonText="{Binding Source={x:Reference RootView}, Path=PrimaryButtonText}"
-                              CloseCommand="{Binding Source={x:Reference RootView}, Path=CloseCommand}"
-                              CloseCommandParameter="{Binding Source={x:Reference RootView}, Path=CloseCommandParameter}">
-    <controls:SlideInEditorView.EditorContent>
-      <Grid>
-        <VerticalStackLayout x:Name="EmptyStateLayout"
-                             Spacing="8"
-                             HorizontalOptions="Center"
-                             VerticalOptions="Center"
-                             IsVisible="False">
-          <Label Text="Select an employee to edit or create a new employee."
-                 HorizontalTextAlignment="Center"
-                 Style="{StaticResource BodyTextStyle}" />
-          <Label Text="Use the actions on the employee list to begin editing or add a new employee."
-                 HorizontalTextAlignment="Center"
-                 FontSize="12"
-                 TextColor="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}" />
-        </VerticalStackLayout>
-
-        <ScrollView x:Name="FormScrollView"
-                    IsVisible="False">
-          <VerticalStackLayout x:Name="FormLayout"
-                               Spacing="16"
-                               Padding="0,0,12,24"
-                               x:DataType="models:EditableEmployee">
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-              <VerticalStackLayout Spacing="4">
-                <Label Text="First name"
-                       Style="{StaticResource CaptionTextStyle}" />
-                <Entry Text="{Binding FirstName}"
-                       Placeholder="First name"
-                       Keyboard="Default" />
-              </VerticalStackLayout>
-              <VerticalStackLayout Grid.Column="1" Spacing="4">
-                <Label Text="Last name"
-                       Style="{StaticResource CaptionTextStyle}" />
-                <Entry Text="{Binding LastName}"
-                       Placeholder="Last name"
-                       Keyboard="Default" />
-              </VerticalStackLayout>
-            </Grid>
-
-            <VerticalStackLayout Spacing="4">
-              <Label Text="Middle name"
-                     Style="{StaticResource CaptionTextStyle}" />
-              <Entry Text="{Binding MiddleName}"
-                     Placeholder="Middle name"
-                     Keyboard="Default" />
-            </VerticalStackLayout>
-
-            <VerticalStackLayout Spacing="4">
-              <Label Text="Email"
-                     Style="{StaticResource CaptionTextStyle}" />
-              <Entry Text="{Binding Email}"
-                     Placeholder="Email address"
-                     Keyboard="Email" />
-            </VerticalStackLayout>
-
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-              <VerticalStackLayout Spacing="4">
-                <Label Text="Position"
-                       Style="{StaticResource CaptionTextStyle}" />
-                <Entry Text="{Binding Position}"
-                       Placeholder="Position" />
-              </VerticalStackLayout>
-              <VerticalStackLayout Grid.Column="1" Spacing="4">
-                <Label Text="Department"
-                       Style="{StaticResource CaptionTextStyle}" />
-                <Entry Text="{Binding Department}"
-                       Placeholder="Department" />
-              </VerticalStackLayout>
-            </Grid>
-
-            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-              <VerticalStackLayout Spacing="4">
-                <Label Text="Section"
-                       Style="{StaticResource CaptionTextStyle}" />
-                <Entry Text="{Binding Section}"
-                       Placeholder="Section" />
-              </VerticalStackLayout>
-              <VerticalStackLayout Grid.Column="1" Spacing="4">
-                <Label Text="Type"
-                       Style="{StaticResource CaptionTextStyle}" />
-                <Entry Text="{Binding Type}"
-                       Placeholder="Type" />
-              </VerticalStackLayout>
-            </Grid>
-
-            <VerticalStackLayout Spacing="4">
-              <Label Text="Level"
-                     Style="{StaticResource CaptionTextStyle}" />
-              <Entry Text="{Binding Level}"
-                     Placeholder="Level" />
-            </VerticalStackLayout>
-
-            <VerticalStackLayout Spacing="4">
-              <Label Text="Image URL"
-                     Style="{StaticResource CaptionTextStyle}" />
-              <Entry Text="{Binding Image}"
-                     Placeholder="Image URL" />
-            </VerticalStackLayout>
-          </VerticalStackLayout>
-        </ScrollView>
-      </Grid>
-    </controls:SlideInEditorView.EditorContent>
-  </controls:SlideInEditorView>
+			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 xmlns:models="clr-namespace:Bluewater.App.Models"
+			 xmlns:controls="clr-namespace:Bluewater.App.Views.Controls"
+			 x:Class="Bluewater.App.Views.EmployeeDetailsView"
+			 x:Name="RootView">
+	<controls:SlideInEditorView x:Name="EditorView"
+								Title="{Binding Source={x:Reference RootView}, Path=Title}"
+								IsOpen="{Binding Source={x:Reference RootView}, Path=IsOpen}"
+								UpdateCommand="{Binding Source={x:Reference RootView}, Path=UpdateCommand}"
+								UpdateCommandParameter="{Binding Source={x:Reference RootView}, Path=UpdateCommandParameter}"
+								UpdateButtonText="{Binding Source={x:Reference RootView}, Path=PrimaryButtonText}"
+								CloseCommand="{Binding Source={x:Reference RootView}, Path=CloseCommand}"
+								CloseCommandParameter="{Binding Source={x:Reference RootView}, Path=CloseCommandParameter}">
+		<controls:SlideInEditorView.EditorContent>
+			<Grid>
+				<VerticalStackLayout x:Name="EmptyStateLayout"
+									 Spacing="8"
+									 HorizontalOptions="Center"
+									 VerticalOptions="Center"
+									 IsVisible="False">
+					<Label Text="Select an employee to edit or create a new employee."
+						   HorizontalTextAlignment="Center"
+						   Style="{StaticResource BodyTextStyle}" />
+					<Label Text="Use the actions on the employee list to begin editing or add a new employee."
+						   HorizontalTextAlignment="Center"
+						   FontSize="12"
+						   TextColor="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}" />
+				</VerticalStackLayout>
+				<ScrollView x:Name="FormScrollView"
+							IsVisible="False">
+					<VerticalStackLayout x:Name="FormLayout"
+										 BackgroundColor="AliceBlue"
+										 Spacing="16"
+										 Padding="0,0,12,24"
+										 x:DataType="models:EditableEmployee">
+						<Grid ColumnDefinitions="*,*"
+							  ColumnSpacing="12">
+							<VerticalStackLayout Spacing="4">
+								<Label Text="First name"
+									   Style="{StaticResource CaptionTextStyle}" />
+								<Entry Text="{Binding FirstName}"
+									   Placeholder="First name"
+									   Keyboard="Default" />
+							</VerticalStackLayout>
+							<VerticalStackLayout Grid.Column="1"
+												 Spacing="4">
+								<Label Text="Last name"
+									   Style="{StaticResource CaptionTextStyle}" />
+								<Entry Text="{Binding LastName}"
+									   Placeholder="Last name"
+									   Keyboard="Default" />
+							</VerticalStackLayout>
+						</Grid>
+						<VerticalStackLayout Spacing="4">
+							<Label Text="Middle name"
+								   Style="{StaticResource CaptionTextStyle}" />
+							<Entry Text="{Binding MiddleName}"
+								   Placeholder="Middle name"
+								   Keyboard="Default" />
+						</VerticalStackLayout>
+						<VerticalStackLayout Spacing="4">
+							<Label Text="Email"
+								   Style="{StaticResource CaptionTextStyle}" />
+							<Entry Text="{Binding Email}"
+								   Placeholder="Email address"
+								   Keyboard="Email" />
+						</VerticalStackLayout>
+						<Grid ColumnDefinitions="*,*"
+							  ColumnSpacing="12">
+							<VerticalStackLayout Spacing="4">
+								<Label Text="Position"
+									   Style="{StaticResource CaptionTextStyle}" />
+								<Entry Text="{Binding Position}"
+									   Placeholder="Position" />
+							</VerticalStackLayout>
+							<VerticalStackLayout Grid.Column="1"
+												 Spacing="4">
+								<Label Text="Department"
+									   Style="{StaticResource CaptionTextStyle}" />
+								<Entry Text="{Binding Department}"
+									   Placeholder="Department" />
+							</VerticalStackLayout>
+						</Grid>
+						<Grid ColumnDefinitions="*,*"
+							  ColumnSpacing="12">
+							<VerticalStackLayout Spacing="4">
+								<Label Text="Section"
+									   Style="{StaticResource CaptionTextStyle}" />
+								<Entry Text="{Binding Section}"
+									   Placeholder="Section" />
+							</VerticalStackLayout>
+							<VerticalStackLayout Grid.Column="1"
+												 Spacing="4">
+								<Label Text="Type"
+									   Style="{StaticResource CaptionTextStyle}" />
+								<Entry Text="{Binding Type}"
+									   Placeholder="Type" />
+							</VerticalStackLayout>
+						</Grid>
+						<VerticalStackLayout Spacing="4">
+							<Label Text="Level"
+								   Style="{StaticResource CaptionTextStyle}" />
+							<Entry Text="{Binding Level}"
+								   Placeholder="Level" />
+						</VerticalStackLayout>
+						<VerticalStackLayout Spacing="4">
+							<Label Text="Image URL"
+								   Style="{StaticResource CaptionTextStyle}" />
+							<Entry Text="{Binding Image}"
+								   Placeholder="Image URL" />
+						</VerticalStackLayout>
+					</VerticalStackLayout>
+				</ScrollView>
+			</Grid>
+		</controls:SlideInEditorView.EditorContent>
+	</controls:SlideInEditorView>
 </ContentView>
