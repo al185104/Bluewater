@@ -23,8 +23,9 @@ public partial class SlideInEditorView : ContentView
 			nameof(IsOpen), typeof(bool), typeof(SlideInEditorView), false,
 			propertyChanged: OnIsOpenChanged);
 
-		public static readonly BindableProperty EditorContentProperty = BindableProperty.Create(
-			nameof(EditorContent), typeof(View), typeof(SlideInEditorView));
+                public static readonly BindableProperty EditorContentProperty = BindableProperty.Create(
+                        nameof(EditorContent), typeof(View), typeof(SlideInEditorView),
+                        propertyChanged: OnEditorContentChanged);
 
 		public static readonly BindableProperty UpdateCommandProperty = BindableProperty.Create(
 			nameof(UpdateCommand), typeof(ICommand), typeof(SlideInEditorView));
@@ -56,11 +57,41 @@ public partial class SlideInEditorView : ContentView
 				set => SetValue(IsOpenProperty, value);
 		}
 
-		public View? EditorContent
-		{
-				get => (View?)GetValue(EditorContentProperty);
-				set => SetValue(EditorContentProperty, value);
-		}
+                public View? EditorContent
+                {
+                                get => (View?)GetValue(EditorContentProperty);
+                                set => SetValue(EditorContentProperty, value);
+                }
+
+                private static void OnEditorContentChanged(BindableObject bindable, object oldValue, object newValue)
+                {
+                                if (bindable is not SlideInEditorView view)
+                                {
+                                                return;
+                                }
+
+                                view.UpdateEditorContent(oldValue as View, newValue as View);
+                }
+
+                private void UpdateEditorContent(View? oldContent, View? newContent)
+                {
+                                if (ReferenceEquals(EditorContentHost.Content, newContent))
+                                {
+                                                return;
+                                }
+
+                                if (oldContent is not null && ReferenceEquals(EditorContentHost.Content, oldContent))
+                                {
+                                                EditorContentHost.Content = null;
+                                }
+
+                                if (newContent is not null)
+                                {
+                                                SetInheritedBindingContext(newContent, BindingContext);
+                                }
+
+                                EditorContentHost.Content = newContent;
+                }
 
 		public ICommand? UpdateCommand
 		{
@@ -237,7 +268,17 @@ public partial class SlideInEditorView : ContentView
 				}
 		}
 
-		private void OnOverlayTapped(object? sender, TappedEventArgs e)
+                protected override void OnBindingContextChanged()
+                {
+                                base.OnBindingContextChanged();
+
+                                if (EditorContentHost.Content is View view)
+                                {
+                                                SetInheritedBindingContext(view, BindingContext);
+                                }
+                }
+
+                private void OnOverlayTapped(object? sender, TappedEventArgs e)
 		{
 				Close();
 		}
