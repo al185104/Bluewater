@@ -68,12 +68,16 @@
 	  </Content>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <PackageReference Include="CommunityToolkit.Maui" />
-	  <PackageReference Include="CommunityToolkit.Mvvm" />
-	  <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
-	  <PackageReference Include="Microsoft.Maui.Controls" />
-	</ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Maui" />
+    <PackageReference Include="CommunityToolkit.Mvvm" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
+    <PackageReference Include="Microsoft.Maui.Controls" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bluewater.Core\Bluewater.Core.csproj" />
+  </ItemGroup>
 
 	<ItemGroup>
 	  <MauiXaml Update="Resources\Styles\Custom.xaml">
