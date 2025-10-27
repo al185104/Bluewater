@@ -1,4 +1,6 @@
-﻿using System.Windows.Input;
+using System;
+using System.Collections.Generic;
+using System.Windows.Input;
 using Bluewater.App.Models;
 using Microsoft.Maui.Controls;
 
@@ -40,6 +42,24 @@ public partial class EmployeeDetailsView : ContentView
 
 		public static readonly BindableProperty CloseCommandParameterProperty = BindableProperty.Create(
 			nameof(CloseCommandParameter), typeof(object), typeof(EmployeeDetailsView));
+                public static readonly BindableProperty UserOptionsProperty = BindableProperty.Create(
+                        nameof(UserOptions), typeof(IEnumerable<EmployeeExternalOption>), typeof(EmployeeDetailsView), Array.Empty<EmployeeExternalOption>());
+
+                public static readonly BindableProperty PositionOptionsProperty = BindableProperty.Create(
+                        nameof(PositionOptions), typeof(IEnumerable<EmployeeExternalOption>), typeof(EmployeeDetailsView), Array.Empty<EmployeeExternalOption>());
+
+                public static readonly BindableProperty PayOptionsProperty = BindableProperty.Create(
+                        nameof(PayOptions), typeof(IEnumerable<EmployeeExternalOption>), typeof(EmployeeDetailsView), Array.Empty<EmployeeExternalOption>());
+
+                public static readonly BindableProperty TypeOptionsProperty = BindableProperty.Create(
+                        nameof(TypeOptions), typeof(IEnumerable<EmployeeExternalOption>), typeof(EmployeeDetailsView), Array.Empty<EmployeeExternalOption>());
+
+                public static readonly BindableProperty LevelOptionsProperty = BindableProperty.Create(
+                        nameof(LevelOptions), typeof(IEnumerable<EmployeeExternalOption>), typeof(EmployeeDetailsView), Array.Empty<EmployeeExternalOption>());
+
+                public static readonly BindableProperty ChargingOptionsProperty = BindableProperty.Create(
+                        nameof(ChargingOptions), typeof(IEnumerable<EmployeeExternalOption>), typeof(EmployeeDetailsView), Array.Empty<EmployeeExternalOption>());
+
 
 		public string Title
 		{
@@ -94,6 +114,43 @@ public partial class EmployeeDetailsView : ContentView
 				get => GetValue(CloseCommandParameterProperty);
 				set => SetValue(CloseCommandParameterProperty, value);
 		}
+
+                public IEnumerable<EmployeeExternalOption> UserOptions
+                {
+                                get => (IEnumerable<EmployeeExternalOption>)GetValue(UserOptionsProperty);
+                                set => SetValue(UserOptionsProperty, value);
+                }
+
+                public IEnumerable<EmployeeExternalOption> PositionOptions
+                {
+                                get => (IEnumerable<EmployeeExternalOption>)GetValue(PositionOptionsProperty);
+                                set => SetValue(PositionOptionsProperty, value);
+                }
+
+                public IEnumerable<EmployeeExternalOption> PayOptions
+                {
+                                get => (IEnumerable<EmployeeExternalOption>)GetValue(PayOptionsProperty);
+                                set => SetValue(PayOptionsProperty, value);
+                }
+
+                public IEnumerable<EmployeeExternalOption> TypeOptions
+                {
+                                get => (IEnumerable<EmployeeExternalOption>)GetValue(TypeOptionsProperty);
+                                set => SetValue(TypeOptionsProperty, value);
+                }
+
+                public IEnumerable<EmployeeExternalOption> LevelOptions
+                {
+                                get => (IEnumerable<EmployeeExternalOption>)GetValue(LevelOptionsProperty);
+                                set => SetValue(LevelOptionsProperty, value);
+                }
+
+                public IEnumerable<EmployeeExternalOption> ChargingOptions
+                {
+                                get => (IEnumerable<EmployeeExternalOption>)GetValue(ChargingOptionsProperty);
+                                set => SetValue(ChargingOptionsProperty, value);
+                }
+
 
 		private static void OnEditableEmployeeChanged(BindableObject bindable, object oldValue, object newValue)
 		{
