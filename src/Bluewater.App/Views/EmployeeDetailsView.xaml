@@ -1,460 +1,454 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-			 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-			 xmlns:models="clr-namespace:Bluewater.App.Models"
-			 xmlns:controls="clr-namespace:Bluewater.App.Views.Controls"
-			 x:Class="Bluewater.App.Views.EmployeeDetailsView"
-			 x:Name="RootView">
-	<controls:SlideInEditorView x:Name="EditorView"
-								Title="{Binding Source={x:Reference RootView}, Path=Title}"
-								IsOpen="{Binding Source={x:Reference RootView}, Path=IsOpen}"
-								UpdateCommand="{Binding Source={x:Reference RootView}, Path=UpdateCommand}"
-								UpdateCommandParameter="{Binding Source={x:Reference RootView}, Path=UpdateCommandParameter}"
-								UpdateButtonText="{Binding Source={x:Reference RootView}, Path=PrimaryButtonText}"
-								CloseCommand="{Binding Source={x:Reference RootView}, Path=CloseCommand}"
-								CloseCommandParameter="{Binding Source={x:Reference RootView}, Path=CloseCommandParameter}">
-		<controls:SlideInEditorView.EditorContent>
-			<Grid>
-				<VerticalStackLayout x:Name="EmptyStateLayout"
-									 Spacing="8"
-									 HorizontalOptions="Center"
-									 VerticalOptions="Center"
-									 IsVisible="False">
-					<Label Text="Select an employee to edit or create a new employee."
-						   HorizontalTextAlignment="Center"
-						   Style="{StaticResource BodyTextStyle}" />
-					<Label Text="Use the actions on the employee list to begin editing or add a new employee."
-						   HorizontalTextAlignment="Center"
-						   FontSize="12"
-						   TextColor="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}" />
-				</VerticalStackLayout>
-				<ScrollView x:Name="FormScrollView"
-							IsVisible="False">
-                                        <VerticalStackLayout x:Name="FormLayout"
-                                                                                 BackgroundColor="AliceBlue"
-                                                                                 Spacing="20"
-                                                                                 Padding="0,0,12,24"
-                                                                                 x:DataType="models:EditableEmployee">
-                                                <VerticalStackLayout Spacing="12">
-                                                        <Label Text="Personal Information"
-                                                                   FontAttributes="Bold"
-                                                                   Style="{StaticResource BodyTextStyle}" />
-                                                        <Grid ColumnDefinitions="*,*"
-                                                                  ColumnSpacing="12">
-                                                                <VerticalStackLayout Spacing="4">
-                                                                        <Label Text="First name"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding FirstName}"
-                                                                                   Placeholder="First name"
-                                                                                   Keyboard="Default" />
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                                         Spacing="4">
-                                                                        <Label Text="Last name"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding LastName}"
-                                                                                   Placeholder="Last name"
-                                                                                   Keyboard="Default" />
-                                                                </VerticalStackLayout>
-                                                        </Grid>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Middle name"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding MiddleName}"
-                                                                           Placeholder="Middle name"
-                                                                           Keyboard="Default" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Date of birth"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <DatePicker Date="{Binding DateOfBirth, Mode=TwoWay}" />
-                                                        </VerticalStackLayout>
-                                                        <Grid ColumnDefinitions="*,*"
-                                                                  ColumnSpacing="12">
-                                                                <VerticalStackLayout Spacing="4">
-                                                                        <Label Text="Gender"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Picker ItemsSource="{Binding GenderOptions}"
-                                                                                SelectedItem="{Binding Gender}"
-                                                                                Title="Select gender" />
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                                         Spacing="4">
-                                                                        <Label Text="Civil status"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Picker ItemsSource="{Binding CivilStatusOptions}"
-                                                                                SelectedItem="{Binding CivilStatus}"
-                                                                                Title="Select civil status" />
-                                                                </VerticalStackLayout>
-                                                        </Grid>
-                                                        <Grid ColumnDefinitions="*,*"
-                                                                  ColumnSpacing="12">
-                                                                <VerticalStackLayout Spacing="4">
-                                                                        <Label Text="Blood type"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Picker ItemsSource="{Binding BloodTypeOptions}"
-                                                                                SelectedItem="{Binding BloodType}"
-                                                                                Title="Select blood type" />
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                                         Spacing="4">
-                                                                        <Label Text="Status"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Picker ItemsSource="{Binding StatusOptions}"
-                                                                                SelectedItem="{Binding Status}"
-                                                                                Title="Select status" />
-                                                                </VerticalStackLayout>
-                                                        </Grid>
-                                                        <Grid ColumnDefinitions="*,*"
-                                                                  ColumnSpacing="12">
-                                                                <VerticalStackLayout Spacing="4">
-                                                                        <Label Text="Height (cm)"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding Height}"
-                                                                               Placeholder="Height"
-                                                                               Keyboard="Numeric" />
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                                         Spacing="4">
-                                                                        <Label Text="Weight (kg)"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding Weight}"
-                                                                               Placeholder="Weight"
-                                                                               Keyboard="Numeric" />
-                                                                </VerticalStackLayout>
-                                                        </Grid>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Tenant"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Picker ItemsSource="{Binding TenantOptions}"
-                                                                        SelectedItem="{Binding Tenant}"
-                                                                        Title="Select tenant" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Meal credits"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding MealCredits}"
-                                                                       Placeholder="Meal credits"
-                                                                       Keyboard="Numeric" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Remarks"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Editor Text="{Binding Remarks}"
-                                                                        Placeholder="Additional remarks" />
-                                                        </VerticalStackLayout>
-                                                </VerticalStackLayout>
-
-                                                <VerticalStackLayout Spacing="12">
-                                                        <Label Text="Job Details"
-                                                                   FontAttributes="Bold"
-                                                                   Style="{StaticResource BodyTextStyle}" />
-                                                        <Grid ColumnDefinitions="*,*"
-                                                                  ColumnSpacing="12">
-                                                                <VerticalStackLayout Spacing="4">
-                                                                        <Label Text="Position"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Picker ItemsSource="{Binding Source={x:Reference RootView}, Path=PositionOptions}"
-                                                                                SelectedItem="{Binding SelectedPositionOption}"
-                                                                                ItemDisplayBinding="{Binding Label}"
-                                                                                Title="Select position" />
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                                         Spacing="4">
-                                                                        <Label Text="Department"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding Department}"
-                                                                               Placeholder="Department" />
-                                                                </VerticalStackLayout>
-                                                        </Grid>
-                                                        <Grid ColumnDefinitions="*,*"
-                                                                  ColumnSpacing="12">
-                                                                <VerticalStackLayout Spacing="4">
-                                                                        <Label Text="Section"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding Section}"
-                                                                               Placeholder="Section" />
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                                         Spacing="4">
-                                                                        <Label Text="Type"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Picker ItemsSource="{Binding Source={x:Reference RootView}, Path=TypeOptions}"
-                                                                                SelectedItem="{Binding SelectedTypeOption}"
-                                                                                ItemDisplayBinding="{Binding Label}"
-                                                                                Title="Select type" />
-                                                                </VerticalStackLayout>
-                                                        </Grid>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Level"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Picker ItemsSource="{Binding Source={x:Reference RootView}, Path=LevelOptions}"
-                                                                        SelectedItem="{Binding SelectedLevelOption}"
-                                                                        ItemDisplayBinding="{Binding Label}"
-                                                                        Title="Select level" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Charging"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Picker ItemsSource="{Binding Source={x:Reference RootView}, Path=ChargingOptions}"
-                                                                        SelectedItem="{Binding SelectedChargingOption}"
-                                                                        ItemDisplayBinding="{Binding Label}"
-                                                                        Title="Select charging" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Image URL"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding Image}"
-                                                                       Placeholder="Image URL" />
-                                                        </VerticalStackLayout>
-                                                </VerticalStackLayout>
-
-                                                <VerticalStackLayout Spacing="12">
-                                                        <Label Text="Contact Information"
-                                                                   FontAttributes="Bold"
-                                                                   Style="{StaticResource BodyTextStyle}" />
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Email"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding Email}"
-                                                                       Placeholder="Email address"
-                                                                       Keyboard="Email" />
-                                                        </VerticalStackLayout>
-                                                        <Grid ColumnDefinitions="*,*"
-                                                                  ColumnSpacing="12">
-                                                                <VerticalStackLayout Spacing="4">
-                                                                        <Label Text="Telephone"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding TelNumber}"
-                                                                               Placeholder="Telephone number" />
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                                         Spacing="4">
-                                                                        <Label Text="Mobile"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding MobileNumber}"
-                                                                               Placeholder="Mobile number" />
-                                                                </VerticalStackLayout>
-                                                        </Grid>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Address"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding Address}"
-                                                                       Placeholder="Current address" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Provincial address"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding ProvincialAddress}"
-                                                                       Placeholder="Provincial address" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Mother's maiden name"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding MothersMaidenName}"
-                                                                       Placeholder="Mother's maiden name" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Father's name"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding FathersName}"
-                                                                       Placeholder="Father's name" />
-                                                        </VerticalStackLayout>
-                                                </VerticalStackLayout>
-
-                                                <VerticalStackLayout Spacing="12">
-                                                        <Label Text="Emergency Contact"
-                                                                   FontAttributes="Bold"
-                                                                   Style="{StaticResource BodyTextStyle}" />
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Contact name"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding EmergencyContact}"
-                                                                       Placeholder="Emergency contact name" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Relationship"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding RelationshipContact}"
-                                                                       Placeholder="Relationship" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Contact address"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding AddressContact}"
-                                                                       Placeholder="Contact address" />
-                                                        </VerticalStackLayout>
-                                                        <Grid ColumnDefinitions="*,*"
-                                                                  ColumnSpacing="12">
-                                                                <VerticalStackLayout Spacing="4">
-                                                                        <Label Text="Contact telephone"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding TelNoContact}"
-                                                                               Placeholder="Telephone" />
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                                         Spacing="4">
-                                                                        <Label Text="Contact mobile"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding MobileNoContact}"
-                                                                               Placeholder="Mobile" />
-                                                                </VerticalStackLayout>
-                                                        </Grid>
-                                                </VerticalStackLayout>
-
-                                                <VerticalStackLayout Spacing="12">
-                                                        <Label Text="Education"
-                                                                   FontAttributes="Bold"
-                                                                   Style="{StaticResource BodyTextStyle}" />
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Educational attainment"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Picker ItemsSource="{Binding EducationalAttainmentOptions}"
-                                                                        SelectedItem="{Binding EducationalAttainment}"
-                                                                        Title="Select attainment" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Course graduated"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding CourseGraduated}"
-                                                                       Placeholder="Course" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="University"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding UniversityGraduated}"
-                                                                       Placeholder="University" />
-                                                        </VerticalStackLayout>
-                                                </VerticalStackLayout>
-
-                                                <VerticalStackLayout Spacing="12">
-                                                        <Label Text="Employment"
-                                                                   FontAttributes="Bold"
-                                                                   Style="{StaticResource BodyTextStyle}" />
-                                                        <Grid ColumnDefinitions="*,*"
-                                                                  ColumnSpacing="12">
-                                                                <VerticalStackLayout Spacing="4">
-                                                                        <Label Text="Date hired"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <DatePicker Date="{Binding DateHired, Mode=TwoWay}" />
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                                         Spacing="4">
-                                                                        <Label Text="Date regularized"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <DatePicker Date="{Binding DateRegularized, Mode=TwoWay}" />
-                                                                </VerticalStackLayout>
-                                                        </Grid>
-                                                        <Grid ColumnDefinitions="*,*"
-                                                                  ColumnSpacing="12">
-                                                                <VerticalStackLayout Spacing="4">
-                                                                        <Label Text="Date resigned"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <DatePicker Date="{Binding DateResigned, Mode=TwoWay}" />
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                                         Spacing="4">
-                                                                        <Label Text="Date terminated"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <DatePicker Date="{Binding DateTerminated, Mode=TwoWay}" />
-                                                                </VerticalStackLayout>
-                                                        </Grid>
-                                                        <Grid ColumnDefinitions="*,*"
-                                                                  ColumnSpacing="12">
-                                                                <VerticalStackLayout Spacing="4">
-                                                                        <Label Text="TIN"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding TinNo}"
-                                                                               Placeholder="TIN number" />
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                                         Spacing="4">
-                                                                        <Label Text="SSS"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding SssNo}"
-                                                                               Placeholder="SSS number" />
-                                                                </VerticalStackLayout>
-                                                        </Grid>
-                                                        <Grid ColumnDefinitions="*,*"
-                                                                  ColumnSpacing="12">
-                                                                <VerticalStackLayout Spacing="4">
-                                                                        <Label Text="HDMF"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding HdmfNo}"
-                                                                               Placeholder="HDMF number" />
-                                                                </VerticalStackLayout>
-                                                                <VerticalStackLayout Grid.Column="1"
-                                                                                                         Spacing="4">
-                                                                        <Label Text="PHIC"
-                                                                                   Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding PhicNo}"
-                                                                               Placeholder="PHIC number" />
-                                                                </VerticalStackLayout>
-                                                        </Grid>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Bank account"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding BankAccount}"
-                                                                       Placeholder="Bank account" />
-                                                        </VerticalStackLayout>
-                                                        <HorizontalStackLayout Spacing="12"
-                                                                              VerticalOptions="Center">
-                                                                <Label Text="Has service charge"
-                                                                           VerticalOptions="Center"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Switch IsToggled="{Binding HasServiceCharge}" />
-                                                        </HorizontalStackLayout>
-                                                </VerticalStackLayout>
-                                                <VerticalStackLayout Spacing="12">
-                                                        <Label Text="External Keys"
-                                                                   FontAttributes="Bold"
-                                                                   Style="{StaticResource BodyTextStyle}" />
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="User ID"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding UserIdText}"
-                                                                       Placeholder="User identifier (GUID)"
-                                                                       Keyboard="Plain" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Position ID"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding PositionIdText}"
-                                                                       Placeholder="Position identifier (GUID)"
-                                                                       Keyboard="Plain" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Pay ID"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding PayIdText}"
-                                                                       Placeholder="Pay identifier (GUID)"
-                                                                       Keyboard="Plain" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Type ID"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding TypeIdText}"
-                                                                       Placeholder="Type identifier (GUID)"
-                                                                       Keyboard="Plain" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Level ID"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding LevelIdText}"
-                                                                       Placeholder="Level identifier (GUID)"
-                                                                       Keyboard="Plain" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Charging ID"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding ChargingIdText}"
-                                                                       Placeholder="Charging identifier (GUID)"
-                                                                       Keyboard="Plain" />
-                                                        </VerticalStackLayout>
-                                                </VerticalStackLayout>
-                                        </VerticalStackLayout>
-                                </ScrollView>
-                        </Grid>
-                </controls:SlideInEditorView.EditorContent>
-        </controls:SlideInEditorView>
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Bluewater.App.Models"
+             xmlns:controls="clr-namespace:Bluewater.App.Views.Controls"
+             x:Class="Bluewater.App.Views.EmployeeDetailsView"
+             x:Name="RootView">
+    <controls:SlideInEditorView x:Name="EditorView"
+                                Title="{Binding Source={x:Reference RootView}, Path=Title}"
+                                IsOpen="{Binding Source={x:Reference RootView}, Path=IsOpen}"
+                                UpdateCommand="{Binding Source={x:Reference RootView}, Path=UpdateCommand}"
+                                UpdateCommandParameter="{Binding Source={x:Reference RootView}, Path=UpdateCommandParameter}"
+                                UpdateButtonText="{Binding Source={x:Reference RootView}, Path=PrimaryButtonText}"
+                                CloseCommand="{Binding Source={x:Reference RootView}, Path=CloseCommand}"
+                                CloseCommandParameter="{Binding Source={x:Reference RootView}, Path=CloseCommandParameter}">
+        <controls:SlideInEditorView.EditorContent>
+            <Grid>
+                <VerticalStackLayout x:Name="EmptyStateLayout"
+                                     Spacing="8"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center"
+                                     IsVisible="False">
+                    <Label Text="Select an employee to edit or create a new employee."
+                           HorizontalTextAlignment="Center"
+                           Style="{StaticResource BodyTextStyle}" />
+                    <Label Text="Use the actions on the employee list to begin editing or add a new employee."
+                           HorizontalTextAlignment="Center"
+                           FontSize="12"
+                           TextColor="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}" />
+                </VerticalStackLayout>
+                <ScrollView x:Name="FormScrollView"
+                            IsVisible="False">
+                    <VerticalStackLayout x:Name="FormLayout"
+                                         Spacing="20"
+                                         Padding="0,0,12,24"
+                                         x:DataType="models:EditableEmployee">
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Personal Information"
+                                   FontAttributes="Bold"
+                                   Style="{StaticResource BodyTextStyle}" />
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="First name"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding FirstName}"
+                                           Placeholder="First name"
+                                           Keyboard="Default" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4">
+                                    <Label Text="Last name"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding LastName}"
+                                           Placeholder="Last name"
+                                           Keyboard="Default" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Middle name"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding MiddleName}"
+                                       Placeholder="Middle name"
+                                       Keyboard="Default" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Date of birth"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <DatePicker Date="{Binding DateOfBirth, Mode=TwoWay}" />
+                            </VerticalStackLayout>
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Gender"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Picker ItemsSource="{Binding GenderOptions}"
+                                            SelectedItem="{Binding Gender}"
+                                            Title="Select gender" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4">
+                                    <Label Text="Civil status"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Picker ItemsSource="{Binding CivilStatusOptions}"
+                                            SelectedItem="{Binding CivilStatus}"
+                                            Title="Select civil status" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Blood type"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Picker ItemsSource="{Binding BloodTypeOptions}"
+                                            SelectedItem="{Binding BloodType}"
+                                            Title="Select blood type" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4">
+                                    <Label Text="Status"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Picker ItemsSource="{Binding StatusOptions}"
+                                            SelectedItem="{Binding Status}"
+                                            Title="Select status" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Height (cm)"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding Height}"
+                                           Placeholder="Height"
+                                           Keyboard="Numeric" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4">
+                                    <Label Text="Weight (kg)"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding Weight}"
+                                           Placeholder="Weight"
+                                           Keyboard="Numeric" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Tenant"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Picker ItemsSource="{Binding TenantOptions}"
+                                        SelectedItem="{Binding Tenant}"
+                                        Title="Select tenant" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Meal credits"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding MealCredits}"
+                                       Placeholder="Meal credits"
+                                       Keyboard="Numeric" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Remarks"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Editor Text="{Binding Remarks}"
+                                        Placeholder="Additional remarks" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Job Details"
+                                   FontAttributes="Bold"
+                                   Style="{StaticResource BodyTextStyle}" />
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Position"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Picker ItemsSource="{Binding Source={x:Reference RootView}, Path=PositionOptions}"
+                                            SelectedItem="{Binding SelectedPositionOption}"
+                                            ItemDisplayBinding="{Binding Label}"
+                                            Title="Select position" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4">
+                                    <Label Text="Department"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding Department}"
+                                           Placeholder="Department" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Section"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding Section}"
+                                           Placeholder="Section" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4">
+                                    <Label Text="Type"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Picker ItemsSource="{Binding Source={x:Reference RootView}, Path=TypeOptions}"
+                                            SelectedItem="{Binding SelectedTypeOption}"
+                                            ItemDisplayBinding="{Binding Label}"
+                                            Title="Select type" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Level"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Picker ItemsSource="{Binding Source={x:Reference RootView}, Path=LevelOptions}"
+                                        SelectedItem="{Binding SelectedLevelOption}"
+                                        ItemDisplayBinding="{Binding Label}"
+                                        Title="Select level" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Charging"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Picker ItemsSource="{Binding Source={x:Reference RootView}, Path=ChargingOptions}"
+                                        SelectedItem="{Binding SelectedChargingOption}"
+                                        ItemDisplayBinding="{Binding Label}"
+                                        Title="Select charging" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Image URL"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding Image}"
+                                       Placeholder="Image URL" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Contact Information"
+                                   FontAttributes="Bold"
+                                   Style="{StaticResource BodyTextStyle}" />
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Email"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding Email}"
+                                       Placeholder="Email address"
+                                       Keyboard="Email" />
+                            </VerticalStackLayout>
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Telephone"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding TelNumber}"
+                                           Placeholder="Telephone number" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4">
+                                    <Label Text="Mobile"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding MobileNumber}"
+                                           Placeholder="Mobile number" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Address"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding Address}"
+                                       Placeholder="Current address" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Provincial address"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding ProvincialAddress}"
+                                       Placeholder="Provincial address" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Mother's maiden name"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding MothersMaidenName}"
+                                       Placeholder="Mother's maiden name" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Father's name"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding FathersName}"
+                                       Placeholder="Father's name" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Emergency Contact"
+                                   FontAttributes="Bold"
+                                   Style="{StaticResource BodyTextStyle}" />
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Contact name"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding EmergencyContact}"
+                                       Placeholder="Emergency contact name" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Relationship"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding RelationshipContact}"
+                                       Placeholder="Relationship" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Contact address"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding AddressContact}"
+                                       Placeholder="Contact address" />
+                            </VerticalStackLayout>
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Contact telephone"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding TelNoContact}"
+                                           Placeholder="Telephone" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4">
+                                    <Label Text="Contact mobile"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding MobileNoContact}"
+                                           Placeholder="Mobile" />
+                                </VerticalStackLayout>
+                            </Grid>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Education"
+                                   FontAttributes="Bold"
+                                   Style="{StaticResource BodyTextStyle}" />
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Educational attainment"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Picker ItemsSource="{Binding EducationalAttainmentOptions}"
+                                        SelectedItem="{Binding EducationalAttainment}"
+                                        Title="Select attainment" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Course graduated"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding CourseGraduated}"
+                                       Placeholder="Course" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="University"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding UniversityGraduated}"
+                                       Placeholder="University" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="Employment"
+                                   FontAttributes="Bold"
+                                   Style="{StaticResource BodyTextStyle}" />
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Date hired"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <DatePicker Date="{Binding DateHired, Mode=TwoWay}" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4">
+                                    <Label Text="Date regularized"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <DatePicker Date="{Binding DateRegularized, Mode=TwoWay}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="Date resigned"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <DatePicker Date="{Binding DateResigned, Mode=TwoWay}" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4">
+                                    <Label Text="Date terminated"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <DatePicker Date="{Binding DateTerminated, Mode=TwoWay}" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="TIN"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding TinNo}"
+                                           Placeholder="TIN number" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4">
+                                    <Label Text="SSS"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding SssNo}"
+                                           Placeholder="SSS number" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <Grid ColumnDefinitions="*,*"
+                                  ColumnSpacing="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="HDMF"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding HdmfNo}"
+                                           Placeholder="HDMF number" />
+                                </VerticalStackLayout>
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="4">
+                                    <Label Text="PHIC"
+                                           Style="{StaticResource CaptionTextStyle}" />
+                                    <Entry Text="{Binding PhicNo}"
+                                           Placeholder="PHIC number" />
+                                </VerticalStackLayout>
+                            </Grid>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Bank account"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding BankAccount}"
+                                       Placeholder="Bank account" />
+                            </VerticalStackLayout>
+                            <HorizontalStackLayout Spacing="12"
+                                                   VerticalOptions="Center">
+                                <Label Text="Has service charge"
+                                       VerticalOptions="Center"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Switch IsToggled="{Binding HasServiceCharge}" />
+                            </HorizontalStackLayout>
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Spacing="12">
+                            <Label Text="External Keys"
+                                   FontAttributes="Bold"
+                                   Style="{StaticResource BodyTextStyle}" />
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="User ID"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding UserIdText}"
+                                       Placeholder="User identifier (GUID)"
+                                       Keyboard="Plain" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Position ID"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding PositionIdText}"
+                                       Placeholder="Position identifier (GUID)"
+                                       Keyboard="Plain" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Pay ID"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding PayIdText}"
+                                       Placeholder="Pay identifier (GUID)"
+                                       Keyboard="Plain" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Type ID"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding TypeIdText}"
+                                       Placeholder="Type identifier (GUID)"
+                                       Keyboard="Plain" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Level ID"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding LevelIdText}"
+                                       Placeholder="Level identifier (GUID)"
+                                       Keyboard="Plain" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Spacing="4">
+                                <Label Text="Charging ID"
+                                       Style="{StaticResource CaptionTextStyle}" />
+                                <Entry Text="{Binding ChargingIdText}"
+                                       Placeholder="Charging identifier (GUID)"
+                                       Keyboard="Plain" />
+                            </VerticalStackLayout>
+                        </VerticalStackLayout>
+                    </VerticalStackLayout>
+                </ScrollView>
+            </Grid>
+        </controls:SlideInEditorView.EditorContent>
+    </controls:SlideInEditorView>
 </ContentView>
