@@ -261,12 +261,18 @@
         </Grid>
         <appViews:EmployeeDetailsView HorizontalOptions="Fill"
                                       VerticalOptions="Fill"
-									  IsVisible="{Binding IsEditorOpen}"
+                                                                          IsVisible="{Binding IsEditorOpen}"
                                       IsOpen="{Binding IsEditorOpen}"
                                       Title="{Binding EditorTitle}"
                                       EditableEmployee="{Binding EditableEmployee}"
                                       UpdateCommand="{Binding UpdateEmployeeCommand}"
                                       PrimaryButtonText="{Binding EditorPrimaryActionText}"
-                                      CloseCommand="{Binding CloseEditorCommand}" />
+                                      CloseCommand="{Binding CloseEditorCommand}"
+                                      UserOptions="{Binding UserOptions}"
+                                      PositionOptions="{Binding PositionOptions}"
+                                      PayOptions="{Binding PayOptions}"
+                                      TypeOptions="{Binding TypeOptions}"
+                                      LevelOptions="{Binding LevelOptions}"
+                                      ChargingOptions="{Binding ChargingOptions}" />
     </Grid>
 </ContentPage>
