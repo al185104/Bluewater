@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Bluewater.Core.EmployeeAggregate.Enum;
+using Bluewater.Core.UserAggregate.Enum;
 
 namespace Bluewater.App.Models;
 
@@ -90,7 +91,7 @@ public class UserDto
 {
   public string Username { get; set; } = string.Empty;
   public string PasswordHash { get; set; } = string.Empty;
-  public string Credential { get; set; } = string.Empty;
+  public Credential Credential { get; set; } = Credential.None;
   public Guid? SupervisedGroup { get; set; }
   public bool IsGlobalSupervisor { get; set; }
 }

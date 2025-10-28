@@ -133,7 +133,7 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
         {
           Username = dto.User.Username,
           PasswordHash = dto.User.PasswordHash,
-          Credential = ParseCredential(dto.User.Credential),
+          Credential = dto.User.Credential,
           SupervisedGroup = dto.User.SupervisedGroup,
           IsGlobalSupervisor = dto.User.IsGlobalSupervisor
         },
@@ -150,13 +150,4 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
     };
   }
 
-  private static Credential ParseCredential(string? credential)
-  {
-    if (!string.IsNullOrWhiteSpace(credential) && Enum.TryParse<Credential>(credential, true, out Credential parsed))
-    {
-      return parsed;
-    }
-
-    return Credential.None;
-  }
 }
