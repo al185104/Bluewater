@@ -17,7 +17,9 @@ public class EmployeeTypeApiService(IApiClient apiClient) : IEmployeeTypeApiServ
   {
     string requestUri = BuildRequestUri(skip, take);
 
-    EmployeeTypeListResponseDto? response = await apiClient.GetAsync<EmployeeTypeListResponseDto>(requestUri, cancellationToken);
+    EmployeeTypeListResponseDto? response = await apiClient
+      .GetAsync<EmployeeTypeListResponseDto>(requestUri, cancellationToken)
+      .ConfigureAwait(false);
 
     if (response?.EmployeeTypes is not { Count: > 0 })
     {

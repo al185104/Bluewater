@@ -17,7 +17,9 @@ public class LevelApiService(IApiClient apiClient) : ILevelApiService
   {
     string requestUri = BuildRequestUri(skip, take);
 
-    LevelListResponseDto? response = await apiClient.GetAsync<LevelListResponseDto>(requestUri, cancellationToken);
+    LevelListResponseDto? response = await apiClient
+      .GetAsync<LevelListResponseDto>(requestUri, cancellationToken)
+      .ConfigureAwait(false);
 
     if (response?.Levels is not { Count: > 0 })
     {

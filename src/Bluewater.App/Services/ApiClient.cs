@@ -17,7 +17,9 @@ public class ApiClient(HttpClient httpClient) : IApiClient
 
   public async Task<T?> GetAsync<T>(string requestUri, CancellationToken cancellationToken = default)
   {
-    using HttpResponseMessage response = await httpClient.GetAsync(requestUri, cancellationToken);
+    using HttpResponseMessage response = await httpClient
+      .GetAsync(requestUri, cancellationToken)
+      .ConfigureAwait(false);
 
     if (response.StatusCode == HttpStatusCode.NotFound)
     {
@@ -31,8 +33,12 @@ public class ApiClient(HttpClient httpClient) : IApiClient
       return default;
     }
 
-    await using Stream contentStream = await response.Content.ReadAsStreamAsync(cancellationToken);
-    return await JsonSerializer.DeserializeAsync<T>(contentStream, JsonOptions, cancellationToken);
+    await using Stream contentStream = await response.Content
+      .ReadAsStreamAsync(cancellationToken)
+      .ConfigureAwait(false);
+    return await JsonSerializer
+      .DeserializeAsync<T>(contentStream, JsonOptions, cancellationToken)
+      .ConfigureAwait(false);
   }
 
   public async Task<TResponse?> PostAsync<TRequest, TResponse>(
@@ -42,7 +48,7 @@ public class ApiClient(HttpClient httpClient) : IApiClient
   {
     using HttpContent content = CreateJsonContent(request);
     using var message = new HttpRequestMessage(HttpMethod.Post, requestUri) { Content = content };
-    return await SendAsync<TResponse>(message, cancellationToken);
+    return await SendAsync<TResponse>(message, cancellationToken).ConfigureAwait(false);
   }
 
   public async Task<TResponse?> PutAsync<TRequest, TResponse>(
@@ -52,13 +58,15 @@ public class ApiClient(HttpClient httpClient) : IApiClient
   {
     using HttpContent content = CreateJsonContent(request);
     using var message = new HttpRequestMessage(HttpMethod.Put, requestUri) { Content = content };
-    return await SendAsync<TResponse>(message, cancellationToken);
+    return await SendAsync<TResponse>(message, cancellationToken).ConfigureAwait(false);
   }
 
   public async Task<bool> DeleteAsync(string requestUri, CancellationToken cancellationToken = default)
   {
     using var message = new HttpRequestMessage(HttpMethod.Delete, requestUri);
-    using HttpResponseMessage response = await httpClient.SendAsync(message, cancellationToken);
+    using HttpResponseMessage response = await httpClient
+      .SendAsync(message, cancellationToken)
+      .ConfigureAwait(false);
 
     if (response.StatusCode == HttpStatusCode.NotFound)
     {
@@ -71,7 +79,9 @@ public class ApiClient(HttpClient httpClient) : IApiClient
 
   private async Task<T?> SendAsync<T>(HttpRequestMessage message, CancellationToken cancellationToken)
   {
-    using HttpResponseMessage response = await httpClient.SendAsync(message, cancellationToken);
+    using HttpResponseMessage response = await httpClient
+      .SendAsync(message, cancellationToken)
+      .ConfigureAwait(false);
 
     if (response.StatusCode == HttpStatusCode.NotFound)
     {
@@ -90,8 +100,12 @@ public class ApiClient(HttpClient httpClient) : IApiClient
       return default;
     }
 
-    await using Stream contentStream = await response.Content.ReadAsStreamAsync(cancellationToken);
-    return await JsonSerializer.DeserializeAsync<T>(contentStream, JsonOptions, cancellationToken);
+    await using Stream contentStream = await response.Content
+      .ReadAsStreamAsync(cancellationToken)
+      .ConfigureAwait(false);
+    return await JsonSerializer
+      .DeserializeAsync<T>(contentStream, JsonOptions, cancellationToken)
+      .ConfigureAwait(false);
   }
 
   private static bool IsContentEmpty(HttpContentHeaders headers)

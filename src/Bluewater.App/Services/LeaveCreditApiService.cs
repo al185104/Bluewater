@@ -17,7 +17,9 @@ public class LeaveCreditApiService(IApiClient apiClient) : ILeaveCreditApiServic
   {
     string requestUri = BuildRequestUri(skip, take);
 
-    LeaveCreditListResponseDto? response = await apiClient.GetAsync<LeaveCreditListResponseDto>(requestUri, cancellationToken);
+    LeaveCreditListResponseDto? response = await apiClient
+      .GetAsync<LeaveCreditListResponseDto>(requestUri, cancellationToken)
+      .ConfigureAwait(false);
 
     if (response?.LeaveCredits is not { Count: > 0 })
     {
