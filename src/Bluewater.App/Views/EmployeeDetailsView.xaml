@@ -154,8 +154,11 @@
                                                                 <VerticalStackLayout Spacing="4">
                                                                         <Label Text="Position"
                                                                                    Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding Position}"
-                                                                               Placeholder="Position" />
+                                                                        <Picker x:Name="PositionPicker"
+                                                                                ItemsSource="{Binding Source={x:Reference RootView}, Path=Positions}"
+                                                                                ItemDisplayBinding="{Binding Name}"
+                                                                                Title="Select position"
+                                                                                SelectedIndexChanged="OnPositionPickerSelectedIndexChanged" />
                                                                 </VerticalStackLayout>
                                                                 <VerticalStackLayout Grid.Column="1"
                                                                                                          Spacing="4">
@@ -177,16 +180,35 @@
                                                                                                          Spacing="4">
                                                                         <Label Text="Type"
                                                                                    Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Entry Text="{Binding Type}"
-                                                                               Placeholder="Type" />
+                                                                        <Picker x:Name="TypePicker"
+                                                                                ItemsSource="{Binding Source={x:Reference RootView}, Path=EmployeeTypes}"
+                                                                                ItemDisplayBinding="{Binding Name}"
+                                                                                Title="Select type"
+                                                                                SelectedIndexChanged="OnTypePickerSelectedIndexChanged" />
                                                                 </VerticalStackLayout>
                                                         </Grid>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Level"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding Level}"
-                                                                       Placeholder="Level" />
-                                                        </VerticalStackLayout>
+                                                        <Grid ColumnDefinitions="*,*"
+                                                                  ColumnSpacing="12">
+                                                                <VerticalStackLayout Spacing="4">
+                                                                        <Label Text="Level"
+                                                                                   Style="{StaticResource CaptionTextStyle}" />
+                                                                        <Picker x:Name="LevelPicker"
+                                                                                ItemsSource="{Binding Source={x:Reference RootView}, Path=Levels}"
+                                                                                ItemDisplayBinding="{Binding Name}"
+                                                                                Title="Select level"
+                                                                                SelectedIndexChanged="OnLevelPickerSelectedIndexChanged" />
+                                                                </VerticalStackLayout>
+                                                                <VerticalStackLayout Grid.Column="1"
+                                                                                                         Spacing="4">
+                                                                        <Label Text="Charging"
+                                                                                   Style="{StaticResource CaptionTextStyle}" />
+                                                                        <Picker x:Name="ChargingPicker"
+                                                                                ItemsSource="{Binding Source={x:Reference RootView}, Path=Chargings}"
+                                                                                ItemDisplayBinding="{Binding Name}"
+                                                                                Title="Select charging"
+                                                                                SelectedIndexChanged="OnChargingPickerSelectedIndexChanged" />
+                                                                </VerticalStackLayout>
+                                                        </Grid>
                                                         <VerticalStackLayout Spacing="4">
                                                                 <Label Text="Image URL"
                                                                            Style="{StaticResource CaptionTextStyle}" />
