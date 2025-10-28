@@ -388,4 +388,128 @@ public partial class EditableEmployee : ObservableObject
       RowIndex = rowIndex
     };
   }
+
+  public UpdateEmployeeRequestDto ToUpdateRequest(EmployeeSummary existingSummary)
+  {
+    if (existingSummary is null)
+    {
+      throw new ArgumentNullException(nameof(existingSummary));
+    }
+
+    Guid userId = UserId ?? existingSummary.UserId ?? throw new InvalidOperationException("UserId is required to update an employee.");
+    Guid positionId = PositionId ?? existingSummary.PositionId ?? throw new InvalidOperationException("PositionId is required to update an employee.");
+    Guid payId = PayId ?? existingSummary.PayId ?? throw new InvalidOperationException("PayId is required to update an employee.");
+    Guid typeId = TypeId ?? existingSummary.TypeId ?? throw new InvalidOperationException("TypeId is required to update an employee.");
+    Guid levelId = LevelId ?? existingSummary.LevelId ?? throw new InvalidOperationException("LevelId is required to update an employee.");
+    Guid chargingId = ChargingId ?? existingSummary.ChargingId ?? throw new InvalidOperationException("ChargingId is required to update an employee.");
+
+    return new UpdateEmployeeRequestDto
+    {
+      Id = Id,
+      FirstName = FirstName,
+      LastName = LastName,
+      MiddleName = MiddleName,
+      DateOfBirth = DateOfBirth,
+      Gender = Gender,
+      CivilStatus = CivilStatus,
+      BloodType = BloodType,
+      Status = Status,
+      Height = Height,
+      Weight = Weight,
+      Image = ConvertImageToBytes(Image),
+      Remarks = Remarks,
+      MealCredits = MealCredits,
+      Tenant = Tenant,
+      ContactInfo = CreateContactInfoRequest(),
+      EducationInfo = CreateEducationInfoRequest(),
+      EmploymentInfo = CreateEmploymentInfoRequest(),
+      UserId = userId,
+      PositionId = positionId,
+      PayId = payId,
+      TypeId = typeId,
+      LevelId = levelId,
+      ChargingId = chargingId
+    };
+
+    UpdateEmployeeContactInfoDto? CreateContactInfoRequest()
+    {
+      UpdateEmployeeContactInfoDto contactInfo = new()
+      {
+        Email = Email,
+        TelNumber = TelNumber,
+        MobileNumber = MobileNumber,
+        Address = Address,
+        ProvincialAddress = ProvincialAddress,
+        MothersMaidenName = MothersMaidenName,
+        FathersName = FathersName,
+        EmergencyContact = EmergencyContact,
+        RelationshipContact = RelationshipContact,
+        AddressContact = AddressContact,
+        TelNoContact = TelNoContact,
+        MobileNoContact = MobileNoContact
+      };
+
+      return IsContactInfoEmpty(contactInfo) ? null : contactInfo;
+    }
+
+    UpdateEmployeeEducationInfoDto CreateEducationInfoRequest()
+    {
+      return new UpdateEmployeeEducationInfoDto
+      {
+        EducationalAttainment = EducationalAttainment,
+        CourseGraduated = CourseGraduated,
+        UniversityGraduated = UniversityGraduated
+      };
+    }
+
+    UpdateEmployeeEmploymentInfoDto CreateEmploymentInfoRequest()
+    {
+      return new UpdateEmployeeEmploymentInfoDto
+      {
+        DateHired = DateHired,
+        DateRegularized = DateRegularized,
+        DateResigned = DateResigned,
+        DateTerminated = DateTerminated,
+        TinNo = TinNo,
+        SssNo = SssNo,
+        HdmfNo = HdmfNo,
+        PhicNo = PhicNo,
+        BankAccount = BankAccount,
+        HasServiceCharge = HasServiceCharge
+      };
+    }
+  }
+
+  private static byte[]? ConvertImageToBytes(string? image)
+  {
+    if (string.IsNullOrWhiteSpace(image))
+    {
+      return null;
+    }
+
+    try
+    {
+      return Convert.FromBase64String(image);
+    }
+    catch (FormatException)
+    {
+      return null;
+    }
+  }
+
+  private static bool IsContactInfoEmpty(UpdateEmployeeContactInfoDto contactInfo)
+  {
+    return string.IsNullOrWhiteSpace(contactInfo.Email)
+      && string.IsNullOrWhiteSpace(contactInfo.TelNumber)
+      && string.IsNullOrWhiteSpace(contactInfo.MobileNumber)
+      && string.IsNullOrWhiteSpace(contactInfo.Address)
+      && string.IsNullOrWhiteSpace(contactInfo.ProvincialAddress)
+      && string.IsNullOrWhiteSpace(contactInfo.MothersMaidenName)
+      && string.IsNullOrWhiteSpace(contactInfo.FathersName)
+      && string.IsNullOrWhiteSpace(contactInfo.EmergencyContact)
+      && string.IsNullOrWhiteSpace(contactInfo.RelationshipContact)
+      && string.IsNullOrWhiteSpace(contactInfo.AddressContact)
+      && string.IsNullOrWhiteSpace(contactInfo.TelNoContact)
+      && string.IsNullOrWhiteSpace(contactInfo.MobileNoContact);
+  }
 }

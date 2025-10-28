@@ -8,4 +8,9 @@ public interface IEmployeeApiService
     int? skip = null,
     int? take = null,
     CancellationToken cancellationToken = default);
+
+  Task<EmployeeSummary?> UpdateEmployeeAsync(
+    UpdateEmployeeRequestDto request,
+    EmployeeSummary existingSummary,
+    CancellationToken cancellationToken = default);
 }

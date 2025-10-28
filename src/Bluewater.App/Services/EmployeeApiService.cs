@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.Core.UserAggregate.Enum;
@@ -27,6 +29,23 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
       .Where(dto => dto is not null)
       .Select(MapToSummary)
       .ToList();
+  }
+
+  public async Task<EmployeeSummary?> UpdateEmployeeAsync(
+    UpdateEmployeeRequestDto request,
+    EmployeeSummary existingSummary,
+    CancellationToken cancellationToken = default)
+  {
+    UpdateEmployeeResponseDto? response = await apiClient
+      .PutAsync<UpdateEmployeeRequestDto, UpdateEmployeeResponseDto>(UpdateEmployeeRequestDto.Route, request, cancellationToken)
+      .ConfigureAwait(false);
+
+    if (response?.Employee is null)
+    {
+      return null;
+    }
+
+    return MapUpdatedEmployee(response.Employee, request, existingSummary);
   }
 
   private static string BuildRequestUri(int? skip, int? take)
@@ -150,4 +169,116 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
     };
   }
 
+  private static EmployeeSummary MapUpdatedEmployee(EmployeeRecordDto record, UpdateEmployeeRequestDto request, EmployeeSummary existingSummary)
+  {
+    ContactInfoSummary contactInfo = record.ContactInfo is null
+      ? existingSummary.ContactInfo
+      : new ContactInfoSummary
+      {
+        Email = record.ContactInfo.Email,
+        TelNumber = record.ContactInfo.TelNumber,
+        MobileNumber = record.ContactInfo.MobileNumber,
+        Address = record.ContactInfo.Address,
+        ProvincialAddress = record.ContactInfo.ProvincialAddress,
+        MothersMaidenName = record.ContactInfo.MothersMaidenName,
+        FathersName = record.ContactInfo.FathersName,
+        EmergencyContact = record.ContactInfo.EmergencyContact,
+        RelationshipContact = record.ContactInfo.RelationshipContact,
+        AddressContact = record.ContactInfo.AddressContact,
+        TelNoContact = record.ContactInfo.TelNoContact,
+        MobileNoContact = record.ContactInfo.MobileNoContact
+      };
+
+    EducationInfoSummary educationInfo = record.EducationInfo is null
+      ? existingSummary.EducationInfo
+      : new EducationInfoSummary
+      {
+        EducationalAttainment = record.EducationInfo.EducationalAttainment,
+        CourseGraduated = record.EducationInfo.CourseGraduated,
+        UniversityGraduated = record.EducationInfo.UniversityGraduated
+      };
+
+    EmploymentInfoSummary employmentInfo = record.EmploymentInfo is null
+      ? existingSummary.EmploymentInfo
+      : new EmploymentInfoSummary
+      {
+        DateHired = record.EmploymentInfo.DateHired,
+        DateRegularized = record.EmploymentInfo.DateRegularized,
+        DateResigned = record.EmploymentInfo.DateResigned,
+        DateTerminated = record.EmploymentInfo.DateTerminated,
+        TinNo = record.EmploymentInfo.TinNo,
+        SssNo = record.EmploymentInfo.SssNo,
+        HdmfNo = record.EmploymentInfo.HdmfNo,
+        PhicNo = record.EmploymentInfo.PhicNo,
+        BankAccount = record.EmploymentInfo.BankAccount,
+        HasServiceCharge = record.EmploymentInfo.HasServiceCharge
+      };
+
+    UserSummary user = record.User is null
+      ? existingSummary.User
+      : new UserSummary
+      {
+        Username = record.User.Username,
+        PasswordHash = record.User.PasswordHash,
+        Credential = record.User.Credential,
+        SupervisedGroup = record.User.SupervisedGroup,
+        IsGlobalSupervisor = record.User.IsGlobalSupervisor
+      };
+
+    PaySummary pay = record.Pay is null
+      ? existingSummary.Pay
+      : new PaySummary
+      {
+        BasicPay = record.Pay.BasicPay ?? existingSummary.Pay.BasicPay,
+        DailyRate = record.Pay.DailyRate ?? existingSummary.Pay.DailyRate,
+        HourlyRate = record.Pay.HourlyRate ?? existingSummary.Pay.HourlyRate,
+        HdmfCon = record.Pay.HdmfEmployeeContribution ?? existingSummary.Pay.HdmfCon,
+        HdmfEr = record.Pay.HdmfEmployerContribution ?? existingSummary.Pay.HdmfEr
+      };
+
+    string? image = record.Image is { Length: > 0 }
+      ? Convert.ToBase64String(record.Image)
+      : existingSummary.Image;
+
+    return new EmployeeSummary
+    {
+      Id = record.Id,
+      FirstName = record.FirstName,
+      LastName = record.LastName,
+      MiddleName = record.MiddleName,
+      DateOfBirth = record.DateOfBirth,
+      Gender = record.Gender,
+      CivilStatus = record.CivilStatus,
+      BloodType = record.BloodType,
+      Status = record.Status,
+      Height = record.Height,
+      Weight = record.Weight,
+      Remarks = record.Remarks,
+      MealCredits = record.MealCredits,
+      Tenant = record.Tenant,
+      Department = record.Department ?? existingSummary.Department,
+      Section = record.Section ?? existingSummary.Section,
+      Position = record.Position ?? existingSummary.Position,
+      Type = record.Type ?? existingSummary.Type,
+      Level = record.Level ?? existingSummary.Level,
+      Image = image,
+      IsDeleted = existingSummary.IsDeleted,
+      UserId = request.UserId,
+      PositionId = request.PositionId,
+      PayId = request.PayId,
+      TypeId = request.TypeId,
+      LevelId = request.LevelId,
+      ChargingId = request.ChargingId,
+      CreatedDate = existingSummary.CreatedDate,
+      CreateBy = existingSummary.CreateBy,
+      UpdatedDate = existingSummary.UpdatedDate,
+      UpdateBy = existingSummary.UpdateBy,
+      ContactInfo = contactInfo,
+      EducationInfo = educationInfo,
+      EmploymentInfo = employmentInfo,
+      User = user,
+      Pay = pay,
+      RowIndex = existingSummary.RowIndex
+    };
+  }
 }
