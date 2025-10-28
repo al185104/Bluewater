@@ -45,6 +45,8 @@ public class EmployeeDto
   public Guid CreateBy { get; set; }
   public DateTime UpdatedDate { get; set; }
   public Guid UpdateBy { get; set; }
+  public UserDto? User { get; set; }
+  public PayDto? Pay { get; set; }
 }
 
 public class ContactInfoDto
@@ -82,4 +84,22 @@ public class EducationInfoDto
   public EducationalAttainment EducationalAttainment { get; set; }
   public string? CourseGraduated { get; set; }
   public string? UniversityGraduated { get; set; }
+}
+
+public class UserDto
+{
+  public string Username { get; set; } = string.Empty;
+  public string PasswordHash { get; set; } = string.Empty;
+  public string Credential { get; set; } = string.Empty;
+  public Guid? SupervisedGroup { get; set; }
+  public bool IsGlobalSupervisor { get; set; }
+}
+
+public class PayDto
+{
+  public decimal BasicPay { get; set; }
+  public decimal DailyRate { get; set; }
+  public decimal HourlyRate { get; set; }
+  public decimal HdmfCon { get; set; }
+  public decimal HdmfEr { get; set; }
 }

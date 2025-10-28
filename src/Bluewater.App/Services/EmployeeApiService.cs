@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
+using Bluewater.Core.UserAggregate.Enum;
 
 namespace Bluewater.App.Services;
 
@@ -125,7 +126,37 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
           PhicNo = dto.EmploymentInfo.PhicNo,
           BankAccount = dto.EmploymentInfo.BankAccount,
           HasServiceCharge = dto.EmploymentInfo.HasServiceCharge
+        },
+      User = dto.User is null
+        ? new UserSummary()
+        : new UserSummary
+        {
+          Username = dto.User.Username,
+          PasswordHash = dto.User.PasswordHash,
+          Credential = ParseCredential(dto.User.Credential),
+          SupervisedGroup = dto.User.SupervisedGroup,
+          IsGlobalSupervisor = dto.User.IsGlobalSupervisor
+        },
+      Pay = dto.Pay is null
+        ? new PaySummary()
+        : new PaySummary
+        {
+          BasicPay = dto.Pay.BasicPay,
+          DailyRate = dto.Pay.DailyRate,
+          HourlyRate = dto.Pay.HourlyRate,
+          HdmfCon = dto.Pay.HdmfCon,
+          HdmfEr = dto.Pay.HdmfEr
         }
     };
+  }
+
+  private static Credential ParseCredential(string? credential)
+  {
+    if (!string.IsNullOrWhiteSpace(credential) && Enum.TryParse<Credential>(credential, true, out Credential parsed))
+    {
+      return parsed;
+    }
+
+    return Credential.None;
   }
 }

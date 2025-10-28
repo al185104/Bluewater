@@ -398,6 +398,96 @@
                                                                 <Switch IsToggled="{Binding HasServiceCharge}" />
                                                         </HorizontalStackLayout>
                                                 </VerticalStackLayout>
+
+                                                <VerticalStackLayout Spacing="12">
+                                                        <Label Text="User Account"
+                                                                   FontAttributes="Bold"
+                                                                   Style="{StaticResource BodyTextStyle}" />
+                                                        <VerticalStackLayout Spacing="4">
+                                                                <Label Text="Username"
+                                                                           Style="{StaticResource CaptionTextStyle}" />
+                                                                <Entry Text="{Binding Username}"
+                                                                       Placeholder="Username"
+                                                                       Keyboard="Default" />
+                                                        </VerticalStackLayout>
+                                                        <VerticalStackLayout Spacing="4">
+                                                                <Label Text="Password hash"
+                                                                           Style="{StaticResource CaptionTextStyle}" />
+                                                                <Entry Text="{Binding PasswordHash}"
+                                                                       Placeholder="Password hash"
+                                                                       Keyboard="Default" />
+                                                        </VerticalStackLayout>
+                                                        <VerticalStackLayout Spacing="4">
+                                                                <Label Text="Credential"
+                                                                           Style="{StaticResource CaptionTextStyle}" />
+                                                                <Picker ItemsSource="{Binding CredentialOptions}"
+                                                                        SelectedItem="{Binding Credential}"
+                                                                        Title="Select credential" />
+                                                        </VerticalStackLayout>
+                                                        <VerticalStackLayout Spacing="4">
+                                                                <Label Text="Supervised group"
+                                                                           Style="{StaticResource CaptionTextStyle}" />
+                                                                <Entry Text="{Binding SupervisedGroup}"
+                                                                       Placeholder="Supervised group ID"
+                                                                       Keyboard="Default" />
+                                                        </VerticalStackLayout>
+                                                        <HorizontalStackLayout Spacing="12"
+                                                                              VerticalOptions="Center">
+                                                                <Label Text="Is global supervisor"
+                                                                           VerticalOptions="Center"
+                                                                           Style="{StaticResource CaptionTextStyle}" />
+                                                                <Switch IsToggled="{Binding IsGlobalSupervisor}" />
+                                                        </HorizontalStackLayout>
+                                                </VerticalStackLayout>
+
+                                                <VerticalStackLayout Spacing="12">
+                                                        <Label Text="Pay Details"
+                                                                   FontAttributes="Bold"
+                                                                   Style="{StaticResource BodyTextStyle}" />
+                                                        <Grid ColumnDefinitions="*,*"
+                                                              ColumnSpacing="12">
+                                                                <VerticalStackLayout Spacing="4">
+                                                                        <Label Text="Basic pay"
+                                                                                   Style="{StaticResource CaptionTextStyle}" />
+                                                                        <Entry Text="{Binding BasicPay}"
+                                                                               Placeholder="Basic pay"
+                                                                               Keyboard="Numeric" />
+                                                                </VerticalStackLayout>
+                                                                <VerticalStackLayout Grid.Column="1"
+                                                                                                         Spacing="4">
+                                                                        <Label Text="Daily rate"
+                                                                                   Style="{StaticResource CaptionTextStyle}" />
+                                                                        <Entry Text="{Binding DailyRate}"
+                                                                               Placeholder="Daily rate"
+                                                                               Keyboard="Numeric" />
+                                                                </VerticalStackLayout>
+                                                        </Grid>
+                                                        <Grid ColumnDefinitions="*,*"
+                                                              ColumnSpacing="12">
+                                                                <VerticalStackLayout Spacing="4">
+                                                                        <Label Text="Hourly rate"
+                                                                                   Style="{StaticResource CaptionTextStyle}" />
+                                                                        <Entry Text="{Binding HourlyRate}"
+                                                                               Placeholder="Hourly rate"
+                                                                               Keyboard="Numeric" />
+                                                                </VerticalStackLayout>
+                                                                <VerticalStackLayout Grid.Column="1"
+                                                                                                         Spacing="4">
+                                                                        <Label Text="HDMF contribution"
+                                                                                   Style="{StaticResource CaptionTextStyle}" />
+                                                                        <Entry Text="{Binding HdmfCon}"
+                                                                               Placeholder="HDMF contribution"
+                                                                               Keyboard="Numeric" />
+                                                                </VerticalStackLayout>
+                                                        </Grid>
+                                                        <VerticalStackLayout Spacing="4">
+                                                                <Label Text="HDMF employer share"
+                                                                           Style="{StaticResource CaptionTextStyle}" />
+                                                                <Entry Text="{Binding HdmfEr}"
+                                                                       Placeholder="HDMF employer share"
+                                                                       Keyboard="Numeric" />
+                                                        </VerticalStackLayout>
+                                                </VerticalStackLayout>
                                         </VerticalStackLayout>
                                 </ScrollView>
                         </Grid>

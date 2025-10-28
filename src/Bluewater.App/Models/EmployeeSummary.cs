@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using Bluewater.Core.EmployeeAggregate.Enum;
+using Bluewater.Core.UserAggregate.Enum;
 
 namespace Bluewater.App.Models;
 
@@ -40,6 +41,8 @@ public class EmployeeSummary : IRowIndexed
   public ContactInfoSummary ContactInfo { get; init; } = new();
   public EducationInfoSummary EducationInfo { get; init; } = new();
   public EmploymentInfoSummary EmploymentInfo { get; init; } = new();
+  public UserSummary User { get; init; } = new();
+  public PaySummary Pay { get; init; } = new();
   public int RowIndex { get; set; }
 
   public string FullName
@@ -127,4 +130,22 @@ public record class EmploymentInfoSummary
   public string? PhicNo { get; init; }
   public string? BankAccount { get; init; }
   public bool HasServiceCharge { get; init; }
+}
+
+public record class UserSummary
+{
+  public string Username { get; init; } = string.Empty;
+  public string PasswordHash { get; init; } = string.Empty;
+  public Credential Credential { get; init; } = Credential.None;
+  public Guid? SupervisedGroup { get; init; }
+  public bool IsGlobalSupervisor { get; init; }
+}
+
+public record class PaySummary
+{
+  public decimal BasicPay { get; init; }
+  public decimal DailyRate { get; init; }
+  public decimal HourlyRate { get; init; }
+  public decimal HdmfCon { get; init; }
+  public decimal HdmfEr { get; init; }
 }
