@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -37,19 +34,7 @@ public partial class EmployeeViewModel : BaseViewModel
 				this.employeeApiService = employeeApiService;
 		}
 
-                public ObservableCollection<EmployeeSummary> Employees { get; } = new();
-
-                public ObservableCollection<EmployeeExternalOption> UserOptions { get; } = new();
-
-                public ObservableCollection<EmployeeExternalOption> PositionOptions { get; } = new();
-
-                public ObservableCollection<EmployeeExternalOption> PayOptions { get; } = new();
-
-                public ObservableCollection<EmployeeExternalOption> TypeOptions { get; } = new();
-
-                public ObservableCollection<EmployeeExternalOption> LevelOptions { get; } = new();
-
-                public ObservableCollection<EmployeeExternalOption> ChargingOptions { get; } = new();
+		public ObservableCollection<EmployeeSummary> Employees { get; } = new();
 
 		[RelayCommand]
 		private async Task EditEmployeeAsync(EmployeeSummary? employee)
@@ -59,8 +44,7 @@ public partial class EmployeeViewModel : BaseViewModel
 						return;
 				}
 
-                                EditableEmployee = EditableEmployee.FromSummary(employee);
-                                ApplySelectedExternalOptions(EditableEmployee);
+				EditableEmployee = EditableEmployee.FromSummary(employee);
 				EditorTitle = $"Edit {EditableEmployee.FullName}";
 				EditorPrimaryActionText = "Update Employee";
 				IsEditorOpen = true;
@@ -85,9 +69,8 @@ public partial class EmployeeViewModel : BaseViewModel
 				}
 
 				int index = Employees.IndexOf(existing);
-                                EmployeeSummary updated = EditableEmployee.ToSummary(existing.RowIndex);
-                                Employees[index] = updated;
-                                UpdateExternalOptions();
+				EmployeeSummary updated = EditableEmployee.ToSummary(existing.RowIndex);
+				Employees[index] = updated;
 
 				CloseEditor();
 		}
@@ -102,113 +85,20 @@ public partial class EmployeeViewModel : BaseViewModel
 		}
 
 		[RelayCommand]
-                private async Task DeleteEmployeeAsync(EmployeeSummary? employee)
-                {
-                                if (employee is null)
-                                {
-                                                return;
-                                }
+		private async Task DeleteEmployeeAsync(EmployeeSummary? employee)
+		{
+				if (employee is null)
+				{
+						return;
+				}
 
-                                await TraceCommandAsync(nameof(DeleteEmployeeAsync), employee.Id);
-                }
+				await TraceCommandAsync(nameof(DeleteEmployeeAsync), employee.Id);
+		}
 
-                private void UpdateExternalOptions()
-                {
-                                PopulateOptions(UserOptions, Employees.Select(e => (e.UserId, e.FullName)), "User");
-                                PopulateOptions(PositionOptions, Employees.Select(e => (e.PositionId, e.Position)), "Position");
-                                PopulateOptions(PayOptions, Employees.Select(e => (e.PayId, e.PayId?.ToString())), "Pay");
-                                PopulateOptions(TypeOptions, Employees.Select(e => (e.TypeId, e.Type)), "Type");
-                                PopulateOptions(LevelOptions, Employees.Select(e => (e.LevelId, e.Level)), "Level");
-                                PopulateOptions(ChargingOptions, Employees.Select(e => (e.ChargingId, e.ChargingId?.ToString())), "Charging");
-
-                                if (EditableEmployee is not null)
-                                {
-                                                ApplySelectedExternalOptions(EditableEmployee);
-                                }
-                }
-
-                private void ApplySelectedExternalOptions(EditableEmployee employee)
-                {
-                                employee.SelectedPositionOption = FindOption(PositionOptions, employee.PositionId, employee.Position);
-                                employee.SelectedTypeOption = FindOption(TypeOptions, employee.TypeId, employee.Type);
-                                employee.SelectedLevelOption = FindOption(LevelOptions, employee.LevelId, employee.Level);
-                                employee.SelectedChargingOption = FindOption(ChargingOptions, employee.ChargingId, null);
-                }
-
-                private static EmployeeExternalOption? FindOption(IEnumerable<EmployeeExternalOption> options, Guid? id, string? label)
-                {
-                                if (id.HasValue)
-                                {
-                                                EmployeeExternalOption? matchById = options.FirstOrDefault(option => option.Id == id);
-
-                                                if (matchById is not null)
-                                                {
-                                                                return matchById;
-                                                }
-                                }
-
-                                if (!string.IsNullOrWhiteSpace(label))
-                                {
-                                                EmployeeExternalOption? matchByLabel = options.FirstOrDefault(option => string.Equals(option.Label, label, StringComparison.OrdinalIgnoreCase));
-
-                                                if (matchByLabel is not null)
-                                                {
-                                                                return matchByLabel;
-                                                }
-                                }
-
-                                return options.FirstOrDefault(option => option.IsPlaceholder);
-                }
-
-                private static void PopulateOptions(
-                                ObservableCollection<EmployeeExternalOption> target,
-                                IEnumerable<(Guid? Id, string? Label)> source,
-                                string placeholderLabel)
-                {
-                                List<EmployeeExternalOption> items = new();
-                                HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
-
-                                foreach ((Guid? Id, string? Label) entry in source)
-                                {
-                                                if (entry.Id is null && string.IsNullOrWhiteSpace(entry.Label))
-                                                {
-                                                                continue;
-                                                }
-
-                                                string display = !string.IsNullOrWhiteSpace(entry.Label)
-                                                        ? entry.Label!.Trim()
-                                                        : entry.Id?.ToString() ?? string.Empty;
-
-                                                if (string.IsNullOrWhiteSpace(display))
-                                                {
-                                                                continue;
-                                                }
-
-                                                string key = entry.Id?.ToString() ?? display;
-
-                                                if (!seen.Add(key))
-                                                {
-                                                                continue;
-                                                }
-
-                                                items.Add(new EmployeeExternalOption(entry.Id, display));
-                                }
-
-                                items.Sort((left, right) => string.Compare(left.Label, right.Label, StringComparison.OrdinalIgnoreCase));
-
-                                target.Clear();
-                                target.Add(EmployeeExternalOption.CreateEmpty($"Select {placeholderLabel}"));
-
-                                foreach (EmployeeExternalOption option in items)
-                                {
-                                                target.Add(option);
-                                }
-                }
-
-                public override async Task InitializeAsync()
-                {
-                                if (IsBusy || hasInitialized)
-                                {
+		public override async Task InitializeAsync()
+		{
+				if (IsBusy || hasInitialized)
+				{
 						return;
 				}
 
@@ -220,17 +110,15 @@ public partial class EmployeeViewModel : BaseViewModel
 
 						int index = 0;
 
-                                                foreach (EmployeeSummary employee in employees
-                                                        .OrderBy(e => e.LastName ?? string.Empty)
-                                                        .ThenBy(e => e.FirstName ?? string.Empty))
-                                                {
-                                                                employee.RowIndex = index++;
-                                                                Employees.Add(employee);
-                                                }
+						foreach (EmployeeSummary employee in employees
+							.OrderBy(e => e.LastName ?? string.Empty)
+							.ThenBy(e => e.FirstName ?? string.Empty))
+						{
+								employee.RowIndex = index++;
+								Employees.Add(employee);
+						}
 
-                                                UpdateExternalOptions();
-
-                                                hasInitialized = true;
+						hasInitialized = true;
 				}
 				catch (Exception ex)
 				{

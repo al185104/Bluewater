@@ -154,10 +154,8 @@
                                                                 <VerticalStackLayout Spacing="4">
                                                                         <Label Text="Position"
                                                                                    Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Picker ItemsSource="{Binding Source={x:Reference RootView}, Path=PositionOptions}"
-                                                                                SelectedItem="{Binding SelectedPositionOption}"
-                                                                                ItemDisplayBinding="{Binding Label}"
-                                                                                Title="Select position" />
+                                                                        <Entry Text="{Binding Position}"
+                                                                               Placeholder="Position" />
                                                                 </VerticalStackLayout>
                                                                 <VerticalStackLayout Grid.Column="1"
                                                                                                          Spacing="4">
@@ -179,27 +177,15 @@
                                                                                                          Spacing="4">
                                                                         <Label Text="Type"
                                                                                    Style="{StaticResource CaptionTextStyle}" />
-                                                                        <Picker ItemsSource="{Binding Source={x:Reference RootView}, Path=TypeOptions}"
-                                                                                SelectedItem="{Binding SelectedTypeOption}"
-                                                                                ItemDisplayBinding="{Binding Label}"
-                                                                                Title="Select type" />
+                                                                        <Entry Text="{Binding Type}"
+                                                                               Placeholder="Type" />
                                                                 </VerticalStackLayout>
                                                         </Grid>
                                                         <VerticalStackLayout Spacing="4">
                                                                 <Label Text="Level"
                                                                            Style="{StaticResource CaptionTextStyle}" />
-                                                                <Picker ItemsSource="{Binding Source={x:Reference RootView}, Path=LevelOptions}"
-                                                                        SelectedItem="{Binding SelectedLevelOption}"
-                                                                        ItemDisplayBinding="{Binding Label}"
-                                                                        Title="Select level" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Charging"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Picker ItemsSource="{Binding Source={x:Reference RootView}, Path=ChargingOptions}"
-                                                                        SelectedItem="{Binding SelectedChargingOption}"
-                                                                        ItemDisplayBinding="{Binding Label}"
-                                                                        Title="Select charging" />
+                                                                <Entry Text="{Binding Level}"
+                                                                       Placeholder="Level" />
                                                         </VerticalStackLayout>
                                                         <VerticalStackLayout Spacing="4">
                                                                 <Label Text="Image URL"
@@ -404,53 +390,6 @@
                                                                            Style="{StaticResource CaptionTextStyle}" />
                                                                 <Switch IsToggled="{Binding HasServiceCharge}" />
                                                         </HorizontalStackLayout>
-                                                </VerticalStackLayout>
-                                                <VerticalStackLayout Spacing="12">
-                                                        <Label Text="External Keys"
-                                                                   FontAttributes="Bold"
-                                                                   Style="{StaticResource BodyTextStyle}" />
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="User ID"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding UserIdText}"
-                                                                       Placeholder="User identifier (GUID)"
-                                                                       Keyboard="Plain" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Position ID"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding PositionIdText}"
-                                                                       Placeholder="Position identifier (GUID)"
-                                                                       Keyboard="Plain" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Pay ID"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding PayIdText}"
-                                                                       Placeholder="Pay identifier (GUID)"
-                                                                       Keyboard="Plain" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Type ID"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding TypeIdText}"
-                                                                       Placeholder="Type identifier (GUID)"
-                                                                       Keyboard="Plain" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Level ID"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding LevelIdText}"
-                                                                       Placeholder="Level identifier (GUID)"
-                                                                       Keyboard="Plain" />
-                                                        </VerticalStackLayout>
-                                                        <VerticalStackLayout Spacing="4">
-                                                                <Label Text="Charging ID"
-                                                                           Style="{StaticResource CaptionTextStyle}" />
-                                                                <Entry Text="{Binding ChargingIdText}"
-                                                                       Placeholder="Charging identifier (GUID)"
-                                                                       Keyboard="Plain" />
-                                                        </VerticalStackLayout>
                                                 </VerticalStackLayout>
                                         </VerticalStackLayout>
                                 </ScrollView>
