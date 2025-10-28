@@ -62,12 +62,17 @@ public static class MauiProgram
     builder.Services.AddSingleton<IPositionApiService, PositionApiService>();
     builder.Services.AddSingleton<ISectionApiService, SectionApiService>();
     builder.Services.AddSingleton<IChargingApiService, ChargingApiService>();
+    builder.Services.AddSingleton<IHolidayApiService, HolidayApiService>();
+    builder.Services.AddSingleton<IEmployeeTypeApiService, EmployeeTypeApiService>();
+    builder.Services.AddSingleton<ILevelApiService, LevelApiService>();
+    builder.Services.AddSingleton<ILeaveCreditApiService, LeaveCreditApiService>();
     builder.Services.AddSingleton<ILeaveApiService, LeaveApiService>();
     builder.Services.AddSingleton<IAttendanceApiService, AttendanceApiService>();
     builder.Services.AddSingleton<IPayrollApiService, PayrollApiService>();
     builder.Services.AddSingleton<IScheduleApiService, ScheduleApiService>();
     builder.Services.AddSingleton<IActivityTraceService, ActivityTraceService>();
     builder.Services.AddSingleton<IExceptionHandlingService, ExceptionHandlingService>();
+    builder.Services.AddSingleton<IReferenceDataService, ReferenceDataService>();
 
     builder.Services.AddSingleton<AppShell>();
 
@@ -105,6 +110,9 @@ public static class MauiProgram
 
     IExceptionHandlingService exceptionHandlingService = app.Services.GetRequiredService<IExceptionHandlingService>();
     exceptionHandlingService.Initialize();
+
+    IReferenceDataService referenceDataService = app.Services.GetRequiredService<IReferenceDataService>();
+    referenceDataService.InitializeAsync().GetAwaiter().GetResult();
 
     return app;
   }
