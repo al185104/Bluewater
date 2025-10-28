@@ -16,6 +16,8 @@ public partial class App : Application
     this.serviceProvider = serviceProvider;
   }
 
+  public IServiceProvider Services => serviceProvider;
+
   protected override Window CreateWindow(IActivationState? activationState)
   {
     var window = new Window(serviceProvider.GetRequiredService<AppShell>());
