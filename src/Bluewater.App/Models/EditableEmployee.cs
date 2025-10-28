@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bluewater.Core.EmployeeAggregate.Enum;
+using Bluewater.Core.UserAggregate.Enum;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Bluewater.App.Models;
@@ -175,12 +176,43 @@ public partial class EditableEmployee : ObservableObject
   [ObservableProperty]
   public partial bool HasServiceCharge { get; set; }
 
+  [ObservableProperty]
+  public partial string Username { get; set; } = string.Empty;
+
+  [ObservableProperty]
+  public partial string PasswordHash { get; set; } = string.Empty;
+
+  [ObservableProperty]
+  public partial Credential Credential { get; set; } = Credential.None;
+
+  [ObservableProperty]
+  public partial bool IsGlobalSupervisor { get; set; }
+
+  [ObservableProperty]
+  public partial decimal? BasicPay { get; set; }
+
+  [ObservableProperty]
+  public partial decimal? DailyRate { get; set; }
+
+  [ObservableProperty]
+  public partial decimal? HourlyRate { get; set; }
+
+  [ObservableProperty]
+  public partial decimal? HdmfCon { get; set; }
+
+  [ObservableProperty]
+  public partial decimal? HdmfEr { get; set; }
+
+  [ObservableProperty]
+  public partial string? SupervisedGroup { get; set; }
+
   public IReadOnlyList<Gender> GenderOptions { get; } = Enum.GetValues<Gender>();
   public IReadOnlyList<CivilStatus> CivilStatusOptions { get; } = Enum.GetValues<CivilStatus>();
   public IReadOnlyList<BloodType> BloodTypeOptions { get; } = Enum.GetValues<BloodType>();
   public IReadOnlyList<Status> StatusOptions { get; } = Enum.GetValues<Status>();
   public IReadOnlyList<Tenant> TenantOptions { get; } = Enum.GetValues<Tenant>();
   public IReadOnlyList<EducationalAttainment> EducationalAttainmentOptions { get; } = Enum.GetValues<EducationalAttainment>();
+  public IReadOnlyList<Credential> CredentialOptions { get; } = Enum.GetValues<Credential>();
 
   public string FullName
   {
@@ -250,12 +282,26 @@ public partial class EditableEmployee : ObservableObject
       HdmfNo = summary.EmploymentInfo.HdmfNo,
       PhicNo = summary.EmploymentInfo.PhicNo,
       BankAccount = summary.EmploymentInfo.BankAccount,
-      HasServiceCharge = summary.EmploymentInfo.HasServiceCharge
+      HasServiceCharge = summary.EmploymentInfo.HasServiceCharge,
+      Username = summary.User.Username,
+      PasswordHash = summary.User.PasswordHash,
+      Credential = summary.User.Credential,
+      SupervisedGroup = summary.User.SupervisedGroup?.ToString(),
+      IsGlobalSupervisor = summary.User.IsGlobalSupervisor,
+      BasicPay = summary.Pay.BasicPay,
+      DailyRate = summary.Pay.DailyRate,
+      HourlyRate = summary.Pay.HourlyRate,
+      HdmfCon = summary.Pay.HdmfCon,
+      HdmfEr = summary.Pay.HdmfEr
     };
   }
 
   public EmployeeSummary ToSummary(int rowIndex)
   {
+    Guid? supervisedGroupId = Guid.TryParse(SupervisedGroup, out Guid parsedSupervisedGroup)
+      ? parsedSupervisedGroup
+      : null;
+
     return new EmployeeSummary
     {
       Id = Id,
@@ -322,6 +368,22 @@ public partial class EditableEmployee : ObservableObject
         PhicNo = PhicNo,
         BankAccount = BankAccount,
         HasServiceCharge = HasServiceCharge
+      },
+      User = new UserSummary
+      {
+        Username = Username,
+        PasswordHash = PasswordHash,
+        Credential = Credential,
+        SupervisedGroup = supervisedGroupId,
+        IsGlobalSupervisor = IsGlobalSupervisor
+      },
+      Pay = new PaySummary
+      {
+        BasicPay = BasicPay ?? 0m,
+        DailyRate = DailyRate ?? 0m,
+        HourlyRate = HourlyRate ?? 0m,
+        HdmfCon = HdmfCon ?? 0m,
+        HdmfEr = HdmfEr ?? 0m
       },
       RowIndex = rowIndex
     };
