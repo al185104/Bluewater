@@ -17,7 +17,9 @@ public class HolidayApiService(IApiClient apiClient) : IHolidayApiService
   {
     string requestUri = BuildRequestUri(skip, take);
 
-    HolidayListResponseDto? response = await apiClient.GetAsync<HolidayListResponseDto>(requestUri, cancellationToken);
+    HolidayListResponseDto? response = await apiClient
+      .GetAsync<HolidayListResponseDto>(requestUri, cancellationToken)
+      .ConfigureAwait(false);
 
     if (response?.Holidays is not { Count: > 0 })
     {

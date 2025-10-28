@@ -15,7 +15,9 @@ public class DivisionApiService(IApiClient apiClient) : IDivisionApiService
   {
     string requestUri = BuildRequestUri(skip, take);
 
-    DivisionListResponseDto? response = await apiClient.GetAsync<DivisionListResponseDto>(requestUri, cancellationToken);
+    DivisionListResponseDto? response = await apiClient
+      .GetAsync<DivisionListResponseDto>(requestUri, cancellationToken)
+      .ConfigureAwait(false);
 
     if (response?.Divisions is not { Count: > 0 })
     {
@@ -35,7 +37,9 @@ public class DivisionApiService(IApiClient apiClient) : IDivisionApiService
       throw new ArgumentException("Division ID must be provided", nameof(divisionId));
     }
 
-    DivisionDto? dto = await apiClient.GetAsync<DivisionDto>($"Divisions/{divisionId}", cancellationToken);
+    DivisionDto? dto = await apiClient
+      .GetAsync<DivisionDto>($"Divisions/{divisionId}", cancellationToken)
+      .ConfigureAwait(false);
     return dto is null ? null : MapToSummary(dto);
   }
 
@@ -52,7 +56,9 @@ public class DivisionApiService(IApiClient apiClient) : IDivisionApiService
       Description = division.Description
     };
 
-    DivisionDto? response = await apiClient.PostAsync<CreateDivisionRequestDto, DivisionDto>("Divisions", request, cancellationToken);
+    DivisionDto? response = await apiClient
+      .PostAsync<CreateDivisionRequestDto, DivisionDto>("Divisions", request, cancellationToken)
+      .ConfigureAwait(false);
     return response is null ? null : MapToSummary(response);
   }
 
@@ -76,10 +82,12 @@ public class DivisionApiService(IApiClient apiClient) : IDivisionApiService
       Description = division.Description
     };
 
-    UpdateDivisionResponseDto? response = await apiClient.PutAsync<UpdateDivisionRequestDto, UpdateDivisionResponseDto>(
+    UpdateDivisionResponseDto? response = await apiClient
+      .PutAsync<UpdateDivisionRequestDto, UpdateDivisionResponseDto>(
       UpdateDivisionRequestDto.BuildRoute(division.Id),
       request,
-      cancellationToken);
+      cancellationToken)
+      .ConfigureAwait(false);
 
     return response?.Division is null ? null : MapToSummary(response.Division);
   }

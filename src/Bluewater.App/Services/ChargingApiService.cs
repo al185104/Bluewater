@@ -15,7 +15,9 @@ public class ChargingApiService(IApiClient apiClient) : IChargingApiService
   {
     string requestUri = BuildRequestUri(skip, take);
 
-    ChargingListResponseDto? response = await apiClient.GetAsync<ChargingListResponseDto>(requestUri, cancellationToken);
+    ChargingListResponseDto? response = await apiClient
+      .GetAsync<ChargingListResponseDto>(requestUri, cancellationToken)
+      .ConfigureAwait(false);
 
     if (response?.Chargings is not { Count: > 0 })
     {
@@ -35,7 +37,9 @@ public class ChargingApiService(IApiClient apiClient) : IChargingApiService
       throw new ArgumentException("Charging ID must be provided", nameof(chargingId));
     }
 
-    ChargingDto? dto = await apiClient.GetAsync<ChargingDto>($"Chargings/{chargingId}", cancellationToken);
+    ChargingDto? dto = await apiClient
+      .GetAsync<ChargingDto>($"Chargings/{chargingId}", cancellationToken)
+      .ConfigureAwait(false);
     return dto is null ? null : MapToSummary(dto);
   }
 
@@ -53,7 +57,9 @@ public class ChargingApiService(IApiClient apiClient) : IChargingApiService
       DepartmentId = charging.DepartmentId
     };
 
-    ChargingDto? response = await apiClient.PostAsync<CreateChargingRequestDto, ChargingDto>(CreateChargingRequestDto.Route, request, cancellationToken);
+    ChargingDto? response = await apiClient
+      .PostAsync<CreateChargingRequestDto, ChargingDto>(CreateChargingRequestDto.Route, request, cancellationToken)
+      .ConfigureAwait(false);
     return response is null ? null : MapToSummary(response);
   }
 
@@ -77,10 +83,12 @@ public class ChargingApiService(IApiClient apiClient) : IChargingApiService
       DepartmentId = charging.DepartmentId
     };
 
-    UpdateChargingResponseDto? response = await apiClient.PutAsync<UpdateChargingRequestDto, UpdateChargingResponseDto>(
+    UpdateChargingResponseDto? response = await apiClient
+      .PutAsync<UpdateChargingRequestDto, UpdateChargingResponseDto>(
       UpdateChargingRequestDto.Route,
       request,
-      cancellationToken);
+      cancellationToken)
+      .ConfigureAwait(false);
 
     return response?.Charging is null ? null : MapToSummary(response.Charging);
   }

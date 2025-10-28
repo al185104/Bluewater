@@ -15,7 +15,9 @@ public class SectionApiService(IApiClient apiClient) : ISectionApiService
   {
     string requestUri = BuildRequestUri(skip, take);
 
-    SectionListResponseDto? response = await apiClient.GetAsync<SectionListResponseDto>(requestUri, cancellationToken);
+    SectionListResponseDto? response = await apiClient
+      .GetAsync<SectionListResponseDto>(requestUri, cancellationToken)
+      .ConfigureAwait(false);
 
     if (response?.Sections is not { Count: > 0 })
     {
@@ -35,7 +37,9 @@ public class SectionApiService(IApiClient apiClient) : ISectionApiService
       throw new ArgumentException("Section ID must be provided", nameof(sectionId));
     }
 
-    SectionDto? dto = await apiClient.GetAsync<SectionDto>($"Sections/{sectionId}", cancellationToken);
+    SectionDto? dto = await apiClient
+      .GetAsync<SectionDto>($"Sections/{sectionId}", cancellationToken)
+      .ConfigureAwait(false);
     return dto is null ? null : MapToSummary(dto);
   }
 
@@ -56,7 +60,9 @@ public class SectionApiService(IApiClient apiClient) : ISectionApiService
       DepartmentId = section.DepartmentId
     };
 
-    SectionDto? response = await apiClient.PostAsync<CreateSectionRequestDto, SectionDto>("Sections", request, cancellationToken);
+    SectionDto? response = await apiClient
+      .PostAsync<CreateSectionRequestDto, SectionDto>("Sections", request, cancellationToken)
+      .ConfigureAwait(false);
     return response is null ? null : MapToSummary(response);
   }
 
@@ -84,10 +90,12 @@ public class SectionApiService(IApiClient apiClient) : ISectionApiService
       DepartmentId = section.DepartmentId
     };
 
-    UpdateSectionResponseDto? response = await apiClient.PutAsync<UpdateSectionRequestDto, UpdateSectionResponseDto>(
+    UpdateSectionResponseDto? response = await apiClient
+      .PutAsync<UpdateSectionRequestDto, UpdateSectionResponseDto>(
       UpdateSectionRequestDto.BuildRoute(section.Id),
       request,
-      cancellationToken);
+      cancellationToken)
+      .ConfigureAwait(false);
 
     return response?.Section is null ? null : MapToSummary(response.Section);
   }

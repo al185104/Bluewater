@@ -15,7 +15,9 @@ public class DepartmentApiService(IApiClient apiClient) : IDepartmentApiService
   {
     string requestUri = BuildRequestUri(skip, take);
 
-    DepartmentListResponseDto? response = await apiClient.GetAsync<DepartmentListResponseDto>(requestUri, cancellationToken);
+    DepartmentListResponseDto? response = await apiClient
+      .GetAsync<DepartmentListResponseDto>(requestUri, cancellationToken)
+      .ConfigureAwait(false);
 
     if (response?.Departments is not { Count: > 0 })
     {
@@ -35,7 +37,9 @@ public class DepartmentApiService(IApiClient apiClient) : IDepartmentApiService
       throw new ArgumentException("Department ID must be provided", nameof(departmentId));
     }
 
-    DepartmentDto? dto = await apiClient.GetAsync<DepartmentDto>($"Departments/{departmentId}", cancellationToken);
+    DepartmentDto? dto = await apiClient
+      .GetAsync<DepartmentDto>($"Departments/{departmentId}", cancellationToken)
+      .ConfigureAwait(false);
     return dto is null ? null : MapToSummary(dto);
   }
 
@@ -53,7 +57,9 @@ public class DepartmentApiService(IApiClient apiClient) : IDepartmentApiService
       DivisionId = department.DivisionId
     };
 
-    DepartmentDto? response = await apiClient.PostAsync<CreateDepartmentRequestDto, DepartmentDto>("Departments", request, cancellationToken);
+    DepartmentDto? response = await apiClient
+      .PostAsync<CreateDepartmentRequestDto, DepartmentDto>("Departments", request, cancellationToken)
+      .ConfigureAwait(false);
 
     return response is null ? null : MapToSummary(response);
   }
@@ -79,10 +85,12 @@ public class DepartmentApiService(IApiClient apiClient) : IDepartmentApiService
       DivisionId = department.DivisionId
     };
 
-    UpdateDepartmentResponseDto? response = await apiClient.PutAsync<UpdateDepartmentRequestDto, UpdateDepartmentResponseDto>(
+    UpdateDepartmentResponseDto? response = await apiClient
+      .PutAsync<UpdateDepartmentRequestDto, UpdateDepartmentResponseDto>(
       UpdateDepartmentRequestDto.BuildRoute(department.Id),
       request,
-      cancellationToken);
+      cancellationToken)
+      .ConfigureAwait(false);
 
     return response?.Department is null ? null : MapToSummary(response.Department);
   }

@@ -15,7 +15,9 @@ public class PositionApiService(IApiClient apiClient) : IPositionApiService
   {
     string requestUri = BuildRequestUri(skip, take);
 
-    PositionListResponseDto? response = await apiClient.GetAsync<PositionListResponseDto>(requestUri, cancellationToken);
+    PositionListResponseDto? response = await apiClient
+      .GetAsync<PositionListResponseDto>(requestUri, cancellationToken)
+      .ConfigureAwait(false);
 
     if (response?.Positions is not { Count: > 0 })
     {
@@ -36,7 +38,9 @@ public class PositionApiService(IApiClient apiClient) : IPositionApiService
       throw new ArgumentException("Position ID must be provided", nameof(positionId));
     }
 
-    PositionDto? dto = await apiClient.GetAsync<PositionDto>($"Positions/{positionId}", cancellationToken);
+    PositionDto? dto = await apiClient
+      .GetAsync<PositionDto>($"Positions/{positionId}", cancellationToken)
+      .ConfigureAwait(false);
     return dto is null ? null : MapToSummary(dto);
   }
 
@@ -54,7 +58,9 @@ public class PositionApiService(IApiClient apiClient) : IPositionApiService
       SectionId = position.SectionId
     };
 
-    PositionDto? response = await apiClient.PostAsync<CreatePositionRequestDto, PositionDto>("Positions", request, cancellationToken);
+    PositionDto? response = await apiClient
+      .PostAsync<CreatePositionRequestDto, PositionDto>("Positions", request, cancellationToken)
+      .ConfigureAwait(false);
     return response is null ? null : MapToSummary(response);
   }
 
@@ -79,10 +85,12 @@ public class PositionApiService(IApiClient apiClient) : IPositionApiService
       SectionId = position.SectionId
     };
 
-    UpdatePositionResponseDto? response = await apiClient.PutAsync<UpdatePositionRequestDto, UpdatePositionResponseDto>(
+    UpdatePositionResponseDto? response = await apiClient
+      .PutAsync<UpdatePositionRequestDto, UpdatePositionResponseDto>(
       UpdatePositionRequestDto.BuildRoute(position.Id),
       request,
-      cancellationToken);
+      cancellationToken)
+      .ConfigureAwait(false);
 
     return response?.Position is null ? null : MapToSummary(response.Position);
   }
