@@ -1,4 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -52,28 +55,53 @@ public partial class EmployeeViewModel : BaseViewModel
 				await TraceCommandAsync(nameof(EditEmployeeAsync), employee.Id);
 		}
 
-		[RelayCommand]
-		private void UpdateEmployee()
-		{
-				if (EditableEmployee is null)
-				{
-						return;
-				}
+                [RelayCommand]
+                private async Task UpdateEmployeeAsync()
+                {
+                                if (EditableEmployee is null)
+                                {
+                                                return;
+                                }
 
-				EmployeeSummary? existing = Employees.FirstOrDefault(e => e.Id == EditableEmployee.Id);
+                                EmployeeSummary? existing = Employees.FirstOrDefault(e => e.Id == EditableEmployee.Id);
 
-				if (existing is null)
-				{
-						CloseEditor();
-						return;
-				}
+                                if (existing is null)
+                                {
+                                                CloseEditor();
+                                                return;
+                                }
 
-				int index = Employees.IndexOf(existing);
-				EmployeeSummary updated = EditableEmployee.ToSummary(existing.RowIndex);
-				Employees[index] = updated;
+                                bool updateSucceeded = false;
 
-				CloseEditor();
-		}
+                                try
+                                {
+                                                IsBusy = true;
+
+                                                UpdateEmployeeRequestDto request = EditableEmployee.ToUpdateRequest(existing);
+                                                EmployeeSummary? updated = await employeeApiService
+                                                                .UpdateEmployeeAsync(request, existing);
+
+                                                EmployeeSummary result = updated ?? EditableEmployee.ToSummary(existing.RowIndex);
+                                                int index = Employees.IndexOf(existing);
+                                                Employees[index] = result;
+                                                updateSucceeded = true;
+
+                                                await TraceCommandAsync(nameof(UpdateEmployeeAsync), result.Id);
+                                }
+                                catch (Exception ex)
+                                {
+                                                ExceptionHandlingService.Handle(ex, "Updating employee");
+                                }
+                                finally
+                                {
+                                                IsBusy = false;
+                                }
+
+                                if (updateSucceeded)
+                                {
+                                                CloseEditor();
+                                }
+                }
 
 		[RelayCommand]
 		private void CloseEditor()
