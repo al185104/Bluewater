@@ -20,7 +20,16 @@ public class CreateEmployeeRequestDto
   public string? Remarks { get; set; }
   public decimal? Height { get; set; }
   public decimal? Weight { get; set; }
+  public byte[]? Image { get; set; }
+  public Guid? UserId { get; set; }
+  public Guid? PositionId { get; set; }
+  public Guid? PayId { get; set; }
+  public Guid? TypeId { get; set; }
+  public Guid? LevelId { get; set; }
+  public Guid? ChargingId { get; set; }
   public CreateEmployeeContactInfoDto? ContactInfo { get; set; }
+  public CreateEmployeeEducationInfoDto? EducationInfo { get; set; }
+  public CreateEmployeeEmploymentInfoDto? EmploymentInfo { get; set; }
 }
 
 public class CreateEmployeeContactInfoDto
@@ -29,4 +38,33 @@ public class CreateEmployeeContactInfoDto
   public string? MobileNumber { get; set; }
   public string? TelNumber { get; set; }
   public string? Address { get; set; }
+  public string? ProvincialAddress { get; set; }
+  public string? MothersMaidenName { get; set; }
+  public string? FathersName { get; set; }
+  public string? EmergencyContact { get; set; }
+  public string? RelationshipContact { get; set; }
+  public string? AddressContact { get; set; }
+  public string? TelNoContact { get; set; }
+  public string? MobileNoContact { get; set; }
+}
+
+public class CreateEmployeeEducationInfoDto
+{
+  public EducationalAttainment EducationalAttainment { get; set; } = EducationalAttainment.NotSet;
+  public string? CourseGraduated { get; set; }
+  public string? UniversityGraduated { get; set; }
+}
+
+public class CreateEmployeeEmploymentInfoDto
+{
+  public DateTime? DateHired { get; set; }
+  public DateTime? DateRegularized { get; set; }
+  public DateTime? DateResigned { get; set; }
+  public DateTime? DateTerminated { get; set; }
+  public string? TinNo { get; set; }
+  public string? SssNo { get; set; }
+  public string? HdmfNo { get; set; }
+  public string? PhicNo { get; set; }
+  public string? BankAccount { get; set; }
+  public bool HasServiceCharge { get; set; }
 }
