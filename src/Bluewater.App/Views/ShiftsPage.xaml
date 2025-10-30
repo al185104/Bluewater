@@ -2,6 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:Bluewater.App.Models"
+             xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
              x:Class="Bluewater.App.Views.ShiftsPage"
              Title="Shifts">
   <ContentPage.Resources>
@@ -10,102 +11,187 @@
         <Setter Property="StrokeThickness" Value="1" />
         <Setter Property="Stroke" Value="Transparent" />
         <Setter Property="Padding" Value="16" />
-        <Setter Property="Margin" Value="0,0,0,12" />
       </Style>
+
+      <Style x:Key="ShiftEntryStyle" TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="VerticalOptions" Value="Center" />
+      </Style>
+
+      <DataTemplate x:Key="ShiftPrimaryTemplate" x:DataType="models:ShiftSummary">
+        <Border Style="{StaticResource ShiftRowBorderStyle}"
+                BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+          <Grid ColumnSpacing="12"
+                ColumnDefinitions="2*,*,*,*,*,Auto"
+                VerticalOptions="Center">
+            <Entry Text="{Binding Name}"
+                   Style="{StaticResource ShiftEntryStyle}"
+                   FontAttributes="Bold"
+                   Placeholder="Shift name" />
+            <Entry Grid.Column="1"
+                   Text="{Binding ShiftStartTime}"
+                   Style="{StaticResource ShiftEntryStyle}"
+                   Placeholder="HH:mm"
+                   HorizontalTextAlignment="Center" />
+            <Entry Grid.Column="2"
+                   Text="{Binding ShiftBreakTime}"
+                   Style="{StaticResource ShiftEntryStyle}"
+                   Placeholder="HH:mm"
+                   HorizontalTextAlignment="Center" />
+            <Entry Grid.Column="3"
+                   Text="{Binding ShiftBreakEndTime}"
+                   Style="{StaticResource ShiftEntryStyle}"
+                   Placeholder="HH:mm"
+                   HorizontalTextAlignment="Center" />
+            <Entry Grid.Column="4"
+                   Text="{Binding ShiftEndTime}"
+                   Style="{StaticResource ShiftEntryStyle}"
+                   Placeholder="HH:mm"
+                   HorizontalTextAlignment="Center" />
+            <Label Grid.Column="5"
+                   Text="{Binding BreakHoursDisplay}"
+                   HorizontalTextAlignment="Center"
+                   VerticalOptions="Center"
+                   FontSize="13"
+                   TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+          </Grid>
+        </Border>
+      </DataTemplate>
+
+      <DataTemplate x:Key="ShiftAlternateTemplate" x:DataType="models:ShiftSummary">
+        <Border Style="{StaticResource ShiftRowBorderStyle}"
+                BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
+          <Grid ColumnSpacing="12"
+                ColumnDefinitions="2*,*,*,*,*,Auto"
+                VerticalOptions="Center">
+            <Entry Text="{Binding Name}"
+                   Style="{StaticResource ShiftEntryStyle}"
+                   FontAttributes="Bold"
+                   Placeholder="Shift name" />
+            <Entry Grid.Column="1"
+                   Text="{Binding ShiftStartTime}"
+                   Style="{StaticResource ShiftEntryStyle}"
+                   Placeholder="HH:mm"
+                   HorizontalTextAlignment="Center" />
+            <Entry Grid.Column="2"
+                   Text="{Binding ShiftBreakTime}"
+                   Style="{StaticResource ShiftEntryStyle}"
+                   Placeholder="HH:mm"
+                   HorizontalTextAlignment="Center" />
+            <Entry Grid.Column="3"
+                   Text="{Binding ShiftBreakEndTime}"
+                   Style="{StaticResource ShiftEntryStyle}"
+                   Placeholder="HH:mm"
+                   HorizontalTextAlignment="Center" />
+            <Entry Grid.Column="4"
+                   Text="{Binding ShiftEndTime}"
+                   Style="{StaticResource ShiftEntryStyle}"
+                   Placeholder="HH:mm"
+                   HorizontalTextAlignment="Center" />
+            <Label Grid.Column="5"
+                   Text="{Binding BreakHoursDisplay}"
+                   HorizontalTextAlignment="Center"
+                   VerticalOptions="Center"
+                   FontSize="13"
+                   TextColor="{AppThemeBinding Light=#FFFFFF, Dark=#DDDDDD}" />
+          </Grid>
+        </Border>
+      </DataTemplate>
+
+      <selectors:AlternateShiftTemplateSelector x:Key="ShiftRowTemplateSelector"
+                                                PrimaryTemplate="{StaticResource ShiftPrimaryTemplate}"
+                                                AlternateTemplate="{StaticResource ShiftAlternateTemplate}" />
     </ResourceDictionary>
   </ContentPage.Resources>
-  <Grid Padding="16" RowDefinitions="Auto,Auto,*" RowSpacing="16">
-    <Label Text="Shifts"
-           FontAttributes="Bold"
-           FontSize="24" />
 
-    <HorizontalStackLayout Grid.Row="1" Spacing="12">
-      <Button Text="Add"
-              Command="{Binding AddShiftCommand}" />
-      <Button Text="Save"
-              Command="{Binding SaveShiftCommand}"
-              IsEnabled="{Binding CanSaveSelectedShift}" />
-      <Button Text="Update"
-              Command="{Binding UpdateShiftCommand}"
-              IsEnabled="{Binding CanUpdateSelectedShift}" />
-    </HorizontalStackLayout>
+  <Grid>
+    <Grid Padding="20,40"
+          RowDefinitions="Auto,*"
+          RowSpacing="16">
+      <Grid ColumnDefinitions="*,Auto">
+        <Label Text="Shifts"
+               Style="{StaticResource HeadingTextStyle}" />
+        <HorizontalStackLayout Grid.Column="1"
+                               Spacing="10"
+                               HorizontalOptions="End"
+                               VerticalOptions="Center">
+          <Button Text="Add"
+                  Command="{Binding AddShiftCommand}" />
+          <Button Text="Save"
+                  Command="{Binding SaveShiftCommand}"
+                  IsEnabled="{Binding CanSaveSelectedShift}" />
+          <Button Text="Update"
+                  Command="{Binding UpdateShiftCommand}"
+                  IsEnabled="{Binding CanUpdateSelectedShift}" />
+        </HorizontalStackLayout>
+      </Grid>
 
-    <Grid Grid.Row="2">
-      <CollectionView ItemsSource="{Binding Shifts}"
-                      SelectedItem="{Binding SelectedShift}"
-                      SelectionMode="Single"
-                      VerticalOptions="FillAndExpand">
-        <CollectionView.EmptyView>
-          <VerticalStackLayout HorizontalOptions="Center"
-                               VerticalOptions="Center"
-                               Spacing="8">
-            <Label Text="No shifts found" />
-            <Label Text="Shifts will appear here once they are available."
-                   FontSize="12" />
-          </VerticalStackLayout>
-        </CollectionView.EmptyView>
-        <CollectionView.ItemTemplate>
-          <DataTemplate x:DataType="models:ShiftSummary">
-            <Border Style="{StaticResource ShiftRowBorderStyle}"
-                    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
-              <Border.StrokeShape>
-                <RoundRectangle CornerRadius="12" />
-              </Border.StrokeShape>
-              <Grid ColumnDefinitions="*,Auto"
-                    RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
-                    RowSpacing="8">
-                <Entry Grid.ColumnSpan="2"
-                       Placeholder="Shift name"
-                       Text="{Binding Name}" />
-
-                <Label Grid.Row="1"
+      <Grid Grid.Row="1">
+        <CollectionView ItemsSource="{Binding Shifts}"
+                        ItemTemplate="{StaticResource ShiftRowTemplateSelector}"
+                        SelectionMode="Single"
+                        SelectedItem="{Binding SelectedShift}"
+                        VerticalOptions="FillAndExpand">
+          <CollectionView.Header>
+            <Border StrokeShape="RoundRectangle 10 10 0 0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+              <Grid ColumnSpacing="12"
+                    Padding="20"
+                    ColumnDefinitions="2*,*,*,*,*,Auto">
+                <Label Text="Name"
+                       TextColor="White"
+                       FontAttributes="Bold" />
+                <Label Grid.Column="1"
                        Text="Start"
-                       VerticalOptions="Center" />
-                <Entry Grid.Row="1"
-                       Grid.Column="1"
-                       Placeholder="HH:mm"
-                       Text="{Binding ShiftStartTime}" />
-
-                <Label Grid.Row="2"
+                       TextColor="White"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
+                <Label Grid.Column="2"
                        Text="Break Start"
-                       VerticalOptions="Center" />
-                <Entry Grid.Row="2"
-                       Grid.Column="1"
-                       Placeholder="HH:mm"
-                       Text="{Binding ShiftBreakTime}" />
-
-                <Label Grid.Row="3"
+                       TextColor="White"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
+                <Label Grid.Column="3"
                        Text="Break End"
-                       VerticalOptions="Center" />
-                <Entry Grid.Row="3"
-                       Grid.Column="1"
-                       Placeholder="HH:mm"
-                       Text="{Binding ShiftBreakEndTime}" />
-
-                <Label Grid.Row="4"
+                       TextColor="White"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
+                <Label Grid.Column="4"
                        Text="End"
-                       VerticalOptions="Center" />
-                <Entry Grid.Row="4"
-                       Grid.Column="1"
-                       Placeholder="HH:mm"
-                       Text="{Binding ShiftEndTime}" />
-
-                <Label Grid.Row="5"
+                       TextColor="White"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
+                <Label Grid.Column="5"
                        Text="Break Hours"
-                       VerticalOptions="Center" />
-                <Label Grid.Row="5"
-                       Grid.Column="1"
-                       Text="{Binding BreakHoursDisplay}" />
+                       TextColor="White"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
               </Grid>
             </Border>
-          </DataTemplate>
-        </CollectionView.ItemTemplate>
-      </CollectionView>
+          </CollectionView.Header>
 
-      <ActivityIndicator IsRunning="{Binding IsBusy}"
-                         IsVisible="{Binding IsBusy}"
-                         HorizontalOptions="Center"
-                         VerticalOptions="Center" />
+          <CollectionView.EmptyView>
+            <VerticalStackLayout HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 Spacing="8">
+              <Label Text="No shifts found"
+                     HorizontalTextAlignment="Center"
+                     FontAttributes="Bold" />
+              <Label Text="Shifts will appear here once they are available."
+                     FontSize="12"
+                     HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+          </CollectionView.EmptyView>
+        </CollectionView>
+
+        <ActivityIndicator IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+      </Grid>
     </Grid>
   </Grid>
 </ContentPage>

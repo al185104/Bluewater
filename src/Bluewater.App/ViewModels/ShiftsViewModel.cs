@@ -54,7 +54,8 @@ public partial class ShiftsViewModel : BaseViewModel
       ShiftBreakTime = string.Empty,
       ShiftBreakEndTime = string.Empty,
       ShiftEndTime = string.Empty,
-      BreakHours = 0m
+      BreakHours = 0m,
+      RowIndex = Shifts.Count
     };
 
     Shifts.Add(newShift);
@@ -124,11 +125,13 @@ public partial class ShiftsViewModel : BaseViewModel
 
       if (index >= 0)
       {
+        result.RowIndex = shift.RowIndex;
         Shifts[index] = result;
         SelectedShift = result;
       }
       else
       {
+        result.RowIndex = Shifts.Count;
         Shifts.Add(result);
         SelectedShift = result;
       }
@@ -161,8 +164,11 @@ public partial class ShiftsViewModel : BaseViewModel
 
       IReadOnlyList<ShiftSummary> shifts = await shiftApiService.GetShiftsAsync().ConfigureAwait(false);
 
+      int index = 0;
+
       foreach (ShiftSummary shift in shifts.OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase))
       {
+        shift.RowIndex = index++;
         Shifts.Add(shift);
       }
 
