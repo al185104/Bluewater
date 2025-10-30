@@ -98,9 +98,9 @@ public class UserDto
 
 public class PayDto
 {
-  public decimal BasicPay { get; set; }
-  public decimal DailyRate { get; set; }
-  public decimal HourlyRate { get; set; }
-  public decimal HdmfCon { get; set; }
-  public decimal HdmfEr { get; set; }
+  public decimal? BasicPay { get; set; }
+  public decimal? DailyRate { get; set; }
+  public decimal? HourlyRate { get; set; }
+  public decimal? HdmfCon { get; set; }
+  public decimal? HdmfEr { get; set; }
 }
