@@ -31,6 +31,19 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
       .ToList();
   }
 
+  public async Task<bool> CreateEmployeeAsync(
+    CreateEmployeeRequestDto request,
+    CancellationToken cancellationToken = default)
+  {
+    ArgumentNullException.ThrowIfNull(request);
+
+    CreateEmployeeResponseDto? response = await apiClient
+      .PostAsync<CreateEmployeeRequestDto, CreateEmployeeResponseDto>(CreateEmployeeRequestDto.Route, request, cancellationToken)
+      .ConfigureAwait(false);
+
+    return response is not null && response.Id != Guid.Empty;
+  }
+
   public async Task<EmployeeSummary?> UpdateEmployeeAsync(
     UpdateEmployeeRequestDto request,
     EmployeeSummary existingSummary,
