@@ -186,11 +186,22 @@
         <Grid Grid.Column="0"
               Grid.ColumnSpan="2"
               Padding="20,40"
-              RowDefinitions="Auto,*"
+              RowDefinitions="Auto,Auto,*"
               RowSpacing="16">
-            <Label Text="Employees"
-                   Style="{StaticResource HeadingTextStyle}" />
-            <Grid Grid.Row="1">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="Employees"
+                       Style="{StaticResource HeadingTextStyle}" />
+                <Button Grid.Column="1"
+                        Text="Import"
+                        Command="{Binding ImportEmployeesCommand}"
+                        HorizontalOptions="End"
+                        SemanticProperties.Hint="Import employees from a CSV file" />
+            </Grid>
+            <Label Grid.Row="1"
+                   Text="{Binding ImportStatusMessage}"
+                   IsVisible="{Binding HasImportStatusMessage}"
+                   TextColor="{StaticResource TextSecondaryColor}" />
+            <Grid Grid.Row="2">
                 <CollectionView ItemsSource="{Binding Employees}"
                                 SelectionMode="None"
                                 VerticalOptions="Fill"
@@ -255,8 +266,8 @@
                 </CollectionView>
                 <ActivityIndicator IsRunning="{Binding IsBusy}"
                                    IsVisible="{Binding IsBusy}"
-                                   HorizontalOptions="Center"
-                                   VerticalOptions="Center" />
+                                    HorizontalOptions="Center"
+                                    VerticalOptions="Center" />
             </Grid>
         </Grid>
         <appViews:EmployeeDetailsView HorizontalOptions="Fill"

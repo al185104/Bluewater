@@ -13,4 +13,8 @@ public interface IEmployeeApiService
     UpdateEmployeeRequestDto request,
     EmployeeSummary existingSummary,
     CancellationToken cancellationToken = default);
+
+  Task<bool> CreateEmployeeAsync(
+    CreateEmployeeRequestDto request,
+    CancellationToken cancellationToken = default);
 }
