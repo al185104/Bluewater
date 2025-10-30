@@ -2,7 +2,7 @@ using System;
 
 namespace Bluewater.App.Models;
 
-public class ShiftSummary
+public class ShiftSummary : IRowIndexed
 {
   public Guid Id { get; set; }
   public string Name { get; set; } = string.Empty;
@@ -13,4 +13,6 @@ public class ShiftSummary
   public decimal BreakHours { get; set; }
 
   public string BreakHoursDisplay => BreakHours.ToString("0.##");
+
+  public int RowIndex { get; set; }
 }
