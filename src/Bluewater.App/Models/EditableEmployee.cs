@@ -396,14 +396,11 @@ public partial class EditableEmployee : ObservableObject
       throw new ArgumentNullException(nameof(existingSummary));
     }
 
-    Guid userId = UserId ?? existingSummary.UserId ?? throw new InvalidOperationException("UserId is required to update an employee.");
-    Guid positionId = PositionId ?? existingSummary.PositionId ?? throw new InvalidOperationException("PositionId is required to update an employee.");
-    Guid payId = PayId ?? existingSummary.PayId ?? throw new InvalidOperationException("PayId is required to update an employee.");
-    Guid typeId = TypeId ?? existingSummary.TypeId ?? throw new InvalidOperationException("TypeId is required to update an employee.");
-    Guid levelId = LevelId ?? existingSummary.LevelId ?? throw new InvalidOperationException("LevelId is required to update an employee.");
-    Guid chargingId = ChargingId ?? existingSummary.ChargingId ?? throw new InvalidOperationException("ChargingId is required to update an employee.");
+    Guid? supervisedGroupId = Guid.TryParse(SupervisedGroup, out Guid parsedSupervisedGroup)
+      ? parsedSupervisedGroup
+      : null;
 
-    return new UpdateEmployeeRequestDto
+    UpdateEmployeeRequestDto request = new()
     {
       Id = Id,
       FirstName = FirstName,
@@ -423,13 +420,31 @@ public partial class EditableEmployee : ObservableObject
       ContactInfo = CreateContactInfoRequest(),
       EducationInfo = CreateEducationInfoRequest(),
       EmploymentInfo = CreateEmploymentInfoRequest(),
-      UserId = userId,
-      PositionId = positionId,
-      PayId = payId,
-      TypeId = typeId,
-      LevelId = levelId,
-      ChargingId = chargingId
+      UserId = UserId ?? existingSummary.UserId,
+      PositionId = PositionId ?? existingSummary.PositionId,
+      PayId = PayId ?? existingSummary.PayId,
+      TypeId = TypeId ?? existingSummary.TypeId,
+      LevelId = LevelId ?? existingSummary.LevelId,
+      ChargingId = ChargingId ?? existingSummary.ChargingId,
+      User = new UpdateEmployeeUserDto
+      {
+        Username = Username,
+        PasswordHash = PasswordHash,
+        Credential = Credential,
+        SupervisedGroup = supervisedGroupId,
+        IsGlobalSupervisor = IsGlobalSupervisor
+      },
+      Pay = new UpdateEmployeePayDto
+      {
+        BasicPay = BasicPay ?? 0m,
+        DailyRate = DailyRate ?? 0m,
+        HourlyRate = HourlyRate ?? 0m,
+        HdmfCon = HdmfCon ?? 0m,
+        HdmfEr = HdmfEr ?? 0m
+      }
     };
+
+    return request;
 
     UpdateEmployeeContactInfoDto? CreateContactInfoRequest()
     {

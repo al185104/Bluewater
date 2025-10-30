@@ -36,6 +36,39 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
     EmployeeSummary existingSummary,
     CancellationToken cancellationToken = default)
   {
+    Guid? userId = request.UserId ?? existingSummary.UserId;
+
+    if (!userId.HasValue && request.User is not null && !string.IsNullOrWhiteSpace(request.User.Username))
+    {
+      userId = await CreateUserAsync(request.User, cancellationToken).ConfigureAwait(false);
+    }
+
+    Guid? payId = request.PayId ?? existingSummary.PayId;
+
+    if (!payId.HasValue && request.Pay is not null)
+    {
+      payId = await CreatePayAsync(request.Pay, cancellationToken).ConfigureAwait(false);
+    }
+
+    Guid? positionId = request.PositionId ?? existingSummary.PositionId;
+    Guid? typeId = request.TypeId ?? existingSummary.TypeId;
+    Guid? levelId = request.LevelId ?? existingSummary.LevelId;
+    Guid? chargingId = request.ChargingId ?? existingSummary.ChargingId;
+
+    if (userId is null || payId is null || positionId is null || typeId is null || levelId is null || chargingId is null)
+    {
+      return null;
+    }
+
+    request.UserId = userId;
+    request.PayId = payId;
+    request.PositionId = positionId;
+    request.TypeId = typeId;
+    request.LevelId = levelId;
+    request.ChargingId = chargingId;
+    request.User = null;
+    request.Pay = null;
+
     UpdateEmployeeResponseDto? response = await apiClient
       .PutAsync<UpdateEmployeeRequestDto, UpdateEmployeeResponseDto>(UpdateEmployeeRequestDto.Route, request, cancellationToken)
       .ConfigureAwait(false);
@@ -46,6 +79,42 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
     }
 
     return MapUpdatedEmployee(response.Employee, request, existingSummary);
+  }
+
+  private async Task<Guid?> CreateUserAsync(UpdateEmployeeUserDto user, CancellationToken cancellationToken)
+  {
+    CreateUserRequestDto request = new()
+    {
+      Username = user.Username,
+      PasswordHash = user.PasswordHash,
+      Credential = user.Credential,
+      SupervisedGroup = user.SupervisedGroup,
+      IsGlobalSupervisor = user.IsGlobalSupervisor
+    };
+
+    CreateUserResponseDto? response = await apiClient
+      .PostAsync<CreateUserRequestDto, CreateUserResponseDto>(CreateUserRequestDto.Route, request, cancellationToken)
+      .ConfigureAwait(false);
+
+    return response?.Id;
+  }
+
+  private async Task<Guid?> CreatePayAsync(UpdateEmployeePayDto pay, CancellationToken cancellationToken)
+  {
+    CreatePayRequestDto request = new()
+    {
+      BasicPay = pay.BasicPay,
+      DailyRate = pay.DailyRate,
+      HourlyRate = pay.HourlyRate,
+      HdmfCon = pay.HdmfCon,
+      HdmfEr = pay.HdmfEr
+    };
+
+    CreatePayResponseDto? response = await apiClient
+      .PostAsync<CreatePayRequestDto, CreatePayResponseDto>(CreatePayRequestDto.Route, request, cancellationToken)
+      .ConfigureAwait(false);
+
+    return response?.Pay?.Id;
   }
 
   private static string BuildRequestUri(int? skip, int? take)
@@ -263,12 +332,12 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
       Level = record.Level ?? existingSummary.Level,
       Image = image,
       IsDeleted = existingSummary.IsDeleted,
-      UserId = request.UserId,
-      PositionId = request.PositionId,
-      PayId = request.PayId,
-      TypeId = request.TypeId,
-      LevelId = request.LevelId,
-      ChargingId = request.ChargingId,
+      UserId = request.UserId ?? existingSummary.UserId,
+      PositionId = request.PositionId ?? existingSummary.PositionId,
+      PayId = request.PayId ?? existingSummary.PayId,
+      TypeId = request.TypeId ?? existingSummary.TypeId,
+      LevelId = request.LevelId ?? existingSummary.LevelId,
+      ChargingId = request.ChargingId ?? existingSummary.ChargingId,
       CreatedDate = existingSummary.CreatedDate,
       CreateBy = existingSummary.CreateBy,
       UpdatedDate = existingSummary.UpdatedDate,
