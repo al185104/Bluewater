@@ -1,5 +1,7 @@
 using System;
+using System.Text.Json.Serialization;
 using Bluewater.Core.EmployeeAggregate.Enum;
+using Bluewater.Core.UserAggregate.Enum;
 
 namespace Bluewater.App.Models;
 
@@ -23,14 +25,38 @@ public class UpdateEmployeeRequestDto
   public UpdateEmployeeContactInfoDto? ContactInfo { get; set; }
   public UpdateEmployeeEducationInfoDto? EducationInfo { get; set; }
   public UpdateEmployeeEmploymentInfoDto? EmploymentInfo { get; set; }
-  public Guid UserId { get; set; }
-  public Guid PositionId { get; set; }
-  public Guid PayId { get; set; }
-  public Guid TypeId { get; set; }
-  public Guid LevelId { get; set; }
-  public Guid ChargingId { get; set; }
+  public Guid? UserId { get; set; }
+  public Guid? PositionId { get; set; }
+  public Guid? PayId { get; set; }
+  public Guid? TypeId { get; set; }
+  public Guid? LevelId { get; set; }
+  public Guid? ChargingId { get; set; }
   public int MealCredits { get; set; }
   public Tenant Tenant { get; set; }
+
+  [JsonIgnore]
+  public UpdateEmployeeUserDto? User { get; set; }
+
+  [JsonIgnore]
+  public UpdateEmployeePayDto? Pay { get; set; }
+}
+
+public class UpdateEmployeeUserDto
+{
+  public string Username { get; set; } = string.Empty;
+  public string PasswordHash { get; set; } = string.Empty;
+  public Credential Credential { get; set; }
+  public Guid? SupervisedGroup { get; set; }
+  public bool IsGlobalSupervisor { get; set; }
+}
+
+public class UpdateEmployeePayDto
+{
+  public decimal BasicPay { get; set; }
+  public decimal DailyRate { get; set; }
+  public decimal HourlyRate { get; set; }
+  public decimal HdmfCon { get; set; }
+  public decimal HdmfEr { get; set; }
 }
 
 public class UpdateEmployeeContactInfoDto
