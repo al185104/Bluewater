@@ -1,3 +1,4 @@
+using System;
 using Bluewater.App.Models;
 
 namespace Bluewater.App.Interfaces;
@@ -16,5 +17,9 @@ public interface IEmployeeApiService
 
   Task<bool> CreateEmployeeAsync(
     CreateEmployeeRequestDto request,
+    CancellationToken cancellationToken = default);
+
+  Task<bool> DeleteEmployeeAsync(
+    Guid employeeId,
     CancellationToken cancellationToken = default);
 }
