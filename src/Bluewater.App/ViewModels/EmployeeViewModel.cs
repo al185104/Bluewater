@@ -10,7 +10,9 @@ using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Devices;
+using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 
 namespace Bluewater.App.ViewModels;
@@ -130,12 +132,57 @@ public partial class EmployeeViewModel : BaseViewModel
   [RelayCommand]
   private async Task DeleteEmployeeAsync(EmployeeSummary? employee)
   {
-    if (employee is null)
+    if (employee is null || IsBusy)
     {
       return;
     }
 
-    await TraceCommandAsync(nameof(DeleteEmployeeAsync), employee.Id);
+    bool confirmed = await MainThread.InvokeOnMainThreadAsync(async () =>
+    {
+      if (Application.Current?.MainPage is null)
+      {
+        return false;
+      }
+
+      string employeeName = string.IsNullOrWhiteSpace(employee.FullName)
+        ? "this employee"
+        : employee.FullName;
+
+      return await Application.Current.MainPage.DisplayAlert(
+        "Delete Employee",
+        $"Are you sure you want to delete {employeeName}?",
+        "Delete",
+        "Cancel");
+    }).ConfigureAwait(false);
+
+    if (!confirmed)
+    {
+      return;
+    }
+
+    bool deleted = false;
+
+    try
+    {
+      IsBusy = true;
+      deleted = await employeeApiService.DeleteEmployeeAsync(employee.Id).ConfigureAwait(false);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Deleting employee");
+    }
+    finally
+    {
+      IsBusy = false;
+    }
+
+    if (!deleted)
+    {
+      return;
+    }
+
+    await LoadEmployeesAsync(forceRefresh: true).ConfigureAwait(false);
+    await TraceCommandAsync(nameof(DeleteEmployeeAsync), employee.Id).ConfigureAwait(false);
   }
 
   [RelayCommand]

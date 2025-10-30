@@ -94,6 +94,11 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
     return MapUpdatedEmployee(response.Employee, request, existingSummary);
   }
 
+  public Task<bool> DeleteEmployeeAsync(Guid employeeId, CancellationToken cancellationToken = default)
+  {
+    return apiClient.DeleteAsync($"Employees/{employeeId}", cancellationToken);
+  }
+
   private async Task<Guid?> CreateUserAsync(UpdateEmployeeUserDto user, CancellationToken cancellationToken)
   {
     CreateUserRequestDto request = new()
