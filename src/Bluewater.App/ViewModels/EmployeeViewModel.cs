@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -139,7 +139,13 @@ public partial class EmployeeViewModel : BaseViewModel
 
     bool confirmed = await MainThread.InvokeOnMainThreadAsync(async () =>
     {
-      if (Application.Current?.MainPage is null)
+      Page? mainPage = null;
+      if (Application.Current?.Windows?.Count > 0)
+      {
+        mainPage = Application.Current.Windows[0].Page;
+      }
+
+      if (mainPage is null)
       {
         return false;
       }
@@ -148,7 +154,7 @@ public partial class EmployeeViewModel : BaseViewModel
         ? "this employee"
         : employee.FullName;
 
-      return await Application.Current.MainPage.DisplayAlert(
+      return await mainPage.DisplayAlert(
         "Delete Employee",
         $"Are you sure you want to delete {employeeName}?",
         "Delete",

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using Bluewater.Core.EmployeeAggregate.Enum;
 using Bluewater.Core.UserAggregate.Enum;
@@ -143,9 +143,9 @@ public record class UserSummary
 
 public record class PaySummary
 {
-  public decimal BasicPay { get; init; }
-  public decimal DailyRate { get; init; }
-  public decimal HourlyRate { get; init; }
-  public decimal HdmfCon { get; init; }
-  public decimal HdmfEr { get; init; }
+  public decimal? BasicPay { get; init; }
+  public decimal? DailyRate { get; init; }
+  public decimal? HourlyRate { get; init; }
+  public decimal? HdmfCon { get; init; }
+  public decimal? HdmfEr { get; init; }
 }
