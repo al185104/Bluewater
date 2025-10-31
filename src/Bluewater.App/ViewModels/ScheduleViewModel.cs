@@ -917,6 +917,10 @@ public partial class EmployeeScheduleDayViewModel : ObservableObject
   {
     ShiftOption target = option ?? parent.GetShiftOption(Guid.Empty, null);
     suppressSelectionChanged = true;
+    if (EqualityComparer<ShiftOption?>.Default.Equals(SelectedShift, target))
+    {
+      SelectedShift = null;
+    }
     SelectedShift = target;
     suppressSelectionChanged = false;
   }
