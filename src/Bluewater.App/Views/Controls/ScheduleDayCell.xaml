@@ -6,20 +6,10 @@
              x:Class="Bluewater.App.Views.Controls.ScheduleDayCell"
              x:DataType="viewmodels:DailyShiftSelection">
     <VerticalStackLayout Spacing="4">
-        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6">
-            <Label Grid.Column="0"
-                   Text="●"
-                   TextColor="#d97706"
-                   VerticalOptions="Center"
-                   IsVisible="{Binding IsDirty}"
-                   FontSize="12" />
-            <Picker Grid.Column="1"
-                    ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type views:SchedulePage}}, Path=BindingContext.ShiftOptions}"
-                    SelectedIndex="{Binding SelectedShiftIndex}"
-                    ItemDisplayBinding="{Binding DisplayName}"
-                    Title="Select shift"
-                    IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type views:SchedulePage}}, Path=BindingContext.IsNotBusy}" />
-        </Grid>
+        <Picker ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type views:SchedulePage}}, Path=BindingContext.ShiftOptions}"
+                SelectedItem="{Binding SelectedShift}"
+                ItemDisplayBinding="{Binding DisplayName}"
+                Title="Select shift" />
         <Label Text="{Binding SelectedShift.Description}"
                FontSize="11"
                TextColor="#666666"
@@ -37,9 +27,5 @@
                 </Trigger>
             </Label.Triggers>
         </Label>
-        <Label Text="Default schedule"
-               FontSize="10"
-               TextColor="#888888"
-               IsVisible="{Binding IsDefault}" />
     </VerticalStackLayout>
 </ContentView>
