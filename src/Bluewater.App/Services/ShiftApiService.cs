@@ -62,6 +62,11 @@ public class ShiftApiService(IApiClient apiClient) : IShiftApiService
     return response?.Shift is null ? null : MapToSummary(response.Shift);
   }
 
+  public Task<bool> DeleteShiftAsync(Guid shiftId, CancellationToken cancellationToken = default)
+  {
+    return apiClient.DeleteAsync(UpdateShiftRequestDto.BuildRoute(shiftId), cancellationToken);
+  }
+
   private static ShiftSummary MapToSummary(ShiftDto dto)
   {
     return new ShiftSummary
