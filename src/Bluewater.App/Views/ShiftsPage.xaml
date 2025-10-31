@@ -50,8 +50,23 @@
             </Style>
             <DataTemplate x:Key="ShiftPrimaryTemplate"
                           x:DataType="models:ShiftSummary">
-                <Border Style="{StaticResource ShiftRowBorderStyle}"
-                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                <Border Style="{StaticResource ShiftRowBorderStyle}">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="CommonStates">
+                            <VisualState x:Name="Normal">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor"
+                                            Value="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}" />
+                                </VisualState.Setters>
+                            </VisualState>
+                            <VisualState x:Name="Selected">
+                                <VisualState.Setters>
+                                    <Setter Property="BackgroundColor"
+                                            Value="#0A386EB3" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
                     <Grid ColumnSpacing="12"
                           ColumnDefinitions="*,*,*,*,*,0.5*"
                           VerticalOptions="Center">
@@ -86,13 +101,19 @@
         <Grid Padding="20,40"
               RowDefinitions="Auto,*"
               RowSpacing="16">
-            <Grid ColumnDefinitions="*,Auto">
+            <Grid ColumnDefinitions="*,Auto"
+                  RowDefinitions="Auto,Auto"
+                  RowSpacing="6">
                 <Label Text="Shifts"
                        Style="{StaticResource HeadingTextStyle}" />
                 <HorizontalStackLayout Grid.Column="1"
+                                       Grid.Row="0"
                                        Spacing="10"
                                        HorizontalOptions="End"
                                        VerticalOptions="Center">
+                    <Button Text="Import"
+                            Command="{Binding ImportShiftsCommand}"
+                            SemanticProperties.Hint="Import shifts from a CSV file" />
                     <Button Text="Add"
                             Command="{Binding AddShiftCommand}" />
                     <Button Text="Save"
@@ -105,6 +126,12 @@
                             Command="{Binding DeleteShiftCommand}"
                             IsEnabled="{Binding CanDeleteSelectedShift}" />
                 </HorizontalStackLayout>
+                <Label Grid.Row="1"
+                       Grid.ColumnSpan="2"
+                       Text="{Binding ImportStatusMessage}"
+                       Style="{StaticResource BodyTextStyle}"
+                       TextColor="{AppThemeBinding Light=#0A386E, Dark=#9CC4FF}"
+                       IsVisible="{Binding HasImportStatusMessage}" />
             </Grid>
             <Grid Grid.Row="1">
                 <CollectionView ItemsSource="{Binding Shifts}"
