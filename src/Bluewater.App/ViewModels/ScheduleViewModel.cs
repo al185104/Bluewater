@@ -971,7 +971,10 @@ public partial class DailyShiftSelection : ObservableObject
     }
     else
     {
-      MainThread.BeginInvokeOnMainThread(() => SetSelectedShift(initialShift));
+      MainThread
+        .InvokeOnMainThreadAsync(() => SetSelectedShift(initialShift))
+        .GetAwaiter()
+        .GetResult();
     }
   }
 
