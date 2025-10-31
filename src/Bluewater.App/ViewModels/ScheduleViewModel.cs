@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -382,14 +382,14 @@ public partial class ScheduleViewModel : BaseViewModel
     HasImportStatusMessage = !string.IsNullOrWhiteSpace(value);
   }
 
-  partial void OnIsBusyChanged(bool value)
-  {
-    OnPropertyChanged(nameof(IsNotBusy));
-    SaveChangesCommand.NotifyCanExecuteChanged();
-    PreviousWeekCommand.NotifyCanExecuteChanged();
-    NextWeekCommand.NotifyCanExecuteChanged();
-    ImportSchedulesCommand.NotifyCanExecuteChanged();
-  }
+  //partial void OnIsBusyChanged(bool value)
+  //{
+  //  OnPropertyChanged(nameof(IsNotBusy));
+  //  SaveChangesCommand.NotifyCanExecuteChanged();
+  //  PreviousWeekCommand.NotifyCanExecuteChanged();
+  //  NextWeekCommand.NotifyCanExecuteChanged();
+  //  ImportSchedulesCommand.NotifyCanExecuteChanged();
+  //}
 
   private async Task LoadSchedulesAsync()
   {
@@ -931,12 +931,12 @@ public partial class DailyShiftSelection : ObservableObject
   {
     EmployeeId = employeeId;
     Date = date;
-    this.scheduleId = scheduleId;
-    this.isDefault = isDefault;
-    this.selectedShift = selectedShift ?? ShiftPickerItem.CreateNone();
-    originalShiftItem = this.selectedShift;
-    originalShiftId = this.selectedShift.Id;
-    isDirty = false;
+    this.ScheduleId = scheduleId;
+    this.IsDefault = isDefault;
+    this.SelectedShift = selectedShift ?? ShiftPickerItem.CreateNone();
+    originalShiftItem = this.SelectedShift;
+    originalShiftId = this.SelectedShift.Id;
+    IsDirty = false;
   }
 
   public Guid EmployeeId { get; }
@@ -944,16 +944,16 @@ public partial class DailyShiftSelection : ObservableObject
   public DateOnly Date { get; }
 
   [ObservableProperty]
-  private Guid? scheduleId;
+  public partial Guid? ScheduleId { get; set; }
 
   [ObservableProperty]
-  private bool isDefault;
+  public partial bool IsDefault { get; set; }
 
   [ObservableProperty]
-  private ShiftPickerItem? selectedShift;
+  public partial ShiftPickerItem? SelectedShift { get; set; }
 
   [ObservableProperty]
-  private bool isDirty;
+  public partial bool IsDirty { get; set; }
 
   public Guid? SelectedShiftId => SelectedShift?.Id;
 
