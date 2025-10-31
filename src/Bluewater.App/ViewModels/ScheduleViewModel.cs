@@ -55,25 +55,25 @@ public partial class ScheduleViewModel : BaseViewModel
   public IReadOnlyList<TenantDto> TenantOptions { get; } = Array.AsReadOnly(Enum.GetValues<TenantDto>());
 
   [ObservableProperty]
-  private ChargingSummary? selectedCharging;
+  public partial ChargingSummary? SelectedCharging { get; set; }
 
   [ObservableProperty]
-  private TenantDto selectedTenant = TenantDto.Maribago;
+  public partial TenantDto SelectedTenant { get; set; } = TenantDto.Maribago;
 
   [ObservableProperty]
-  private DateOnly currentWeekStart;
+  public partial DateOnly CurrentWeekStart { get; set; }
 
   [ObservableProperty]
-  private DateOnly currentWeekEnd;
+  public partial DateOnly CurrentWeekEnd { get; set; }
 
   [ObservableProperty]
-  private bool hasPendingChanges;
+  public partial bool HasPendingChanges { get; set; }
 
   [ObservableProperty]
-  private string importStatusMessage = string.Empty;
+  public partial string ImportStatusMessage { get; set; } = string.Empty;
 
   [ObservableProperty]
-  private bool hasImportStatusMessage;
+  public partial bool HasImportStatusMessage { get; set; }
 
   public bool IsNotBusy => !IsBusy;
 
