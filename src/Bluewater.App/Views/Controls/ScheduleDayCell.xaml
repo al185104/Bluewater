@@ -15,7 +15,7 @@
                    FontSize="12" />
             <Picker Grid.Column="1"
                     ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type views:SchedulePage}}, Path=BindingContext.ShiftOptions}"
-                    SelectedItem="{Binding SelectedShift}"
+                    SelectedIndex="{Binding SelectedShiftIndex}"
                     ItemDisplayBinding="{Binding DisplayName}"
                     Title="Select shift"
                     IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type views:SchedulePage}}, Path=BindingContext.IsNotBusy}" />

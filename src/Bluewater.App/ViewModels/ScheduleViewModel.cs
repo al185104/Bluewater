@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
 using System.IO;
@@ -440,7 +441,7 @@ public partial class ScheduleViewModel : BaseViewModel
 
           bool isDefault = shiftInfo?.IsDefault ?? false;
 
-          var day = new DailyShiftSelection(employee.EmployeeId, date, scheduleId, isDefault, shiftItem);
+          var day = new DailyShiftSelection(employee.EmployeeId, date, scheduleId, isDefault, ShiftOptions, shiftItem);
           days.Add(day);
         }
 
@@ -919,6 +920,7 @@ public sealed class WeeklyEmployeeSchedule
 
 public partial class DailyShiftSelection : ObservableObject
 {
+  private readonly IList<ShiftPickerItem> shiftOptions;
   private Guid? originalShiftId;
   private ShiftPickerItem? originalShiftItem;
   private bool suppressSelectionChanged;
@@ -928,6 +930,7 @@ public partial class DailyShiftSelection : ObservableObject
     DateOnly date,
     Guid? scheduleId,
     bool isDefault,
+    IList<ShiftPickerItem> shiftOptions,
     ShiftPickerItem? selectedShift)
   {
     EmployeeId = employeeId;
@@ -935,7 +938,14 @@ public partial class DailyShiftSelection : ObservableObject
     this.scheduleId = scheduleId;
     this.isDefault = isDefault;
 
-    ShiftPickerItem initialShift = selectedShift ?? ShiftPickerItem.CreateNone();
+    this.shiftOptions = shiftOptions ?? throw new ArgumentNullException(nameof(shiftOptions));
+
+    if (shiftOptions is INotifyCollectionChanged notifyCollectionChanged)
+    {
+      notifyCollectionChanged.CollectionChanged += OnShiftOptionsChanged;
+    }
+
+    ShiftPickerItem initialShift = ResolveInitialShift(selectedShift);
     originalShiftItem = initialShift;
     originalShiftId = initialShift?.Id;
     isDirty = false;
@@ -952,6 +962,9 @@ public partial class DailyShiftSelection : ObservableObject
 
   [ObservableProperty]
   private bool isDefault;
+
+  [ObservableProperty]
+  private int selectedShiftIndex = -1;
 
   [ObservableProperty]
   private ShiftPickerItem? selectedShift;
@@ -980,9 +993,7 @@ public partial class DailyShiftSelection : ObservableObject
 
   private void SetSelectedShift(ShiftPickerItem initialShift)
   {
-    suppressSelectionChanged = true;
-    SelectedShift = initialShift;
-    suppressSelectionChanged = false;
+    UpdateSelectionSilently(initialShift);
   }
 
   partial void OnSelectedShiftChanged(ShiftPickerItem? value)
@@ -990,6 +1001,17 @@ public partial class DailyShiftSelection : ObservableObject
     if (suppressSelectionChanged)
     {
       return;
+    }
+
+    suppressSelectionChanged = true;
+
+    try
+    {
+      SelectedShiftIndex = FindShiftIndex(value);
+    }
+    finally
+    {
+      suppressSelectionChanged = false;
     }
 
     Guid? newId = value?.Id;
@@ -1010,10 +1032,142 @@ public partial class DailyShiftSelection : ObservableObject
 
   public void RevertToOriginal()
   {
-    suppressSelectionChanged = true;
-    SelectedShift = originalShiftItem;
-    suppressSelectionChanged = false;
+    UpdateSelectionSilently(originalShiftItem);
     IsDirty = false;
+  }
+
+  private void UpdateSelectionSilently(ShiftPickerItem? shift)
+  {
+    ShiftPickerItem? resolvedShift = ResolveShiftReference(shift);
+
+    suppressSelectionChanged = true;
+
+    try
+    {
+      SelectedShift = resolvedShift;
+      SelectedShiftIndex = FindShiftIndex(resolvedShift);
+    }
+    finally
+    {
+      suppressSelectionChanged = false;
+    }
+  }
+
+  private ShiftPickerItem ResolveInitialShift(ShiftPickerItem? selectedShift)
+  {
+    ShiftPickerItem? resolved = ResolveShiftReference(selectedShift);
+
+    if (resolved is not null)
+    {
+      return resolved;
+    }
+
+    return ShiftPickerItem.CreateNone();
+  }
+
+  private ShiftPickerItem? ResolveShiftReference(ShiftPickerItem? shift)
+  {
+    if (shiftOptions.Count == 0)
+    {
+      return shift;
+    }
+
+    if (shift is null)
+    {
+      return shiftOptions[0];
+    }
+
+    int index = FindShiftIndex(shift);
+
+    if (index >= 0)
+    {
+      return shiftOptions[index];
+    }
+
+    return shiftOptions[0];
+  }
+
+  private int FindShiftIndex(ShiftPickerItem? value)
+  {
+    if (value is null)
+    {
+      return shiftOptions.Count > 0 ? 0 : -1;
+    }
+
+    int index = shiftOptions.IndexOf(value);
+
+    if (index >= 0)
+    {
+      return index;
+    }
+
+    Guid? id = value.Id;
+
+    if (id is null)
+    {
+      return shiftOptions.Count > 0 ? 0 : -1;
+    }
+
+    for (int i = 0; i < shiftOptions.Count; i++)
+    {
+      ShiftPickerItem option = shiftOptions[i];
+
+      if (option.Id == id)
+      {
+        return i;
+      }
+    }
+
+    return shiftOptions.Count > 0 ? 0 : -1;
+  }
+
+  private ShiftPickerItem? TryGetShiftOption(int index)
+  {
+    if (shiftOptions.Count == 0)
+    {
+      return null;
+    }
+
+    if (index < 0)
+    {
+      return shiftOptions[0];
+    }
+
+    if (index >= shiftOptions.Count)
+    {
+      return shiftOptions[^1];
+    }
+
+    return shiftOptions[index];
+  }
+
+  partial void OnSelectedShiftIndexChanged(int value)
+  {
+    if (suppressSelectionChanged)
+    {
+      return;
+    }
+
+    ShiftPickerItem? shift = TryGetShiftOption(value);
+
+    suppressSelectionChanged = true;
+
+    try
+    {
+      SelectedShift = shift;
+    }
+    finally
+    {
+      suppressSelectionChanged = false;
+    }
+
+    Guid? newId = shift?.Id;
+    IsDirty = !NullableEquals(newId, originalShiftId);
+  }
+
+  private void OnShiftOptionsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+  {
+    UpdateSelectionSilently(SelectedShift);
   }
 
   private static bool NullableEquals(Guid? left, Guid? right)
