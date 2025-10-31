@@ -63,6 +63,6 @@ public class ShiftSummary : IRowIndexed
 
   private static string FormatTimeSpan(TimeSpan value)
   {
-    return value.ToString("HH\\:mm", CultureInfo.InvariantCulture);
+    return value.ToString("hh\\:mm", CultureInfo.InvariantCulture);
   }
 }
