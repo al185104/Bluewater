@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Globalization;
@@ -836,6 +837,8 @@ public partial class EmployeeWeeklyScheduleViewModel : ObservableObject
 
     Days = new ObservableCollection<EmployeeScheduleDayViewModel>();
 
+    ShiftOption defaultShift = ResolveInitialShift(parent, summary);
+
     Dictionary<DateOnly, ScheduleShiftInfoSummary> lookup = summary.Shifts?
       .Where(shift => shift is not null)
       .ToDictionary(shift => shift!.ScheduleDate, shift => shift!, DateOnlyComparer.Instance)
@@ -844,7 +847,10 @@ public partial class EmployeeWeeklyScheduleViewModel : ObservableObject
     for (DateOnly date = weekStart; date <= weekEnd; date = date.AddDays(1))
     {
       lookup.TryGetValue(date, out ScheduleShiftInfoSummary? info);
-      ShiftOption option = parent.GetShiftOption(info?.Shift?.Id, info?.Shift);
+      ShiftOption option = info?.Shift is not null
+        ? parent.GetShiftOption(info.Shift.Id, info.Shift)
+        : defaultShift;
+
       var day = new EmployeeScheduleDayViewModel(parent, EmployeeId, date);
       day.Initialize(info?.ScheduleId ?? Guid.Empty, info?.IsDefault ?? false, option);
       day.PropertyChanged += OnDayPropertyChanged;
@@ -878,6 +884,27 @@ public partial class EmployeeWeeklyScheduleViewModel : ObservableObject
     {
       OnPropertyChanged(nameof(HasPendingChanges));
     }
+  }
+
+  private static ShiftOption ResolveInitialShift(ScheduleViewModel parent, EmployeeScheduleSummary summary)
+  {
+    ArgumentNullException.ThrowIfNull(parent);
+    ArgumentNullException.ThrowIfNull(summary);
+
+    ScheduleShiftInfoSummary? initialShiftInfo = summary.Shifts?
+      .FirstOrDefault(shift => shift?.Shift is not null);
+
+    if (initialShiftInfo?.Shift is not null)
+    {
+      return parent.GetShiftOption(initialShiftInfo.Shift.Id, initialShiftInfo.Shift);
+    }
+
+    if (parent.ShiftOptions.Count > 0)
+    {
+      return parent.ShiftOptions[0];
+    }
+
+    return parent.NormalizeShiftOption(null);
   }
 }
 
