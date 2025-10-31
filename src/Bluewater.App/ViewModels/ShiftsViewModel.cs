@@ -2,11 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Controls;
 
 namespace Bluewater.App.ViewModels;
 
@@ -33,6 +36,8 @@ public partial class ShiftsViewModel : BaseViewModel
 
   public bool CanUpdateSelectedShift => SelectedShift is not null && SelectedShift.Id != Guid.Empty;
 
+  public bool CanDeleteSelectedShift => SelectedShift is not null;
+
   public override async Task InitializeAsync()
   {
     if (IsBusy || hasInitialized)
@@ -55,10 +60,11 @@ public partial class ShiftsViewModel : BaseViewModel
       ShiftBreakEndTime = string.Empty,
       ShiftEndTime = string.Empty,
       BreakHours = 0m,
-      RowIndex = Shifts.Count
+      RowIndex = 0
     };
 
-    Shifts.Add(newShift);
+    Shifts.Insert(0, newShift);
+    UpdateRowIndices();
     SelectedShift = newShift;
 
     await TraceCommandAsync("AddShift", new
@@ -148,8 +154,10 @@ public partial class ShiftsViewModel : BaseViewModel
       IsBusy = false;
       OnPropertyChanged(nameof(CanSaveSelectedShift));
       OnPropertyChanged(nameof(CanUpdateSelectedShift));
+      OnPropertyChanged(nameof(CanDeleteSelectedShift));
       SaveShiftCommand.NotifyCanExecuteChanged();
       UpdateShiftCommand.NotifyCanExecuteChanged();
+      DeleteShiftCommand.NotifyCanExecuteChanged();
     }
   }
 
@@ -193,8 +201,103 @@ public partial class ShiftsViewModel : BaseViewModel
       IsBusy = false;
       OnPropertyChanged(nameof(CanSaveSelectedShift));
       OnPropertyChanged(nameof(CanUpdateSelectedShift));
+      OnPropertyChanged(nameof(CanDeleteSelectedShift));
       SaveShiftCommand.NotifyCanExecuteChanged();
       UpdateShiftCommand.NotifyCanExecuteChanged();
+      DeleteShiftCommand.NotifyCanExecuteChanged();
+    }
+  }
+
+  [RelayCommand(CanExecute = nameof(CanDeleteSelectedShift))]
+  private async Task DeleteShiftAsync()
+  {
+    if (SelectedShift is null)
+    {
+      return;
+    }
+
+    ShiftSummary shiftToDelete = SelectedShift;
+
+    bool confirmed = await ConfirmDeleteAsync(shiftToDelete).ConfigureAwait(false);
+
+    if (!confirmed)
+    {
+      return;
+    }
+
+    if (shiftToDelete.Id == Guid.Empty)
+    {
+      Shifts.Remove(shiftToDelete);
+      UpdateRowIndices();
+      SelectedShift = Shifts.Count > 0 ? Shifts[0] : null;
+      await TraceCommandAsync(nameof(DeleteShiftAsync), new
+      {
+        shiftToDelete.Id,
+        shiftToDelete.Name,
+        WasPersisted = false
+      }).ConfigureAwait(false);
+      return;
+    }
+
+    bool deleted = false;
+
+    try
+    {
+      IsBusy = true;
+      deleted = await shiftApiService.DeleteShiftAsync(shiftToDelete.Id).ConfigureAwait(false);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Deleting shift");
+    }
+    finally
+    {
+      IsBusy = false;
+    }
+
+    if (!deleted)
+    {
+      return;
+    }
+
+    await TraceCommandAsync(nameof(DeleteShiftAsync), new
+    {
+      shiftToDelete.Id,
+      shiftToDelete.Name,
+      WasPersisted = true
+    }).ConfigureAwait(false);
+
+    await LoadShiftsAsync().ConfigureAwait(false);
+  }
+
+  private static async Task<bool> ConfirmDeleteAsync(ShiftSummary shift)
+  {
+    return await MainThread.InvokeOnMainThreadAsync(async () =>
+    {
+      Page? mainPage = Application.Current?.Windows?.FirstOrDefault()?.Page;
+
+      if (mainPage is null)
+      {
+        return false;
+      }
+
+      string shiftName = string.IsNullOrWhiteSpace(shift.Name)
+        ? "this shift"
+        : shift.Name;
+
+      return await mainPage.DisplayAlert(
+        "Delete Shift",
+        $"Are you sure you want to delete {shiftName}?",
+        "Delete",
+        "Cancel");
+    }).ConfigureAwait(false);
+  }
+
+  private void UpdateRowIndices()
+  {
+    for (int index = 0; index < Shifts.Count; index++)
+    {
+      Shifts[index].RowIndex = index;
     }
   }
 
@@ -202,7 +305,9 @@ public partial class ShiftsViewModel : BaseViewModel
   {
     OnPropertyChanged(nameof(CanSaveSelectedShift));
     OnPropertyChanged(nameof(CanUpdateSelectedShift));
+    OnPropertyChanged(nameof(CanDeleteSelectedShift));
     SaveShiftCommand.NotifyCanExecuteChanged();
     UpdateShiftCommand.NotifyCanExecuteChanged();
+    DeleteShiftCommand.NotifyCanExecuteChanged();
   }
 }

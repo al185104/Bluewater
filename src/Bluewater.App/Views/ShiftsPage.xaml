@@ -29,6 +29,23 @@
                 <Setter Property="VerticalOptions"
                         Value="Center" />
             </Style>
+            <Style x:Key="ShiftTimePickerStyle"
+                   TargetType="TimePicker">
+                <Setter Property="BackgroundColor"
+                        Value="Transparent" />
+                <Setter Property="TextColor"
+                        Value="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                <Setter Property="Format"
+                        Value="HH:mm" />
+                <Setter Property="Margin"
+                        Value="0" />
+                <Setter Property="FontSize"
+                        Value="13" />
+                <Setter Property="HorizontalOptions"
+                        Value="Fill" />
+                <Setter Property="VerticalOptions"
+                        Value="Center" />
+            </Style>
             <DataTemplate x:Key="ShiftPrimaryTemplate"
                           x:DataType="models:ShiftSummary">
                 <Border Style="{StaticResource ShiftRowBorderStyle}"
@@ -40,26 +57,18 @@
                                Style="{StaticResource ShiftEntryStyle}"
                                FontAttributes="Bold"
                                Placeholder="Shift name" />
-                        <Entry Grid.Column="1"
-                               Text="{Binding ShiftStartTime}"
-                               Style="{StaticResource ShiftEntryStyle}"
-                               Placeholder="HH:mm"
-                               HorizontalTextAlignment="Center" />
-                        <Entry Grid.Column="2"
-                               Text="{Binding ShiftBreakTime}"
-                               Style="{StaticResource ShiftEntryStyle}"
-                               Placeholder="HH:mm"
-                               HorizontalTextAlignment="Center" />
-                        <Entry Grid.Column="3"
-                               Text="{Binding ShiftBreakEndTime}"
-                               Style="{StaticResource ShiftEntryStyle}"
-                               Placeholder="HH:mm"
-                               HorizontalTextAlignment="Center" />
-                        <Entry Grid.Column="4"
-                               Text="{Binding ShiftEndTime}"
-                               Style="{StaticResource ShiftEntryStyle}"
-                               Placeholder="HH:mm"
-                               HorizontalTextAlignment="Center" />
+                        <TimePicker Grid.Column="1"
+                                    Time="{Binding ShiftStartTimeValue}"
+                                    Style="{StaticResource ShiftTimePickerStyle}" />
+                        <TimePicker Grid.Column="2"
+                                    Time="{Binding ShiftBreakTimeValue}"
+                                    Style="{StaticResource ShiftTimePickerStyle}" />
+                        <TimePicker Grid.Column="3"
+                                    Time="{Binding ShiftBreakEndTimeValue}"
+                                    Style="{StaticResource ShiftTimePickerStyle}" />
+                        <TimePicker Grid.Column="4"
+                                    Time="{Binding ShiftEndTimeValue}"
+                                    Style="{StaticResource ShiftTimePickerStyle}" />
                         <Label Grid.Column="5"
                                Text="{Binding BreakHoursDisplay}"
                                HorizontalTextAlignment="Center"
@@ -90,6 +99,9 @@
                     <Button Text="Update"
                             Command="{Binding UpdateShiftCommand}"
                             IsEnabled="{Binding CanUpdateSelectedShift}" />
+                    <Button Text="Delete"
+                            Command="{Binding DeleteShiftCommand}"
+                            IsEnabled="{Binding CanDeleteSelectedShift}" />
                 </HorizontalStackLayout>
             </Grid>
             <Grid Grid.Row="1">
