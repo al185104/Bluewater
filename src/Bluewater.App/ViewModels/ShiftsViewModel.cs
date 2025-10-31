@@ -152,12 +152,7 @@ public partial class ShiftsViewModel : BaseViewModel
     finally
     {
       IsBusy = false;
-      OnPropertyChanged(nameof(CanSaveSelectedShift));
-      OnPropertyChanged(nameof(CanUpdateSelectedShift));
-      OnPropertyChanged(nameof(CanDeleteSelectedShift));
-      SaveShiftCommand.NotifyCanExecuteChanged();
-      UpdateShiftCommand.NotifyCanExecuteChanged();
-      DeleteShiftCommand.NotifyCanExecuteChanged();
+      RefreshCommandStates();
     }
   }
 
@@ -199,12 +194,7 @@ public partial class ShiftsViewModel : BaseViewModel
     finally
     {
       IsBusy = false;
-      OnPropertyChanged(nameof(CanSaveSelectedShift));
-      OnPropertyChanged(nameof(CanUpdateSelectedShift));
-      OnPropertyChanged(nameof(CanDeleteSelectedShift));
-      SaveShiftCommand.NotifyCanExecuteChanged();
-      UpdateShiftCommand.NotifyCanExecuteChanged();
-      DeleteShiftCommand.NotifyCanExecuteChanged();
+      RefreshCommandStates();
     }
   }
 
@@ -303,11 +293,28 @@ public partial class ShiftsViewModel : BaseViewModel
 
   partial void OnSelectedShiftChanged(ShiftSummary? value)
   {
-    OnPropertyChanged(nameof(CanSaveSelectedShift));
-    OnPropertyChanged(nameof(CanUpdateSelectedShift));
-    OnPropertyChanged(nameof(CanDeleteSelectedShift));
-    SaveShiftCommand.NotifyCanExecuteChanged();
-    UpdateShiftCommand.NotifyCanExecuteChanged();
-    DeleteShiftCommand.NotifyCanExecuteChanged();
+    RefreshCommandStates();
+  }
+
+  private void RefreshCommandStates()
+  {
+    void refresh()
+    {
+      OnPropertyChanged(nameof(CanSaveSelectedShift));
+      OnPropertyChanged(nameof(CanUpdateSelectedShift));
+      OnPropertyChanged(nameof(CanDeleteSelectedShift));
+      SaveShiftCommand.NotifyCanExecuteChanged();
+      UpdateShiftCommand.NotifyCanExecuteChanged();
+      DeleteShiftCommand.NotifyCanExecuteChanged();
+    }
+
+    if (MainThread.IsMainThread)
+    {
+      refresh();
+    }
+    else
+    {
+      MainThread.BeginInvokeOnMainThread(refresh);
+    }
   }
 }
