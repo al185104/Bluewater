@@ -725,7 +725,7 @@ public partial class ScheduleViewModel : BaseViewModel
   }
 }
 
-public sealed class ShiftOption
+public sealed class ShiftOption : IEquatable<ShiftOption>
 {
   public ShiftOption(Guid id, string name, string? details = null)
   {
@@ -743,6 +743,42 @@ public sealed class ShiftOption
   public string DisplayName => string.IsNullOrWhiteSpace(Details) ? Name : $"{Name} ({Details})";
 
   public override string ToString() => DisplayName;
+
+  public bool Equals(ShiftOption? other)
+  {
+    if (ReferenceEquals(null, other))
+    {
+      return false;
+    }
+
+    if (ReferenceEquals(this, other))
+    {
+      return true;
+    }
+
+    return Id == other.Id;
+  }
+
+  public override bool Equals(object? obj) => Equals(obj as ShiftOption);
+
+  public override int GetHashCode() => Id.GetHashCode();
+
+  public static bool operator ==(ShiftOption? left, ShiftOption? right)
+  {
+    if (ReferenceEquals(left, right))
+    {
+      return true;
+    }
+
+    if (left is null || right is null)
+    {
+      return false;
+    }
+
+    return left.Equals(right);
+  }
+
+  public static bool operator !=(ShiftOption? left, ShiftOption? right) => !(left == right);
 }
 
 public partial class EmployeeWeeklyScheduleViewModel : ObservableObject
