@@ -563,6 +563,8 @@ public partial class ScheduleViewModel : BaseViewModel
         EmployeeSchedules.Add(employee);
       }
 
+      RefreshExistingShiftSelections();
+
       RefreshPendingChangesState();
 
       await TraceCommandAsync(nameof(LoadSchedulesAsync), new
@@ -970,7 +972,7 @@ public partial class EmployeeScheduleDayViewModel : ObservableObject
     ShiftOption committed = parent.NormalizeShiftOption(CurrentCommittedShift);
     CurrentCommittedShift = committed;
 
-    ShiftOption normalizedSelected = parent.NormalizeShiftOption(SelectedShift);
+    ShiftOption normalizedSelected = parent.NormalizeShiftOption(SelectedShift ?? committed);
     SetSelectionSilently(normalizedSelected);
   }
 
