@@ -312,6 +312,27 @@ public partial class ScheduleViewModel : BaseViewModel
     return AddShiftOption(option);
   }
 
+  internal ShiftOption NormalizeShiftOption(ShiftOption? option)
+  {
+    if (option is null)
+    {
+      return EnsureNoneOption();
+    }
+
+    if (option.Id == Guid.Empty)
+    {
+      return EnsureNoneOption();
+    }
+
+    if (shiftOptionLookup.TryGetValue(option.Id, out ShiftOption? existing))
+    {
+      return existing;
+    }
+
+    var normalized = new ShiftOption(option.Id, option.Name, option.Details);
+    return AddShiftOption(normalized);
+  }
+
   internal async Task HandleDaySelectionChangedAsync(EmployeeScheduleDayViewModel day, ShiftOption? option)
   {
     if (day is null)
@@ -319,7 +340,7 @@ public partial class ScheduleViewModel : BaseViewModel
       return;
     }
 
-    ShiftOption targetOption = option ?? EnsureNoneOption();
+    ShiftOption targetOption = NormalizeShiftOption(option);
 
     await updateSemaphore.WaitAsync().ConfigureAwait(false);
     try
@@ -429,6 +450,22 @@ public partial class ScheduleViewModel : BaseViewModel
     }
   }
 
+  private void RefreshExistingShiftSelections()
+  {
+    if (EmployeeSchedules.Count == 0)
+    {
+      return;
+    }
+
+    foreach (EmployeeWeeklyScheduleViewModel employee in EmployeeSchedules)
+    {
+      foreach (EmployeeScheduleDayViewModel day in employee.Days)
+      {
+        day.RefreshShiftOptionReferences();
+      }
+    }
+  }
+
   private async Task ChangeWeekAsync(int days)
   {
     if (!hasInitialized)
@@ -485,6 +522,8 @@ public partial class ScheduleViewModel : BaseViewModel
       string? range = FormatTimeRange(shift);
       _ = AddShiftOption(new ShiftOption(shift.Id, shift.Name, range));
     }
+
+    RefreshExistingShiftSelections();
 
     await TraceCommandAsync(nameof(LoadShiftsAsync), new
     {
@@ -891,8 +930,9 @@ public partial class EmployeeScheduleDayViewModel : ObservableObject
   {
     ScheduleId = scheduleId;
     IsDefault = isDefault;
-    SetSelectionSilently(option);
-    CurrentCommittedShift = option;
+    ShiftOption normalized = parent.NormalizeShiftOption(option);
+    SetSelectionSilently(normalized);
+    CurrentCommittedShift = normalized;
   }
 
   public void UpdateScheduleState(Guid scheduleId, bool isDefault)
@@ -903,19 +943,19 @@ public partial class EmployeeScheduleDayViewModel : ObservableObject
 
   public void SetCommittedSelection(ShiftOption option)
   {
-    CurrentCommittedShift = option;
+    CurrentCommittedShift = parent.NormalizeShiftOption(option);
     OnPropertyChanged(nameof(HasPendingChanges));
   }
 
   public void RestoreCommittedSelection()
   {
-    ShiftOption fallback = CurrentCommittedShift ?? parent.GetShiftOption(Guid.Empty, null);
+    ShiftOption fallback = parent.NormalizeShiftOption(CurrentCommittedShift);
     SetSelectionSilently(fallback);
   }
 
   public void SetSelectionSilently(ShiftOption? option)
   {
-    ShiftOption target = option ?? parent.GetShiftOption(Guid.Empty, null);
+    ShiftOption target = parent.NormalizeShiftOption(option);
     suppressSelectionChanged = true;
     if (EqualityComparer<ShiftOption?>.Default.Equals(SelectedShift, target))
     {
@@ -923,6 +963,15 @@ public partial class EmployeeScheduleDayViewModel : ObservableObject
     }
     SelectedShift = target;
     suppressSelectionChanged = false;
+  }
+
+  internal void RefreshShiftOptionReferences()
+  {
+    ShiftOption committed = parent.NormalizeShiftOption(CurrentCommittedShift);
+    CurrentCommittedShift = committed;
+
+    ShiftOption normalizedSelected = parent.NormalizeShiftOption(SelectedShift);
+    SetSelectionSilently(normalizedSelected);
   }
 
   partial void OnSelectedShiftChanged(ShiftOption? value)
