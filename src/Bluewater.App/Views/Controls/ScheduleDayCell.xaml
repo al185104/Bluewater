@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:Bluewater.App.ViewModels"
+             xmlns:views="clr-namespace:Bluewater.App.Views"
+             x:Class="Bluewater.App.Views.Controls.ScheduleDayCell"
+             x:DataType="viewmodels:DailyShiftSelection">
+    <VerticalStackLayout Spacing="4">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="6">
+            <Label Grid.Column="0"
+                   Text="●"
+                   TextColor="#d97706"
+                   VerticalOptions="Center"
+                   IsVisible="{Binding IsDirty}"
+                   FontSize="12" />
+            <Picker Grid.Column="1"
+                    ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type views:SchedulePage}}, Path=BindingContext.ShiftOptions}"
+                    SelectedItem="{Binding SelectedShift}"
+                    ItemDisplayBinding="{Binding DisplayName}"
+                    Title="Select shift"
+                    IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type views:SchedulePage}}, Path=BindingContext.IsNotBusy}" />
+        </Grid>
+        <Label Text="{Binding SelectedShift.Description}"
+               FontSize="11"
+               TextColor="#666666"
+               LineBreakMode="TailTruncation">
+            <Label.Triggers>
+                <Trigger TargetType="Label"
+                         Property="Text"
+                         Value="">
+                    <Setter Property="IsVisible" Value="False" />
+                </Trigger>
+                <Trigger TargetType="Label"
+                         Property="Text"
+                         Value="{x:Null}">
+                    <Setter Property="IsVisible" Value="False" />
+                </Trigger>
+            </Label.Triggers>
+        </Label>
+        <Label Text="Default schedule"
+               FontSize="10"
+               TextColor="#888888"
+               IsVisible="{Binding IsDefault}" />
+    </VerticalStackLayout>
+</ContentView>
