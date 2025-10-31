@@ -309,9 +309,7 @@ public partial class ScheduleViewModel : BaseViewModel
     string? range = shiftDetails is null ? null : FormatTimeRange(shiftDetails.ShiftStartTime, shiftDetails.ShiftEndTime);
 
     var option = new ShiftOption(shiftId.Value, name, range);
-    AddShiftOption(option);
-
-    return option;
+    return AddShiftOption(option);
   }
 
   internal async Task HandleDaySelectionChangedAsync(EmployeeScheduleDayViewModel day, ShiftOption? option)
@@ -485,7 +483,7 @@ public partial class ScheduleViewModel : BaseViewModel
     foreach (ShiftSummary shift in shifts.OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase))
     {
       string? range = FormatTimeRange(shift);
-      AddShiftOption(new ShiftOption(shift.Id, shift.Name, range));
+      _ = AddShiftOption(new ShiftOption(shift.Id, shift.Name, range));
     }
 
     await TraceCommandAsync(nameof(LoadShiftsAsync), new
@@ -627,16 +625,14 @@ public partial class ScheduleViewModel : BaseViewModel
     }
 
     var option = new ShiftOption(Guid.Empty, "Unassigned");
-    AddShiftOption(option, insertAtStart: true);
-    return option;
+    return AddShiftOption(option, insertAtStart: true);
   }
 
-  private void AddShiftOption(ShiftOption option, bool insertAtStart = false)
+  private ShiftOption AddShiftOption(ShiftOption option, bool insertAtStart = false)
   {
-    if (shiftOptionLookup.ContainsKey(option.Id))
+    if (shiftOptionLookup.TryGetValue(option.Id, out ShiftOption? existing))
     {
-      shiftOptionLookup[option.Id] = option;
-      return;
+      return existing;
     }
 
     shiftOptionLookup[option.Id] = option;
@@ -649,11 +645,13 @@ public partial class ScheduleViewModel : BaseViewModel
     {
       ShiftOptions.Add(option);
     }
+
+    return option;
   }
 
-  private void AddShiftOption(ShiftOption option)
+  private ShiftOption AddShiftOption(ShiftOption option)
   {
-    AddShiftOption(option, insertAtStart: false);
+    return AddShiftOption(option, insertAtStart: false);
   }
 
   private void UpdateWeekDays()
