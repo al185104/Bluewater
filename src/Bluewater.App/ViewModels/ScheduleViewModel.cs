@@ -158,9 +158,6 @@ public partial class ScheduleViewModel : BaseViewModel
     }
   }
 
-
-
-
   [RelayCommand(CanExecute = nameof(CanUpdateSchedules))]
   private async Task UpdateSchedulesAsync()
   {
@@ -574,11 +571,6 @@ public partial class ScheduleViewModel : BaseViewModel
     {
       RefreshPendingChangesState();
     }
-  }
-
-  partial void OnIsBusyChanged(bool value)
-  {
-    UpdateSchedulesCommand.NotifyCanExecuteChanged();
   }
 
   partial void OnIsLoadingSchedulesChanged(bool value)
