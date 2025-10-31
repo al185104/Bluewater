@@ -32,7 +32,6 @@
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
-    <Grid>
         <Grid Padding="20,40"
               RowDefinitions="Auto,Auto,Auto,*"
               RowSpacing="16">
@@ -90,15 +89,15 @@
                    Style="{StaticResource BodyTextStyle}"
                    TextColor="{AppThemeBinding Light=#0A386E, Dark=#9CC4FF}"
                    IsVisible="{Binding HasImportStatusMessage}" />
-            <Grid Grid.Row="3">
-                <CollectionView ItemsSource="{Binding EmployeeSchedules}"
+        <Grid Grid.Row="3">
+            <CollectionView ItemsSource="{Binding EmployeeSchedules}"
                                 SelectionMode="None"
                                 VerticalOptions="Fill"
                                 Margin="0">
                     <CollectionView.Header>
                         <Border Style="{StaticResource ScheduleHeaderBorderStyle}"
                                 StrokeShape="RoundRectangle 10 10 0 0">
-                            <Grid ColumnDefinitions="2*,5*"
+                            <Grid ColumnDefinitions="*,6*"
                                   ColumnSpacing="12">
                                 <Label Text="Employee"
                                        TextColor="White"
@@ -135,8 +134,8 @@
                         <DataTemplate x:DataType="viewmodels:EmployeeWeeklyScheduleViewModel">
                             <Border StrokeThickness="0"
                                     BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
-                                <Grid ColumnDefinitions="2*,5*"
-                                      Padding="20"
+                                <Grid ColumnDefinitions="*,6*"
+                                      Padding="20,5"
                                       ColumnSpacing="12">
                                     <VerticalStackLayout Spacing="2">
                                         <Label Text="{Binding Name}"
@@ -197,5 +196,4 @@
                                    VerticalOptions="Center" />
             </Grid>
         </Grid>
-    </Grid>
 </ContentPage>

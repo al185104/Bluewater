@@ -46,7 +46,7 @@
                 <Setter Property="VerticalOptions"
                         Value="Fill" />
                 <Setter Property="FontSize"
-                        Value="Small" />
+                        Value="16" />
             </Style>
             <DataTemplate x:Key="ShiftPrimaryTemplate"
                           x:DataType="models:ShiftSummary">
@@ -90,7 +90,6 @@
                                Text="{Binding BreakHoursDisplay}"
                                HorizontalTextAlignment="Center"
                                VerticalOptions="Center"
-                               FontSize="Small"
                                TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
                     </Grid>
                 </Border>
@@ -143,7 +142,7 @@
                         <Border StrokeShape="RoundRectangle 10 10 0 0"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
                             <Grid ColumnSpacing="12"
-                                  Padding="20"
+                                  Padding="20,10"
                                   ColumnDefinitions="*,*,*,*,*,0.5*">
                                 <Label Text="Name"
                                        TextColor="White"

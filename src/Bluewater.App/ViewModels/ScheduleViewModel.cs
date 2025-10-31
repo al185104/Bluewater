@@ -1,22 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Globalization;
-using System.IO;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Maui.ApplicationModel;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Devices;
-using Microsoft.Maui.Storage;
 
 namespace Bluewater.App.ViewModels;
 
@@ -41,9 +31,9 @@ public partial class ScheduleViewModel : BaseViewModel
     this.scheduleApiService = scheduleApiService;
     this.shiftApiService = shiftApiService;
     this.referenceDataService = referenceDataService;
+    ImportStatusMessage = string.Empty;
 
     WeekStart = GetStartOfWeek(DateOnly.FromDateTime(DateTime.Today));
-    UpdateWeekDays();
 
     EmployeeSchedules.CollectionChanged += OnEmployeeSchedulesCollectionChanged;
   }
@@ -57,21 +47,21 @@ public partial class ScheduleViewModel : BaseViewModel
   public ObservableCollection<WeekDayHeaderViewModel> WeekDays { get; } = new();
 
   [ObservableProperty]
-  private ChargingSummary? selectedCharging;
+  public partial ChargingSummary? SelectedCharging { get; set; }
 
   [ObservableProperty]
   [NotifyPropertyChangedFor(nameof(WeekEnd))]
   [NotifyPropertyChangedFor(nameof(WeekRangeDisplay))]
-  private DateOnly weekStart;
+  public partial DateOnly WeekStart { get; set; }
 
   [ObservableProperty]
-  private bool isLoadingSchedules;
+  public partial bool IsLoadingSchedules { get; set; }
 
   [ObservableProperty]
-  private string importStatusMessage = string.Empty;
+  public partial string ImportStatusMessage { get; set; }
 
   [ObservableProperty]
-  private bool hasImportStatusMessage;
+  public partial bool HasImportStatusMessage { get; set; }
 
   public DateOnly WeekEnd => WeekStart.AddDays(6);
 
@@ -121,7 +111,7 @@ public partial class ScheduleViewModel : BaseViewModel
       await referenceDataService.InitializeAsync().ConfigureAwait(false);
       LoadChargings();
       await LoadShiftsAsync().ConfigureAwait(false);
-      UpdateWeekDays();
+      //UpdateWeekDays();
 
       hasInitialized = true;
 
@@ -705,18 +695,18 @@ public partial class EmployeeScheduleDayViewModel : ObservableObject
   public DateOnly Date { get; }
 
   [ObservableProperty]
-  private Guid scheduleId;
+  public partial Guid ScheduleId { get; set; }
 
   [ObservableProperty]
-  private bool isDefault;
+  public partial bool IsDefault { get; set; }
 
   [ObservableProperty]
   [NotifyPropertyChangedFor(nameof(HasAssignedShift))]
-  private ShiftOption? selectedShift;
+  public partial ShiftOption? SelectedShift { get; set; }
 
   [ObservableProperty]
   [NotifyPropertyChangedFor(nameof(IsEnabled))]
-  private bool isProcessing;
+  public partial bool IsProcessing { get; set; }
 
   public ShiftOption? CurrentCommittedShift { get; private set; }
 
@@ -787,4 +777,13 @@ public sealed class WeekDayHeaderViewModel
 internal sealed class DateOnlyComparer : IEqualityComparer<DateOnly>
 {
   public static DateOnlyComparer Instance { get; } = new();
+
+  public bool Equals(DateOnly x, DateOnly y) => x == y;
+
+  public int GetHashCode(DateOnly obj)
+  {
+    // Avoid converting to DateTime which can throw for extreme DateOnly values.
+    return HashCode.Combine(obj.Year, obj.Month, obj.Day);
+  }
+}
 
