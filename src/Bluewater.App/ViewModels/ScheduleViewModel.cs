@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -12,6 +12,7 @@ using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Devices;
 using Microsoft.Maui.Storage;
 
@@ -382,14 +383,14 @@ public partial class ScheduleViewModel : BaseViewModel
     HasImportStatusMessage = !string.IsNullOrWhiteSpace(value);
   }
 
-  //partial void OnIsBusyChanged(bool value)
-  //{
-  //  OnPropertyChanged(nameof(IsNotBusy));
-  //  SaveChangesCommand.NotifyCanExecuteChanged();
-  //  PreviousWeekCommand.NotifyCanExecuteChanged();
-  //  NextWeekCommand.NotifyCanExecuteChanged();
-  //  ImportSchedulesCommand.NotifyCanExecuteChanged();
-  //}
+  partial void OnIsBusyChanged(bool value)
+  {
+    OnPropertyChanged(nameof(IsNotBusy));
+    SaveChangesCommand.NotifyCanExecuteChanged();
+    PreviousWeekCommand.NotifyCanExecuteChanged();
+    NextWeekCommand.NotifyCanExecuteChanged();
+    ImportSchedulesCommand.NotifyCanExecuteChanged();
+  }
 
   private async Task LoadSchedulesAsync()
   {
@@ -931,12 +932,15 @@ public partial class DailyShiftSelection : ObservableObject
   {
     EmployeeId = employeeId;
     Date = date;
-    this.ScheduleId = scheduleId;
-    this.IsDefault = isDefault;
-    this.SelectedShift = selectedShift ?? ShiftPickerItem.CreateNone();
-    originalShiftItem = this.SelectedShift;
-    originalShiftId = this.SelectedShift.Id;
-    IsDirty = false;
+    this.scheduleId = scheduleId;
+    this.isDefault = isDefault;
+
+    ShiftPickerItem initialShift = selectedShift ?? ShiftPickerItem.CreateNone();
+    originalShiftItem = initialShift;
+    originalShiftId = initialShift?.Id;
+    isDirty = false;
+
+    ApplyInitialSelection(initialShift);
   }
 
   public Guid EmployeeId { get; }
@@ -944,20 +948,42 @@ public partial class DailyShiftSelection : ObservableObject
   public DateOnly Date { get; }
 
   [ObservableProperty]
-  public partial Guid? ScheduleId { get; set; }
+  private Guid? scheduleId;
 
   [ObservableProperty]
-  public partial bool IsDefault { get; set; }
+  private bool isDefault;
 
   [ObservableProperty]
-  public partial ShiftPickerItem? SelectedShift { get; set; }
+  private ShiftPickerItem? selectedShift;
 
   [ObservableProperty]
-  public partial bool IsDirty { get; set; }
+  private bool isDirty;
 
   public Guid? SelectedShiftId => SelectedShift?.Id;
 
   public ShiftPickerItem? OriginalShift => originalShiftItem;
+
+  private void ApplyInitialSelection(ShiftPickerItem initialShift)
+  {
+    if (MainThread.IsMainThread)
+    {
+      SetSelectedShift(initialShift);
+    }
+    else
+    {
+      MainThread
+        .InvokeOnMainThreadAsync(() => SetSelectedShift(initialShift))
+        .GetAwaiter()
+        .GetResult();
+    }
+  }
+
+  private void SetSelectedShift(ShiftPickerItem initialShift)
+  {
+    suppressSelectionChanged = true;
+    SelectedShift = initialShift;
+    suppressSelectionChanged = false;
+  }
 
   partial void OnSelectedShiftChanged(ShiftPickerItem? value)
   {

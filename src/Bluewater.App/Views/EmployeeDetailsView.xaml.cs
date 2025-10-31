@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Input;
@@ -159,34 +160,80 @@ public partial class EmployeeDetailsView : ContentView
     {
       if (EditableEmployee is null)
       {
-        PositionPicker.SelectedItem = null;
-        TypePicker.SelectedItem = null;
-        LevelPicker.SelectedItem = null;
-        ChargingPicker.SelectedItem = null;
+        ClearPickerSelection(PositionPicker);
+        ClearPickerSelection(TypePicker);
+        ClearPickerSelection(LevelPicker);
+        ClearPickerSelection(ChargingPicker);
         return;
       }
 
-      PositionPicker.SelectedItem = Positions.FirstOrDefault(position => position.Id == EditableEmployee.PositionId)
-        ?? (!string.IsNullOrWhiteSpace(EditableEmployee.Position)
-            ? Positions.FirstOrDefault(position => string.Equals(position.Name, EditableEmployee.Position, StringComparison.OrdinalIgnoreCase))
-            : null);
+      SetPickerSelection(PositionPicker,
+        Positions.FirstOrDefault(position => position.Id == EditableEmployee.PositionId)
+          ?? (!string.IsNullOrWhiteSpace(EditableEmployee.Position)
+              ? Positions.FirstOrDefault(position => string.Equals(position.Name, EditableEmployee.Position, StringComparison.OrdinalIgnoreCase))
+              : null));
 
-      TypePicker.SelectedItem = EmployeeTypes.FirstOrDefault(type => type.Id == EditableEmployee.TypeId)
-        ?? (!string.IsNullOrWhiteSpace(EditableEmployee.Type)
-            ? EmployeeTypes.FirstOrDefault(type => string.Equals(type.Name, EditableEmployee.Type, StringComparison.OrdinalIgnoreCase))
-            : null);
+      SetPickerSelection(TypePicker,
+        EmployeeTypes.FirstOrDefault(type => type.Id == EditableEmployee.TypeId)
+          ?? (!string.IsNullOrWhiteSpace(EditableEmployee.Type)
+              ? EmployeeTypes.FirstOrDefault(type => string.Equals(type.Name, EditableEmployee.Type, StringComparison.OrdinalIgnoreCase))
+              : null));
 
-      LevelPicker.SelectedItem = Levels.FirstOrDefault(level => level.Id == EditableEmployee.LevelId)
-        ?? (!string.IsNullOrWhiteSpace(EditableEmployee.Level)
-            ? Levels.FirstOrDefault(level => string.Equals(level.Name, EditableEmployee.Level, StringComparison.OrdinalIgnoreCase))
-            : null);
+      SetPickerSelection(LevelPicker,
+        Levels.FirstOrDefault(level => level.Id == EditableEmployee.LevelId)
+          ?? (!string.IsNullOrWhiteSpace(EditableEmployee.Level)
+              ? Levels.FirstOrDefault(level => string.Equals(level.Name, EditableEmployee.Level, StringComparison.OrdinalIgnoreCase))
+              : null));
 
-      ChargingPicker.SelectedItem = Chargings.FirstOrDefault(charging => charging.Id == EditableEmployee.ChargingId);
+      SetPickerSelection(ChargingPicker,
+        Chargings.FirstOrDefault(charging => charging.Id == EditableEmployee.ChargingId));
     }
     finally
     {
       isSelectionUpdateInProgress = false;
     }
+  }
+
+  private static void ClearPickerSelection(Picker picker)
+  {
+    if (picker.ItemsSource is IList)
+    {
+      picker.SelectedIndex = -1;
+    }
+
+    picker.SelectedItem = null;
+  }
+
+  private static void SetPickerSelection<T>(Picker picker, T? item)
+    where T : class
+  {
+    if (picker.ItemsSource is not IList items)
+    {
+      picker.SelectedItem = item;
+      picker.SelectedIndex = item is null ? -1 : picker.SelectedIndex;
+      return;
+    }
+
+    if (item is null)
+    {
+      picker.SelectedIndex = -1;
+      picker.SelectedItem = null;
+      return;
+    }
+
+    int index = -1;
+
+    for (int i = 0; i < items.Count; i++)
+    {
+      if (items[i] is T candidate && EqualityComparer<T>.Default.Equals(candidate, item))
+      {
+        index = i;
+        break;
+      }
+    }
+
+    picker.SelectedIndex = index;
+    picker.SelectedItem = index >= 0 ? items[index] : null;
   }
 
   private void OnPositionPickerSelectedIndexChanged(object? sender, EventArgs e)
