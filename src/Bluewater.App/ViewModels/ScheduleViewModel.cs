@@ -12,6 +12,7 @@ using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Devices;
 using Microsoft.Maui.Storage;
 
@@ -933,10 +934,13 @@ public partial class DailyShiftSelection : ObservableObject
     Date = date;
     this.scheduleId = scheduleId;
     this.isDefault = isDefault;
-    this.selectedShift = selectedShift ?? ShiftPickerItem.CreateNone();
-    originalShiftItem = this.selectedShift;
-    originalShiftId = this.selectedShift.Id;
+
+    ShiftPickerItem initialShift = selectedShift ?? ShiftPickerItem.CreateNone();
+    originalShiftItem = initialShift;
+    originalShiftId = initialShift?.Id;
     isDirty = false;
+
+    ApplyInitialSelection(initialShift);
   }
 
   public Guid EmployeeId { get; }
@@ -958,6 +962,25 @@ public partial class DailyShiftSelection : ObservableObject
   public Guid? SelectedShiftId => SelectedShift?.Id;
 
   public ShiftPickerItem? OriginalShift => originalShiftItem;
+
+  private void ApplyInitialSelection(ShiftPickerItem initialShift)
+  {
+    if (MainThread.IsMainThread)
+    {
+      SetSelectedShift(initialShift);
+    }
+    else
+    {
+      MainThread.BeginInvokeOnMainThread(() => SetSelectedShift(initialShift));
+    }
+  }
+
+  private void SetSelectedShift(ShiftPickerItem initialShift)
+  {
+    suppressSelectionChanged = true;
+    SelectedShift = initialShift;
+    suppressSelectionChanged = false;
+  }
 
   partial void OnSelectedShiftChanged(ShiftPickerItem? value)
   {
