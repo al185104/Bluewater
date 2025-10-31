@@ -43,6 +43,10 @@
                                        Spacing="10"
                                        HorizontalOptions="End"
                                        VerticalOptions="Center">
+                    <Button Text="Update"
+                            Command="{Binding UpdateSchedulesCommand}"
+                            IsEnabled="{Binding HasPendingChanges}"
+                            SemanticProperties.Hint="Save schedule updates" />
                     <Button Text="Import"
                             Command="{Binding ImportSchedulesCommand}"
                             SemanticProperties.Hint="Import schedules from a CSV file" />

@@ -1,6 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Globalization;
+using System.Linq;
 using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
@@ -69,6 +71,8 @@ public partial class ScheduleViewModel : BaseViewModel
 
   public bool HasSchedules => EmployeeSchedules.Count > 0;
 
+  public bool HasPendingChanges => EmployeeSchedules.Any(s => s.HasPendingChanges);
+
   partial void OnImportStatusMessageChanged(string value)
   {
     HasImportStatusMessage = !string.IsNullOrWhiteSpace(value);
@@ -95,6 +99,33 @@ public partial class ScheduleViewModel : BaseViewModel
   private void OnEmployeeSchedulesCollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
   {
     OnPropertyChanged(nameof(HasSchedules));
+
+    if (e.OldItems is not null)
+    {
+      foreach (EmployeeWeeklyScheduleViewModel schedule in e.OldItems.Cast<EmployeeWeeklyScheduleViewModel>())
+      {
+        schedule.PropertyChanged -= OnEmployeeSchedulePropertyChanged;
+      }
+    }
+
+    if (e.NewItems is not null)
+    {
+      foreach (EmployeeWeeklyScheduleViewModel schedule in e.NewItems.Cast<EmployeeWeeklyScheduleViewModel>())
+      {
+        schedule.PropertyChanged += OnEmployeeSchedulePropertyChanged;
+      }
+    }
+
+    if (e.Action == NotifyCollectionChangedAction.Reset)
+    {
+      foreach (EmployeeWeeklyScheduleViewModel schedule in EmployeeSchedules)
+      {
+        schedule.PropertyChanged -= OnEmployeeSchedulePropertyChanged;
+        schedule.PropertyChanged += OnEmployeeSchedulePropertyChanged;
+      }
+    }
+
+    RefreshPendingChangesState();
   }
 
   public override async Task InitializeAsync()
@@ -125,6 +156,54 @@ public partial class ScheduleViewModel : BaseViewModel
     {
       IsBusy = false;
     }
+  }
+
+
+
+
+  [RelayCommand(CanExecute = nameof(CanUpdateSchedules))]
+  private async Task UpdateSchedulesAsync()
+  {
+    if (!HasPendingChanges)
+    {
+      return;
+    }
+
+    try
+    {
+      IsBusy = true;
+
+      foreach (EmployeeWeeklyScheduleViewModel employee in EmployeeSchedules)
+      {
+        foreach (EmployeeScheduleDayViewModel day in employee.Days.Where(d => d.HasPendingChanges))
+        {
+          ShiftOption? option = day.SelectedShift;
+          await HandleDaySelectionChangedAsync(day, option).ConfigureAwait(false);
+        }
+      }
+
+      await TraceCommandAsync(nameof(UpdateSchedulesAsync), new
+      {
+        Charging = SelectedCharging?.Name,
+        WeekStart,
+        WeekEnd,
+        EmployeeCount = EmployeeSchedules.Count
+      }).ConfigureAwait(false);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Updating schedules");
+    }
+    finally
+    {
+      IsBusy = false;
+      RefreshPendingChangesState();
+    }
+  }
+
+  private bool CanUpdateSchedules()
+  {
+    return HasPendingChanges && !IsBusy && !IsLoadingSchedules;
   }
 
   [RelayCommand]
@@ -419,11 +498,16 @@ public partial class ScheduleViewModel : BaseViewModel
     }).ConfigureAwait(false);
   }
 
+
+
+
   private async Task LoadSchedulesAsync()
   {
     if (SelectedCharging is null)
     {
+      DetachScheduleHandlers();
       EmployeeSchedules.Clear();
+      RefreshPendingChangesState();
       return;
     }
 
@@ -435,6 +519,7 @@ public partial class ScheduleViewModel : BaseViewModel
         .GetSchedulesAsync(SelectedCharging.Name, WeekStart, WeekEnd)
         .ConfigureAwait(false);
 
+      DetachScheduleHandlers();
       EmployeeSchedules.Clear();
 
       foreach (EmployeeScheduleSummary summary in summaries
@@ -443,6 +528,8 @@ public partial class ScheduleViewModel : BaseViewModel
         var employee = new EmployeeWeeklyScheduleViewModel(this, summary, WeekStart, WeekEnd);
         EmployeeSchedules.Add(employee);
       }
+
+      RefreshPendingChangesState();
 
       await TraceCommandAsync(nameof(LoadSchedulesAsync), new
       {
@@ -461,6 +548,44 @@ public partial class ScheduleViewModel : BaseViewModel
       IsLoadingSchedules = false;
     }
   }
+
+  internal void NotifyDaySelectionChanged()
+  {
+    RefreshPendingChangesState();
+  }
+
+  private void RefreshPendingChangesState()
+  {
+    OnPropertyChanged(nameof(HasPendingChanges));
+    UpdateSchedulesCommand.NotifyCanExecuteChanged();
+  }
+
+  private void DetachScheduleHandlers()
+  {
+    foreach (EmployeeWeeklyScheduleViewModel schedule in EmployeeSchedules)
+    {
+      schedule.PropertyChanged -= OnEmployeeSchedulePropertyChanged;
+    }
+  }
+
+  private void OnEmployeeSchedulePropertyChanged(object? sender, PropertyChangedEventArgs e)
+  {
+    if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(EmployeeWeeklyScheduleViewModel.HasPendingChanges))
+    {
+      RefreshPendingChangesState();
+    }
+  }
+
+  partial void OnIsBusyChanged(bool value)
+  {
+    UpdateSchedulesCommand.NotifyCanExecuteChanged();
+  }
+
+  partial void OnIsLoadingSchedulesChanged(bool value)
+  {
+    UpdateSchedulesCommand.NotifyCanExecuteChanged();
+  }
+
 
   private async Task PersistImportedScheduleAsync(ScheduleCsvRecord record)
   {
@@ -655,6 +780,7 @@ public partial class EmployeeWeeklyScheduleViewModel : ObservableObject
       ShiftOption option = parent.GetShiftOption(info?.Shift?.Id, info?.Shift);
       var day = new EmployeeScheduleDayViewModel(parent, EmployeeId, date);
       day.Initialize(info?.ScheduleId ?? Guid.Empty, info?.IsDefault ?? false, option);
+      day.PropertyChanged += OnDayPropertyChanged;
       Days.Add(day);
     }
   }
@@ -671,11 +797,21 @@ public partial class EmployeeWeeklyScheduleViewModel : ObservableObject
 
   public ObservableCollection<EmployeeScheduleDayViewModel> Days { get; }
 
+  public bool HasPendingChanges => Days.Any(day => day.HasPendingChanges);
+
   public bool HasSection => !string.IsNullOrWhiteSpace(Section);
 
   public bool HasBarcode => !string.IsNullOrWhiteSpace(Barcode);
 
   public string BarcodeDisplay => Barcode;
+
+  private void OnDayPropertyChanged(object? sender, PropertyChangedEventArgs e)
+  {
+    if (string.IsNullOrEmpty(e.PropertyName) || e.PropertyName == nameof(EmployeeScheduleDayViewModel.HasPendingChanges))
+    {
+      OnPropertyChanged(nameof(HasPendingChanges));
+    }
+  }
 }
 
 public partial class EmployeeScheduleDayViewModel : ObservableObject
@@ -702,6 +838,7 @@ public partial class EmployeeScheduleDayViewModel : ObservableObject
 
   [ObservableProperty]
   [NotifyPropertyChangedFor(nameof(HasAssignedShift))]
+  [NotifyPropertyChangedFor(nameof(HasPendingChanges))]
   public partial ShiftOption? SelectedShift { get; set; }
 
   [ObservableProperty]
@@ -713,6 +850,16 @@ public partial class EmployeeScheduleDayViewModel : ObservableObject
   public bool HasAssignedShift => SelectedShift is not null && SelectedShift.Id != Guid.Empty;
 
   public bool IsEnabled => !IsProcessing;
+
+  public bool HasPendingChanges
+  {
+    get
+    {
+      Guid currentId = CurrentCommittedShift?.Id ?? Guid.Empty;
+      Guid selectedId = SelectedShift?.Id ?? Guid.Empty;
+      return currentId != selectedId;
+    }
+  }
 
   public void Initialize(Guid scheduleId, bool isDefault, ShiftOption option)
   {
@@ -731,6 +878,7 @@ public partial class EmployeeScheduleDayViewModel : ObservableObject
   public void SetCommittedSelection(ShiftOption option)
   {
     CurrentCommittedShift = option;
+    OnPropertyChanged(nameof(HasPendingChanges));
   }
 
   public void RestoreCommittedSelection()
@@ -754,7 +902,7 @@ public partial class EmployeeScheduleDayViewModel : ObservableObject
       return;
     }
 
-    _ = parent.HandleDaySelectionChangedAsync(this, value);
+    parent.NotifyDaySelectionChanged();
   }
 }
 
