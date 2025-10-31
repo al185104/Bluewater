@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -10,6 +12,8 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Devices;
+using Microsoft.Maui.Storage;
 
 namespace Bluewater.App.ViewModels;
 
@@ -31,6 +35,17 @@ public partial class ShiftsViewModel : BaseViewModel
 
   [ObservableProperty]
   public partial ShiftSummary? SelectedShift { get; set; }
+
+  [ObservableProperty]
+  public partial string ImportStatusMessage { get; set; } = string.Empty;
+
+  [ObservableProperty]
+  public partial bool HasImportStatusMessage { get; set; }
+
+  partial void OnImportStatusMessageChanged(string value)
+  {
+    HasImportStatusMessage = !string.IsNullOrWhiteSpace(value);
+  }
 
   public bool CanSaveSelectedShift => SelectedShift is not null && SelectedShift.Id == Guid.Empty;
 
@@ -195,6 +210,120 @@ public partial class ShiftsViewModel : BaseViewModel
     {
       IsBusy = false;
       RefreshCommandStates();
+    }
+  }
+
+  [RelayCommand]
+  private async Task ImportShiftsAsync()
+  {
+    if (IsBusy)
+    {
+      return;
+    }
+
+    ImportStatusMessage = string.Empty;
+
+    bool importedAny = false;
+    int successCount = 0;
+    int total = 0;
+    Exception? lastError = null;
+
+    try
+    {
+      PickOptions options = new()
+      {
+        PickerTitle = "Select shifts CSV file",
+        FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+        {
+          [DevicePlatform.iOS] = new[] { "public.comma-separated-values-text", "public.text" },
+          [DevicePlatform.Android] = new[] { "text/csv", "text/comma-separated-values" },
+          [DevicePlatform.WinUI] = new[] { ".csv" },
+          [DevicePlatform.MacCatalyst] = new[] { "public.comma-separated-values-text", "public.text" }
+        })
+      };
+
+      FileResult? file = await FilePicker.Default.PickAsync(options).ConfigureAwait(false);
+
+      if (file is null)
+      {
+        return;
+      }
+
+      await using Stream stream = await file.OpenReadAsync().ConfigureAwait(false);
+      IReadOnlyList<ShiftSummary> shifts = await ShiftCsvImporter.ParseAsync(stream).ConfigureAwait(false);
+      total = shifts.Count;
+
+      if (total == 0)
+      {
+        ImportStatusMessage = "No shifts were found in the selected file.";
+        return;
+      }
+
+      IsBusy = true;
+
+      foreach (ShiftSummary shift in shifts)
+      {
+        try
+        {
+          ShiftSummary? created = await shiftApiService.CreateShiftAsync(shift).ConfigureAwait(false);
+
+          if (created is not null)
+          {
+            successCount++;
+          }
+        }
+        catch (Exception ex)
+        {
+          lastError = ex;
+        }
+      }
+
+      importedAny = successCount > 0;
+
+      ImportStatusMessage = successCount switch
+      {
+        0 => "No shifts were imported.",
+        1 when total == 1 => "Imported 1 shift successfully.",
+        _ when successCount == total => $"Imported {successCount} shifts successfully.",
+        _ => $"Imported {successCount} of {total} shifts successfully."
+      };
+
+      await TraceCommandAsync(nameof(ImportShiftsAsync), new
+      {
+        count = successCount,
+        total,
+        file = file.FileName
+      }).ConfigureAwait(false);
+
+      if (lastError is not null && successCount != total)
+      {
+        ExceptionHandlingService.Handle(lastError, "Importing shifts");
+      }
+    }
+    catch (OperationCanceledException)
+    {
+      // The user cancelled the picker.
+    }
+    catch (FormatException ex)
+    {
+      ImportStatusMessage = ex.Message;
+      ExceptionHandlingService.Handle(ex, "Importing shifts");
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Importing shifts");
+    }
+    finally
+    {
+      if (IsBusy)
+      {
+        IsBusy = false;
+      }
+    }
+
+    if (importedAny)
+    {
+      await LoadShiftsAsync().ConfigureAwait(false);
     }
   }
 
