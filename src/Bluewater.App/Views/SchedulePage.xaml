@@ -2,124 +2,248 @@
 <ContentPage x:Class="Bluewater.App.Views.SchedulePage"
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Bluewater.App.Models"
+             xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
              xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
              x:Name="Page"
              Title="Schedules">
-    <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Prev"
-                     Command="{Binding PreviousWeekAsyncCommand}" />
-        <ToolbarItem Text="Next"
-                     Command="{Binding NextWeekAsyncCommand}" />
-    </ContentPage.ToolbarItems>
-    <Grid RowDefinitions="Auto,Auto,Auto,*"
-          Padding="12"
-          RowSpacing="10">
-        <!-- Top: Week + tenant + charging -->
-        <Grid ColumnDefinitions="Auto,*,Auto,*,Auto,Auto"
-              ColumnSpacing="10">
-            <Label Text="Week:"
-                   VerticalTextAlignment="Center" />
-            <Label Grid.Column="1"
-                   Text="{Binding WeekRangeDisplay}"
-                   FontAttributes="Bold"
-                   VerticalTextAlignment="Center" />
-            <Label Grid.Column="2"
-                   Text="Tenant:"
-                   VerticalTextAlignment="Center" />
-            <Picker Grid.Column="3"
-                    Title="Select tenant"
-                    ItemsSource="{Binding TenantOptions}"
-                    SelectedItem="{Binding SelectedTenant, Mode=TwoWay}" />
-            <Label Grid.Column="4"
-                   Text="Charging:"
-                   VerticalTextAlignment="Center" />
-            <Picker Grid.Column="5"
-                    Title="Select charging"
-                    ItemsSource="{Binding Chargings}"
-                    ItemDisplayBinding="{Binding Name}"
-                    SelectedItem="{Binding SelectedCharging, Mode=TwoWay}" />
-        </Grid>
-        <!-- Day headers -->
-        <Grid Grid.Row="1"
-              ColumnDefinitions="2.4*,1.2*,1.2*,1.2*,1.2*,1.2*,1.2*,1.2*"
-              ColumnSpacing="8">
-            <Label Text="Employee"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="1"
-                   Text="{Binding SundayHeader}"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="2"
-                   Text="{Binding MondayHeader}"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="3"
-                   Text="{Binding TuesdayHeader}"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="4"
-                   Text="{Binding WednesdayHeader}"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="5"
-                   Text="{Binding ThursdayHeader}"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="6"
-                   Text="{Binding FridayHeader}"
-                   FontAttributes="Bold" />
-            <Label Grid.Column="7"
-                   Text="{Binding SaturdayHeader}"
-                   FontAttributes="Bold" />
-        </Grid>
-        <!-- Divider -->
-        <BoxView Grid.Row="2"
-                 HeightRequest="1"
-                 BackgroundColor="{DynamicResource SeparatorColor}" />
-        <!-- Rows -->
-        <CollectionView Grid.Row="3"
-                        ItemsSource="{Binding Employees}"
-                        SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Grid Padding="0,8"
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="ScheduleRowBorderStyle"
+                   TargetType="Border">
+                <Setter Property="StrokeThickness"
+                        Value="1" />
+                <Setter Property="Stroke"
+                        Value="Transparent" />
+                <Setter Property="Padding"
+                        Value="16,12" />
+            </Style>
+            <DataTemplate x:Key="SchedulePrimaryTemplate"
+                          x:DataType="models:WeeklyEmployeeSchedule">
+                <Border Style="{StaticResource ScheduleRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                    <Grid ColumnSpacing="12"
                           ColumnDefinitions="2.4*,1.2*,1.2*,1.2*,1.2*,1.2*,1.2*,1.2*"
-                          ColumnSpacing="8">
-                        <VerticalStackLayout>
+                          VerticalOptions="Center">
+                        <VerticalStackLayout Spacing="4">
                             <Label Text="{Binding Name}"
                                    FontAttributes="Bold"
+                                   FontSize="14"
                                    LineBreakMode="TailTruncation" />
                             <Label Text="{Binding Section}"
                                    FontSize="12"
-                                   TextColor="{DynamicResource SecondaryTextColor}" />
+                                   TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
                         </VerticalStackLayout>
-                        <!-- One Picker per day. Bind to Day.ShiftOptions + Day.SelectedShift -->
                         <Picker Grid.Column="1"
                                 ItemsSource="{Binding Sunday.ShiftOptions}"
                                 ItemDisplayBinding="{Binding DisplayName}"
-                                SelectedItem="{Binding Sunday.SelectedShift, Mode=TwoWay}" />
+                                SelectedItem="{Binding Sunday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
                         <Picker Grid.Column="2"
                                 ItemsSource="{Binding Monday.ShiftOptions}"
                                 ItemDisplayBinding="{Binding DisplayName}"
-                                SelectedItem="{Binding Monday.SelectedShift, Mode=TwoWay}" />
+                                SelectedItem="{Binding Monday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
                         <Picker Grid.Column="3"
                                 ItemsSource="{Binding Tuesday.ShiftOptions}"
                                 ItemDisplayBinding="{Binding DisplayName}"
-                                SelectedItem="{Binding Tuesday.SelectedShift, Mode=TwoWay}" />
+                                SelectedItem="{Binding Tuesday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
                         <Picker Grid.Column="4"
                                 ItemsSource="{Binding Wednesday.ShiftOptions}"
                                 ItemDisplayBinding="{Binding DisplayName}"
-                                SelectedItem="{Binding Wednesday.SelectedShift, Mode=TwoWay}" />
+                                SelectedItem="{Binding Wednesday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
                         <Picker Grid.Column="5"
                                 ItemsSource="{Binding Thursday.ShiftOptions}"
                                 ItemDisplayBinding="{Binding DisplayName}"
-                                SelectedItem="{Binding Thursday.SelectedShift, Mode=TwoWay}" />
+                                SelectedItem="{Binding Thursday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
                         <Picker Grid.Column="6"
                                 ItemsSource="{Binding Friday.ShiftOptions}"
                                 ItemDisplayBinding="{Binding DisplayName}"
-                                SelectedItem="{Binding Friday.SelectedShift, Mode=TwoWay}" />
+                                SelectedItem="{Binding Friday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
                         <Picker Grid.Column="7"
                                 ItemsSource="{Binding Saturday.ShiftOptions}"
                                 ItemDisplayBinding="{Binding DisplayName}"
-                                SelectedItem="{Binding Saturday.SelectedShift, Mode=TwoWay}" />
+                                SelectedItem="{Binding Saturday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
                     </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+                </Border>
+            </DataTemplate>
+            <DataTemplate x:Key="ScheduleAlternateTemplate"
+                          x:DataType="models:WeeklyEmployeeSchedule">
+                <Border Style="{StaticResource ScheduleRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2.4*,1.2*,1.2*,1.2*,1.2*,1.2*,1.2*,1.2*"
+                          VerticalOptions="Center">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="{Binding Name}"
+                                   FontAttributes="Bold"
+                                   FontSize="14"
+                                   LineBreakMode="TailTruncation" />
+                            <Label Text="{Binding Section}"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        </VerticalStackLayout>
+                        <Picker Grid.Column="1"
+                                ItemsSource="{Binding Sunday.ShiftOptions}"
+                                ItemDisplayBinding="{Binding DisplayName}"
+                                SelectedItem="{Binding Sunday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
+                        <Picker Grid.Column="2"
+                                ItemsSource="{Binding Monday.ShiftOptions}"
+                                ItemDisplayBinding="{Binding DisplayName}"
+                                SelectedItem="{Binding Monday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
+                        <Picker Grid.Column="3"
+                                ItemsSource="{Binding Tuesday.ShiftOptions}"
+                                ItemDisplayBinding="{Binding DisplayName}"
+                                SelectedItem="{Binding Tuesday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
+                        <Picker Grid.Column="4"
+                                ItemsSource="{Binding Wednesday.ShiftOptions}"
+                                ItemDisplayBinding="{Binding DisplayName}"
+                                SelectedItem="{Binding Wednesday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
+                        <Picker Grid.Column="5"
+                                ItemsSource="{Binding Thursday.ShiftOptions}"
+                                ItemDisplayBinding="{Binding DisplayName}"
+                                SelectedItem="{Binding Thursday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
+                        <Picker Grid.Column="6"
+                                ItemsSource="{Binding Friday.ShiftOptions}"
+                                ItemDisplayBinding="{Binding DisplayName}"
+                                SelectedItem="{Binding Friday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
+                        <Picker Grid.Column="7"
+                                ItemsSource="{Binding Saturday.ShiftOptions}"
+                                ItemDisplayBinding="{Binding DisplayName}"
+                                SelectedItem="{Binding Saturday.SelectedShift, Mode=TwoWay}"
+                                IsEnabled="{Binding Source={x:Reference Page}, Path=BindingContext.CanEditShifts}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <selectors:AlternateShiftTemplateSelector x:Key="ScheduleRowTemplateSelector"
+                                                     PrimaryTemplate="{StaticResource SchedulePrimaryTemplate}"
+                                                     AlternateTemplate="{StaticResource ScheduleAlternateTemplate}" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <Grid>
+        <Grid Padding="20,40"
+              RowDefinitions="Auto,Auto,*"
+              RowSpacing="16">
+            <Grid ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="12">
+                <Label Text="Schedules"
+                       Style="{StaticResource HeadingTextStyle}" />
+                <Button Grid.Column="1"
+                        Text="Previous Week"
+                        HorizontalOptions="End"
+                        Command="{Binding PreviousWeekAsyncCommand}"
+                        SemanticProperties.Hint="View the previous week's schedules" />
+                <Button Grid.Column="2"
+                        Text="Next Week"
+                        HorizontalOptions="End"
+                        Command="{Binding NextWeekAsyncCommand}"
+                        SemanticProperties.Hint="View the next week's schedules" />
+            </Grid>
+            <Grid Grid.Row="1"
+                  ColumnDefinitions="Auto,*,Auto,*,Auto,*"
+                  ColumnSpacing="12"
+                  RowSpacing="4">
+                <Label Text="Week"
+                       VerticalOptions="Center"
+                       TextColor="{StaticResource TextSecondaryColor}" />
+                <Border Grid.Column="1"
+                        StrokeShape="RoundRectangle 8"
+                        BackgroundColor="{AppThemeBinding Light=#F3F5F9, Dark=#1F1F1F}"
+                        Padding="12,8">
+                    <Label Text="{Binding WeekRangeDisplay}"
+                           FontAttributes="Bold" />
+                </Border>
+                <Label Grid.Column="2"
+                       Text="Tenant"
+                       VerticalOptions="Center"
+                       TextColor="{StaticResource TextSecondaryColor}" />
+                <Picker Grid.Column="3"
+                        Title="Select tenant"
+                        ItemsSource="{Binding TenantOptions}"
+                        SelectedItem="{Binding SelectedTenant, Mode=TwoWay}" />
+                <Label Grid.Column="4"
+                       Text="Charging"
+                       VerticalOptions="Center"
+                       TextColor="{StaticResource TextSecondaryColor}" />
+                <Picker Grid.Column="5"
+                        Title="Select charging"
+                        ItemsSource="{Binding Chargings}"
+                        ItemDisplayBinding="{Binding Name}"
+                        SelectedItem="{Binding SelectedCharging, Mode=TwoWay}" />
+            </Grid>
+            <Grid Grid.Row="2">
+                <CollectionView ItemsSource="{Binding Employees}"
+                                SelectionMode="None"
+                                ItemTemplate="{StaticResource ScheduleRowTemplateSelector}">
+                    <CollectionView.Header>
+                        <Border StrokeShape="RoundRectangle 10 10 0 0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                            <Grid ColumnSpacing="12"
+                                  Padding="20,14"
+                                  ColumnDefinitions="2.4*,1.2*,1.2*,1.2*,1.2*,1.2*,1.2*,1.2*">
+                                <Label Text="Employee"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding SundayHeader}"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="2"
+                                       Text="{Binding MondayHeader}"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="3"
+                                       Text="{Binding TuesdayHeader}"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="4"
+                                       Text="{Binding WednesdayHeader}"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="5"
+                                       Text="{Binding ThursdayHeader}"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="6"
+                                       Text="{Binding FridayHeader}"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="7"
+                                       Text="{Binding SaturdayHeader}"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                            </Grid>
+                        </Border>
+                    </CollectionView.Header>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout HorizontalOptions="Center"
+                                             VerticalOptions="Center"
+                                             Spacing="8">
+                            <Label Text="No schedules found"
+                                   FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Text="Schedules will appear here once they are available."
+                                   FontSize="12"
+                                   HorizontalTextAlignment="Center" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+                <ActivityIndicator IsRunning="{Binding IsLoading}"
+                                   IsVisible="{Binding IsLoading}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+            </Grid>
+        </Grid>
     </Grid>
 </ContentPage>
