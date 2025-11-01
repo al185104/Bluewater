@@ -3,8 +3,8 @@
              xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:Bluewater.App.Models"
-             xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
              xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
+             xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
              x:Name="Page"
              Title="Schedules">
     <ContentPage.Resources>
@@ -19,7 +19,7 @@
                         Value="16,12" />
             </Style>
             <DataTemplate x:Key="SchedulePrimaryTemplate"
-                          x:DataType="models:WeeklyEmployeeSchedule">
+                          x:DataType="vm:WeeklyEmployeeSchedule">
                 <Border Style="{StaticResource ScheduleRowBorderStyle}"
                         BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
                     <Grid ColumnSpacing="12"
@@ -73,7 +73,7 @@
                 </Border>
             </DataTemplate>
             <DataTemplate x:Key="ScheduleAlternateTemplate"
-                          x:DataType="models:WeeklyEmployeeSchedule">
+                          x:DataType="vm:WeeklyEmployeeSchedule">
                 <Border Style="{StaticResource ScheduleRowBorderStyle}"
                         BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
                     <Grid ColumnSpacing="12"

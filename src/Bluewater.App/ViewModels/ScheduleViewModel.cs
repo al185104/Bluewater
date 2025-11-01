@@ -135,7 +135,7 @@ public partial class ScheduleViewModel : BaseViewModel
 
   partial void OnCurrentWeekStartChanged(DateOnly value) => RaiseWeekHeaderProperties();
   partial void OnCurrentWeekEndChanged(DateOnly value) => RaiseWeekHeaderProperties();
-  partial void OnIsBusyChanged(bool value) => RaiseEditingStateProperties();
+  //partial void OnIsBusyChanged(bool value) => RaiseEditingStateProperties();
   partial void OnIsSavingChanged(bool value) => RaiseEditingStateProperties();
 
   private async Task LoadSchedulesAsync()
