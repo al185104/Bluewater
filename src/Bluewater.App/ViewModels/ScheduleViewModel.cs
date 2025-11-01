@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,7 @@ using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel;
 
 namespace Bluewater.App.ViewModels;
 
@@ -20,10 +22,12 @@ public partial class ScheduleViewModel : BaseViewModel
 
   private readonly Dictionary<Guid, ShiftPickerItem> shiftLookup = new();
   private readonly ShiftPickerItem noShiftOption = ShiftPickerItem.CreateNone();
+  private readonly Dictionary<DailyShiftSelection, ShiftPickerItem> previousSelections = new();
 
   private bool hasInitialized;
   private bool shiftsLoaded;
   private bool suppressSelectedChargingChanged;
+  private bool suppressSelectionChange;
 
   public ScheduleViewModel(
     IScheduleApiService scheduleApiService,
@@ -49,6 +53,7 @@ public partial class ScheduleViewModel : BaseViewModel
   [ObservableProperty] public partial TenantDto SelectedTenant { get; set; } = TenantDto.Maribago;
   [ObservableProperty] public partial DateOnly CurrentWeekStart { get; set; }
   [ObservableProperty] public partial DateOnly CurrentWeekEnd { get; set; }
+  [ObservableProperty] public partial bool IsSaving { get; set; }
 
   public string WeekRangeDisplay => $"{CurrentWeekStart:MMM dd} - {CurrentWeekEnd:MMM dd}";
   public string SundayHeader => FormatHeader(0);
@@ -58,6 +63,9 @@ public partial class ScheduleViewModel : BaseViewModel
   public string ThursdayHeader => FormatHeader(4);
   public string FridayHeader => FormatHeader(5);
   public string SaturdayHeader => FormatHeader(6);
+
+  public bool IsLoading => IsBusy || IsSaving;
+  public bool CanEditShifts => !IsBusy && !IsSaving;
 
   public override async Task InitializeAsync()
   {
@@ -106,14 +114,14 @@ public partial class ScheduleViewModel : BaseViewModel
     await LoadSchedulesAsync().ConfigureAwait(false);
   }
 
-  private bool CanChangeWeek() => !IsBusy;
+  private bool CanChangeWeek() => !IsBusy && !IsSaving;
 
   partial void OnSelectedChargingChanged(ChargingSummary? value)
   {
     if (suppressSelectedChargingChanged || !hasInitialized) return;
     if (value is null)
     {
-      Employees.Clear();
+      ResetEmployeesCollection();
       return;
     }
     _ = LoadSchedulesAsync();
@@ -127,12 +135,14 @@ public partial class ScheduleViewModel : BaseViewModel
 
   partial void OnCurrentWeekStartChanged(DateOnly value) => RaiseWeekHeaderProperties();
   partial void OnCurrentWeekEndChanged(DateOnly value) => RaiseWeekHeaderProperties();
+  partial void OnIsBusyChanged(bool value) => RaiseEditingStateProperties();
+  partial void OnIsSavingChanged(bool value) => RaiseEditingStateProperties();
 
   private async Task LoadSchedulesAsync()
   {
     if (SelectedCharging is null)
     {
-      Employees.Clear();
+      await MainThread.InvokeOnMainThreadAsync(ResetEmployeesCollection);
       return;
     }
 
@@ -146,7 +156,8 @@ public partial class ScheduleViewModel : BaseViewModel
         .GetSchedulesAsync(SelectedCharging.Name, CurrentWeekStart, CurrentWeekEnd, tenant: SelectedTenant)
         .ConfigureAwait(false);
 
-      Employees.Clear();
+      var weeklySchedules = new List<WeeklyEmployeeSchedule>();
+      int rowIndex = 0;
 
       foreach (var employee in schedules.OrderBy(emp => emp.Name, StringComparer.OrdinalIgnoreCase))
       {
@@ -158,7 +169,11 @@ public partial class ScheduleViewModel : BaseViewModel
           var shiftInfo = employee.Shifts.FirstOrDefault(info => info.ScheduleDate == date);
 
           var selected = shiftInfo?.Shift is null ? noShiftOption : ResolveShiftOption(shiftInfo.Shift);
-          var day = new DailyShiftSelection(employee.EmployeeId, date, ShiftOptions, selected);
+          Guid? scheduleId = shiftInfo is { ScheduleId: not Guid.Empty } ? shiftInfo.ScheduleId : null;
+          bool isDefault = shiftInfo?.IsDefault ?? false;
+
+          var day = new DailyShiftSelection(employee.EmployeeId, date, ShiftOptions, selected, scheduleId, isDefault);
+          AttachDaySelectionHandlers(day);
           days.Add(day);
         }
 
@@ -168,10 +183,21 @@ public partial class ScheduleViewModel : BaseViewModel
           employee.Name,
           employee.Section,
           employee.Charging,
-          days);
+          days,
+          rowIndex++);
 
-        MainThread.BeginInvokeOnMainThread(() => Employees.Add(weekly));
+        weeklySchedules.Add(weekly);
       }
+
+      await MainThread.InvokeOnMainThreadAsync(() =>
+      {
+        ResetEmployeesCollection();
+
+        foreach (var schedule in weeklySchedules)
+        {
+          Employees.Add(schedule);
+        }
+      });
 
       await TraceCommandAsync(nameof(LoadSchedulesAsync), new
       {
@@ -241,6 +267,180 @@ public partial class ScheduleViewModel : BaseViewModel
     }
   }
 
+  private void ResetEmployeesCollection()
+  {
+    foreach (var weekly in Employees)
+    {
+      foreach (var day in weekly.Days)
+      {
+        DetachDaySelectionHandlers(day);
+      }
+    }
+
+    Employees.Clear();
+    previousSelections.Clear();
+  }
+
+  private void AttachDaySelectionHandlers(DailyShiftSelection day)
+  {
+    day.PropertyChanging += OnDayPropertyChanging;
+    day.PropertyChanged += OnDayPropertyChanged;
+  }
+
+  private void DetachDaySelectionHandlers(DailyShiftSelection day)
+  {
+    day.PropertyChanging -= OnDayPropertyChanging;
+    day.PropertyChanged -= OnDayPropertyChanged;
+    previousSelections.Remove(day);
+  }
+
+  private void OnDayPropertyChanging(object? sender, PropertyChangingEventArgs e)
+  {
+    if (sender is DailyShiftSelection day && e.PropertyName == nameof(DailyShiftSelection.SelectedShift))
+    {
+      previousSelections[day] = day.SelectedShift;
+    }
+  }
+
+  private async void OnDayPropertyChanged(object? sender, PropertyChangedEventArgs e)
+  {
+    if (suppressSelectionChange)
+    {
+      return;
+    }
+
+    if (sender is not DailyShiftSelection day || e.PropertyName != nameof(DailyShiftSelection.SelectedShift))
+    {
+      return;
+    }
+
+    if (!previousSelections.TryGetValue(day, out var previousShift))
+    {
+      return;
+    }
+
+    var newShift = day.SelectedShift;
+
+    try
+    {
+      await PersistShiftChangeAsync(day, previousShift, newShift);
+    }
+    finally
+    {
+      previousSelections.Remove(day);
+    }
+  }
+
+  private async Task PersistShiftChangeAsync(DailyShiftSelection day, ShiftPickerItem previousShift, ShiftPickerItem newShift)
+  {
+    if (ReferenceEquals(previousShift, newShift))
+    {
+      return;
+    }
+
+    if (newShift.Id is null && day.ScheduleId is null)
+    {
+      return;
+    }
+
+    string action = "None";
+    Guid? resultingScheduleId = day.ScheduleId;
+    Guid? newShiftId = newShift.Id;
+    Guid? previousShiftId = previousShift.Id;
+
+    try
+    {
+      IsSaving = true;
+
+      if (newShift.Id is Guid shiftId)
+      {
+        if (day.ScheduleId is Guid existingId)
+        {
+          var update = new ScheduleSummary
+          {
+            Id = existingId,
+            EmployeeId = day.EmployeeId,
+            Name = newShift.Name,
+            ShiftId = shiftId,
+            ScheduleDate = day.Date,
+            IsDefault = day.IsDefault
+          };
+
+          var updated = await scheduleApiService.UpdateScheduleAsync(update).ConfigureAwait(false);
+          if (updated is null)
+          {
+            throw new InvalidOperationException("Failed to update schedule.");
+          }
+
+          await MainThread.InvokeOnMainThreadAsync(() => day.UpdateScheduleInfo(updated.Id, updated.IsDefault));
+          resultingScheduleId = updated.Id;
+          action = "Update";
+        }
+        else
+        {
+          var create = new ScheduleSummary
+          {
+            EmployeeId = day.EmployeeId,
+            Name = newShift.Name,
+            ShiftId = shiftId,
+            ScheduleDate = day.Date,
+            IsDefault = false
+          };
+
+          Guid? createdId = await scheduleApiService.CreateScheduleAsync(create).ConfigureAwait(false);
+          if (createdId is not Guid scheduleId)
+          {
+            throw new InvalidOperationException("Failed to create schedule.");
+          }
+
+          await MainThread.InvokeOnMainThreadAsync(() => day.UpdateScheduleInfo(scheduleId, create.IsDefault));
+          resultingScheduleId = scheduleId;
+          action = "Create";
+        }
+      }
+      else if (day.ScheduleId is Guid scheduleId)
+      {
+        bool deleted = await scheduleApiService.DeleteScheduleAsync(scheduleId).ConfigureAwait(false);
+        if (!deleted)
+        {
+          throw new InvalidOperationException("Failed to delete schedule.");
+        }
+
+        await MainThread.InvokeOnMainThreadAsync(() => day.UpdateScheduleInfo(null, false));
+        resultingScheduleId = null;
+        action = "Delete";
+      }
+
+      if (action != "None")
+      {
+        await TraceCommandAsync(nameof(PersistShiftChangeAsync), new
+        {
+          Action = action,
+          day.EmployeeId,
+          day.Date,
+          NewShiftId = newShiftId,
+          PreviousShiftId = previousShiftId,
+          ScheduleId = resultingScheduleId
+        }).ConfigureAwait(false);
+      }
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Saving schedule changes");
+
+      await MainThread.InvokeOnMainThreadAsync(() =>
+      {
+        suppressSelectionChange = true;
+        day.SelectedShift = previousShift;
+        suppressSelectionChange = false;
+      });
+    }
+    finally
+    {
+      IsSaving = false;
+    }
+  }
+
   private void SetWeek(DateOnly referenceDate)
   {
     var start = GetStartOfWeek(referenceDate); // Sunday start
@@ -270,6 +470,14 @@ public partial class ScheduleViewModel : BaseViewModel
     OnPropertyChanged(nameof(ThursdayHeader));
     OnPropertyChanged(nameof(FridayHeader));
     OnPropertyChanged(nameof(SaturdayHeader));
+  }
+
+  private void RaiseEditingStateProperties()
+  {
+    OnPropertyChanged(nameof(IsLoading));
+    OnPropertyChanged(nameof(CanEditShifts));
+    PreviousWeekAsyncCommand.NotifyCanExecuteChanged();
+    NextWeekAsyncCommand.NotifyCanExecuteChanged();
   }
 
   private ShiftPickerItem ResolveShiftOption(ScheduleShiftDetailsSummary shift)
@@ -368,9 +576,9 @@ public partial class ScheduleViewModel : BaseViewModel
   private static string FormatTime(TimeOnly? time) => time?.ToString("hh:mm tt", CultureInfo.CurrentCulture) ?? string.Empty;
 }
 
-public sealed class WeeklyEmployeeSchedule
+public sealed class WeeklyEmployeeSchedule : IRowIndexed
 {
-  public WeeklyEmployeeSchedule(Guid employeeId, string barcode, string name, string section, string charging, IReadOnlyList<DailyShiftSelection> days)
+  public WeeklyEmployeeSchedule(Guid employeeId, string barcode, string name, string section, string charging, IReadOnlyList<DailyShiftSelection> days, int rowIndex)
   {
     if (days.Count != 7) throw new ArgumentException("Seven day entries are required.", nameof(days));
     EmployeeId = employeeId;
@@ -379,6 +587,7 @@ public sealed class WeeklyEmployeeSchedule
     Section = section;
     Charging = charging;
     Days = days;
+    RowIndex = rowIndex;
 
     Sunday = days[0];
     Monday = days[1];
@@ -397,6 +606,8 @@ public sealed class WeeklyEmployeeSchedule
 
   public IReadOnlyList<DailyShiftSelection> Days { get; }
 
+  public int RowIndex { get; set; }
+
   public DailyShiftSelection Sunday { get; }
   public DailyShiftSelection Monday { get; }
   public DailyShiftSelection Tuesday { get; }
@@ -410,17 +621,27 @@ public partial class DailyShiftSelection : ObservableObject
 {
   private readonly IList<ShiftPickerItem> shiftOptions;
 
-  public DailyShiftSelection(Guid employeeId, DateOnly date, IList<ShiftPickerItem> shiftOptions, ShiftPickerItem? selectedShift)
+  public DailyShiftSelection(
+    Guid employeeId,
+    DateOnly date,
+    IList<ShiftPickerItem> shiftOptions,
+    ShiftPickerItem? selectedShift,
+    Guid? scheduleId,
+    bool isDefault)
   {
     this.shiftOptions = shiftOptions ?? throw new ArgumentNullException(nameof(shiftOptions));
     EmployeeId = employeeId;
     Date = date;
+    ScheduleId = scheduleId;
+    IsDefault = isDefault;
     SelectedShift = ResolveShiftReference(selectedShift);
   }
 
   public Guid EmployeeId { get; }
   public DateOnly Date { get; }
   public IList<ShiftPickerItem> ShiftOptions => shiftOptions;
+  public Guid? ScheduleId { get; private set; }
+  public bool IsDefault { get; private set; }
 
   [ObservableProperty]
   public partial ShiftPickerItem SelectedShift { get; set; } = ShiftPickerItem.CreateNone();
@@ -445,6 +666,12 @@ public partial class DailyShiftSelection : ObservableObject
 
     var match = shiftOptions.FirstOrDefault(option => option.Id == id);
     return match ?? shiftOptions[0];
+  }
+
+  internal void UpdateScheduleInfo(Guid? scheduleId, bool isDefault)
+  {
+    ScheduleId = scheduleId;
+    IsDefault = isDefault;
   }
 }
 
