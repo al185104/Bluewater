@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -14,6 +15,7 @@ using Microsoft.Maui.ApplicationModel;
 
 namespace Bluewater.App.ViewModels;
 
+[SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "CommunityToolkit.Mvvm RelayCommand attributes are platform-agnostic in .NET MAUI view models.")]
 public partial class ScheduleViewModel : BaseViewModel
 {
   private readonly IScheduleApiService scheduleApiService;
