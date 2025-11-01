@@ -116,9 +116,6 @@
           <MauiXaml Update="Views\SchedulePage.xaml">
             <Generator>MSBuild:Compile</Generator>
           </MauiXaml>
-          <MauiXaml Update="Views\Controls\ScheduleDayCell.xaml">
-            <Generator>MSBuild:Compile</Generator>
-          </MauiXaml>
           <MauiXaml Update="Views\SettingPage.xaml">
             <Generator>MSBuild:Compile</Generator>
           </MauiXaml>
@@ -134,7 +131,6 @@
 	</ItemGroup>
 
         <ItemGroup>
-          <Folder Include="Converters\" />
           <Folder Include="Interfaces\" />
           <Folder Include="Models\" />
           <Folder Include="Services\" />
