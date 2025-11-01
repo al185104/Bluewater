@@ -3,6 +3,17 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Bluewater.App.Views.UserPage"
              Shell.NavBarIsVisible="False">
-    <Grid>
+    <Grid Padding="16">
+        <CollectionView ItemsSource="{Binding Users}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <VerticalStackLayout Padding="8">
+                        <Label Text="{Binding Username}" FontAttributes="Bold" />
+                        <Label Text="{Binding Credential}" FontSize="12" />
+                        <Label Text="{Binding IsGlobalSupervisor, StringFormat='Global: {0}'}" FontSize="12" />
+                    </VerticalStackLayout>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
     </Grid>
 </ContentPage>
