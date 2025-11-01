@@ -4,133 +4,230 @@
              xmlns:viewmodels="clr-namespace:Bluewater.App.ViewModels"
              xmlns:views="clr-namespace:Bluewater.App.Views"
              xmlns:controls="clr-namespace:Bluewater.App.Views.Controls"
+             xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+             xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
              x:Class="Bluewater.App.Views.SchedulePage"
              x:DataType="viewmodels:ScheduleViewModel"
              Title="Schedules">
-    <Grid RowDefinitions="Auto,*"
-          ColumnDefinitions="*"
-          Padding="16,12">
-        <HorizontalStackLayout Grid.Row="0"
-                                Spacing="12"
-                                VerticalOptions="Center">
-            <Button Text="◀"
-                    SemanticProperties.Description="Previous week"
-                    WidthRequest="48"
-                    HeightRequest="40"
-                    Command="{Binding PreviousWeekCommand}" />
-            <Label Text="{Binding WeekRangeDisplay}"
-                   FontAttributes="Bold"
-                   VerticalOptions="Center"
-                   FontSize="18" />
-            <Button Text="▶"
-                    SemanticProperties.Description="Next week"
-                    WidthRequest="48"
-                    HeightRequest="40"
-                    Command="{Binding NextWeekCommand}" />
-            <Picker Title="Tenant"
-                    WidthRequest="150"
-                    ItemsSource="{Binding TenantOptions}"
-                    SelectedItem="{Binding SelectedTenant}" />
-            <Picker Title="Charging"
-                    WidthRequest="220"
-                    ItemsSource="{Binding Chargings}"
-                    SelectedItem="{Binding SelectedCharging}"
-                    ItemDisplayBinding="{Binding Name}" />
-        </HorizontalStackLayout>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="ScheduleRowBorderStyle"
+                   TargetType="Border">
+                <Setter Property="StrokeThickness"
+                        Value="1" />
+                <Setter Property="Stroke"
+                        Value="Transparent" />
+                <Setter Property="Padding"
+                        Value="20" />
+            </Style>
 
-        <Grid Grid.Row="1">
-            <ScrollView Orientation="Horizontal">
-                <Grid RowDefinitions="Auto,*"
-                      ColumnDefinitions="Auto">
-                    <Grid Grid.Row="0"
-                          ColumnSpacing="12"
-                          Padding="0,0,24,4"
-                          ColumnDefinitions="120,220,160,160,160,160,160,160,160">
-                        <Label Grid.Column="0"
-                               Text="Barcode"
+            <DataTemplate x:Key="SchedulePrimaryTemplate"
+                          x:DataType="viewmodels:WeeklyEmployeeSchedule">
+                <Border Style="{StaticResource ScheduleRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="120,220,160,160,160,160,160,160,160"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Barcode}"
                                FontAttributes="Bold"
-                               TextColor="{DynamicResource SecondaryTextColor}" />
-                        <Label Grid.Column="1"
-                               Text="Employee"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource SecondaryTextColor}" />
-                        <Label Grid.Column="2"
-                               Text="{Binding SundayHeader}"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource SecondaryTextColor}" />
-                        <Label Grid.Column="3"
-                               Text="{Binding MondayHeader}"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource SecondaryTextColor}" />
-                        <Label Grid.Column="4"
-                               Text="{Binding TuesdayHeader}"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource SecondaryTextColor}" />
-                        <Label Grid.Column="5"
-                               Text="{Binding WednesdayHeader}"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource SecondaryTextColor}" />
-                        <Label Grid.Column="6"
-                               Text="{Binding ThursdayHeader}"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource SecondaryTextColor}" />
-                        <Label Grid.Column="7"
-                               Text="{Binding FridayHeader}"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource SecondaryTextColor}" />
-                        <Label Grid.Column="8"
-                               Text="{Binding SaturdayHeader}"
-                               FontAttributes="Bold"
-                               TextColor="{DynamicResource SecondaryTextColor}" />
-                    </Grid>
-                    <CollectionView Grid.Row="1"
-                                    ItemsSource="{Binding Employees}"
-                                    SelectionMode="None"
-                                    Margin="0,0,24,0">
-                        <CollectionView.EmptyView>
-                            <VerticalStackLayout Padding="32"
-                                                  HorizontalOptions="Center"
-                                                  VerticalOptions="Center">
-                                <Label Text="No schedules found for the selected charging." />
-                            </VerticalStackLayout>
-                        </CollectionView.EmptyView>
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="viewmodels:WeeklyEmployeeSchedule">
-                                <Grid ColumnSpacing="12"
-                                      Padding="0,8"
-                                      ColumnDefinitions="120,220,160,160,160,160,160,160,160"
-                                      RowDefinitions="Auto">
-                                    <Label Grid.Column="0"
-                                           Text="{Binding Barcode}"
-                                           FontAttributes="Bold"
-                                           VerticalOptions="Center" />
-                                    <Label Grid.Column="1"
-                                           Text="{Binding Name}"
-                                           VerticalOptions="Center" />
-                                    <controls:ScheduleDayCell Grid.Column="2"
-                                                             BindingContext="{Binding Sunday}" />
-                                    <controls:ScheduleDayCell Grid.Column="3"
-                                                             BindingContext="{Binding Monday}" />
-                                    <controls:ScheduleDayCell Grid.Column="4"
-                                                             BindingContext="{Binding Tuesday}" />
-                                    <controls:ScheduleDayCell Grid.Column="5"
-                                                             BindingContext="{Binding Wednesday}" />
-                                    <controls:ScheduleDayCell Grid.Column="6"
-                                                             BindingContext="{Binding Thursday}" />
-                                    <controls:ScheduleDayCell Grid.Column="7"
-                                                             BindingContext="{Binding Friday}" />
-                                    <controls:ScheduleDayCell Grid.Column="8"
-                                                             BindingContext="{Binding Saturday}" />
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-                </Grid>
-            </ScrollView>
-            <ActivityIndicator IsVisible="{Binding IsBusy}"
-                               IsRunning="{Binding IsBusy}"
-                               HorizontalOptions="Center"
                                VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Name}"
+                               VerticalOptions="Center"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#333333, Dark=#DDDDDD}" />
+                        <controls:ScheduleDayCell Grid.Column="2"
+                                                 BindingContext="{Binding Sunday}" />
+                        <controls:ScheduleDayCell Grid.Column="3"
+                                                 BindingContext="{Binding Monday}" />
+                        <controls:ScheduleDayCell Grid.Column="4"
+                                                 BindingContext="{Binding Tuesday}" />
+                        <controls:ScheduleDayCell Grid.Column="5"
+                                                 BindingContext="{Binding Wednesday}" />
+                        <controls:ScheduleDayCell Grid.Column="6"
+                                                 BindingContext="{Binding Thursday}" />
+                        <controls:ScheduleDayCell Grid.Column="7"
+                                                 BindingContext="{Binding Friday}" />
+                        <controls:ScheduleDayCell Grid.Column="8"
+                                                 BindingContext="{Binding Saturday}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ScheduleAlternateTemplate"
+                          x:DataType="viewmodels:WeeklyEmployeeSchedule">
+                <Border Style="{StaticResource ScheduleRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#F6F8FC, Dark=#262626}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="120,220,160,160,160,160,160,160,160"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Barcode}"
+                               FontAttributes="Bold"
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Name}"
+                               VerticalOptions="Center"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#333333, Dark=#DDDDDD}" />
+                        <controls:ScheduleDayCell Grid.Column="2"
+                                                 BindingContext="{Binding Sunday}" />
+                        <controls:ScheduleDayCell Grid.Column="3"
+                                                 BindingContext="{Binding Monday}" />
+                        <controls:ScheduleDayCell Grid.Column="4"
+                                                 BindingContext="{Binding Tuesday}" />
+                        <controls:ScheduleDayCell Grid.Column="5"
+                                                 BindingContext="{Binding Wednesday}" />
+                        <controls:ScheduleDayCell Grid.Column="6"
+                                                 BindingContext="{Binding Thursday}" />
+                        <controls:ScheduleDayCell Grid.Column="7"
+                                                 BindingContext="{Binding Friday}" />
+                        <controls:ScheduleDayCell Grid.Column="8"
+                                                 BindingContext="{Binding Saturday}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+
+            <selectors:AlternateShiftTemplateSelector x:Key="ScheduleRowTemplateSelector"
+                                                      PrimaryTemplate="{StaticResource SchedulePrimaryTemplate}"
+                                                      AlternateTemplate="{StaticResource ScheduleAlternateTemplate}" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+    <Grid>
+        <Grid Padding="20,40"
+              RowDefinitions="Auto,Auto,*"
+              RowSpacing="16">
+            <Grid ColumnDefinitions="*,Auto"
+                  VerticalOptions="Center">
+                <Label Text="Schedules"
+                       Style="{StaticResource HeadingTextStyle}" />
+                <Border Grid.Column="1"
+                        Padding="16,10"
+                        BackgroundColor="{AppThemeBinding Light=#EEF3FB, Dark=#1F1F1F}"
+                        StrokeShape="RoundRectangle 12"
+                        HorizontalOptions="End"
+                        VerticalOptions="Center">
+                    <Grid ColumnDefinitions="Auto,Auto,Auto"
+                          ColumnSpacing="12"
+                          VerticalOptions="Center">
+                        <Label Text="{x:Static helpers:Icon.ChevronLeft}"
+                               FontFamily="Icons"
+                               FontSize="18"
+                               TextColor="{StaticResource TextPrimaryColor}"
+                               VerticalOptions="Center"
+                               SemanticProperties.Description="Previous week">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding PreviousWeekCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                        <Label Grid.Column="1"
+                               Text="{Binding WeekRangeDisplay}"
+                               FontAttributes="Bold"
+                               FontSize="16"
+                               TextColor="{StaticResource TextPrimaryColor}"
+                               VerticalOptions="Center"
+                               HorizontalOptions="Center" />
+                        <Label Grid.Column="2"
+                               Text="{x:Static helpers:Icon.ChevronRight}"
+                               FontFamily="Icons"
+                               FontSize="18"
+                               TextColor="{StaticResource TextPrimaryColor}"
+                               VerticalOptions="Center"
+                               SemanticProperties.Description="Next week">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Command="{Binding NextWeekCommand}" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <HorizontalStackLayout Grid.Row="1"
+                                    Spacing="16"
+                                    VerticalOptions="Center">
+                <Picker Title="Tenant"
+                        WidthRequest="160"
+                        ItemsSource="{Binding TenantOptions}"
+                        SelectedItem="{Binding SelectedTenant}" />
+                <Picker Title="Charging"
+                        WidthRequest="240"
+                        ItemsSource="{Binding Chargings}"
+                        SelectedItem="{Binding SelectedCharging}"
+                        ItemDisplayBinding="{Binding Name}" />
+            </HorizontalStackLayout>
+
+            <Grid Grid.Row="2">
+                <ScrollView Orientation="Horizontal">
+                    <Grid RowDefinitions="Auto,*">
+                        <Border StrokeShape="RoundRectangle 12 12 0 0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                            <Grid ColumnSpacing="12"
+                                  Padding="20"
+                                  ColumnDefinitions="120,220,160,160,160,160,160,160,160">
+                                <Label Text="Barcode"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                                <Label Grid.Column="1"
+                                       Text="Employee"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                                <Label Grid.Column="2"
+                                       Text="{Binding SundayHeader}"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                                <Label Grid.Column="3"
+                                       Text="{Binding MondayHeader}"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                                <Label Grid.Column="4"
+                                       Text="{Binding TuesdayHeader}"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                                <Label Grid.Column="5"
+                                       Text="{Binding WednesdayHeader}"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                                <Label Grid.Column="6"
+                                       Text="{Binding ThursdayHeader}"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                                <Label Grid.Column="7"
+                                       Text="{Binding FridayHeader}"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                                <Label Grid.Column="8"
+                                       Text="{Binding SaturdayHeader}"
+                                       FontAttributes="Bold"
+                                       TextColor="White" />
+                            </Grid>
+                        </Border>
+
+                        <CollectionView Grid.Row="1"
+                                        ItemsSource="{Binding Employees}"
+                                        SelectionMode="None"
+                                        ItemTemplate="{StaticResource ScheduleRowTemplateSelector}">
+                            <CollectionView.EmptyView>
+                                <VerticalStackLayout HorizontalOptions="Center"
+                                                     VerticalOptions="Center"
+                                                     Padding="32"
+                                                     Spacing="8">
+                                    <Label Text="No schedules found for the selected charging."
+                                           FontAttributes="Bold"
+                                           HorizontalTextAlignment="Center" />
+                                    <Label Text="Schedules will appear here once they are available."
+                                           FontSize="12"
+                                           HorizontalTextAlignment="Center" />
+                                </VerticalStackLayout>
+                            </CollectionView.EmptyView>
+                        </CollectionView>
+                    </Grid>
+                </ScrollView>
+
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+            </Grid>
         </Grid>
     </Grid>
 </ContentPage>

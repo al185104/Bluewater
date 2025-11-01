@@ -5,14 +5,18 @@
              xmlns:views="clr-namespace:Bluewater.App.Views"
              x:Class="Bluewater.App.Views.Controls.ScheduleDayCell"
              x:DataType="viewmodels:DailyShiftSelection">
-    <VerticalStackLayout Spacing="4">
+    <VerticalStackLayout Spacing="4"
+                         VerticalOptions="Center">
         <Picker ItemsSource="{Binding Source={RelativeSource AncestorType={x:Type views:SchedulePage}}, Path=BindingContext.ShiftOptions}"
                 SelectedItem="{Binding SelectedShift}"
                 ItemDisplayBinding="{Binding DisplayName}"
-                Title="Select shift" />
+                Title="Select shift"
+                HorizontalOptions="Fill"
+                HeightRequest="40"
+                FontSize="13" />
         <Label Text="{Binding SelectedShift.Description}"
                FontSize="11"
-               TextColor="#666666"
+               TextColor="{AppThemeBinding Light=#666666, Dark=#B3B3B3}"
                LineBreakMode="TailTruncation">
             <Label.Triggers>
                 <Trigger TargetType="Label"
