@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.Services;
@@ -10,6 +11,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace Bluewater.App.ViewModels;
 
+[SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "CommunityToolkit.Mvvm RelayCommand attributes are platform-agnostic in .NET MAUI view models.")]
 public partial class SettingViewModel : BaseViewModel
 {
   private readonly IDivisionApiService _divisionApiService;

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Diagnostics.CodeAnalysis;
 using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
@@ -17,6 +18,7 @@ using Microsoft.Maui.Storage;
 
 namespace Bluewater.App.ViewModels;
 
+[SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "CommunityToolkit.Mvvm RelayCommand attributes are platform-agnostic in .NET MAUI view models.")]
 public partial class ShiftsViewModel : BaseViewModel
 {
   private readonly IShiftApiService shiftApiService;
