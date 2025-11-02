@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -60,7 +60,7 @@ public partial class TimesheetsViewModel : BaseViewModel
     hasInitialized = true;
     await TraceCommandAsync(nameof(InitializeAsync)).ConfigureAwait(false);
 
-    LoadChargings();
+    MainThread.BeginInvokeOnMainThread(() => { LoadChargings();  });
 
     if (SelectedCharging is not null)
     {
