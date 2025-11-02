@@ -14,13 +14,13 @@
 				<TapGestureRecognizer Tapped="OnOverlayTapped" />
 			</Grid.GestureRecognizers>
 		</Grid>
-                <Border x:Name="PanelBorder"
-                                BackgroundColor="{AppThemeBinding Light=#F8FAFC, Dark=#1E1E1E}"
-                                Padding="24"
-                                HorizontalOptions="End"
-                                VerticalOptions="Fill"
-                                IsVisible="False"
-                                ZIndex="1">
+            <Border x:Name="PanelBorder"
+                    BackgroundColor="{AppThemeBinding Light=#F8FAFC, Dark=#1E1E1E}"
+                    Padding="24"
+                    HorizontalOptions="End"
+                    VerticalOptions="Fill"
+                    IsVisible="False"
+                    ZIndex="1">
 			<Grid RowDefinitions="Auto,*,Auto"
 				  RowSpacing="16">
 				<Grid ColumnDefinitions="*,Auto"

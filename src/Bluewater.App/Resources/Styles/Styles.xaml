@@ -446,7 +446,7 @@
     <ControlTemplate x:Key="AppContentPageTemplate">
         <Grid>
             <Grid Background="{StaticResource AppContentPageBackgroundBrush}"/>
-            <ContentPresenter Margin="{TemplateBinding Padding}" Padding="20"/>
+            <ContentPresenter Margin="{TemplateBinding Padding}"/>
         </Grid>
     </ControlTemplate>
 

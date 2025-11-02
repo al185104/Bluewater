@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Bluewater.App.Models;
@@ -13,31 +13,31 @@ public partial class EditableTimesheetEntry : ObservableObject
   private bool originalIsLocked;
 
   [ObservableProperty]
-  private Guid id;
+  public partial Guid Id { get; set; }
 
   [ObservableProperty]
-  private Guid employeeId;
+  public partial Guid EmployeeId { get; set; }
 
   [ObservableProperty]
-  private DateOnly? entryDate;
+  public partial DateOnly? EntryDate { get; set; }
 
   [ObservableProperty]
-  private DateTime? timeIn1;
+  public partial DateTime? TimeIn1 { get; set; }
 
   [ObservableProperty]
-  private DateTime? timeOut1;
+  public partial DateTime? TimeOut1 { get; set; }
 
   [ObservableProperty]
-  private DateTime? timeIn2;
+  public partial DateTime? TimeIn2 { get; set; }
 
   [ObservableProperty]
-  private DateTime? timeOut2;
+  public partial DateTime? TimeOut2 { get; set; }
 
   [ObservableProperty]
-  private bool isEdited;
+  public partial bool IsEdited { get; set; }
 
   [ObservableProperty]
-  private bool isLocked;
+  public partial bool IsLocked { get; set; }
 
   public DateTime EntryDateDateTime
   {
@@ -213,10 +213,10 @@ public partial class EditableTimesheetEntry : ObservableObject
   {
     if (value is DateOnly date)
     {
-      UpdateDateComponent(ref timeIn1, date);
-      UpdateDateComponent(ref timeOut1, date);
-      UpdateDateComponent(ref timeIn2, date);
-      UpdateDateComponent(ref timeOut2, date);
+      TimeIn1 = UpdateDateComponent(TimeIn1, date);
+      TimeOut1 = UpdateDateComponent(TimeOut1, date);
+      TimeIn2 = UpdateDateComponent(TimeIn2, date);
+      TimeOut2 = UpdateDateComponent(TimeOut2, date);
     }
 
     OnPropertyChanged(nameof(EntryDateDateTime));
@@ -319,14 +319,15 @@ public partial class EditableTimesheetEntry : ObservableObject
     return resolvedDate.ToDateTime(resolvedTime);
   }
 
-  private static void UpdateDateComponent(ref DateTime? value, DateOnly date)
+  private static DateTime? UpdateDateComponent(DateTime? value, DateOnly date)
   {
     if (!value.HasValue)
     {
-      return;
+      return value;
     }
 
     TimeOnly time = TimeOnly.FromDateTime(value.Value);
     value = date.ToDateTime(time);
+    return value;
   }
 }

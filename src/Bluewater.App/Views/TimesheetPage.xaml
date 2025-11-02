@@ -17,7 +17,7 @@
                 <Setter Property="Stroke"
                         Value="Transparent" />
                 <Setter Property="Padding"
-                        Value="16,12" />
+                        Value="20,10" />
                 <Setter Property="BackgroundColor"
                         Value="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}" />
             </Style>
@@ -125,12 +125,22 @@
                                                FontAttributes="Bold"
                                                FontSize="14"
                                                LineBreakMode="TailTruncation" />
-                                        <Label Text="{Binding Department}"
-                                               FontSize="12"
-                                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                                        <Label Text="{Binding Section}"
-                                               FontSize="12"
-                                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                        <Label FontSize="12"
+                                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Department}"
+                                                          FontSize="12"
+                                                          TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                                    <Span Text=", "
+                                                          FontSize="12"
+                                                          TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                                    <Span Text="{Binding Section}"
+                                                          FontSize="12"
+                                                          TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
                                     </VerticalStackLayout>
 
                                     <Label Grid.Column="1"
@@ -140,22 +150,23 @@
 
                                     <Label Grid.Column="2"
                                            Text="{Binding TotalWorkHours, StringFormat='{0:0.##}'}"
-                                           HorizontalTextAlignment="Center"
+                                           HorizontalTextAlignment="Start"
                                            VerticalTextAlignment="Center" />
 
                                     <Label Grid.Column="3"
                                            Text="{Binding TotalBreak, StringFormat='{0:0.##}'}"
-                                           HorizontalTextAlignment="Center"
+                                           HorizontalTextAlignment="Start"
                                            VerticalTextAlignment="Center" />
 
                                     <Label Grid.Column="4"
                                            Text="{Binding TotalLates, StringFormat='{0:0.##}'}"
-                                           HorizontalTextAlignment="Center"
+                                           HorizontalTextAlignment="Start"
                                            VerticalTextAlignment="Center" />
 
                                     <Label Grid.Column="5"
                                            Text="{Binding TotalAbsents}"
-                                           HorizontalTextAlignment="Center"
+                                           WidthRequest="30"
+                                           HorizontalTextAlignment="Start"
                                            VerticalTextAlignment="Center" />
 
                                     <Button Grid.Column="6"
