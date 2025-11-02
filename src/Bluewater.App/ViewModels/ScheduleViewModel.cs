@@ -487,9 +487,21 @@ public partial class ScheduleViewModel : BaseViewModel
 
   private void RaiseEditingStateProperties()
   {
-    OnPropertyChanged(nameof(CanEditShifts));
-    PreviousWeekCommand.NotifyCanExecuteChanged();
-    NextWeekCommand.NotifyCanExecuteChanged();
+    void UpdateCommandStates()
+    {
+      OnPropertyChanged(nameof(CanEditShifts));
+      PreviousWeekCommand.NotifyCanExecuteChanged();
+      NextWeekCommand.NotifyCanExecuteChanged();
+    }
+
+    if (MainThread.IsMainThread)
+    {
+      UpdateCommandStates();
+    }
+    else
+    {
+      MainThread.BeginInvokeOnMainThread(UpdateCommandStates);
+    }
   }
 
   private ShiftPickerItem ResolveShiftOption(ScheduleShiftDetailsSummary shift)
