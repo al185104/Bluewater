@@ -147,7 +147,7 @@ public class AttendanceShiftSummary
   public decimal BreakHours { get; set; }
 }
 
-public class AttendanceTimesheetSummary : IRowIndexed
+public partial class AttendanceTimesheetSummary : IRowIndexed
 {
   public Guid Id { get; set; }
   public Guid EmployeeId { get; set; }

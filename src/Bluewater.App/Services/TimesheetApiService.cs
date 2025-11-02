@@ -25,7 +25,7 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
       throw new ArgumentException("Employee ID must be provided", nameof(employeeId));
     }
 
-    string requestUri = BuildListAllRequestUri(startDate, endDate, tenant, skip, take);
+    string requestUri = BuildListAllRequestUri(startDate, endDate, tenant, skip, take, charging: null);
 
     TimesheetListAllResponseDto? response = await apiClient
       .GetAsync<TimesheetListAllResponseDto>(requestUri, cancellationToken)
@@ -53,12 +53,46 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
       .ToList();
   }
 
+  public async Task<IReadOnlyList<EmployeeTimesheetSummary>> GetTimesheetSummariesAsync(
+    string charging,
+    DateOnly startDate,
+    DateOnly endDate,
+    TenantDto tenant,
+    int? skip = null,
+    int? take = null,
+    CancellationToken cancellationToken = default)
+  {
+    if (string.IsNullOrWhiteSpace(charging))
+    {
+      throw new ArgumentException("Charging must be provided", nameof(charging));
+    }
+
+    string requestUri = BuildListAllRequestUri(startDate, endDate, tenant, skip, take, charging);
+
+    TimesheetListAllResponseDto? response = await apiClient
+      .GetAsync<TimesheetListAllResponseDto>(requestUri, cancellationToken)
+      .ConfigureAwait(false);
+
+    if (response?.Employees is not { Count: > 0 })
+    {
+      return Array.Empty<EmployeeTimesheetSummary>();
+    }
+
+    return response.Employees
+      .Where(employee => employee is not null)
+      .Select(employee => MapToEmployeeSummary(employee!))
+      .Where(summary => summary.Timesheets.Count > 0)
+      .OrderBy(summary => summary.Name, StringComparer.OrdinalIgnoreCase)
+      .ToList();
+  }
+
   private static string BuildListAllRequestUri(
     DateOnly startDate,
     DateOnly endDate,
     TenantDto tenant,
     int? skip,
-    int? take)
+    int? take,
+    string? charging)
   {
     List<string> parameters =
     [
@@ -66,6 +100,11 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
       $"endDate={endDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)}",
       $"tenant={tenant}"
     ];
+
+    if (!string.IsNullOrWhiteSpace(charging))
+    {
+      parameters.Add($"charging={Uri.EscapeDataString(charging)}");
+    }
 
     if (skip.HasValue)
     {
@@ -79,6 +118,33 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
 
     string query = string.Join('&', parameters);
     return $"Timesheets/All?{query}";
+  }
+
+  private static EmployeeTimesheetSummary MapToEmployeeSummary(AllEmployeeTimesheetDto dto)
+  {
+    var summary = new EmployeeTimesheetSummary
+    {
+      EmployeeId = dto.EmployeeId,
+      Name = dto.Name,
+      Department = dto.Department,
+      Section = dto.Section,
+      Charging = dto.Charging
+    };
+
+    if (dto.Timesheets is { Count: > 0 })
+    {
+      IEnumerable<AttendanceTimesheetSummary> timesheets = dto.Timesheets
+        .Where(timesheet => timesheet is not null)
+        .Select(timesheet => MapToSummary(dto.EmployeeId, timesheet!))
+        .OrderByDescending(timesheet => timesheet.EntryDate);
+
+      foreach (AttendanceTimesheetSummary timesheet in timesheets)
+      {
+        summary.Timesheets.Add(timesheet);
+      }
+    }
+
+    return summary;
   }
 
   private static AttendanceTimesheetSummary MapToSummary(Guid employeeId, TimesheetInfoDto dto)

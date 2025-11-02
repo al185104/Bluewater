@@ -16,4 +16,13 @@ public interface ITimesheetApiService
     int? skip = null,
     int? take = null,
     CancellationToken cancellationToken = default);
+
+  Task<IReadOnlyList<EmployeeTimesheetSummary>> GetTimesheetSummariesAsync(
+    string charging,
+    DateOnly startDate,
+    DateOnly endDate,
+    TenantDto tenant,
+    int? skip = null,
+    int? take = null,
+    CancellationToken cancellationToken = default);
 }

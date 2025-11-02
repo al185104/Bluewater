@@ -4,7 +4,7 @@ namespace Bluewater.App.Views;
 
 public partial class TimesheetPage : ContentPage
 {
-  public TimesheetPage(TimesheetViewModel vm)
+  public TimesheetPage(TimesheetsViewModel vm)
   {
     InitializeComponent();
     BindingContext = vm;
@@ -14,7 +14,7 @@ public partial class TimesheetPage : ContentPage
   {
     base.OnAppearing();
 
-    if (BindingContext is TimesheetViewModel viewModel)
+    if (BindingContext is TimesheetsViewModel viewModel)
     {
       await viewModel.InitializeAsync();
     }
