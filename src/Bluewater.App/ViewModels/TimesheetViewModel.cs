@@ -13,18 +13,19 @@ namespace Bluewater.App.ViewModels;
 
 public partial class TimesheetViewModel : BaseViewModel
 {
-  private readonly IAttendanceApiService attendanceApiService;
+  private readonly ITimesheetApiService timesheetApiService;
   private readonly IEmployeeApiService employeeApiService;
+  private readonly Dictionary<Guid, TenantDto> employeeTenants = new();
   private bool hasInitialized;
 
   public TimesheetViewModel(
-    IAttendanceApiService attendanceApiService,
+    ITimesheetApiService timesheetApiService,
     IEmployeeApiService employeeApiService,
     IActivityTraceService activityTraceService,
     IExceptionHandlingService exceptionHandlingService)
     : base(activityTraceService, exceptionHandlingService)
   {
-    this.attendanceApiService = attendanceApiService;
+    this.timesheetApiService = timesheetApiService;
     this.employeeApiService = employeeApiService;
     StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-7));
     EndDate = DateOnly.FromDateTime(DateTime.Today);
@@ -150,19 +151,16 @@ public partial class TimesheetViewModel : BaseViewModel
     {
       IsBusy = true;
 
-      IReadOnlyList<AttendanceSummary> attendances = await attendanceApiService
-        .GetAttendancesAsync(EmployeeFilter.Value, StartDate, EndDate)
+      TenantDto tenant = GetEmployeeTenant(EmployeeFilter.Value);
+
+      IReadOnlyList<AttendanceTimesheetSummary> timesheets = await timesheetApiService
+        .GetTimesheetsAsync(EmployeeFilter.Value, StartDate, EndDate, tenant)
         .ConfigureAwait(false);
 
       Timesheets.Clear();
-      foreach (AttendanceSummary attendance in attendances)
+      foreach (AttendanceTimesheetSummary timesheet in timesheets)
       {
-        if (attendance.Timesheet is null)
-        {
-          continue;
-        }
-
-        Timesheets.Add(CloneTimesheet(attendance.Timesheet));
+        Timesheets.Add(CloneTimesheet(timesheet));
       }
     }
     catch (Exception ex)
@@ -192,6 +190,11 @@ public partial class TimesheetViewModel : BaseViewModel
 
       if (defaultEmployeeId.HasValue && defaultEmployeeId.Value != Guid.Empty)
       {
+        EmployeeSummary? defaultEmployee = employees.FirstOrDefault(summary => summary?.Id == defaultEmployeeId.Value);
+        if (defaultEmployee is not null)
+        {
+          employeeTenants[defaultEmployee.Id] = ConvertTenant(defaultEmployee.Tenant);
+        }
         EmployeeFilter = defaultEmployeeId.Value;
       }
     }
@@ -199,6 +202,23 @@ public partial class TimesheetViewModel : BaseViewModel
     {
       ExceptionHandlingService.Handle(ex, "Loading default employee");
     }
+  }
+
+  private TenantDto GetEmployeeTenant(Guid employeeId)
+  {
+    if (employeeTenants.TryGetValue(employeeId, out TenantDto tenant))
+    {
+      return tenant;
+    }
+
+    return TenantDto.Maribago;
+  }
+
+  private static TenantDto ConvertTenant(Bluewater.Core.EmployeeAggregate.Enum.Tenant tenant)
+  {
+    return Enum.TryParse<TenantDto>(tenant.ToString(), out TenantDto tenantDto)
+      ? tenantDto
+      : TenantDto.Maribago;
   }
 
   private static AttendanceTimesheetSummary CreateNewTimesheet()
