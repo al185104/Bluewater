@@ -3,7 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:Bluewater.App.Models"
              xmlns:converters="clr-namespace:Bluewater.App.Converters"
+             xmlns:appViews="clr-namespace:Bluewater.App.Views"
              x:Class="Bluewater.App.Views.TimesheetPage"
+             x:Name="TimesheetPageRoot"
              Title="Timesheets">
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -74,175 +76,94 @@
             <Grid Grid.Row="2">
                 <CollectionView ItemsSource="{Binding Timesheets}"
                                 SelectionMode="None">
+                    <CollectionView.Header>
+                        <Border StrokeShape="RoundRectangle 10 10 0 0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                            <Grid ColumnSpacing="12"
+                                  Padding="20,14"
+                                  ColumnDefinitions="2*,1.2*,1*,1*,1*,Auto,Auto">
+                                <Label Text="Employee"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="1"
+                                       Text="Charging"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="2"
+                                       Text="Work Hours"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="3"
+                                       Text="Break Hours"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="4"
+                                       Text="Late Hours"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="5"
+                                       Text="Absences"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="6"
+                                       Text="Actions"
+                                       TextColor="White"
+                                       HorizontalOptions="End"
+                                       FontAttributes="Bold" />
+                            </Grid>
+                        </Border>
+                    </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:EmployeeTimesheetSummary">
-                            <VerticalStackLayout Spacing="12">
-                                <CollectionView x:Name="TimesheetRows"
-                                                BindingContext="{Binding .}"
-                                                ItemsSource="{Binding Timesheets}"
-                                                SelectionMode="None">
-                                    <CollectionView.Header>
-                                        <Border StrokeShape="RoundRectangle 10 10 0 0"
-                                                BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
-                                            <Grid ColumnSpacing="12"
-                                                  Padding="20,14"
-                                                  ColumnDefinitions="1.5*,1.2*,1.2*,1.2*,1.2*,1.2*,1*">
-                                                <Label Text="Employee"
-                                                       TextColor="White"
-                                                       FontAttributes="Bold" />
-                                                <Label Grid.Column="1"
-                                                       Text="Date"
-                                                       TextColor="White"
-                                                       FontAttributes="Bold" />
-                                                <Label Grid.Column="2"
-                                                       Text="In 1"
-                                                       TextColor="White"
-                                                       FontAttributes="Bold" />
-                                                <Label Grid.Column="3"
-                                                       Text="Out 1"
-                                                       TextColor="White"
-                                                       FontAttributes="Bold" />
-                                                <Label Grid.Column="4"
-                                                       Text="In 2"
-                                                       TextColor="White"
-                                                       FontAttributes="Bold" />
-                                                <Label Grid.Column="5"
-                                                       Text="Out 2"
-                                                       TextColor="White"
-                                                       FontAttributes="Bold" />
-                                                <Label Grid.Column="6"
-                                                       Text="Edited"
-                                                       TextColor="White"
-                                                       FontAttributes="Bold" />
-                                            </Grid>
-                                        </Border>
-                                    </CollectionView.Header>
-                                    <CollectionView.ItemTemplate>
-                                        <DataTemplate x:DataType="models:AttendanceTimesheetSummary">
-                                            <Border Style="{StaticResource TimesheetRowBorderStyle}">
-                                                <Grid ColumnSpacing="12"
-                                                      ColumnDefinitions="1.5*,1.2*,1.2*,1.2*,1.2*,1.2*,1*"
-                                                      VerticalOptions="Center">
-                                                    <VerticalStackLayout Spacing="4">
-                                                        <Label Text="{Binding Source={x:Reference TimesheetRows}, Path=BindingContext.Name}"
-                                                               FontAttributes="Bold"
-                                                               FontSize="14"
-                                                               LineBreakMode="TailTruncation" />
-                                                        <Label Text="{Binding Source={x:Reference TimesheetRows}, Path=BindingContext.Department}"
-                                                               FontSize="12"
-                                                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                                                        <Label Text="{Binding Source={x:Reference TimesheetRows}, Path=BindingContext.Section}"
-                                                               FontSize="12"
-                                                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                                                    </VerticalStackLayout>
+                            <Border Style="{StaticResource TimesheetRowBorderStyle}">
+                                <Grid ColumnSpacing="12"
+                                      ColumnDefinitions="2*,1.2*,1*,1*,1*,Auto,Auto"
+                                      VerticalOptions="Center">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="{Binding Name}"
+                                               FontAttributes="Bold"
+                                               FontSize="14"
+                                               LineBreakMode="TailTruncation" />
+                                        <Label Text="{Binding Department}"
+                                               FontSize="12"
+                                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                        <Label Text="{Binding Section}"
+                                               FontSize="12"
+                                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                    </VerticalStackLayout>
 
-                                                    <DatePicker Grid.Column="1"
-                                                                Date="{Binding EntryDateDateTime}"
-                                                                Format="MMM dd, yyyy"
-                                                                IsEnabled="False" />
+                                    <Label Grid.Column="1"
+                                           Text="{Binding Charging}"
+                                           LineBreakMode="TailTruncation"
+                                           VerticalTextAlignment="Center" />
 
-                                                    <Grid Grid.Column="2"
-                                                          RowDefinitions="Auto,Auto"
-                                                          RowSpacing="4"
-                                                          HorizontalOptions="Center">
-                                                        <DatePicker Grid.Row="0"
-                                                                    Date="{Binding TimeIn1Date}"
-                                                                    Format="MMM dd, yyyy"
-                                                                    IsEnabled="False"
-                                                                    IsVisible="{Binding HasTimeIn1}" />
-                                                        <TimePicker Grid.Row="1"
-                                                                    Time="{Binding TimeIn1Time}"
-                                                                    Format="HH:mm"
-                                                                    IsEnabled="False"
-                                                                    IsVisible="{Binding HasTimeIn1}" />
-                                                        <Label Grid.RowSpan="2"
-                                                               Text="N/A"
-                                                               IsVisible="{Binding HasTimeIn1, Converter={StaticResource BooleanNegationConverter}}"
-                                                               HorizontalOptions="Center"
-                                                               VerticalOptions="Center"
-                                                               FontSize="12"
-                                                               Opacity="0.6" />
-                                                    </Grid>
+                                    <Label Grid.Column="2"
+                                           Text="{Binding TotalWorkHours, StringFormat='{0:0.##}'}"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center" />
 
-                                                    <Grid Grid.Column="3"
-                                                          RowDefinitions="Auto,Auto"
-                                                          RowSpacing="4"
-                                                          HorizontalOptions="Center">
-                                                        <DatePicker Grid.Row="0"
-                                                                    Date="{Binding TimeOut1Date}"
-                                                                    Format="MMM dd, yyyy"
-                                                                    IsEnabled="False"
-                                                                    IsVisible="{Binding HasTimeOut1}" />
-                                                        <TimePicker Grid.Row="1"
-                                                                    Time="{Binding TimeOut1Time}"
-                                                                    Format="HH:mm"
-                                                                    IsEnabled="False"
-                                                                    IsVisible="{Binding HasTimeOut1}" />
-                                                        <Label Grid.RowSpan="2"
-                                                               Text="N/A"
-                                                               IsVisible="{Binding HasTimeOut1, Converter={StaticResource BooleanNegationConverter}}"
-                                                               HorizontalOptions="Center"
-                                                               VerticalOptions="Center"
-                                                               FontSize="12"
-                                                               Opacity="0.6" />
-                                                    </Grid>
+                                    <Label Grid.Column="3"
+                                           Text="{Binding TotalBreak, StringFormat='{0:0.##}'}"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center" />
 
-                                                    <Grid Grid.Column="4"
-                                                          RowDefinitions="Auto,Auto"
-                                                          RowSpacing="4"
-                                                          HorizontalOptions="Center">
-                                                        <DatePicker Grid.Row="0"
-                                                                    Date="{Binding TimeIn2Date}"
-                                                                    Format="MMM dd, yyyy"
-                                                                    IsEnabled="False"
-                                                                    IsVisible="{Binding HasTimeIn2}" />
-                                                        <TimePicker Grid.Row="1"
-                                                                    Time="{Binding TimeIn2Time}"
-                                                                    Format="HH:mm"
-                                                                    IsEnabled="False"
-                                                                    IsVisible="{Binding HasTimeIn2}" />
-                                                        <Label Grid.RowSpan="2"
-                                                               Text="N/A"
-                                                               IsVisible="{Binding HasTimeIn2, Converter={StaticResource BooleanNegationConverter}}"
-                                                               HorizontalOptions="Center"
-                                                               VerticalOptions="Center"
-                                                               FontSize="12"
-                                                               Opacity="0.6" />
-                                                    </Grid>
+                                    <Label Grid.Column="4"
+                                           Text="{Binding TotalLates, StringFormat='{0:0.##}'}"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center" />
 
-                                                    <Grid Grid.Column="5"
-                                                          RowDefinitions="Auto,Auto"
-                                                          RowSpacing="4"
-                                                          HorizontalOptions="Center">
-                                                        <DatePicker Grid.Row="0"
-                                                                    Date="{Binding TimeOut2Date}"
-                                                                    Format="MMM dd, yyyy"
-                                                                    IsEnabled="False"
-                                                                    IsVisible="{Binding HasTimeOut2}" />
-                                                        <TimePicker Grid.Row="1"
-                                                                    Time="{Binding TimeOut2Time}"
-                                                                    Format="HH:mm"
-                                                                    IsEnabled="False"
-                                                                    IsVisible="{Binding HasTimeOut2}" />
-                                                        <Label Grid.RowSpan="2"
-                                                               Text="N/A"
-                                                               IsVisible="{Binding HasTimeOut2, Converter={StaticResource BooleanNegationConverter}}"
-                                                               HorizontalOptions="Center"
-                                                               VerticalOptions="Center"
-                                                               FontSize="12"
-                                                               Opacity="0.6" />
-                                                    </Grid>
+                                    <Label Grid.Column="5"
+                                           Text="{Binding TotalAbsents}"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center" />
 
-                                                    <Label Grid.Column="6"
-                                                           Text="{Binding IsEdited, StringFormat='{0}'}"
-                                                           HorizontalOptions="End"
-                                                           VerticalTextAlignment="Center" />
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </CollectionView.ItemTemplate>
-                                </CollectionView>
-                            </VerticalStackLayout>
+                                    <Button Grid.Column="6"
+                                            Text="Edit"
+                                            Command="{Binding Source={x:Reference TimesheetPageRoot}, Path=BindingContext.EditTimesheetCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                            </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                     <CollectionView.EmptyView>
@@ -250,7 +171,7 @@
                                              HorizontalOptions="Center"
                                              VerticalOptions="Center"
                                              Spacing="8">
-                            <Label Text="No timesheets available"
+                            <Label Text="No timesheet summaries available"
                                    FontAttributes="Bold"
                                    HorizontalTextAlignment="Center" />
                             <Label Text="Select a charging and date range to load timesheets."
@@ -265,5 +186,15 @@
                                    VerticalOptions="Center" />
             </Grid>
         </Grid>
+        <appViews:TimesheetDetailsView HorizontalOptions="Fill"
+                                       VerticalOptions="Fill"
+                                       IsVisible="{Binding IsDetailsOpen}"
+                                       IsOpen="{Binding IsDetailsOpen}"
+                                       Title="{Binding DetailsTitle}"
+                                       Timesheets="{Binding EditableTimesheets}"
+                                       UpdateCommand="{Binding SaveTimesheetsCommand}"
+                                       UpdateButtonText="{Binding DetailsPrimaryActionText}"
+                                       IsUpdateEnabled="{Binding CanSaveTimesheets}"
+                                       CloseCommand="{Binding CloseTimesheetDetailsCommand}" />
     </Grid>
 </ContentPage>

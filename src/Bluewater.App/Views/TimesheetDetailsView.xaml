@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Bluewater.App.Models"
+             xmlns:controls="clr-namespace:Bluewater.App.Views.Controls"
+             x:Class="Bluewater.App.Views.TimesheetDetailsView"
+             x:Name="RootView">
+    <controls:SlideInEditorView x:Name="EditorView"
+                                Title="{Binding Source={x:Reference RootView}, Path=Title}"
+                                IsOpen="{Binding Source={x:Reference RootView}, Path=IsOpen}"
+                                UpdateCommand="{Binding Source={x:Reference RootView}, Path=UpdateCommand}"
+                                UpdateCommandParameter="{Binding Source={x:Reference RootView}, Path=UpdateCommandParameter}"
+                                UpdateButtonText="{Binding Source={x:Reference RootView}, Path=UpdateButtonText}"
+                                IsUpdateEnabled="{Binding Source={x:Reference RootView}, Path=IsUpdateEnabled}"
+                                CloseCommand="{Binding Source={x:Reference RootView}, Path=CloseCommand}"
+                                CloseCommandParameter="{Binding Source={x:Reference RootView}, Path=CloseCommandParameter}">
+        <controls:SlideInEditorView.EditorContent>
+            <Grid Padding="0,0,12,24">
+                <CollectionView ItemsSource="{Binding Source={x:Reference RootView}, Path=Timesheets}"
+                                SelectionMode="None">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:EditableTimesheetEntry">
+                            <Border StrokeThickness="1"
+                                    Stroke="Transparent"
+                                    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                                    Padding="16,12"
+                                    StrokeShape="RoundRectangle 12">
+                                <VerticalStackLayout Spacing="16">
+                                    <Grid ColumnDefinitions="Auto,*"
+                                          ColumnSpacing="12">
+                                        <Label Text="Entry Date"
+                                               VerticalOptions="Center"
+                                               FontAttributes="Bold" />
+                                        <DatePicker Grid.Column="1"
+                                                    Date="{Binding EntryDateDateTime}" />
+                                    </Grid>
+
+                                    <Grid ColumnDefinitions="Auto,*"
+                                          ColumnSpacing="12">
+                                        <Label Text="Time In 1"
+                                               VerticalOptions="Center" />
+                                        <HorizontalStackLayout Grid.Column="1"
+                                                               Spacing="12"
+                                                               VerticalOptions="Center">
+                                            <Switch IsToggled="{Binding HasTimeIn1}" />
+                                            <TimePicker Time="{Binding TimeIn1Time}"
+                                                        Format="HH:mm"
+                                                        IsEnabled="{Binding HasTimeIn1}" />
+                                        </HorizontalStackLayout>
+                                    </Grid>
+
+                                    <Grid ColumnDefinitions="Auto,*"
+                                          ColumnSpacing="12">
+                                        <Label Text="Time Out 1"
+                                               VerticalOptions="Center" />
+                                        <HorizontalStackLayout Grid.Column="1"
+                                                               Spacing="12"
+                                                               VerticalOptions="Center">
+                                            <Switch IsToggled="{Binding HasTimeOut1}" />
+                                            <TimePicker Time="{Binding TimeOut1Time}"
+                                                        Format="HH:mm"
+                                                        IsEnabled="{Binding HasTimeOut1}" />
+                                        </HorizontalStackLayout>
+                                    </Grid>
+
+                                    <Grid ColumnDefinitions="Auto,*"
+                                          ColumnSpacing="12">
+                                        <Label Text="Time In 2"
+                                               VerticalOptions="Center" />
+                                        <HorizontalStackLayout Grid.Column="1"
+                                                               Spacing="12"
+                                                               VerticalOptions="Center">
+                                            <Switch IsToggled="{Binding HasTimeIn2}" />
+                                            <TimePicker Time="{Binding TimeIn2Time}"
+                                                        Format="HH:mm"
+                                                        IsEnabled="{Binding HasTimeIn2}" />
+                                        </HorizontalStackLayout>
+                                    </Grid>
+
+                                    <Grid ColumnDefinitions="Auto,*"
+                                          ColumnSpacing="12">
+                                        <Label Text="Time Out 2"
+                                               VerticalOptions="Center" />
+                                        <HorizontalStackLayout Grid.Column="1"
+                                                               Spacing="12"
+                                                               VerticalOptions="Center">
+                                            <Switch IsToggled="{Binding HasTimeOut2}" />
+                                            <TimePicker Time="{Binding TimeOut2Time}"
+                                                        Format="HH:mm"
+                                                        IsEnabled="{Binding HasTimeOut2}" />
+                                        </HorizontalStackLayout>
+                                    </Grid>
+
+                                    <Grid ColumnDefinitions="Auto,*"
+                                          ColumnSpacing="12">
+                                        <Label Text="Locked"
+                                               VerticalOptions="Center" />
+                                        <Switch Grid.Column="1"
+                                                IsToggled="{Binding IsLocked}" />
+                                    </Grid>
+
+                                    <Label Text="{Binding IsEdited, StringFormat='Edited: {0}'}"
+                                           FontAttributes="Italic"
+                                           FontSize="12"
+                                           TextColor="{AppThemeBinding Light=#6B7280, Dark=#9CA3AF}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="24"
+                                             Spacing="8"
+                                             HorizontalOptions="Center"
+                                             VerticalOptions="Center">
+                            <Label Text="Select an employee to edit timesheets."
+                                   HorizontalTextAlignment="Center"
+                                   FontAttributes="Bold" />
+                            <Label Text="Timesheet entries will appear here once an employee is selected."
+                                   HorizontalTextAlignment="Center"
+                                   FontSize="12" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+            </Grid>
+        </controls:SlideInEditorView.EditorContent>
+    </controls:SlideInEditorView>
+</ContentView>
