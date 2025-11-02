@@ -10,5 +10,9 @@ public class EmployeeTimesheetSummary
   public string Department { get; set; } = string.Empty;
   public string Section { get; set; } = string.Empty;
   public string Charging { get; set; } = string.Empty;
+  public decimal TotalWorkHours { get; set; }
+  public decimal TotalBreak { get; set; }
+  public decimal TotalLates { get; set; }
+  public int TotalAbsents { get; set; }
   public ObservableCollection<AttendanceTimesheetSummary> Timesheets { get; } = new();
 }

@@ -25,4 +25,8 @@ public interface ITimesheetApiService
     int? skip = null,
     int? take = null,
     CancellationToken cancellationToken = default);
+
+  Task<AttendanceTimesheetSummary?> UpdateTimesheetAsync(
+    UpdateTimesheetRequestDto request,
+    CancellationToken cancellationToken = default);
 }

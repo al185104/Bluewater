@@ -120,6 +120,39 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
     return $"Timesheets/All?{query}";
   }
 
+  public async Task<AttendanceTimesheetSummary?> UpdateTimesheetAsync(
+    UpdateTimesheetRequestDto request,
+    CancellationToken cancellationToken = default)
+  {
+    if (request is null)
+    {
+      throw new ArgumentNullException(nameof(request));
+    }
+
+    UpdateTimesheetResponseDto? response = await apiClient
+      .PutAsync<UpdateTimesheetRequestDto, UpdateTimesheetResponseDto>("Timesheets", request, cancellationToken)
+      .ConfigureAwait(false);
+
+    if (response?.Timesheet is null)
+    {
+      return null;
+    }
+
+    TimesheetDto dto = response.Timesheet;
+
+    return new AttendanceTimesheetSummary
+    {
+      Id = dto.Id,
+      EmployeeId = dto.EmployeeId,
+      TimeIn1 = dto.TimeIn1,
+      TimeOut1 = dto.TimeOut1,
+      TimeIn2 = dto.TimeIn2,
+      TimeOut2 = dto.TimeOut2,
+      EntryDate = dto.EntryDate,
+      IsEdited = dto.IsEdited
+    };
+  }
+
   private static EmployeeTimesheetSummary MapToEmployeeSummary(AllEmployeeTimesheetDto dto)
   {
     var summary = new EmployeeTimesheetSummary
@@ -128,7 +161,11 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
       Name = dto.Name,
       Department = dto.Department,
       Section = dto.Section,
-      Charging = dto.Charging
+      Charging = dto.Charging,
+      TotalWorkHours = dto.TotalWorkHours,
+      TotalBreak = dto.TotalBreak,
+      TotalLates = dto.TotalLates,
+      TotalAbsents = dto.TotalAbsents
     };
 
     if (dto.Timesheets is { Count: > 0 })
