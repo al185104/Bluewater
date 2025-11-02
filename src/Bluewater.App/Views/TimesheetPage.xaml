@@ -8,43 +8,16 @@
     <ContentPage.Resources>
         <ResourceDictionary>
             <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
-            <Style x:Key="TimesheetSectionBorderStyle"
+            <Style x:Key="TimesheetRowBorderStyle"
                    TargetType="Border">
                 <Setter Property="StrokeThickness"
                         Value="1" />
                 <Setter Property="Stroke"
-                        Value="{AppThemeBinding Light=#E0E0E0, Dark=#2D2D2D}" />
+                        Value="Transparent" />
+                <Setter Property="Padding"
+                        Value="16,12" />
                 <Setter Property="BackgroundColor"
                         Value="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}" />
-                <Setter Property="Padding"
-                        Value="16" />
-                <Setter Property="Margin"
-                        Value="0,0,0,16" />
-                <Setter Property="StrokeShape">
-                    <Setter.Value>
-                        <RoundRectangle CornerRadius="12" />
-                    </Setter.Value>
-                </Setter>
-            </Style>
-            <Style x:Key="TimesheetHeaderLabelStyle"
-                   TargetType="Label">
-                <Setter Property="TextColor"
-                        Value="White" />
-                <Setter Property="FontAttributes"
-                        Value="Bold" />
-                <Setter Property="HorizontalTextAlignment"
-                        Value="Center" />
-            </Style>
-            <Style x:Key="TimesheetBodyGrid"
-                   TargetType="Grid">
-                <Setter Property="ColumnDefinitions"
-                        Value="Auto,Auto,Auto,Auto,Auto,Auto" />
-                <Setter Property="ColumnSpacing"
-                        Value="12" />
-                <Setter Property="Padding"
-                        Value="12,8" />
-                <Setter Property="VerticalOptions"
-                        Value="Center" />
             </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
@@ -103,56 +76,72 @@
                                 SelectionMode="None">
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:EmployeeTimesheetSummary">
-                            <Border Style="{StaticResource TimesheetSectionBorderStyle}">
-                                <VerticalStackLayout Spacing="12">
-                                    <Grid ColumnDefinitions="2*,*,*"
-                                          ColumnSpacing="12">
-                                        <Label Text="{Binding Name}"
-                                               FontAttributes="Bold"
-                                               FontSize="16" />
-                                        <Label Grid.Column="1"
-                                               Text="{Binding Department}"
-                                               FontSize="12"
-                                               TextColor="{AppThemeBinding Light=#4A4A4A, Dark=#CCCCCC}" />
-                                        <Label Grid.Column="2"
-                                               Text="{Binding Section}"
-                                               FontSize="12"
-                                               TextColor="{AppThemeBinding Light=#4A4A4A, Dark=#CCCCCC}" />
-                                    </Grid>
-
-                                    <CollectionView ItemsSource="{Binding Timesheets}"
-                                                    SelectionMode="None">
-                                        <CollectionView.Header>
-                                            <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
-                                                  ColumnSpacing="12"
-                                                  Padding="12,8"
-                                                  BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
-                                                <Label Text="Date"
-                                                       Style="{StaticResource TimesheetHeaderLabelStyle}" />
+                            <VerticalStackLayout Spacing="12">
+                                <CollectionView x:Name="TimesheetRows"
+                                                BindingContext="{Binding .}"
+                                                ItemsSource="{Binding Timesheets}"
+                                                SelectionMode="None">
+                                    <CollectionView.Header>
+                                        <Border StrokeShape="RoundRectangle 10 10 0 0"
+                                                BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                                            <Grid ColumnSpacing="12"
+                                                  Padding="20,14"
+                                                  ColumnDefinitions="1.5*,1.2*,1.2*,1.2*,1.2*,1.2*,1*">
+                                                <Label Text="Employee"
+                                                       TextColor="White"
+                                                       FontAttributes="Bold" />
                                                 <Label Grid.Column="1"
-                                                       Text="In 1"
-                                                       Style="{StaticResource TimesheetHeaderLabelStyle}" />
+                                                       Text="Date"
+                                                       TextColor="White"
+                                                       FontAttributes="Bold" />
                                                 <Label Grid.Column="2"
-                                                       Text="Out 1"
-                                                       Style="{StaticResource TimesheetHeaderLabelStyle}" />
+                                                       Text="In 1"
+                                                       TextColor="White"
+                                                       FontAttributes="Bold" />
                                                 <Label Grid.Column="3"
-                                                       Text="In 2"
-                                                       Style="{StaticResource TimesheetHeaderLabelStyle}" />
+                                                       Text="Out 1"
+                                                       TextColor="White"
+                                                       FontAttributes="Bold" />
                                                 <Label Grid.Column="4"
-                                                       Text="Out 2"
-                                                       Style="{StaticResource TimesheetHeaderLabelStyle}" />
+                                                       Text="In 2"
+                                                       TextColor="White"
+                                                       FontAttributes="Bold" />
                                                 <Label Grid.Column="5"
+                                                       Text="Out 2"
+                                                       TextColor="White"
+                                                       FontAttributes="Bold" />
+                                                <Label Grid.Column="6"
                                                        Text="Edited"
-                                                       Style="{StaticResource TimesheetHeaderLabelStyle}" />
+                                                       TextColor="White"
+                                                       FontAttributes="Bold" />
                                             </Grid>
-                                        </CollectionView.Header>
-                                        <CollectionView.ItemTemplate>
-                                            <DataTemplate x:DataType="models:AttendanceTimesheetSummary">
-                                                <Grid Style="{StaticResource TimesheetBodyGrid}">
-                                                    <Label Text="{Binding EntryDate, StringFormat='{0:MMM dd, yyyy}'}"
-                                                           FontAttributes="Bold" />
+                                        </Border>
+                                    </CollectionView.Header>
+                                    <CollectionView.ItemTemplate>
+                                        <DataTemplate x:DataType="models:AttendanceTimesheetSummary">
+                                            <Border Style="{StaticResource TimesheetRowBorderStyle}">
+                                                <Grid ColumnSpacing="12"
+                                                      ColumnDefinitions="1.5*,1.2*,1.2*,1.2*,1.2*,1.2*,1*"
+                                                      VerticalOptions="Center">
+                                                    <VerticalStackLayout Spacing="4">
+                                                        <Label Text="{Binding Source={x:Reference TimesheetRows}, Path=BindingContext.Name}"
+                                                               FontAttributes="Bold"
+                                                               FontSize="14"
+                                                               LineBreakMode="TailTruncation" />
+                                                        <Label Text="{Binding Source={x:Reference TimesheetRows}, Path=BindingContext.Department}"
+                                                               FontSize="12"
+                                                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                                        <Label Text="{Binding Source={x:Reference TimesheetRows}, Path=BindingContext.Section}"
+                                                               FontSize="12"
+                                                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                                    </VerticalStackLayout>
 
-                                                    <Grid Grid.Column="1"
+                                                    <DatePicker Grid.Column="1"
+                                                                Date="{Binding EntryDateDateTime}"
+                                                                Format="MMM dd, yyyy"
+                                                                IsEnabled="False" />
+
+                                                    <Grid Grid.Column="2"
                                                           RowDefinitions="Auto,Auto"
                                                           RowSpacing="4"
                                                           HorizontalOptions="Center">
@@ -175,7 +164,7 @@
                                                                Opacity="0.6" />
                                                     </Grid>
 
-                                                    <Grid Grid.Column="2"
+                                                    <Grid Grid.Column="3"
                                                           RowDefinitions="Auto,Auto"
                                                           RowSpacing="4"
                                                           HorizontalOptions="Center">
@@ -198,7 +187,7 @@
                                                                Opacity="0.6" />
                                                     </Grid>
 
-                                                    <Grid Grid.Column="3"
+                                                    <Grid Grid.Column="4"
                                                           RowDefinitions="Auto,Auto"
                                                           RowSpacing="4"
                                                           HorizontalOptions="Center">
@@ -221,7 +210,7 @@
                                                                Opacity="0.6" />
                                                     </Grid>
 
-                                                    <Grid Grid.Column="4"
+                                                    <Grid Grid.Column="5"
                                                           RowDefinitions="Auto,Auto"
                                                           RowSpacing="4"
                                                           HorizontalOptions="Center">
@@ -244,16 +233,16 @@
                                                                Opacity="0.6" />
                                                     </Grid>
 
-                                                    <Label Grid.Column="5"
+                                                    <Label Grid.Column="6"
                                                            Text="{Binding IsEdited, StringFormat='{0}'}"
-                                                           HorizontalTextAlignment="End"
+                                                           HorizontalOptions="End"
                                                            VerticalTextAlignment="Center" />
                                                 </Grid>
-                                            </DataTemplate>
-                                        </CollectionView.ItemTemplate>
-                                    </CollectionView>
-                                </VerticalStackLayout>
-                            </Border>
+                                            </Border>
+                                        </DataTemplate>
+                                    </CollectionView.ItemTemplate>
+                                </CollectionView>
+                            </VerticalStackLayout>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
                     <CollectionView.EmptyView>

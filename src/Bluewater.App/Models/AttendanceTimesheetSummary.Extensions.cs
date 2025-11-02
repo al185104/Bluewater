@@ -9,6 +9,8 @@ public partial class AttendanceTimesheetSummary
   public bool HasTimeIn2 => TimeIn2.HasValue;
   public bool HasTimeOut2 => TimeOut2.HasValue;
 
+  public DateTime EntryDateDateTime => EntryDate?.ToDateTime(TimeOnly.MinValue) ?? DateTime.Today;
+
   public DateTime TimeIn1Date => GetDateOrFallback(TimeIn1);
   public DateTime TimeOut1Date => GetDateOrFallback(TimeOut1);
   public DateTime TimeIn2Date => GetDateOrFallback(TimeIn2);
