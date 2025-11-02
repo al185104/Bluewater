@@ -9,4 +9,14 @@ public partial class LoginPage : ContentPage
     InitializeComponent();
     BindingContext = vm;
   }
+
+  protected override async void OnAppearing()
+  {
+    base.OnAppearing();
+
+    if (BindingContext is LoginViewModel viewModel)
+    {
+      await viewModel.InitializeAsync();
+    }
+  }
 }

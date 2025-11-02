@@ -10,9 +10,10 @@ public partial class SettingPage : ContentPage
     BindingContext = vm;
   }
 
-  protected override async void OnBindingContextChanged()
+  protected override async void OnAppearing()
   {
-    base.OnBindingContextChanged();
+    base.OnAppearing();
+
     if (BindingContext is SettingViewModel viewModel)
     {
       await viewModel.InitializeAsync();

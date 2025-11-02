@@ -9,4 +9,14 @@ public partial class UserPage : ContentPage
     InitializeComponent();
     BindingContext = vm;
   }
+
+  protected override async void OnAppearing()
+  {
+    base.OnAppearing();
+
+    if (BindingContext is UserViewModel viewModel)
+    {
+      await viewModel.InitializeAsync();
+    }
+  }
 }
