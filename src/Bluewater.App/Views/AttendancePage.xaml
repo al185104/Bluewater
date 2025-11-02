@@ -1,16 +1,62 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Bluewater.App.Models"
              x:Class="Bluewater.App.Views.AttendancePage"
              Title="AttendancePage">
-    <CollectionView ItemsSource="{Binding Attendances}" Margin="16">
+    <CollectionView ItemsSource="{Binding Attendances}"
+                    Margin="16">
         <CollectionView.ItemTemplate>
-            <DataTemplate>
-                <VerticalStackLayout Padding="8">
-                    <Label Text="{Binding EntryDate}" FontAttributes="Bold" />
-                    <Label Text="{Binding WorkHours, StringFormat='Work Hours: {0:F2}'}" FontSize="12" />
-                </VerticalStackLayout>
+            <DataTemplate x:DataType="models:AttendanceSummary">
+                <Grid Padding="8"
+                      ColumnDefinitions="2*,*,*,Auto"
+                      ColumnSpacing="12">
+                    <Label Text="{Binding EntryDate, StringFormat='{0:d}'}"
+                           FontAttributes="Bold" />
+                    <Label Grid.Column="1"
+                           Text="{Binding WorkHours, StringFormat='{0:F2}'}"
+                           FontSize="12" />
+                    <Label Grid.Column="2"
+                           Text="{Binding LateHours, StringFormat='{0:F2}'}"
+                           FontSize="12" />
+                    <Label Grid.Column="3"
+                           Text="{Binding IsLocked, StringFormat='{0}'}"
+                           FontSize="12"
+                           HorizontalTextAlignment="End" />
+                </Grid>
             </DataTemplate>
         </CollectionView.ItemTemplate>
+        <CollectionView.Header>
+            <Grid ColumnDefinitions="2*,*,*,Auto"
+                  Padding="8"
+                  ColumnSpacing="12"
+                  BackgroundColor="{AppThemeBinding Light=#F0F4FA, Dark=#1F1F1F}">
+                <Label Text="Entry Date"
+                       FontAttributes="Bold" />
+                <Label Grid.Column="1"
+                       Text="Work Hours"
+                       FontAttributes="Bold" />
+                <Label Grid.Column="2"
+                       Text="Late Hours"
+                       FontAttributes="Bold" />
+                <Label Grid.Column="3"
+                       Text="Locked"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="End" />
+            </Grid>
+        </CollectionView.Header>
+        <CollectionView.EmptyView>
+            <VerticalStackLayout Padding="24"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 Spacing="8">
+                <Label Text="No attendance records"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
+                <Label Text="Attendance entries will appear here once added."
+                       HorizontalTextAlignment="Center"
+                       FontSize="12" />
+            </VerticalStackLayout>
+        </CollectionView.EmptyView>
     </CollectionView>
 </ContentPage>

@@ -1,17 +1,58 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Bluewater.App.Models"
              x:Class="Bluewater.App.Views.PayrollPage"
              Title="PayrollPage">
-    <CollectionView ItemsSource="{Binding Payrolls}" Margin="16">
+    <CollectionView ItemsSource="{Binding Payrolls}"
+                    Margin="16">
         <CollectionView.ItemTemplate>
-            <DataTemplate>
-                <VerticalStackLayout Padding="8">
-                    <Label Text="{Binding Name}" FontAttributes="Bold" />
-                    <Label Text="{Binding NetAmount, StringFormat='Net: {0:C}'}" FontSize="12" />
-                    <Label Text="{Binding Date, StringFormat='Date: {0:d}'}" FontSize="12" />
-                </VerticalStackLayout>
+            <DataTemplate x:DataType="models:PayrollSummary">
+                <Grid Padding="8"
+                      ColumnDefinitions="2*,Auto,Auto"
+                      ColumnSpacing="12">
+                    <Label Text="{Binding Name}"
+                           FontAttributes="Bold" />
+                    <Label Grid.Column="1"
+                           Text="{Binding NetAmount, StringFormat='{0:C}'}"
+                           FontSize="12"
+                           HorizontalTextAlignment="End" />
+                    <Label Grid.Column="2"
+                           Text="{Binding Date, StringFormat='{0:d}'}"
+                           FontSize="12"
+                           HorizontalTextAlignment="End" />
+                </Grid>
             </DataTemplate>
         </CollectionView.ItemTemplate>
+        <CollectionView.Header>
+            <Grid ColumnDefinitions="2*,Auto,Auto"
+                  Padding="8"
+                  ColumnSpacing="12"
+                  BackgroundColor="{AppThemeBinding Light=#F0F4FA, Dark=#1F1F1F}">
+                <Label Text="Employee"
+                       FontAttributes="Bold" />
+                <Label Grid.Column="1"
+                       Text="Net Amount"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="End" />
+                <Label Grid.Column="2"
+                       Text="Date"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="End" />
+            </Grid>
+        </CollectionView.Header>
+        <CollectionView.EmptyView>
+            <VerticalStackLayout Padding="24"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 Spacing="8">
+                <Label Text="No payroll records"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
+                <Label Text="Generate payroll to populate this list."
+                       HorizontalTextAlignment="Center"
+                       FontSize="12" />
+            </VerticalStackLayout>
+        </CollectionView.EmptyView>
     </CollectionView>
 </ContentPage>

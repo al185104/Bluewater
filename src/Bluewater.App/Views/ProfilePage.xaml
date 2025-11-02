@@ -1,17 +1,56 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewModels="clr-namespace:Bluewater.App.ViewModels"
              x:Class="Bluewater.App.Views.ProfilePage"
              Title="ProfilePage">
-    <CollectionView ItemsSource="{Binding Profiles}" Margin="16">
+    <CollectionView ItemsSource="{Binding Profiles}"
+                    Margin="16">
         <CollectionView.ItemTemplate>
-            <DataTemplate>
-                <VerticalStackLayout Padding="8">
-                    <Label Text="{Binding DisplayName}" FontAttributes="Bold" />
-                    <Label Text="{Binding Email}" FontSize="12" />
-                    <Label Text="{Binding Department}" FontSize="12" />
-                </VerticalStackLayout>
+            <DataTemplate x:DataType="viewModels:ProfileDetail">
+                <Grid Padding="8"
+                      ColumnDefinitions="2*,2*,Auto"
+                      ColumnSpacing="12">
+                    <Label Text="{Binding DisplayName}"
+                           FontAttributes="Bold" />
+                    <Label Grid.Column="1"
+                           Text="{Binding Email}"
+                           FontSize="12" />
+                    <Label Grid.Column="2"
+                           Text="{Binding Department}"
+                           FontSize="12"
+                           HorizontalTextAlignment="End" />
+                </Grid>
             </DataTemplate>
         </CollectionView.ItemTemplate>
+        <CollectionView.Header>
+            <Grid ColumnDefinitions="2*,2*,Auto"
+                  Padding="8"
+                  ColumnSpacing="12"
+                  BackgroundColor="{AppThemeBinding Light=#F0F4FA, Dark=#1F1F1F}">
+                <Label Text="Name"
+                       FontAttributes="Bold" />
+                <Label Grid.Column="1"
+                       Text="Email"
+                       FontAttributes="Bold" />
+                <Label Grid.Column="2"
+                       Text="Department"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="End" />
+            </Grid>
+        </CollectionView.Header>
+        <CollectionView.EmptyView>
+            <VerticalStackLayout Padding="24"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 Spacing="8">
+                <Label Text="No profiles found"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
+                <Label Text="Profiles will be shown once they are created or synced."
+                       HorizontalTextAlignment="Center"
+                       FontSize="12" />
+            </VerticalStackLayout>
+        </CollectionView.EmptyView>
     </CollectionView>
 </ContentPage>

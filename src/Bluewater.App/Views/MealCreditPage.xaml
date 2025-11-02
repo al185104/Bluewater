@@ -1,17 +1,56 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:models="clr-namespace:Bluewater.App.Models"
              x:Class="Bluewater.App.Views.MealCreditPage"
              Title="MealCreditPage">
-    <CollectionView ItemsSource="{Binding MealCredits}" Margin="16">
+    <CollectionView ItemsSource="{Binding MealCredits}"
+                    Margin="16">
         <CollectionView.ItemTemplate>
-            <DataTemplate>
-                <VerticalStackLayout Padding="8">
-                    <Label Text="{Binding Code}" FontAttributes="Bold" />
-                    <Label Text="{Binding Description}" FontSize="12" />
-                    <Label Text="{Binding DefaultCredits, StringFormat='Credits: {0:F1}'}" FontSize="12" />
-                </VerticalStackLayout>
+            <DataTemplate x:DataType="models:LeaveCreditSummary">
+                <Grid Padding="8"
+                      ColumnDefinitions="Auto,2*,Auto"
+                      ColumnSpacing="12">
+                    <Label Text="{Binding Code}"
+                           FontAttributes="Bold" />
+                    <Label Grid.Column="1"
+                           Text="{Binding Description}"
+                           FontSize="12" />
+                    <Label Grid.Column="2"
+                           Text="{Binding DefaultCredits, StringFormat='{0:F1}'}"
+                           FontSize="12"
+                           HorizontalTextAlignment="End" />
+                </Grid>
             </DataTemplate>
         </CollectionView.ItemTemplate>
+        <CollectionView.Header>
+            <Grid ColumnDefinitions="Auto,2*,Auto"
+                  Padding="8"
+                  ColumnSpacing="12"
+                  BackgroundColor="{AppThemeBinding Light=#F0F4FA, Dark=#1F1F1F}">
+                <Label Text="Code"
+                       FontAttributes="Bold" />
+                <Label Grid.Column="1"
+                       Text="Description"
+                       FontAttributes="Bold" />
+                <Label Grid.Column="2"
+                       Text="Default Credits"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="End" />
+            </Grid>
+        </CollectionView.Header>
+        <CollectionView.EmptyView>
+            <VerticalStackLayout Padding="24"
+                                 HorizontalOptions="Center"
+                                 VerticalOptions="Center"
+                                 Spacing="8">
+                <Label Text="No meal credits defined"
+                       FontAttributes="Bold"
+                       HorizontalTextAlignment="Center" />
+                <Label Text="Meal credit types will appear once they are created."
+                       HorizontalTextAlignment="Center"
+                       FontSize="12" />
+            </VerticalStackLayout>
+        </CollectionView.EmptyView>
     </CollectionView>
 </ContentPage>
