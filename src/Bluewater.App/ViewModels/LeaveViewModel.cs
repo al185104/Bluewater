@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -97,6 +98,7 @@ public partial class LeaveViewModel : BaseViewModel
 
       if (isNew)
       {
+        result.RowIndex = Leaves.Count;
         Leaves.Add(result);
       }
       else
@@ -104,14 +106,17 @@ public partial class LeaveViewModel : BaseViewModel
         int index = FindLeaveIndex(result.Id);
         if (index >= 0)
         {
+          result.RowIndex = index;
           Leaves[index] = result;
         }
         else
         {
+          result.RowIndex = Leaves.Count;
           Leaves.Add(result);
         }
       }
 
+      UpdateLeaveRowIndexes();
       EditableLeave = CloneLeave(result);
       await TraceCommandAsync(nameof(SaveLeaveAsync), result.Id);
     }
@@ -142,6 +147,7 @@ public partial class LeaveViewModel : BaseViewModel
       if (deleted)
       {
         Leaves.Remove(leave);
+        UpdateLeaveRowIndexes();
         await TraceCommandAsync(nameof(DeleteLeaveAsync), leave.Id);
       }
     }
@@ -168,6 +174,7 @@ public partial class LeaveViewModel : BaseViewModel
       Leaves.Clear();
       foreach (LeaveSummary leave in leaves)
       {
+        leave.RowIndex = Leaves.Count;
         Leaves.Add(leave);
       }
     }
@@ -187,7 +194,8 @@ public partial class LeaveViewModel : BaseViewModel
     {
       Id = Guid.Empty,
       StartDate = DateTime.Today,
-      EndDate = DateTime.Today
+      EndDate = DateTime.Today,
+      RowIndex = 0
     };
   }
 
@@ -203,7 +211,8 @@ public partial class LeaveViewModel : BaseViewModel
       EmployeeId = leave.EmployeeId,
       LeaveCreditId = leave.LeaveCreditId,
       EmployeeName = leave.EmployeeName,
-      LeaveCreditName = leave.LeaveCreditName
+      LeaveCreditName = leave.LeaveCreditName,
+      RowIndex = leave.RowIndex
     };
   }
 
@@ -218,5 +227,10 @@ public partial class LeaveViewModel : BaseViewModel
     }
 
     return -1;
+  }
+
+  private void UpdateLeaveRowIndexes()
+  {
+    Leaves.UpdateRowIndexes();
   }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -86,6 +87,7 @@ public partial class MealCreditViewModel : BaseViewModel
     if (isNew)
     {
       item.Id = Guid.NewGuid();
+      item.RowIndex = MealCredits.Count;
       MealCredits.Add(item);
     }
     else
@@ -93,14 +95,17 @@ public partial class MealCreditViewModel : BaseViewModel
       int index = FindMealCreditIndex(item.Id);
       if (index >= 0)
       {
+        item.RowIndex = index;
         MealCredits[index] = item;
       }
       else
       {
+        item.RowIndex = MealCredits.Count;
         MealCredits.Add(item);
       }
     }
 
+    UpdateMealCreditRowIndexes();
     EditableMealCredit = item;
     await TraceCommandAsync(nameof(SaveMealCreditAsync), item.Id);
   }
@@ -115,6 +120,7 @@ public partial class MealCreditViewModel : BaseViewModel
 
     if (MealCredits.Remove(mealCredit))
     {
+      UpdateMealCreditRowIndexes();
       await TraceCommandAsync(nameof(DeleteMealCreditAsync), mealCredit.Id);
     }
   }
@@ -134,6 +140,7 @@ public partial class MealCreditViewModel : BaseViewModel
       {
         MealCredits.Add(credit);
       }
+      UpdateMealCreditRowIndexes();
     }
     catch (Exception ex)
     {
@@ -155,7 +162,8 @@ public partial class MealCreditViewModel : BaseViewModel
       DefaultCredits = 0,
       SortOrder = 0,
       IsLeaveWithPay = true,
-      IsCanCarryOver = false
+      IsCanCarryOver = false,
+      RowIndex = 0
     };
   }
 
@@ -169,7 +177,8 @@ public partial class MealCreditViewModel : BaseViewModel
       DefaultCredits = mealCredit.DefaultCredits,
       SortOrder = mealCredit.SortOrder,
       IsLeaveWithPay = mealCredit.IsLeaveWithPay,
-      IsCanCarryOver = mealCredit.IsCanCarryOver
+      IsCanCarryOver = mealCredit.IsCanCarryOver,
+      RowIndex = mealCredit.RowIndex
     };
   }
 
@@ -184,5 +193,10 @@ public partial class MealCreditViewModel : BaseViewModel
     }
 
     return -1;
+  }
+
+  private void UpdateMealCreditRowIndexes()
+  {
+    MealCredits.UpdateRowIndexes();
   }
 }

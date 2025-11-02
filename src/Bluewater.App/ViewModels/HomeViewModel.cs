@@ -2,7 +2,9 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
+using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -72,7 +74,7 @@ public partial class HomeViewModel : BaseViewModel
 
     if (isNew)
     {
-      announcement = EditableAnnouncement with { Id = Guid.NewGuid() };
+      announcement = EditableAnnouncement with { Id = Guid.NewGuid(), RowIndex = Announcements.Count };
       Announcements.Add(announcement);
     }
     else
@@ -80,14 +82,16 @@ public partial class HomeViewModel : BaseViewModel
       int index = FindAnnouncementIndex(announcement.Id);
       if (index >= 0)
       {
-        Announcements[index] = announcement;
+        Announcements[index] = announcement with { RowIndex = index };
       }
       else
       {
+        announcement = announcement with { RowIndex = Announcements.Count };
         Announcements.Add(announcement);
       }
     }
 
+    UpdateAnnouncementRowIndexes();
     EditableAnnouncement = announcement;
     await TraceCommandAsync(nameof(SaveAnnouncementAsync), announcement.Id);
   }
@@ -102,6 +106,7 @@ public partial class HomeViewModel : BaseViewModel
 
     if (Announcements.Remove(announcement))
     {
+      UpdateAnnouncementRowIndexes();
       await TraceCommandAsync(nameof(DeleteAnnouncementAsync), announcement.Id);
     }
   }
@@ -116,6 +121,7 @@ public partial class HomeViewModel : BaseViewModel
     Announcements.Add(new HomeAnnouncement(Guid.NewGuid(), "Welcome to Bluewater", "Stay up-to-date with your workforce."));
     Announcements.Add(new HomeAnnouncement(Guid.NewGuid(), "Latest Payroll", "Review the latest payroll summaries."));
     Announcements.Add(new HomeAnnouncement(Guid.NewGuid(), "Attendance Alerts", "Check today's attendance variances."));
+    UpdateAnnouncementRowIndexes();
   }
 
   private static HomeAnnouncement CreateNewAnnouncement()
@@ -134,6 +140,14 @@ public partial class HomeViewModel : BaseViewModel
 
     return -1;
   }
+
+  private void UpdateAnnouncementRowIndexes()
+  {
+    Announcements.UpdateRowIndexes();
+  }
 }
 
-public record HomeAnnouncement(Guid Id, string Title, string Description);
+public record HomeAnnouncement(Guid Id, string Title, string Description) : IRowIndexed
+{
+  public int RowIndex { get; set; }
+}

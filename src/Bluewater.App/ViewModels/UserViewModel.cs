@@ -2,7 +2,9 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
+using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using Bluewater.Core.UserAggregate.Enum;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -73,7 +75,7 @@ public partial class UserViewModel : BaseViewModel
 
     if (isNew)
     {
-      user = EditableUser with { Id = Guid.NewGuid() };
+      user = EditableUser with { Id = Guid.NewGuid(), RowIndex = Users.Count };
       Users.Add(user);
     }
     else
@@ -81,14 +83,16 @@ public partial class UserViewModel : BaseViewModel
       int index = FindUserIndex(user.Id);
       if (index >= 0)
       {
-        Users[index] = user;
+        Users[index] = user with { RowIndex = index };
       }
       else
       {
+        user = user with { RowIndex = Users.Count };
         Users.Add(user);
       }
     }
 
+    UpdateUserRowIndexes();
     EditableUser = user;
     await TraceCommandAsync(nameof(SaveUserAsync), user.Id);
   }
@@ -103,6 +107,7 @@ public partial class UserViewModel : BaseViewModel
 
     if (Users.Remove(user))
     {
+      UpdateUserRowIndexes();
       await TraceCommandAsync(nameof(DeleteUserAsync), user.Id);
     }
   }
@@ -117,6 +122,7 @@ public partial class UserViewModel : BaseViewModel
     Users.Add(new UserAccount(Guid.NewGuid(), "admin", Credential.Admin, true));
     Users.Add(new UserAccount(Guid.NewGuid(), "hr.manager", Credential.Manager, false));
     Users.Add(new UserAccount(Guid.NewGuid(), "timekeeper", Credential.Scheduler, false));
+    UpdateUserRowIndexes();
   }
 
   private static UserAccount CreateNewUser()
@@ -136,6 +142,14 @@ public partial class UserViewModel : BaseViewModel
 
     return -1;
   }
+
+  private void UpdateUserRowIndexes()
+  {
+    Users.UpdateRowIndexes();
+  }
 }
 
-public record UserAccount(Guid Id, string Username, Credential Credential, bool IsGlobalSupervisor);
+public record UserAccount(Guid Id, string Username, Credential Credential, bool IsGlobalSupervisor) : IRowIndexed
+{
+  public int RowIndex { get; set; }
+}
