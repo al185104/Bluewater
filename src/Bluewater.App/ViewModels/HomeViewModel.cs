@@ -16,16 +16,16 @@ public partial class HomeViewModel : BaseViewModel
   public HomeViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
     : base(activityTraceService, exceptionHandlingService)
   {
-    editableAnnouncement = CreateNewAnnouncement();
+    EditableAnnouncement = CreateNewAnnouncement();
   }
 
   public ObservableCollection<HomeAnnouncement> Announcements { get; } = new();
 
   [ObservableProperty]
-  private HomeAnnouncement? selectedAnnouncement;
+  public partial HomeAnnouncement? SelectedAnnouncement { get; set; }
 
   [ObservableProperty]
-  private HomeAnnouncement editableAnnouncement;
+  public partial HomeAnnouncement EditableAnnouncement { get; set; }
 
   public override async Task InitializeAsync()
   {

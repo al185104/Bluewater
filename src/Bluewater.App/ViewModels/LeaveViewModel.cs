@@ -23,19 +23,19 @@ public partial class LeaveViewModel : BaseViewModel
     : base(activityTraceService, exceptionHandlingService)
   {
     this.leaveApiService = leaveApiService;
-    editableLeave = CreateNewLeave();
+    EditableLeave = CreateNewLeave();
   }
 
   public ObservableCollection<LeaveSummary> Leaves { get; } = new();
 
   [ObservableProperty]
-  private LeaveSummary? selectedLeave;
+  public partial LeaveSummary? SelectedLeave { get; set; }
 
   [ObservableProperty]
-  private LeaveSummary editableLeave;
+  public partial LeaveSummary EditableLeave { get; set; }
 
   [ObservableProperty]
-  private TenantDto tenantFilter = TenantDto.Maribago;
+  public partial TenantDto TenantFilter { get; set; } = TenantDto.Maribago;
 
   public override async Task InitializeAsync()
   {
