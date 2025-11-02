@@ -23,5 +23,15 @@ public abstract partial class BaseViewModel : ObservableObject
     return ActivityTraceService.LogCommandAsync(name, args);
   }
 
+  partial void OnIsBusyChanged(bool value)
+  {
+    IsBusyChanged(value);
+  }
+
+  public virtual void IsBusyChanged(bool isBusy)
+  {
+    return;
+  }
+
   public virtual Task InitializeAsync() => Task.CompletedTask;
 }

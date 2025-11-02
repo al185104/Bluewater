@@ -55,9 +55,8 @@ public partial class ScheduleViewModel : BaseViewModel
   [ObservableProperty] public partial TenantDto SelectedTenant { get; set; } = TenantDto.Maribago;
   [ObservableProperty] public partial DateOnly CurrentWeekStart { get; set; }
   [ObservableProperty] public partial DateOnly CurrentWeekEnd { get; set; }
-  [ObservableProperty] public partial bool IsSaving { get; set; }
 
-  public string WeekRangeDisplay => $"{CurrentWeekStart:MMM dd} - {CurrentWeekEnd:MMM dd}";
+  public string WeekRangeDisplay => $"{CurrentWeekStart:MMMM dd} - {CurrentWeekEnd:MMMM dd}";
   public string SundayHeader => FormatHeader(0);
   public string MondayHeader => FormatHeader(1);
   public string TuesdayHeader => FormatHeader(2);
@@ -65,9 +64,7 @@ public partial class ScheduleViewModel : BaseViewModel
   public string ThursdayHeader => FormatHeader(4);
   public string FridayHeader => FormatHeader(5);
   public string SaturdayHeader => FormatHeader(6);
-
-  public bool IsLoading => IsBusy || IsSaving;
-  public bool CanEditShifts => !IsBusy && !IsSaving;
+  public bool CanEditShifts => !IsBusy;
 
   public override async Task InitializeAsync()
   {
@@ -117,7 +114,7 @@ public partial class ScheduleViewModel : BaseViewModel
     await LoadSchedulesAsync().ConfigureAwait(false);
   }
 
-  private bool CanChangeWeek() => true;//!IsBusy && !IsSaving;
+  private bool CanChangeWeek() => !IsBusy;
 
   partial void OnSelectedChargingChanged(ChargingSummary? value)
   {
@@ -138,8 +135,6 @@ public partial class ScheduleViewModel : BaseViewModel
 
   partial void OnCurrentWeekStartChanged(DateOnly value) => RaiseWeekHeaderProperties();
   partial void OnCurrentWeekEndChanged(DateOnly value) => RaiseWeekHeaderProperties();
-  //partial void OnIsBusyChanged(bool value) => RaiseEditingStateProperties();
-  partial void OnIsSavingChanged(bool value) => RaiseEditingStateProperties();
 
   private async Task LoadSchedulesAsync()
   {
@@ -220,6 +215,12 @@ public partial class ScheduleViewModel : BaseViewModel
     {
       IsBusy = false;
     }
+  }
+
+  public override void IsBusyChanged(bool isBusy)
+  {
+    base.IsBusyChanged(isBusy);
+    RaiseEditingStateProperties();
   }
 
   private void LoadChargings()
@@ -362,7 +363,7 @@ public partial class ScheduleViewModel : BaseViewModel
 
     try
     {
-      IsSaving = true;
+      IsBusy = true;
 
       if (newShift.Id is Guid shiftId)
       {
@@ -449,7 +450,7 @@ public partial class ScheduleViewModel : BaseViewModel
     }
     finally
     {
-      IsSaving = false;
+      IsBusy = false;
     }
   }
 
@@ -486,7 +487,6 @@ public partial class ScheduleViewModel : BaseViewModel
 
   private void RaiseEditingStateProperties()
   {
-    OnPropertyChanged(nameof(IsLoading));
     OnPropertyChanged(nameof(CanEditShifts));
     PreviousWeekCommand.NotifyCanExecuteChanged();
     NextWeekCommand.NotifyCanExecuteChanged();
