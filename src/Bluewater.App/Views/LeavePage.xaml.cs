@@ -9,4 +9,14 @@ public partial class LeavePage : ContentPage
     InitializeComponent();
     BindingContext = vm;
   }
+
+  protected override async void OnAppearing()
+  {
+    base.OnAppearing();
+
+    if (BindingContext is LeaveViewModel viewModel)
+    {
+      await viewModel.InitializeAsync();
+    }
+  }
 }

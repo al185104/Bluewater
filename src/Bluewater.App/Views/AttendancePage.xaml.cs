@@ -9,4 +9,14 @@ public partial class AttendancePage : ContentPage
     InitializeComponent();
     BindingContext = vm;
   }
+
+  protected override async void OnAppearing()
+  {
+    base.OnAppearing();
+
+    if (BindingContext is AttendanceViewModel viewModel)
+    {
+      await viewModel.InitializeAsync();
+    }
+  }
 }

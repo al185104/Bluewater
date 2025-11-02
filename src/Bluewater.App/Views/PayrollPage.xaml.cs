@@ -9,4 +9,14 @@ public partial class PayrollPage : ContentPage
     InitializeComponent();
     BindingContext = vm;
   }
+
+  protected override async void OnAppearing()
+  {
+    base.OnAppearing();
+
+    if (BindingContext is PayrollViewModel viewModel)
+    {
+      await viewModel.InitializeAsync();
+    }
+  }
 }

@@ -9,4 +9,14 @@ public partial class MealCreditPage : ContentPage
     InitializeComponent();
     BindingContext = vm;
   }
+
+  protected override async void OnAppearing()
+  {
+    base.OnAppearing();
+
+    if (BindingContext is MealCreditViewModel viewModel)
+    {
+      await viewModel.InitializeAsync();
+    }
+  }
 }

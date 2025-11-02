@@ -9,4 +9,14 @@ public partial class TimesheetPage : ContentPage
     InitializeComponent();
     BindingContext = vm;
   }
+
+  protected override async void OnAppearing()
+  {
+    base.OnAppearing();
+
+    if (BindingContext is TimesheetViewModel viewModel)
+    {
+      await viewModel.InitializeAsync();
+    }
+  }
 }
