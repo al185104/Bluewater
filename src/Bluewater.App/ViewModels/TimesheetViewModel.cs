@@ -14,15 +14,18 @@ namespace Bluewater.App.ViewModels;
 public partial class TimesheetViewModel : BaseViewModel
 {
   private readonly IAttendanceApiService attendanceApiService;
+  private readonly IEmployeeApiService employeeApiService;
   private bool hasInitialized;
 
   public TimesheetViewModel(
     IAttendanceApiService attendanceApiService,
+    IEmployeeApiService employeeApiService,
     IActivityTraceService activityTraceService,
     IExceptionHandlingService exceptionHandlingService)
     : base(activityTraceService, exceptionHandlingService)
   {
     this.attendanceApiService = attendanceApiService;
+    this.employeeApiService = employeeApiService;
     StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-7));
     EndDate = DateOnly.FromDateTime(DateTime.Today);
     EditableTimesheet = CreateNewTimesheet();
@@ -54,6 +57,7 @@ public partial class TimesheetViewModel : BaseViewModel
 
     hasInitialized = true;
     await TraceCommandAsync(nameof(InitializeAsync));
+    await EnsureDefaultEmployeeFilterAsync().ConfigureAwait(false);
     await LoadTimesheetsAsync();
   }
 
@@ -168,6 +172,32 @@ public partial class TimesheetViewModel : BaseViewModel
     finally
     {
       IsBusy = false;
+    }
+  }
+
+  private async Task EnsureDefaultEmployeeFilterAsync()
+  {
+    if (EmployeeFilter.HasValue && EmployeeFilter.Value != Guid.Empty)
+    {
+      return;
+    }
+
+    try
+    {
+      IReadOnlyList<EmployeeSummary> employees = await employeeApiService
+        .GetEmployeesAsync(take: 1)
+        .ConfigureAwait(false);
+
+      Guid? defaultEmployeeId = employees.FirstOrDefault()?.Id;
+
+      if (defaultEmployeeId.HasValue && defaultEmployeeId.Value != Guid.Empty)
+      {
+        EmployeeFilter = defaultEmployeeId.Value;
+      }
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Loading default employee");
     }
   }
 
