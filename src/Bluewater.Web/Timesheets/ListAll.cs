@@ -22,8 +22,14 @@ public class ListAll(IMediator _mediator) : Endpoint<TimesheetListAllRequest, Ti
   public override async Task HandleAsync(TimesheetListAllRequest request, CancellationToken cancellationToken)
   {
     Result<IEnumerable<AllEmployeeTimesheetDTO>> result = await _mediator.Send(
-      new ListAllTimesheetQuery(request.Skip, request.Take, request.StartDate, request.EndDate, request.Tenant),
+      new ListAllTimesheetQuery(request.Skip, request.Take, request.Charging, request.StartDate, request.EndDate, request.Tenant),
       cancellationToken);
+
+    if (result.Status == ResultStatus.NotFound)
+    {
+      await SendNotFoundAsync(cancellationToken);
+      return;
+    }
 
     if (result.IsSuccess)
     {

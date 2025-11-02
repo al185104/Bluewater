@@ -104,7 +104,7 @@ public static class MauiProgram
     builder.Services.AddTransient<ScheduleViewModel>();
     builder.Services.AddTransient<SettingViewModel>();
     builder.Services.AddTransient<ShiftsViewModel>();
-    builder.Services.AddTransient<TimesheetViewModel>();
+    builder.Services.AddTransient<TimesheetsViewModel>();
     builder.Services.AddTransient<UserViewModel>();
 
     MauiApp app = builder.Build();

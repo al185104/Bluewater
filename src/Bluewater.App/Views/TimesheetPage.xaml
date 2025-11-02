@@ -2,112 +2,224 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:Bluewater.App.Models"
-             xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
+             xmlns:converters="clr-namespace:Bluewater.App.Converters"
              x:Class="Bluewater.App.Views.TimesheetPage"
              Title="TimesheetsPage">
     <ContentPage.Resources>
         <ResourceDictionary>
-            <Style x:Key="TimesheetRowBorderStyle"
+            <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
+            <Style x:Key="TimesheetSectionBorderStyle"
                    TargetType="Border">
                 <Setter Property="StrokeThickness"
                         Value="1" />
                 <Setter Property="Stroke"
-                        Value="Transparent" />
+                        Value="{AppThemeBinding Light=#E0E0E0, Dark=#2D2D2D}" />
+                <Setter Property="BackgroundColor"
+                        Value="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}" />
                 <Setter Property="Padding"
-                        Value="20,12" />
+                        Value="16" />
+                <Setter Property="Margin"
+                        Value="0,0,0,16" />
+                <Setter Property="StrokeShape">
+                    <Setter.Value>
+                        <RoundRectangle CornerRadius="12" />
+                    </Setter.Value>
+                </Setter>
             </Style>
-            <DataTemplate x:Key="TimesheetPrimaryTemplate"
-                          x:DataType="models:AttendanceTimesheetSummary">
-                <Border Style="{StaticResource TimesheetRowBorderStyle}"
-                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
-                    <Grid ColumnSpacing="12"
-                          ColumnDefinitions="2*,Auto,Auto,Auto"
-                          VerticalOptions="Center">
-                        <Label Text="{Binding EntryDate, StringFormat='{0:d}'}"
-                               FontAttributes="Bold" />
-                        <Label Grid.Column="1"
-                               Text="{Binding TimeIn1, StringFormat='{0:t}'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <Label Grid.Column="2"
-                               Text="{Binding TimeOut1, StringFormat='{0:t}'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <Label Grid.Column="3"
-                               Text="{Binding IsEdited, StringFormat='{0}'}"
-                               FontSize="13"
-                               HorizontalTextAlignment="End" />
-                    </Grid>
-                </Border>
-            </DataTemplate>
-            <DataTemplate x:Key="TimesheetAlternateTemplate"
-                          x:DataType="models:AttendanceTimesheetSummary">
-                <Border Style="{StaticResource TimesheetRowBorderStyle}"
-                        BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
-                    <Grid ColumnSpacing="12"
-                          ColumnDefinitions="2*,Auto,Auto,Auto"
-                          VerticalOptions="Center">
-                        <Label Text="{Binding EntryDate, StringFormat='{0:d}'}"
-                               FontAttributes="Bold" />
-                        <Label Grid.Column="1"
-                               Text="{Binding TimeIn1, StringFormat='{0:t}'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <Label Grid.Column="2"
-                               Text="{Binding TimeOut1, StringFormat='{0:t}'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <Label Grid.Column="3"
-                               Text="{Binding IsEdited, StringFormat='{0}'}"
-                               FontSize="13"
-                               HorizontalTextAlignment="End" />
-                    </Grid>
-                </Border>
-            </DataTemplate>
-            <selectors:AlternateRowTemplateSelector x:Key="TimesheetTemplateSelector"
-                                                    PrimaryTemplate="{StaticResource TimesheetPrimaryTemplate}"
-                                                    AlternateTemplate="{StaticResource TimesheetAlternateTemplate}" />
+            <Style x:Key="TimesheetHeaderLabelStyle"
+                   TargetType="Label">
+                <Setter Property="TextColor"
+                        Value="White" />
+                <Setter Property="FontAttributes"
+                        Value="Bold" />
+                <Setter Property="HorizontalTextAlignment"
+                        Value="Center" />
+            </Style>
+            <Style x:Key="TimesheetBodyGrid"
+                   TargetType="Grid">
+                <Setter Property="ColumnDefinitions"
+                        Value="Auto,Auto,Auto,Auto,Auto,Auto" />
+                <Setter Property="ColumnSpacing"
+                        Value="12" />
+                <Setter Property="Padding"
+                        Value="12,8" />
+                <Setter Property="VerticalOptions"
+                        Value="Center" />
+            </Style>
         </ResourceDictionary>
     </ContentPage.Resources>
-    <CollectionView ItemsSource="{Binding Timesheets}"
-                    ItemTemplate="{StaticResource TimesheetTemplateSelector}">
-        <CollectionView.Header>
-            <Border StrokeShape="RoundRectangle 10 10 0 0"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
-                <Grid ColumnSpacing="12"
-                      Padding="20,14"
-                      ColumnDefinitions="2*,Auto,Auto,Auto">
-                    <Label Text="Entry Date"
-                           TextColor="White"
-                           FontAttributes="Bold" />
-                    <Label Grid.Column="1"
-                           Text="Time In"
-                           TextColor="White"
-                           FontAttributes="Bold" />
-                    <Label Grid.Column="2"
-                           Text="Time Out"
-                           TextColor="White"
-                           FontAttributes="Bold" />
-                    <Label Grid.Column="3"
-                           Text="Edited"
-                           TextColor="White"
+    <VerticalStackLayout Spacing="16"
+                         Padding="24,16">
+        <Grid ColumnDefinitions="*,*,*,Auto"
+              RowDefinitions="Auto,Auto"
+              ColumnSpacing="12"
+              RowSpacing="12">
+            <Picker Grid.Row="0"
+                    Grid.Column="0"
+                    Title="Charging"
+                    ItemsSource="{Binding Chargings}"
+                    ItemDisplayBinding="{Binding Name}"
+                    SelectedItem="{Binding SelectedCharging}" />
+            <DatePicker Grid.Row="0"
+                        Grid.Column="1"
+                        Date="{Binding StartDate}"
+                        MaximumDate="{Binding EndDate}" />
+            <DatePicker Grid.Row="0"
+                        Grid.Column="2"
+                        Date="{Binding EndDate}"
+                        MinimumDate="{Binding StartDate}" />
+            <Button Grid.Row="0"
+                    Grid.Column="3"
+                    Text="Apply"
+                    Command="{Binding ApplyDateRangeCommand}" />
+
+            <Picker Grid.Row="1"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Title="Tenant"
+                    ItemsSource="{Binding TenantOptions}"
+                    SelectedItem="{Binding SelectedTenant}" />
+            <Button Grid.Row="1"
+                    Grid.Column="3"
+                    Text="Refresh"
+                    Command="{Binding RefreshCommand}" />
+        </Grid>
+
+        <CollectionView ItemsSource="{Binding Timesheets}"
+                        SelectionMode="None"
+                        Margin="0,8,0,0">
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="24"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center"
+                                     Spacing="8">
+                    <Label Text="No timesheets available"
                            FontAttributes="Bold"
-                           HorizontalTextAlignment="End" />
-                </Grid>
-            </Border>
-        </CollectionView.Header>
-        <CollectionView.EmptyView>
-            <VerticalStackLayout Padding="24"
-                                 HorizontalOptions="Center"
-                                 VerticalOptions="Center"
-                                 Spacing="8">
-                <Label Text="No timesheets available"
-                       FontAttributes="Bold"
-                       HorizontalTextAlignment="Center" />
-                <Label Text="Create or import timesheets to populate this list."
-                       HorizontalTextAlignment="Center"
-                       FontSize="12" />
-            </VerticalStackLayout>
-        </CollectionView.EmptyView>
-    </CollectionView>
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="Select a charging and date range to load timesheets."
+                           HorizontalTextAlignment="Center"
+                           FontSize="12" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:EmployeeTimesheetSummary">
+                    <Border Style="{StaticResource TimesheetSectionBorderStyle}">
+                        <VerticalStackLayout Spacing="12">
+                            <Grid ColumnDefinitions="2*,*,*"
+                                  ColumnSpacing="12">
+                                <Label Text="{Binding Name}"
+                                       FontAttributes="Bold"
+                                       FontSize="16" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding Department}"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light=#4A4A4A, Dark=#CCCCCC}" />
+                                <Label Grid.Column="2"
+                                       Text="{Binding Section}"
+                                       FontSize="12"
+                                       TextColor="{AppThemeBinding Light=#4A4A4A, Dark=#CCCCCC}" />
+                            </Grid>
+
+                            <CollectionView ItemsSource="{Binding Timesheets}"
+                                            SelectionMode="None">
+                                <CollectionView.Header>
+                                    <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+                                          ColumnSpacing="12"
+                                          Padding="12,8"
+                                          BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                                        <Label Text="Date"
+                                               Style="{StaticResource TimesheetHeaderLabelStyle}" />
+                                        <Label Grid.Column="1"
+                                               Text="In 1"
+                                               Style="{StaticResource TimesheetHeaderLabelStyle}" />
+                                        <Label Grid.Column="2"
+                                               Text="Out 1"
+                                               Style="{StaticResource TimesheetHeaderLabelStyle}" />
+                                        <Label Grid.Column="3"
+                                               Text="In 2"
+                                               Style="{StaticResource TimesheetHeaderLabelStyle}" />
+                                        <Label Grid.Column="4"
+                                               Text="Out 2"
+                                               Style="{StaticResource TimesheetHeaderLabelStyle}" />
+                                        <Label Grid.Column="5"
+                                               Text="Edited"
+                                               Style="{StaticResource TimesheetHeaderLabelStyle}" />
+                                    </Grid>
+                                </CollectionView.Header>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="models:AttendanceTimesheetSummary">
+                                        <Grid Style="{StaticResource TimesheetBodyGrid}">
+                                            <Label Text="{Binding EntryDate, StringFormat='{0:MMM dd, yyyy}'}"
+                                                   FontAttributes="Bold" />
+
+                                            <Grid Grid.Column="1"
+                                                  HorizontalOptions="Center">
+                                                <TimePicker Time="{Binding TimeIn1Time}"
+                                                            Format="HH:mm"
+                                                            IsEnabled="False"
+                                                            IsVisible="{Binding HasTimeIn1}" />
+                                                <Label Text="N/A"
+                                                       IsVisible="{Binding HasTimeIn1, Converter={StaticResource BooleanNegationConverter}}"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"
+                                                       FontSize="12"
+                                                       Opacity="0.6" />
+                                            </Grid>
+
+                                            <Grid Grid.Column="2"
+                                                  HorizontalOptions="Center">
+                                                <TimePicker Time="{Binding TimeOut1Time}"
+                                                            Format="HH:mm"
+                                                            IsEnabled="False"
+                                                            IsVisible="{Binding HasTimeOut1}" />
+                                                <Label Text="N/A"
+                                                       IsVisible="{Binding HasTimeOut1, Converter={StaticResource BooleanNegationConverter}}"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"
+                                                       FontSize="12"
+                                                       Opacity="0.6" />
+                                            </Grid>
+
+                                            <Grid Grid.Column="3"
+                                                  HorizontalOptions="Center">
+                                                <TimePicker Time="{Binding TimeIn2Time}"
+                                                            Format="HH:mm"
+                                                            IsEnabled="False"
+                                                            IsVisible="{Binding HasTimeIn2}" />
+                                                <Label Text="N/A"
+                                                       IsVisible="{Binding HasTimeIn2, Converter={StaticResource BooleanNegationConverter}}"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"
+                                                       FontSize="12"
+                                                       Opacity="0.6" />
+                                            </Grid>
+
+                                            <Grid Grid.Column="4"
+                                                  HorizontalOptions="Center">
+                                                <TimePicker Time="{Binding TimeOut2Time}"
+                                                            Format="HH:mm"
+                                                            IsEnabled="False"
+                                                            IsVisible="{Binding HasTimeOut2}" />
+                                                <Label Text="N/A"
+                                                       IsVisible="{Binding HasTimeOut2, Converter={StaticResource BooleanNegationConverter}}"
+                                                       HorizontalOptions="Center"
+                                                       VerticalOptions="Center"
+                                                       FontSize="12"
+                                                       Opacity="0.6" />
+                                            </Grid>
+
+                                            <Label Grid.Column="5"
+                                                   Text="{Binding IsEdited, StringFormat='{0}'}"
+                                                   HorizontalTextAlignment="End"
+                                                   VerticalTextAlignment="Center" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </VerticalStackLayout>
 </ContentPage>
