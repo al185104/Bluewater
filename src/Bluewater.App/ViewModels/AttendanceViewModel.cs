@@ -22,27 +22,27 @@ public partial class AttendanceViewModel : BaseViewModel
     : base(activityTraceService, exceptionHandlingService)
   {
     this.attendanceApiService = attendanceApiService;
-    startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-7));
-    endDate = DateOnly.FromDateTime(DateTime.Today);
-    editableAttendance = CreateNewAttendance();
+    StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-7));
+    EndDate = DateOnly.FromDateTime(DateTime.Today);
+    EditableAttendance = CreateNewAttendance();
   }
 
   public ObservableCollection<AttendanceSummary> Attendances { get; } = new();
 
   [ObservableProperty]
-  private Guid? employeeFilter;
+  public partial Guid? EmployeeFilter { get; set; }
 
   [ObservableProperty]
-  private DateOnly startDate;
+  public partial DateOnly StartDate { get; set; }
 
   [ObservableProperty]
-  private DateOnly endDate;
+  public partial DateOnly EndDate { get; set; }
 
   [ObservableProperty]
-  private AttendanceSummary? selectedAttendance;
+  public partial AttendanceSummary? SelectedAttendance { get; set; }
 
   [ObservableProperty]
-  private AttendanceSummary editableAttendance;
+  public partial AttendanceSummary EditableAttendance { get; set; }
 
   public override async Task InitializeAsync()
   {
@@ -66,12 +66,12 @@ public partial class AttendanceViewModel : BaseViewModel
   [RelayCommand]
   private void BeginCreateAttendance()
   {
-    editableAttendance = CreateNewAttendance();
+    EditableAttendance = CreateNewAttendance();
     if (EmployeeFilter.HasValue)
     {
-      editableAttendance.EmployeeId = EmployeeFilter.Value;
+      EditableAttendance.EmployeeId = EmployeeFilter.Value;
     }
-    selectedAttendance = null;
+    SelectedAttendance = null;
   }
 
   [RelayCommand]
@@ -82,8 +82,8 @@ public partial class AttendanceViewModel : BaseViewModel
       return;
     }
 
-    selectedAttendance = attendance;
-    editableAttendance = CloneAttendance(attendance);
+    SelectedAttendance = attendance;
+    EditableAttendance = CloneAttendance(attendance);
   }
 
   [RelayCommand]

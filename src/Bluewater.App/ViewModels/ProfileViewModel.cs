@@ -16,16 +16,16 @@ public partial class ProfileViewModel : BaseViewModel
   public ProfileViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
     : base(activityTraceService, exceptionHandlingService)
   {
-    editableProfile = CreateNewProfile();
+    EditableProfile = CreateNewProfile();
   }
 
   public ObservableCollection<ProfileDetail> Profiles { get; } = new();
 
   [ObservableProperty]
-  private ProfileDetail? selectedProfile;
+  public partial ProfileDetail? SelectedProfile { get; set; }
 
   [ObservableProperty]
-  private ProfileDetail editableProfile;
+  public partial ProfileDetail EditableProfile { get; set; }
 
   public override async Task InitializeAsync()
   {

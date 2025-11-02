@@ -23,16 +23,16 @@ public partial class MealCreditViewModel : BaseViewModel
     : base(activityTraceService, exceptionHandlingService)
   {
     this.leaveCreditApiService = leaveCreditApiService;
-    editableMealCredit = CreateNewMealCredit();
+    EditableMealCredit = CreateNewMealCredit();
   }
 
   public ObservableCollection<LeaveCreditSummary> MealCredits { get; } = new();
 
   [ObservableProperty]
-  private LeaveCreditSummary? selectedMealCredit;
+  public partial LeaveCreditSummary? SelectedMealCredit { get; set; }
 
   [ObservableProperty]
-  private LeaveCreditSummary editableMealCredit;
+  public partial LeaveCreditSummary EditableMealCredit { get; set; }
 
   public override async Task InitializeAsync()
   {

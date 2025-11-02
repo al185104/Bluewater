@@ -23,27 +23,27 @@ public partial class TimesheetViewModel : BaseViewModel
     : base(activityTraceService, exceptionHandlingService)
   {
     this.attendanceApiService = attendanceApiService;
-    startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-7));
-    endDate = DateOnly.FromDateTime(DateTime.Today);
-    editableTimesheet = CreateNewTimesheet();
+    StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-7));
+    EndDate = DateOnly.FromDateTime(DateTime.Today);
+    EditableTimesheet = CreateNewTimesheet();
   }
 
   public ObservableCollection<AttendanceTimesheetSummary> Timesheets { get; } = new();
 
   [ObservableProperty]
-  private Guid? employeeFilter;
+  public partial Guid? EmployeeFilter { get; set; }
 
   [ObservableProperty]
-  private DateOnly startDate;
+  public partial DateOnly StartDate { get; set; }
 
   [ObservableProperty]
-  private DateOnly endDate;
+  public partial DateOnly EndDate { get; set; }
 
   [ObservableProperty]
-  private AttendanceTimesheetSummary? selectedTimesheet;
+  public partial AttendanceTimesheetSummary? SelectedTimesheet { get; set; }
 
   [ObservableProperty]
-  private AttendanceTimesheetSummary editableTimesheet;
+  public partial AttendanceTimesheetSummary EditableTimesheet { get; set; }
 
   public override async Task InitializeAsync()
   {
