@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.EmployeeAggregate;
 using Bluewater.Core.EmployeeAggregate.Specifications;
@@ -68,8 +68,8 @@ public class GetEmployeeHandler(IRepository<Employee> _repository, IServiceScope
 
     var user = new UserDTO(
         entity.User?.Id ?? Guid.Empty,
-        entity.User!.Username, 
-        entity.User!.PasswordHash, 
+        entity.User?.Username ?? string.Empty, 
+        entity.User?.PasswordHash ?? string.Empty, 
         entity.User?.Credential ?? Core.UserAggregate.Enum.Credential.None,
         entity.User?.SupervisedGroup ?? Guid.Empty,
         entity.User?.IsGlobalSupervisor ?? false);

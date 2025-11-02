@@ -200,13 +200,12 @@
 
     <Style TargetType="CollectionView" ApplyToDerivedTypes="True">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource OffBlack}}" />
-        <Setter Property="Padding" Value="0" />
         <Setter Property="Margin" Value="0,8" />
-        <Setter Property="ItemsLayout">
+        <!--<Setter Property="ItemsLayout">
             <Setter.Value>
                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
             </Setter.Value>
-        </Setter>
+        </Setter>-->
         <Setter Property="SelectionMode" Value="None" />
     </Style>
 
@@ -435,7 +434,7 @@
     <ControlTemplate x:Key="AppContentPageTemplate">
         <Grid>
             <Grid Background="{StaticResource AppContentPageBackgroundBrush}"/>
-            <ContentPresenter Margin="{TemplateBinding Padding}" />
+            <ContentPresenter Margin="{TemplateBinding Padding}" Padding="20"/>
         </Grid>
     </ControlTemplate>
 
