@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,16 +17,16 @@ public partial class UserViewModel : BaseViewModel
   public UserViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
     : base(activityTraceService, exceptionHandlingService)
   {
-    editableUser = CreateNewUser();
+    EditableUser = CreateNewUser();
   }
 
   public ObservableCollection<UserAccount> Users { get; } = new();
 
   [ObservableProperty]
-  private UserAccount? selectedUser;
+  public partial UserAccount? SelectedUser { get; set; }
 
   [ObservableProperty]
-  private UserAccount editableUser;
+  public partial UserAccount EditableUser { get; set; }
 
   public override async Task InitializeAsync()
   {
@@ -116,12 +116,12 @@ public partial class UserViewModel : BaseViewModel
 
     Users.Add(new UserAccount(Guid.NewGuid(), "admin", Credential.Admin, true));
     Users.Add(new UserAccount(Guid.NewGuid(), "hr.manager", Credential.Manager, false));
-    Users.Add(new UserAccount(Guid.NewGuid(), "timekeeper", Credential.Staff, false));
+    Users.Add(new UserAccount(Guid.NewGuid(), "timekeeper", Credential.Scheduler, false));
   }
 
   private static UserAccount CreateNewUser()
   {
-    return new UserAccount(Guid.NewGuid(), string.Empty, Credential.Staff, false);
+    return new UserAccount(Guid.NewGuid(), string.Empty, Credential.Employee, false);
   }
 
   private int FindUserIndex(Guid userId)

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -23,27 +23,27 @@ public partial class PayrollViewModel : BaseViewModel
     : base(activityTraceService, exceptionHandlingService)
   {
     this.payrollApiService = payrollApiService;
-    startDate = DateOnly.FromDateTime(DateTime.Today.AddMonths(-1));
-    endDate = DateOnly.FromDateTime(DateTime.Today);
-    editablePayroll = CreateNewPayroll();
+    StartDate = DateOnly.FromDateTime(DateTime.Today.AddMonths(-1));
+    EndDate = DateOnly.FromDateTime(DateTime.Today);
+    EditablePayroll = CreateNewPayroll();
   }
 
   public ObservableCollection<PayrollSummary> Payrolls { get; } = new();
 
   [ObservableProperty]
-  private DateOnly startDate;
+  public partial DateOnly StartDate { get; set; }
 
   [ObservableProperty]
-  private DateOnly endDate;
+  public partial DateOnly EndDate { get; set; }
 
   [ObservableProperty]
-  private string? chargingFilter;
+  public partial string? ChargingFilter { get; set; }
 
   [ObservableProperty]
-  private PayrollSummary? selectedPayroll;
+  public partial PayrollSummary? SelectedPayroll { get; set; }
 
   [ObservableProperty]
-  private PayrollSummary editablePayroll;
+  public partial PayrollSummary EditablePayroll { get; set; }
 
   public override async Task InitializeAsync()
   {
@@ -175,7 +175,7 @@ public partial class PayrollViewModel : BaseViewModel
       IsBusy = true;
 
       IReadOnlyList<PayrollSummary> payrolls = await payrollApiService
-        .GetPayrollsAsync(StartDate, EndDate, chargingFilter: ChargingFilter)
+        .GetPayrollsAsync(StartDate, EndDate, chargingName: ChargingFilter)
         .ConfigureAwait(false);
 
       Payrolls.Clear();

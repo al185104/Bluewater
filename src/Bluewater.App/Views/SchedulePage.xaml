@@ -142,12 +142,12 @@
                 <Button Grid.Column="1"
                         Text="Previous Week"
                         HorizontalOptions="End"
-                        Command="{Binding PreviousWeekAsyncCommand}"
+                        Command="{Binding PreviousWeekCommand}"
                         SemanticProperties.Hint="View the previous week's schedules" />
                 <Button Grid.Column="2"
                         Text="Next Week"
                         HorizontalOptions="End"
-                        Command="{Binding NextWeekAsyncCommand}"
+                        Command="{Binding NextWeekCommand}"
                         SemanticProperties.Hint="View the next week's schedules" />
             </Grid>
             <Grid Grid.Row="1"

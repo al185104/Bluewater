@@ -86,6 +86,7 @@ public partial class ScheduleViewModel : BaseViewModel
       await EnsureShiftOptionsAsync().ConfigureAwait(false);
 
       hasInitialized = true;
+      RaiseEditingStateProperties();
     }
     catch (Exception ex)
     {
@@ -116,7 +117,7 @@ public partial class ScheduleViewModel : BaseViewModel
     await LoadSchedulesAsync().ConfigureAwait(false);
   }
 
-  private bool CanChangeWeek() => !IsBusy && !IsSaving;
+  private bool CanChangeWeek() => true;//!IsBusy && !IsSaving;
 
   partial void OnSelectedChargingChanged(ChargingSummary? value)
   {
@@ -171,7 +172,8 @@ public partial class ScheduleViewModel : BaseViewModel
           var shiftInfo = employee.Shifts.FirstOrDefault(info => info.ScheduleDate == date);
 
           var selected = shiftInfo?.Shift is null ? noShiftOption : ResolveShiftOption(shiftInfo.Shift);
-          Guid? scheduleId = shiftInfo is { ScheduleId: not Guid.Empty } ? shiftInfo.ScheduleId : null;
+          //Guid? scheduleId = shiftInfo is { ScheduleId: not : not Guid.Empty } ? shiftInfo.ScheduleId : null;
+          Guid? scheduleId = shiftInfo?.ScheduleId != Guid.Empty ? shiftInfo?.ScheduleId : null;
           bool isDefault = shiftInfo?.IsDefault ?? false;
 
           var day = new DailyShiftSelection(employee.EmployeeId, date, ShiftOptions, selected, scheduleId, isDefault);
@@ -296,13 +298,21 @@ public partial class ScheduleViewModel : BaseViewModel
     previousSelections.Remove(day);
   }
 
-  private void OnDayPropertyChanging(object? sender, PropertyChangingEventArgs e)
+  private void OnDayPropertyChanging(object? sender, System.ComponentModel.PropertyChangingEventArgs e)
   {
     if (sender is DailyShiftSelection day && e.PropertyName == nameof(DailyShiftSelection.SelectedShift))
     {
       previousSelections[day] = day.SelectedShift;
     }
   }
+
+    //private void OnDayPropertyChanging(object? sender, PropertyChangingEventArgs e)
+    //{
+    //  if (sender is DailyShiftSelection day && e.PropertyName == nameof(DailyShiftSelection.SelectedShift))
+    //  {
+    //    previousSelections[day] = day.SelectedShift;
+    //  }
+    //}
 
   private async void OnDayPropertyChanged(object? sender, PropertyChangedEventArgs e)
   {
@@ -478,8 +488,8 @@ public partial class ScheduleViewModel : BaseViewModel
   {
     OnPropertyChanged(nameof(IsLoading));
     OnPropertyChanged(nameof(CanEditShifts));
-    PreviousWeekAsyncCommand.NotifyCanExecuteChanged();
-    NextWeekAsyncCommand.NotifyCanExecuteChanged();
+    PreviousWeekCommand.NotifyCanExecuteChanged();
+    NextWeekCommand.NotifyCanExecuteChanged();
   }
 
   private ShiftPickerItem ResolveShiftOption(ScheduleShiftDetailsSummary shift)
