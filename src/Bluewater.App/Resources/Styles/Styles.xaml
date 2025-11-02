@@ -203,7 +203,7 @@
         <Setter Property="Margin" Value="0,8" />
         <!--<Setter Property="ItemsLayout">
             <Setter.Value>
-                <LinearItemsLayout Orientation="Vertical" ItemSpacing="12" />
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="0" />
             </Setter.Value>
         </Setter>-->
         <Setter Property="SelectionMode" Value="None" />

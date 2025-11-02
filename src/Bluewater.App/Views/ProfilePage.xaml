@@ -2,42 +2,89 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:Bluewater.App.ViewModels"
+             xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
              x:Class="Bluewater.App.Views.ProfilePage"
              Title="ProfilePage">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="ProfileRowBorderStyle"
+                   TargetType="Border">
+                <Setter Property="StrokeThickness"
+                        Value="1" />
+                <Setter Property="Stroke"
+                        Value="Transparent" />
+                <Setter Property="Padding"
+                        Value="20,12" />
+            </Style>
+            <DataTemplate x:Key="ProfilePrimaryTemplate"
+                          x:DataType="viewModels:ProfileDetail">
+                <Border Style="{StaticResource ProfileRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2*,2*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding DisplayName}"
+                               FontAttributes="Bold" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Email}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="2"
+                               Text="{Binding Department}"
+                               FontSize="13"
+                               HorizontalTextAlignment="End"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate x:Key="ProfileAlternateTemplate"
+                          x:DataType="viewModels:ProfileDetail">
+                <Border Style="{StaticResource ProfileRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="2*,2*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding DisplayName}"
+                               FontAttributes="Bold" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Email}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="2"
+                               Text="{Binding Department}"
+                               FontSize="13"
+                               HorizontalTextAlignment="End"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <selectors:AlternateRowTemplateSelector x:Key="ProfileTemplateSelector"
+                                                    PrimaryTemplate="{StaticResource ProfilePrimaryTemplate}"
+                                                    AlternateTemplate="{StaticResource ProfileAlternateTemplate}" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <CollectionView ItemsSource="{Binding Profiles}"
-                    Margin="16">
-        <CollectionView.ItemTemplate>
-            <DataTemplate x:DataType="viewModels:ProfileDetail">
-                <Grid Padding="8"
-                      ColumnDefinitions="2*,2*,Auto"
-                      ColumnSpacing="12">
-                    <Label Text="{Binding DisplayName}"
+                    ItemTemplate="{StaticResource ProfileTemplateSelector}">
+        <CollectionView.Header>
+            <Border StrokeShape="RoundRectangle 10 10 0 0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                <Grid ColumnSpacing="12"
+                      Padding="20,14"
+                      ColumnDefinitions="2*,2*,Auto">
+                    <Label Text="Name"
+                           TextColor="White"
                            FontAttributes="Bold" />
                     <Label Grid.Column="1"
-                           Text="{Binding Email}"
-                           FontSize="12" />
+                           Text="Email"
+                           TextColor="White"
+                           FontAttributes="Bold" />
                     <Label Grid.Column="2"
-                           Text="{Binding Department}"
-                           FontSize="12"
+                           Text="Department"
+                           TextColor="White"
+                           FontAttributes="Bold"
                            HorizontalTextAlignment="End" />
                 </Grid>
-            </DataTemplate>
-        </CollectionView.ItemTemplate>
-        <CollectionView.Header>
-            <Grid ColumnDefinitions="2*,2*,Auto"
-                  Padding="8"
-                  ColumnSpacing="12"
-                  BackgroundColor="{AppThemeBinding Light=#F0F4FA, Dark=#1F1F1F}">
-                <Label Text="Name"
-                       FontAttributes="Bold" />
-                <Label Grid.Column="1"
-                       Text="Email"
-                       FontAttributes="Bold" />
-                <Label Grid.Column="2"
-                       Text="Department"
-                       FontAttributes="Bold"
-                       HorizontalTextAlignment="End" />
-            </Grid>
+            </Border>
         </CollectionView.Header>
         <CollectionView.EmptyView>
             <VerticalStackLayout Padding="24"

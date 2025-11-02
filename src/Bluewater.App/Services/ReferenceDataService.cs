@@ -123,10 +123,9 @@ public class ReferenceDataService : IReferenceDataService, IDisposable
     _holidays = holidayTask.Result.OrderBy(h => h.Date).ToList();
     _employeeTypes = employeeTypeTask.Result.OrderBy(et => et.Name, StringComparer.OrdinalIgnoreCase).ToList();
     _levels = levelTask.Result.OrderBy(l => l.Name, StringComparer.OrdinalIgnoreCase).ToList();
-    _leaveCredits = leaveCreditTask.Result
+    _leaveCredits = ApplyRowIndex(leaveCreditTask.Result
       .OrderBy(lc => lc.SortOrder)
-      .ThenBy(lc => lc.Description, StringComparer.OrdinalIgnoreCase)
-      .ToList();
+      .ThenBy(lc => lc.Description, StringComparer.OrdinalIgnoreCase));
   }
 
   private static IReadOnlyList<T> ApplyRowIndex<T>(IEnumerable<T> source)

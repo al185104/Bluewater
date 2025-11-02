@@ -2,42 +2,87 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:Bluewater.App.Models"
+             xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
              x:Class="Bluewater.App.Views.MealCreditPage"
              Title="MealCreditPage">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <Style x:Key="MealCreditRowBorderStyle"
+                   TargetType="Border">
+                <Setter Property="StrokeThickness"
+                        Value="1" />
+                <Setter Property="Stroke"
+                        Value="Transparent" />
+                <Setter Property="Padding"
+                        Value="20,12" />
+            </Style>
+            <DataTemplate x:Key="MealCreditPrimaryTemplate"
+                          x:DataType="models:LeaveCreditSummary">
+                <Border Style="{StaticResource MealCreditRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="Auto,2*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Code}"
+                               FontAttributes="Bold" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Description}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="2"
+                               Text="{Binding DefaultCredits, StringFormat='{0:F1}'}"
+                               FontSize="13"
+                               HorizontalTextAlignment="End" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <DataTemplate x:Key="MealCreditAlternateTemplate"
+                          x:DataType="models:LeaveCreditSummary">
+                <Border Style="{StaticResource MealCreditRowBorderStyle}"
+                        BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
+                    <Grid ColumnSpacing="12"
+                          ColumnDefinitions="Auto,2*,Auto"
+                          VerticalOptions="Center">
+                        <Label Text="{Binding Code}"
+                               FontAttributes="Bold" />
+                        <Label Grid.Column="1"
+                               Text="{Binding Description}"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <Label Grid.Column="2"
+                               Text="{Binding DefaultCredits, StringFormat='{0:F1}'}"
+                               FontSize="13"
+                               HorizontalTextAlignment="End" />
+                    </Grid>
+                </Border>
+            </DataTemplate>
+            <selectors:AlternateRowTemplateSelector x:Key="MealCreditTemplateSelector"
+                                                    PrimaryTemplate="{StaticResource MealCreditPrimaryTemplate}"
+                                                    AlternateTemplate="{StaticResource MealCreditAlternateTemplate}" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <CollectionView ItemsSource="{Binding MealCredits}"
-                    Margin="16">
-        <CollectionView.ItemTemplate>
-            <DataTemplate x:DataType="models:LeaveCreditSummary">
-                <Grid Padding="8"
-                      ColumnDefinitions="Auto,2*,Auto"
-                      ColumnSpacing="12">
-                    <Label Text="{Binding Code}"
+                    ItemTemplate="{StaticResource MealCreditTemplateSelector}">
+        <CollectionView.Header>
+            <Border StrokeShape="RoundRectangle 10 10 0 0"
+                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                <Grid ColumnSpacing="12"
+                      Padding="20,14"
+                      ColumnDefinitions="Auto,2*,Auto">
+                    <Label Text="Code"
+                           TextColor="White"
                            FontAttributes="Bold" />
                     <Label Grid.Column="1"
-                           Text="{Binding Description}"
-                           FontSize="12" />
+                           Text="Description"
+                           TextColor="White"
+                           FontAttributes="Bold" />
                     <Label Grid.Column="2"
-                           Text="{Binding DefaultCredits, StringFormat='{0:F1}'}"
-                           FontSize="12"
+                           Text="Default Credits"
+                           TextColor="White"
+                           FontAttributes="Bold"
                            HorizontalTextAlignment="End" />
                 </Grid>
-            </DataTemplate>
-        </CollectionView.ItemTemplate>
-        <CollectionView.Header>
-            <Grid ColumnDefinitions="Auto,2*,Auto"
-                  Padding="8"
-                  ColumnSpacing="12"
-                  BackgroundColor="{AppThemeBinding Light=#F0F4FA, Dark=#1F1F1F}">
-                <Label Text="Code"
-                       FontAttributes="Bold" />
-                <Label Grid.Column="1"
-                       Text="Description"
-                       FontAttributes="Bold" />
-                <Label Grid.Column="2"
-                       Text="Default Credits"
-                       FontAttributes="Bold"
-                       HorizontalTextAlignment="End" />
-            </Grid>
+            </Border>
         </CollectionView.Header>
         <CollectionView.EmptyView>
             <VerticalStackLayout Padding="24"

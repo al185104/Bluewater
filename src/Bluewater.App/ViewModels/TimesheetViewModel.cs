@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -106,6 +107,7 @@ public partial class TimesheetViewModel : BaseViewModel
     if (isNew)
     {
       item.Id = Guid.NewGuid();
+      item.RowIndex = Timesheets.Count;
       Timesheets.Add(item);
     }
     else
@@ -113,14 +115,17 @@ public partial class TimesheetViewModel : BaseViewModel
       int index = FindTimesheetIndex(item.Id);
       if (index >= 0)
       {
+        item.RowIndex = index;
         Timesheets[index] = item;
       }
       else
       {
+        item.RowIndex = Timesheets.Count;
         Timesheets.Add(item);
       }
     }
 
+    UpdateTimesheetRowIndexes();
     EditableTimesheet = item;
     await TraceCommandAsync(nameof(SaveTimesheetAsync), item.Id);
   }
@@ -135,6 +140,7 @@ public partial class TimesheetViewModel : BaseViewModel
 
     if (Timesheets.Remove(timesheet))
     {
+      UpdateTimesheetRowIndexes();
       await TraceCommandAsync(nameof(DeleteTimesheetAsync), timesheet.Id);
     }
   }
@@ -160,7 +166,9 @@ public partial class TimesheetViewModel : BaseViewModel
       Timesheets.Clear();
       foreach (AttendanceTimesheetSummary timesheet in timesheets)
       {
-        Timesheets.Add(CloneTimesheet(timesheet));
+        AttendanceTimesheetSummary item = CloneTimesheet(timesheet);
+        item.RowIndex = Timesheets.Count;
+        Timesheets.Add(item);
       }
     }
     catch (Exception ex)
@@ -226,7 +234,8 @@ public partial class TimesheetViewModel : BaseViewModel
     return new AttendanceTimesheetSummary
     {
       Id = Guid.NewGuid(),
-      EntryDate = DateOnly.FromDateTime(DateTime.Today)
+      EntryDate = DateOnly.FromDateTime(DateTime.Today),
+      RowIndex = 0
     };
   }
 
@@ -241,7 +250,8 @@ public partial class TimesheetViewModel : BaseViewModel
       TimeIn2 = timesheet.TimeIn2,
       TimeOut2 = timesheet.TimeOut2,
       EntryDate = timesheet.EntryDate,
-      IsEdited = timesheet.IsEdited
+      IsEdited = timesheet.IsEdited,
+      RowIndex = timesheet.RowIndex
     };
   }
 
@@ -256,5 +266,10 @@ public partial class TimesheetViewModel : BaseViewModel
     }
 
     return -1;
+  }
+
+  private void UpdateTimesheetRowIndexes()
+  {
+    Timesheets.UpdateRowIndexes();
   }
 }
