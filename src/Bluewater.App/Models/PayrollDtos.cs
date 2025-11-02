@@ -235,7 +235,7 @@ public class UpdatePayrollResponseDto
   public PayrollDto? Payroll { get; set; }
 }
 
-public class PayrollSummary
+public class PayrollSummary : IRowIndexed
 {
   public Guid Id { get; set; }
   public Guid? EmployeeId { get; set; }
@@ -303,6 +303,7 @@ public class PayrollSummary
   public decimal TotalConstantDeductions { get; set; }
   public decimal TotalLoanDeductions { get; set; }
   public decimal TotalDeductions { get; set; }
+  public int RowIndex { get; set; }
 }
 
 public class PayrollGroupedSummary

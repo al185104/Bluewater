@@ -117,7 +117,7 @@ public static class AttendanceRequestRoutes
   public static string BuildDeleteRoute(Guid attendanceId) => $"Attendances/{attendanceId}";
 }
 
-public class AttendanceSummary
+public class AttendanceSummary : IRowIndexed
 {
   public Guid Id { get; set; }
   public Guid EmployeeId { get; set; }
@@ -133,6 +133,7 @@ public class AttendanceSummary
   public bool IsLocked { get; set; }
   public AttendanceShiftSummary? Shift { get; set; }
   public AttendanceTimesheetSummary? Timesheet { get; set; }
+  public int RowIndex { get; set; }
 }
 
 public class AttendanceShiftSummary
@@ -146,7 +147,7 @@ public class AttendanceShiftSummary
   public decimal BreakHours { get; set; }
 }
 
-public class AttendanceTimesheetSummary
+public class AttendanceTimesheetSummary : IRowIndexed
 {
   public Guid Id { get; set; }
   public Guid EmployeeId { get; set; }
@@ -156,6 +157,7 @@ public class AttendanceTimesheetSummary
   public DateTime? TimeOut2 { get; set; }
   public DateOnly? EntryDate { get; set; }
   public bool IsEdited { get; set; }
+  public int RowIndex { get; set; }
 }
 
 public class EmployeeAttendanceSummary

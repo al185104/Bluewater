@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -113,6 +114,7 @@ public partial class AttendanceViewModel : BaseViewModel
 
       if (isNew)
       {
+        result.RowIndex = Attendances.Count;
         Attendances.Add(result);
       }
       else
@@ -120,14 +122,17 @@ public partial class AttendanceViewModel : BaseViewModel
         int index = FindAttendanceIndex(result.Id);
         if (index >= 0)
         {
+          result.RowIndex = index;
           Attendances[index] = result;
         }
         else
         {
+          result.RowIndex = Attendances.Count;
           Attendances.Add(result);
         }
       }
 
+      UpdateAttendanceRowIndexes();
       EditableAttendance = CloneAttendance(result);
       await TraceCommandAsync(nameof(SaveAttendanceAsync), result.Id);
     }
@@ -158,6 +163,7 @@ public partial class AttendanceViewModel : BaseViewModel
       if (deleted)
       {
         Attendances.Remove(attendance);
+        UpdateAttendanceRowIndexes();
         await TraceCommandAsync(nameof(DeleteAttendanceAsync), attendance.Id);
       }
     }
@@ -190,6 +196,7 @@ public partial class AttendanceViewModel : BaseViewModel
       Attendances.Clear();
       foreach (AttendanceSummary attendance in attendances)
       {
+        attendance.RowIndex = Attendances.Count;
         Attendances.Add(attendance);
       }
     }
@@ -234,7 +241,8 @@ public partial class AttendanceViewModel : BaseViewModel
     return new AttendanceSummary
     {
       Id = Guid.NewGuid(),
-      EntryDate = DateOnly.FromDateTime(DateTime.Today)
+      EntryDate = DateOnly.FromDateTime(DateTime.Today),
+      RowIndex = 0
     };
   }
 
@@ -255,7 +263,8 @@ public partial class AttendanceViewModel : BaseViewModel
       NightShiftHours = attendance.NightShiftHours,
       IsLocked = attendance.IsLocked,
       Shift = attendance.Shift,
-      Timesheet = attendance.Timesheet
+      Timesheet = attendance.Timesheet,
+      RowIndex = attendance.RowIndex
     };
   }
 
@@ -270,5 +279,10 @@ public partial class AttendanceViewModel : BaseViewModel
     }
 
     return -1;
+  }
+
+  private void UpdateAttendanceRowIndexes()
+  {
+    Attendances.UpdateRowIndexes();
   }
 }

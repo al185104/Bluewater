@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -101,11 +102,13 @@ public partial class PayrollViewModel : BaseViewModel
           EditablePayroll.Id = newId.Value;
           PayrollSummary? created = await payrollApiService.GetPayrollByIdAsync(newId.Value);
           PayrollSummary payroll = created ?? EditablePayroll;
+          payroll.RowIndex = Payrolls.Count;
           Payrolls.Add(payroll);
           EditablePayroll = payroll;
         }
         else
         {
+          EditablePayroll.RowIndex = Payrolls.Count;
           Payrolls.Add(EditablePayroll);
         }
       }
@@ -116,15 +119,19 @@ public partial class PayrollViewModel : BaseViewModel
         int index = FindPayrollIndex(result.Id);
         if (index >= 0)
         {
+          result.RowIndex = index;
           Payrolls[index] = result;
         }
         else
         {
+          result.RowIndex = Payrolls.Count;
           Payrolls.Add(result);
         }
 
         EditablePayroll = result;
       }
+
+      UpdatePayrollRowIndexes();
 
       await TraceCommandAsync(nameof(SavePayrollAsync), EditablePayroll.Id);
     }
@@ -155,6 +162,7 @@ public partial class PayrollViewModel : BaseViewModel
       if (deleted)
       {
         Payrolls.Remove(payroll);
+        UpdatePayrollRowIndexes();
         await TraceCommandAsync(nameof(DeletePayrollAsync), payroll.Id);
       }
     }
@@ -181,6 +189,7 @@ public partial class PayrollViewModel : BaseViewModel
       Payrolls.Clear();
       foreach (PayrollSummary payroll in payrolls)
       {
+        payroll.RowIndex = Payrolls.Count;
         Payrolls.Add(payroll);
       }
     }
@@ -199,7 +208,8 @@ public partial class PayrollViewModel : BaseViewModel
     return new PayrollSummary
     {
       Id = Guid.Empty,
-      Date = DateOnly.FromDateTime(DateTime.Today)
+      Date = DateOnly.FromDateTime(DateTime.Today),
+      RowIndex = 0
     };
   }
 
@@ -214,5 +224,10 @@ public partial class PayrollViewModel : BaseViewModel
     }
 
     return -1;
+  }
+
+  private void UpdatePayrollRowIndexes()
+  {
+    Payrolls.UpdateRowIndexes();
   }
 }

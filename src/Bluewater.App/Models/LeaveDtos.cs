@@ -56,7 +56,7 @@ public class UpdateLeaveResponseDto
   public LeaveDto? Leave { get; set; }
 }
 
-public class LeaveSummary
+public class LeaveSummary : IRowIndexed
 {
   public Guid Id { get; set; }
   public DateTime? StartDate { get; set; }
@@ -67,4 +67,5 @@ public class LeaveSummary
   public Guid LeaveCreditId { get; set; }
   public string EmployeeName { get; set; } = string.Empty;
   public string LeaveCreditName { get; set; } = string.Empty;
+  public int RowIndex { get; set; }
 }

@@ -2,7 +2,9 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
+using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -72,7 +74,7 @@ public partial class ProfileViewModel : BaseViewModel
 
     if (isNew)
     {
-      profile = EditableProfile with { Id = Guid.NewGuid() };
+      profile = EditableProfile with { Id = Guid.NewGuid(), RowIndex = Profiles.Count };
       Profiles.Add(profile);
     }
     else
@@ -80,14 +82,16 @@ public partial class ProfileViewModel : BaseViewModel
       int index = FindProfileIndex(profile.Id);
       if (index >= 0)
       {
-        Profiles[index] = profile;
+        Profiles[index] = profile with { RowIndex = index };
       }
       else
       {
+        profile = profile with { RowIndex = Profiles.Count };
         Profiles.Add(profile);
       }
     }
 
+    UpdateProfileRowIndexes();
     EditableProfile = profile;
     await TraceCommandAsync(nameof(SaveProfileAsync), profile.Id);
   }
@@ -102,6 +106,7 @@ public partial class ProfileViewModel : BaseViewModel
 
     if (Profiles.Remove(profile))
     {
+      UpdateProfileRowIndexes();
       await TraceCommandAsync(nameof(DeleteProfileAsync), profile.Id);
     }
   }
@@ -116,6 +121,7 @@ public partial class ProfileViewModel : BaseViewModel
     Profiles.Add(new ProfileDetail(Guid.NewGuid(), "Miranda Lawson", "miranda.lawson@bluewater.local", "Operations"));
     Profiles.Add(new ProfileDetail(Guid.NewGuid(), "Jacob Taylor", "jacob.taylor@bluewater.local", "Security"));
     Profiles.Add(new ProfileDetail(Guid.NewGuid(), "Kasumi Goto", "kasumi.goto@bluewater.local", "Logistics"));
+    UpdateProfileRowIndexes();
   }
 
   private static ProfileDetail CreateNewProfile()
@@ -135,6 +141,14 @@ public partial class ProfileViewModel : BaseViewModel
 
     return -1;
   }
+
+  private void UpdateProfileRowIndexes()
+  {
+    Profiles.UpdateRowIndexes();
+  }
 }
 
-public record ProfileDetail(Guid Id, string DisplayName, string Email, string Department);
+public record ProfileDetail(Guid Id, string DisplayName, string Email, string Department) : IRowIndexed
+{
+  public int RowIndex { get; set; }
+}
