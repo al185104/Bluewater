@@ -692,6 +692,7 @@ GridTemplateColumns="0.6fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.3fr">
 
             using var scope = ServiceScopeFactory.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
             var usernames = parsedRows.Select(p => p.Username).Distinct(StringComparer.InvariantCultureIgnoreCase).ToList();
             var employeeLookup = await dbContext.Employees
@@ -732,29 +733,18 @@ GridTemplateColumns="0.6fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.3fr">
                 return;
             }
 
-            var employeeIds = validRows.Select(v => v.EmployeeId).Distinct().ToList();
-            var scheduleDates = validRows.Select(v => v.ScheduleDate).Distinct().ToList();
-
-            var existingSchedules = await dbContext.Schedules
-                .Where(s => employeeIds.Contains(s.EmployeeId) && scheduleDates.Contains(s.ScheduleDate))
-                .ToListAsync();
-
-            var existingMap = existingSchedules.ToDictionary(s => (s.EmployeeId, s.ScheduleDate));
-
             int successCount = 0;
 
             foreach(var row in validRows) {
-                if(existingMap.TryGetValue((row.EmployeeId, row.ScheduleDate), out var existing)) {
-                    existing.UpdateSchedule(row.EmployeeId, row.ShiftId, row.ScheduleDate, row.IsDefault);
+                var result = await mediator.Send(new CreateScheduleCommand(row.EmployeeId, row.ShiftId, row.ScheduleDate, row.IsDefault));
+                if(result.IsSuccess) {
+                    successCount++;
                 }
                 else {
-                    dbContext.Schedules.Add(new Schedule(row.EmployeeId, row.ShiftId, row.ScheduleDate, row.IsDefault));
+                    var resultError = result.Errors?.Count > 0 ? string.Join(", ", result.Errors) : "Unknown error";
+                    parseErrors.Add($"Failed to import schedule for employee '{row.Username}' on {row.ScheduleDate}: {resultError}.");
                 }
-
-                successCount++;
             }
-
-            await dbContext.SaveChangesAsync();
 
             if(successCount > 0)
                 await DialogService.ShowSuccessAsync($"Imported {successCount} schedules successfully.");
