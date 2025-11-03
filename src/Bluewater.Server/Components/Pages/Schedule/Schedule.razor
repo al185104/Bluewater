@@ -646,16 +646,34 @@ GridTemplateColumns="0.6fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.3fr">
             var file = Files.FirstOrDefault();
             if (file == null) return;
 
-            var ret = await CsvUtility.ImportFromCSV<ScheduleImportDTO>(file.LocalFile!.FullName);
-            if(ret.Item1 == null) {
-                await DialogService.ShowErrorAsync(ret.Item2, "Import Error");
-                return;
+            var matrixResult = await ScheduleMatrixCsvParser.TryImportAsync(file.LocalFile!.FullName);
+            List<ScheduleImportDTO>? importedSchedules;
+
+            if(matrixResult.IsMatch) {
+                if(matrixResult.Records == null) {
+                    var errorMessage = string.IsNullOrWhiteSpace(matrixResult.Message)
+                        ? "Failed to import the schedule file."
+                        : matrixResult.Message;
+                    await DialogService.ShowErrorAsync(errorMessage, "Import Error");
+                    return;
+                }
+
+                importedSchedules = matrixResult.Records;
+            }
+            else {
+                var ret = await CsvUtility.ImportFromCSV<ScheduleImportDTO>(file.LocalFile!.FullName);
+                if(ret.Item1 == null) {
+                    await DialogService.ShowErrorAsync(ret.Item2, "Import Error");
+                    return;
+                }
+
+                importedSchedules = ret.Item1;
             }
 
             var parseErrors = new List<string>();
             var parsedRows = new List<(string Username, string ShiftName, DateOnly ScheduleDate, bool IsDefault)>();
 
-            foreach(var schedule in ret.Item1) {
+            foreach(var schedule in importedSchedules) {
                 var username = schedule.EmployeeIdentifier?.Trim();
                 if(string.IsNullOrWhiteSpace(username)) {
                     parseErrors.Add("Missing employee username in one of the rows.");
