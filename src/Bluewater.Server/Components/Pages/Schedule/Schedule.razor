@@ -54,6 +54,7 @@ OnCompleted="@ImportSchedulesAsync" />
         OptionText="@(p => p.Name)"
         SelectedOptionChanged="(OnSelectedOptionChanged)" />
     </div>
+	<FluentButton Id="ScheduleImportButton" IconStart="@(new Icons.Regular.Size16.ArrowImport())" Appearance="Appearance.Outline" style="margin-left: 8px; margin-right: 8px; margin-top: 20px">Import</FluentButton>
 </div>
 
 
@@ -759,7 +760,7 @@ GridTemplateColumns="0.6fr 1fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.6fr 0.3fr">
                     successCount++;
                 }
                 else {
-                    var resultError = result.Errors?.Count > 0 ? string.Join(", ", result.Errors) : "Unknown error";
+                    var resultError = result.Errors?.Count() > 0 ? string.Join(", ", result.Errors) : "Unknown error";
                     parseErrors.Add($"Failed to import schedule for employee '{row.Username}' on {row.ScheduleDate}: {resultError}.");
                 }
             }
