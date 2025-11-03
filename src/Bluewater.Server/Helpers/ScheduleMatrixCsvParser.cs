@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -50,7 +50,8 @@ internal static class ScheduleMatrixCsvParser
             return (true, new List<ScheduleImportDTO>(), "The schedule CSV file is empty.");
         }
 
-        await csv.ReadHeaderAsync().ConfigureAwait(false);
+        csv.ReadHeader();
+        //await csv.ReadHeaderAsync().ConfigureAwait(false);
         string[]? headers = csv.HeaderRecord;
 
         if (headers is null)
