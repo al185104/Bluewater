@@ -80,7 +80,7 @@ public class PieChartView : GraphicsView
 
         float sweep = (float)(value / total * 360d);
         canvas.FillColor = segment.Color.WithAlpha(0.85f);
-        canvas.FillPie(pieRect, startAngle, sweep);
+        canvas.FillPie(pieRect.X, pieRect.Y, pieRect.Width, pieRect.Height, startAngle, sweep);
         startAngle += sweep;
       }
 
