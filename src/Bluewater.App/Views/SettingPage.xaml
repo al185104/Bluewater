@@ -372,6 +372,36 @@
             <ScrollView Padding="20">
             <VerticalStackLayout x:DataType="vm:SettingViewModel"
                                  Spacing="20">
+                <Border StrokeShape="RoundRectangle 12"
+                        Padding="16"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                        Stroke="Transparent">
+                    <Grid ColumnDefinitions="*,*,Auto"
+                          ColumnSpacing="16">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="Start Date"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource TextPrimaryColor}" />
+                            <DatePicker Date="{Binding StartDate}"
+                                        HorizontalOptions="Fill" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="4">
+                            <Label Text="End Date"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource TextPrimaryColor}" />
+                            <DatePicker Date="{Binding EndDate}"
+                                        HorizontalOptions="Fill" />
+                        </VerticalStackLayout>
+                        <Button Grid.Column="2"
+                                Text="Random"
+                                Command="{Binding RandomizeDataCommand}"
+                                HorizontalOptions="End"
+                                VerticalOptions="End"
+                                Style="{StaticResource PrimaryButtonStyle}" />
+                    </Grid>
+                </Border>
+
                 <toolkit:Expander>
                     <toolkit:Expander.Header>
                         <Label>

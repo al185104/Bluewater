@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
-using Bluewater.App.Services;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -19,6 +20,10 @@ public partial class SettingViewModel : BaseViewModel
   private readonly ISectionApiService _sectionApiService;
   private readonly IChargingApiService _chargingApiService;
   private readonly IPositionApiService _positionApiService;
+  private readonly IEmployeeApiService _employeeApiService;
+  private readonly ITimesheetApiService _timesheetApiService;
+  private readonly IScheduleApiService _scheduleApiService;
+  private readonly IShiftApiService _shiftApiService;
 
   [ObservableProperty]
   public partial EditableSettingItem? EditableSetting { get; set; }
@@ -28,6 +33,12 @@ public partial class SettingViewModel : BaseViewModel
 
   [ObservableProperty]
   public partial string EditorTitle { get; set; }
+
+  [ObservableProperty]
+  public partial DateTime StartDate { get; set; } = DateTime.Today.AddDays(-7);
+
+  [ObservableProperty]
+  public partial DateTime EndDate { get; set; } = DateTime.Today;
 
   public ObservableCollection<DivisionSummary> Divisions { get; } = new();
   public ObservableCollection<DepartmentSummary> Departments { get; } = new();
@@ -40,7 +51,11 @@ public partial class SettingViewModel : BaseViewModel
     IDepartmentApiService departmentApiService,
     ISectionApiService sectionApiService,
     IChargingApiService chargingApiService,
-    IPositionApiService positionApiService)
+    IPositionApiService positionApiService,
+    IEmployeeApiService employeeApiService,
+    ITimesheetApiService timesheetApiService,
+    IScheduleApiService scheduleApiService,
+    IShiftApiService shiftApiService)
     : base(activityTraceService, exceptionHandlingService)
   {
     _divisionApiService = divisionApiService;
@@ -48,6 +63,10 @@ public partial class SettingViewModel : BaseViewModel
     _sectionApiService = sectionApiService;
     _chargingApiService = chargingApiService;
     _positionApiService = positionApiService;
+    _employeeApiService = employeeApiService;
+    _timesheetApiService = timesheetApiService;
+    _scheduleApiService = scheduleApiService;
+    _shiftApiService = shiftApiService;
   }
 
   [RelayCommand]
@@ -300,6 +319,166 @@ public partial class SettingViewModel : BaseViewModel
     }
 
     await TraceCommandAsync(nameof(DeletePositionAsync), position.Id);
+  }
+
+  [RelayCommand]
+  private async Task RandomizeDataAsync()
+  {
+    if (IsBusy)
+    {
+      return;
+    }
+
+    DateTime start = StartDate;
+    DateTime end = EndDate;
+
+    if (end < start)
+    {
+      (start, end) = (end, start);
+      StartDate = start;
+      EndDate = end;
+    }
+
+    DateOnly startDate = DateOnly.FromDateTime(start);
+    DateOnly endDate = DateOnly.FromDateTime(end);
+
+    try
+    {
+      IsBusy = true;
+
+      await TraceCommandAsync(nameof(RandomizeDataAsync), new { startDate, endDate }).ConfigureAwait(false);
+
+      IReadOnlyList<EmployeeSummary> employees = await _employeeApiService
+        .GetEmployeesAsync()
+        .ConfigureAwait(false);
+
+      if (employees.Count == 0)
+      {
+        return;
+      }
+
+      var random = new Random();
+
+      await GenerateRandomTimesheetsAsync(employees, startDate, endDate, random).ConfigureAwait(false);
+      await GenerateRandomScheduleAsync(employees, startDate, endDate, random).ConfigureAwait(false);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Generating randomized data");
+    }
+    finally
+    {
+      IsBusy = false;
+    }
+  }
+
+  private async Task GenerateRandomTimesheetsAsync(
+    IReadOnlyList<EmployeeSummary> employees,
+    DateOnly startDate,
+    DateOnly endDate,
+    Random random)
+  {
+    foreach (EmployeeSummary employee in employees)
+    {
+      string username = employee.User?.Username ?? string.Empty;
+
+      if (string.IsNullOrWhiteSpace(username))
+      {
+        continue;
+      }
+
+      for (DateOnly date = startDate; date <= endDate; date = date.AddDays(1))
+      {
+        if (ShouldSkipWorkday(date, random))
+        {
+          continue;
+        }
+
+        (DateTime timeIn1, DateTime timeOut1, DateTime timeIn2, DateTime timeOut2) = CreateRandomWorkdayTimes(date, random);
+
+        await _timesheetApiService.CreateTimesheetEntryAsync(username, timeIn1, date, TimesheetInputType.TimeIn1).ConfigureAwait(false);
+        await _timesheetApiService.CreateTimesheetEntryAsync(username, timeOut1, date, TimesheetInputType.TimeOut1).ConfigureAwait(false);
+        await _timesheetApiService.CreateTimesheetEntryAsync(username, timeIn2, date, TimesheetInputType.TimeIn2).ConfigureAwait(false);
+        await _timesheetApiService.CreateTimesheetEntryAsync(username, timeOut2, date, TimesheetInputType.TimeOut2).ConfigureAwait(false);
+      }
+    }
+  }
+
+  private async Task GenerateRandomScheduleAsync(
+    IReadOnlyList<EmployeeSummary> employees,
+    DateOnly startDate,
+    DateOnly endDate,
+    Random random)
+  {
+    List<EmployeeSummary> regularEmployees = employees
+      .Where(employee => string.Equals(employee.Type, "Regular", StringComparison.OrdinalIgnoreCase))
+      .ToList();
+
+    if (regularEmployees.Count == 0)
+    {
+      return;
+    }
+
+    IReadOnlyList<ShiftSummary> shifts = await _shiftApiService
+      .GetShiftsAsync()
+      .ConfigureAwait(false);
+
+    if (shifts.Count == 0)
+    {
+      return;
+    }
+
+    EmployeeSummary selectedEmployee = regularEmployees[random.Next(regularEmployees.Count)];
+
+    for (DateOnly date = startDate; date <= endDate; date = date.AddDays(1))
+    {
+      if (ShouldSkipWorkday(date, random))
+      {
+        continue;
+      }
+
+      ShiftSummary shift = shifts[random.Next(shifts.Count)];
+
+      var schedule = new ScheduleSummary
+      {
+        EmployeeId = selectedEmployee.Id,
+        ShiftId = shift.Id,
+        ScheduleDate = date,
+        IsDefault = false
+      };
+
+      await _scheduleApiService.CreateScheduleAsync(schedule).ConfigureAwait(false);
+    }
+  }
+
+  private static (DateTime TimeIn1, DateTime TimeOut1, DateTime TimeIn2, DateTime TimeOut2) CreateRandomWorkdayTimes(
+    DateOnly date,
+    Random random)
+  {
+    DateTime dayStart = date.ToDateTime(TimeOnly.MinValue);
+
+    DateTime timeIn1 = dayStart
+      .AddHours(7 + random.Next(0, 3))
+      .AddMinutes(random.Next(0, 60));
+
+    DateTime timeOut1 = timeIn1
+      .AddHours(4)
+      .AddMinutes(random.Next(-10, 15));
+
+    DateTime timeIn2 = timeOut1
+      .AddMinutes(45 + random.Next(0, 30));
+
+    DateTime timeOut2 = timeIn2
+      .AddHours(4)
+      .AddMinutes(random.Next(-10, 20));
+
+    return (timeIn1, timeOut1, timeIn2, timeOut2);
+  }
+
+  private static bool ShouldSkipWorkday(DateOnly date, Random random)
+  {
+    double threshold = date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday ? 0.6 : 0.2;
+    return random.NextDouble() < threshold;
   }
 
   public override async Task InitializeAsync()

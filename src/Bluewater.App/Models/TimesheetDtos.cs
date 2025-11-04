@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Bluewater.App.Models;
 
@@ -69,4 +70,35 @@ public class TimesheetDto
   public DateTime? TimeOut2 { get; set; }
   public DateOnly? EntryDate { get; set; }
   public bool IsEdited { get; set; }
+}
+
+public enum TimesheetInputType
+{
+  TimeIn1 = 0,
+  TimeOut1 = 1,
+  TimeIn2 = 2,
+  TimeOut2 = 3
+}
+
+public class CreateTimesheetRequestDto
+{
+  public const string Route = "Timesheets";
+
+  [JsonPropertyName("username")]
+  public string Username { get; set; } = string.Empty;
+
+  [JsonPropertyName("timeInput")]
+  public DateTime? TimeInput { get; set; }
+
+  [JsonPropertyName("entryDate")]
+  public DateOnly? EntryDate { get; set; }
+
+  [JsonPropertyName("inputType")]
+  public int InputType { get; set; }
+}
+
+public class CreateTimesheetResponseDto
+{
+  [JsonPropertyName("name")]
+  public string? Name { get; set; }
 }
