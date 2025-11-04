@@ -2,11 +2,13 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:Bluewater.App.Models"
-             xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
+             xmlns:converters="clr-namespace:Bluewater.App.Converters"
              x:Class="Bluewater.App.Views.AttendancePage"
-             Title="AttendancePage">
+             x:Name="AttendancePageRoot"
+             Title="Attendances">
     <ContentPage.Resources>
         <ResourceDictionary>
+            <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
             <Style x:Key="AttendanceRowBorderStyle"
                    TargetType="Border">
                 <Setter Property="StrokeThickness"
@@ -15,99 +17,202 @@
                         Value="Transparent" />
                 <Setter Property="Padding"
                         Value="20,12" />
+                <Setter Property="BackgroundColor"
+                        Value="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}" />
             </Style>
-            <DataTemplate x:Key="AttendancePrimaryTemplate"
-                          x:DataType="models:AttendanceSummary">
-                <Border Style="{StaticResource AttendanceRowBorderStyle}"
-                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
-                    <Grid ColumnSpacing="12"
-                          ColumnDefinitions="2*,*,*,Auto"
-                          VerticalOptions="Center">
-                        <Label Text="{Binding EntryDate, StringFormat='{0:d}'}"
-                               FontAttributes="Bold" />
-                        <Label Grid.Column="1"
-                               Text="{Binding WorkHours, StringFormat='{0:F2}'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <Label Grid.Column="2"
-                               Text="{Binding LateHours, StringFormat='{0:F2}'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <Label Grid.Column="3"
-                               Text="{Binding IsLocked, StringFormat='{0}'}"
-                               FontSize="13"
-                               HorizontalTextAlignment="End" />
-                    </Grid>
-                </Border>
-            </DataTemplate>
-            <DataTemplate x:Key="AttendanceAlternateTemplate"
-                          x:DataType="models:AttendanceSummary">
-                <Border Style="{StaticResource AttendanceRowBorderStyle}"
-                        BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
-                    <Grid ColumnSpacing="12"
-                          ColumnDefinitions="2*,*,*,Auto"
-                          VerticalOptions="Center">
-                        <Label Text="{Binding EntryDate, StringFormat='{0:d}'}"
-                               FontAttributes="Bold" />
-                        <Label Grid.Column="1"
-                               Text="{Binding WorkHours, StringFormat='{0:F2}'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <Label Grid.Column="2"
-                               Text="{Binding LateHours, StringFormat='{0:F2}'}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <Label Grid.Column="3"
-                               Text="{Binding IsLocked, StringFormat='{0}'}"
-                               FontSize="13"
-                               HorizontalTextAlignment="End" />
-                    </Grid>
-                </Border>
-            </DataTemplate>
-            <selectors:AlternateRowTemplateSelector x:Key="AttendanceTemplateSelector"
-                                                    PrimaryTemplate="{StaticResource AttendancePrimaryTemplate}"
-                                                    AlternateTemplate="{StaticResource AttendanceAlternateTemplate}" />
         </ResourceDictionary>
     </ContentPage.Resources>
-    <CollectionView ItemsSource="{Binding Attendances}"
-                    ItemTemplate="{StaticResource AttendanceTemplateSelector}">
-        <CollectionView.Header>
-            <Border StrokeShape="RoundRectangle 10 10 0 0"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
-                <Grid ColumnSpacing="12"
-                      Padding="20,14"
-                      ColumnDefinitions="2*,*,*,Auto">
-                    <Label Text="Entry Date"
-                           TextColor="White"
-                           FontAttributes="Bold" />
-                    <Label Grid.Column="1"
-                           Text="Work Hours"
-                           TextColor="White"
-                           FontAttributes="Bold" />
-                    <Label Grid.Column="2"
-                           Text="Late Hours"
-                           TextColor="White"
-                           FontAttributes="Bold" />
-                    <Label Grid.Column="3"
-                           Text="Locked"
-                           TextColor="White"
-                           FontAttributes="Bold"
-                           HorizontalTextAlignment="End" />
-                </Grid>
-            </Border>
-        </CollectionView.Header>
-        <CollectionView.EmptyView>
-            <VerticalStackLayout Padding="24"
-                                 HorizontalOptions="Center"
-                                 VerticalOptions="Center"
-                                 Spacing="8">
-                <Label Text="No attendance records"
-                       FontAttributes="Bold"
-                       HorizontalTextAlignment="Center" />
-                <Label Text="Attendance entries will appear here once added."
-                       HorizontalTextAlignment="Center"
-                       FontSize="12" />
-            </VerticalStackLayout>
-        </CollectionView.EmptyView>
-    </CollectionView>
+    <Grid>
+        <Grid Padding="20,40"
+              RowDefinitions="Auto,Auto,*"
+              RowSpacing="16">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+                  ColumnSpacing="12">
+                <Label Text="Attendances"
+                       Style="{StaticResource HeadingTextStyle}" />
+                <Button Grid.Column="1"
+                        Text="Apply"
+                        Command="{Binding ApplyDateRangeCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource BooleanNegationConverter}}" />
+                <Button Grid.Column="2"
+                        Text="Refresh"
+                        Command="{Binding RefreshCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource BooleanNegationConverter}}" />
+                <Button Grid.Column="3"
+                        Text="Submit"
+                        Command="{Binding SubmitCommand}"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource BooleanNegationConverter}}" />
+            </Grid>
+            <Grid Grid.Row="1"
+                  ColumnDefinitions="Auto,*,Auto,*,Auto,*,Auto,*"
+                  ColumnSpacing="12"
+                  RowSpacing="4">
+                <Label Text="Charging"
+                       VerticalOptions="Center"
+                       TextColor="{StaticResource TextSecondaryColor}" />
+                <Picker Grid.Column="1"
+                        Title="Select charging"
+                        ItemsSource="{Binding Chargings}"
+                        ItemDisplayBinding="{Binding Name}"
+                        SelectedItem="{Binding SelectedCharging}" />
+                <Label Grid.Column="2"
+                       Text="Tenant"
+                       VerticalOptions="Center"
+                       TextColor="{StaticResource TextSecondaryColor}" />
+                <Picker Grid.Column="3"
+                        Title="Select tenant"
+                        ItemsSource="{Binding TenantOptions}"
+                        SelectedItem="{Binding SelectedTenant}" />
+                <Label Grid.Column="4"
+                       Text="Start Date"
+                       VerticalOptions="Center"
+                       TextColor="{StaticResource TextSecondaryColor}" />
+                <DatePicker Grid.Column="5"
+                            Date="{Binding StartDate}"
+                            MaximumDate="{Binding EndDate}" />
+                <Label Grid.Column="6"
+                       Text="End Date"
+                       VerticalOptions="Center"
+                       TextColor="{StaticResource TextSecondaryColor}" />
+                <DatePicker Grid.Column="7"
+                            Date="{Binding EndDate}"
+                            MinimumDate="{Binding StartDate}" />
+            </Grid>
+            <Grid Grid.Row="2">
+                <CollectionView ItemsSource="{Binding EmployeeAttendances}"
+                                SelectionMode="None">
+                    <CollectionView.Header>
+                        <Border StrokeShape="RoundRectangle 10 10 0 0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                            <Grid ColumnSpacing="12"
+                                  Padding="20,14"
+                                  ColumnDefinitions="2*,1.2*,1*,1*,1*,1*,1*,Auto">
+                                <Label Text="Employee"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="1"
+                                       Text="Charging"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="2"
+                                       Text="Work Hours"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="3"
+                                       Text="Late Hours"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="4"
+                                       Text="Under Hours"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="5"
+                                       Text="Overbreak"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="6"
+                                       Text="Night Shift"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="7"
+                                       Text="Absences"
+                                       TextColor="White"
+                                       HorizontalOptions="Center"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="8"
+                                       Text="Entries"
+                                       TextColor="White"
+                                       HorizontalOptions="End"
+                                       FontAttributes="Bold" />
+                            </Grid>
+                        </Border>
+                    </CollectionView.Header>
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate x:DataType="models:EmployeeAttendanceSummary">
+                            <Border Style="{StaticResource AttendanceRowBorderStyle}">
+                                <Grid ColumnSpacing="12"
+                                      ColumnDefinitions="2*,1.2*,1*,1*,1*,1*,1*,Auto"
+                                      VerticalOptions="Center">
+                                    <VerticalStackLayout Spacing="4">
+                                        <Label Text="{Binding Name}"
+                                               FontAttributes="Bold"
+                                               FontSize="14"
+                                               LineBreakMode="TailTruncation" />
+                                        <Label FontSize="12"
+                                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}">
+                                            <Label.FormattedText>
+                                                <FormattedString>
+                                                    <Span Text="{Binding Department}"
+                                                          FontSize="12"
+                                                          TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                                    <Span Text=", "
+                                                          FontSize="12"
+                                                          TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                                    <Span Text="{Binding Section}"
+                                                          FontSize="12"
+                                                          TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                                </FormattedString>
+                                            </Label.FormattedText>
+                                        </Label>
+                                    </VerticalStackLayout>
+
+                                    <Label Grid.Column="1"
+                                           Text="{Binding Charging}"
+                                           LineBreakMode="TailTruncation"
+                                           VerticalTextAlignment="Center" />
+
+                                    <Label Grid.Column="2"
+                                           Text="{Binding TotalWorkHours, StringFormat='{0:0.##}'}"
+                                           VerticalTextAlignment="Center" />
+
+                                    <Label Grid.Column="3"
+                                           Text="{Binding TotalLateHours, StringFormat='{0:0.##}'}"
+                                           VerticalTextAlignment="Center" />
+
+                                    <Label Grid.Column="4"
+                                           Text="{Binding TotalUnderHours, StringFormat='{0:0.##}'}"
+                                           VerticalTextAlignment="Center" />
+
+                                    <Label Grid.Column="5"
+                                           Text="{Binding TotalOverbreakHours, StringFormat='{0:0.##}'}"
+                                           VerticalTextAlignment="Center" />
+
+                                    <Label Grid.Column="6"
+                                           Text="{Binding TotalNightShiftHours, StringFormat='{0:0.##}'}"
+                                           VerticalTextAlignment="Center" />
+
+                                    <Label Grid.Column="7"
+                                           Text="{Binding TotalAbsences}"
+                                           HorizontalOptions="Center"
+                                           VerticalTextAlignment="Center" />
+
+                                    <Label Grid.Column="8"
+                                           Text="{Binding Attendances.Count}"
+                                           HorizontalOptions="End"
+                                           VerticalTextAlignment="Center" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                    <CollectionView.EmptyView>
+                        <VerticalStackLayout Padding="24"
+                                             HorizontalOptions="Center"
+                                             VerticalOptions="Center"
+                                             Spacing="8">
+                            <Label Text="No attendance records"
+                                   FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Text="Select a charging and date range to load attendances."
+                                   HorizontalTextAlignment="Center"
+                                   FontSize="12" />
+                        </VerticalStackLayout>
+                    </CollectionView.EmptyView>
+                </CollectionView>
+                <ActivityIndicator IsRunning="{Binding IsBusy}"
+                                   IsVisible="{Binding IsBusy}"
+                                   HorizontalOptions="Center"
+                                   VerticalOptions="Center" />
+            </Grid>
+        </Grid>
+    </Grid>
 </ContentPage>
