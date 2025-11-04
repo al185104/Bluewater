@@ -19,6 +19,11 @@ public partial class SlideInEditorView : ContentView
 		public static readonly BindableProperty TitleProperty = BindableProperty.Create(
 			nameof(Title), typeof(string), typeof(SlideInEditorView), string.Empty);
 
+		public static readonly BindableProperty PanelWidthRatioProperty = BindableProperty.Create(
+			nameof(PanelWidthRatio), typeof(double), typeof(SlideInEditorView), 0.5d,
+			coerceValue: CoercePanelWidthRatio,
+			propertyChanged: OnPanelWidthRatioChanged);
+
 		public static readonly BindableProperty IsOpenProperty = BindableProperty.Create(
 			nameof(IsOpen), typeof(bool), typeof(SlideInEditorView), false,
 			propertyChanged: OnIsOpenChanged);
@@ -55,6 +60,12 @@ public partial class SlideInEditorView : ContentView
 		{
 				get => (bool)GetValue(IsOpenProperty);
 				set => SetValue(IsOpenProperty, value);
+		}
+
+		public double PanelWidthRatio
+		{
+				get => (double)GetValue(PanelWidthRatioProperty);
+				set => SetValue(PanelWidthRatioProperty, value);
 		}
 
                 public View? EditorContent
@@ -190,7 +201,7 @@ public partial class SlideInEditorView : ContentView
 
 				if (Width > 0)
 				{
-						double initialWidth = Math.Max(0, Width / 2);
+						double initialWidth = CalculateTargetWidth();
 						PanelBorder.WidthRequest = initialWidth;
 						InitializeTranslationIfNeeded(initialWidth);
 						return;
@@ -220,7 +231,7 @@ public partial class SlideInEditorView : ContentView
 						await completionSource.Task;
 				}
 
-				double targetWidth = Math.Max(0, Width / 2);
+				double targetWidth = CalculateTargetWidth();
 				PanelBorder.WidthRequest = targetWidth;
 				InitializeTranslationIfNeeded(targetWidth);
 		}
@@ -253,7 +264,7 @@ public partial class SlideInEditorView : ContentView
 
 		private void OnSizeChanged(object? sender, EventArgs e)
 		{
-				double targetWidth = Width / 2;
+				double targetWidth = CalculateTargetWidth();
 
 				if (targetWidth <= 0)
 				{
@@ -267,6 +278,42 @@ public partial class SlideInEditorView : ContentView
 						PanelBorder.TranslationX = targetWidth;
 				}
 		}
+
+
+                private static object CoercePanelWidthRatio(BindableObject bindable, object value)
+                {
+                                double ratio = value is double doubleValue ? doubleValue : 0.5d;
+                                return Math.Clamp(ratio, 0d, 1d);
+                }
+
+                private static void OnPanelWidthRatioChanged(BindableObject bindable, object oldValue, object newValue)
+                {
+                                if (bindable is SlideInEditorView view)
+                                {
+                                                view.UpdatePanelWidth();
+                                }
+                }
+
+                private void UpdatePanelWidth()
+                {
+                                if (Width <= 0)
+                                {
+                                                return;
+                                }
+
+                                double targetWidth = CalculateTargetWidth();
+                                PanelBorder.WidthRequest = targetWidth;
+
+                                if (!IsOpen)
+                                {
+                                                PanelBorder.TranslationX = targetWidth;
+                                }
+                }
+
+                private double CalculateTargetWidth()
+                {
+                                return Math.Max(0, Width * PanelWidthRatio);
+                }
 
                 protected override void OnBindingContextChanged()
                 {
