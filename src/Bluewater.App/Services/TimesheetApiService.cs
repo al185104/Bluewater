@@ -86,6 +86,33 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
       .ToList();
   }
 
+  public async Task<bool> CreateTimesheetEntryAsync(
+    string username,
+    DateTime? timeInput,
+    DateOnly entryDate,
+    TimesheetInputType inputType,
+    CancellationToken cancellationToken = default)
+  {
+    if (string.IsNullOrWhiteSpace(username))
+    {
+      throw new ArgumentException("Username must be provided", nameof(username));
+    }
+
+    CreateTimesheetRequestDto request = new()
+    {
+      Username = username,
+      TimeInput = timeInput,
+      EntryDate = entryDate,
+      InputType = (int)inputType
+    };
+
+    CreateTimesheetResponseDto? response = await apiClient
+      .PostAsync<CreateTimesheetRequestDto, CreateTimesheetResponseDto>(CreateTimesheetRequestDto.Route, request, cancellationToken)
+      .ConfigureAwait(false);
+
+    return response is not null;
+  }
+
   private static string BuildListAllRequestUri(
     DateOnly startDate,
     DateOnly endDate,

@@ -26,6 +26,13 @@ public interface ITimesheetApiService
     int? take = null,
     CancellationToken cancellationToken = default);
 
+  Task<bool> CreateTimesheetEntryAsync(
+    string username,
+    DateTime? timeInput,
+    DateOnly entryDate,
+    TimesheetInputType inputType,
+    CancellationToken cancellationToken = default);
+
   Task<AttendanceTimesheetSummary?> UpdateTimesheetAsync(
     UpdateTimesheetRequestDto request,
     CancellationToken cancellationToken = default);
