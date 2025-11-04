@@ -71,6 +71,7 @@ public static class MauiProgram
     builder.Services.AddSingleton<ITimesheetApiService, TimesheetApiService>();
     builder.Services.AddSingleton<IPayrollApiService, PayrollApiService>();
     builder.Services.AddSingleton<IScheduleApiService, ScheduleApiService>();
+    builder.Services.AddSingleton<IDashboardApiService, DashboardApiService>();
     builder.Services.AddSingleton<IActivityTraceService, ActivityTraceService>();
     builder.Services.AddSingleton<IExceptionHandlingService, ExceptionHandlingService>();
     builder.Services.AddSingleton<IReferenceDataService, ReferenceDataService>();
