@@ -149,8 +149,10 @@ public class TrendLineChartView : GraphicsView
       if (showYAxisLabels)
       {
         string maxLabel = maxValue >= 100 ? ((int)Math.Round(maxValue)).ToString("N0") : maxValue.ToString("0.#");
-        canvas.DrawString(maxLabel, left - 6f, top, HorizontalAlignment.Right, VerticalAlignment.Center);
-        canvas.DrawString("0", left - 6f, bottom, HorizontalAlignment.Right, VerticalAlignment.Center);
+        RectF maxLabelRect = new(left - 60f, top - 8f, 54f, 20f);
+        RectF minLabelRect = new(left - 60f, bottom - 10f, 54f, 20f);
+        canvas.DrawString(maxLabel, maxLabelRect, HorizontalAlignment.Right, VerticalAlignment.Center);
+        canvas.DrawString("0", minLabelRect, HorizontalAlignment.Right, VerticalAlignment.Center);
       }
 
       PathF path = new();
