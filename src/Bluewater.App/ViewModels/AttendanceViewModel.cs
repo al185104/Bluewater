@@ -3,39 +3,41 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel;
 
 namespace Bluewater.App.ViewModels;
 
 public partial class AttendanceViewModel : BaseViewModel
 {
   private readonly IAttendanceApiService attendanceApiService;
-  private readonly IEmployeeApiService employeeApiService;
+  private readonly IReferenceDataService referenceDataService;
   private bool hasInitialized;
+  private bool suppressSelectedChargingChanged;
 
   public AttendanceViewModel(
     IAttendanceApiService attendanceApiService,
-    IEmployeeApiService employeeApiService,
+    IReferenceDataService referenceDataService,
     IActivityTraceService activityTraceService,
     IExceptionHandlingService exceptionHandlingService)
     : base(activityTraceService, exceptionHandlingService)
   {
     this.attendanceApiService = attendanceApiService;
-    this.employeeApiService = employeeApiService;
+    this.referenceDataService = referenceDataService;
     StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-7));
     EndDate = DateOnly.FromDateTime(DateTime.Today);
-    EditableAttendance = CreateNewAttendance();
   }
 
-  public ObservableCollection<AttendanceSummary> Attendances { get; } = new();
+  public ObservableCollection<ChargingSummary> Chargings { get; } = new();
+  public ObservableCollection<EmployeeAttendanceSummary> EmployeeAttendances { get; } = new();
+  public IReadOnlyList<TenantDto> TenantOptions { get; } = Array.AsReadOnly(Enum.GetValues<TenantDto>());
 
   [ObservableProperty]
-  public partial Guid? EmployeeFilter { get; set; }
+  public partial ChargingSummary? SelectedCharging { get; set; }
 
   [ObservableProperty]
   public partial DateOnly StartDate { get; set; }
@@ -44,113 +46,126 @@ public partial class AttendanceViewModel : BaseViewModel
   public partial DateOnly EndDate { get; set; }
 
   [ObservableProperty]
-  public partial AttendanceSummary? SelectedAttendance { get; set; }
+  public partial TenantDto SelectedTenant { get; set; } = TenantDto.Maribago;
 
-  [ObservableProperty]
-  public partial AttendanceSummary EditableAttendance { get; set; }
+  partial void OnSelectedChargingChanged(ChargingSummary? value)
+  {
+    if (suppressSelectedChargingChanged)
+    {
+      return;
+    }
+
+    if (value is null)
+    {
+      MainThread.BeginInvokeOnMainThread(ClearEmployeeAttendances);
+      return;
+    }
+
+    _ = MainThread.InvokeOnMainThreadAsync(LoadAttendanceSummariesAsync);
+  }
+
+  partial void OnSelectedTenantChanged(TenantDto value)
+  {
+    if (SelectedCharging is null)
+    {
+      return;
+    }
+
+    _ = MainThread.InvokeOnMainThreadAsync(LoadAttendanceSummariesAsync);
+  }
 
   public override async Task InitializeAsync()
   {
     if (hasInitialized)
     {
+      await LoadAttendanceSummariesAsync().ConfigureAwait(false);
       return;
     }
 
     hasInitialized = true;
-    await TraceCommandAsync(nameof(InitializeAsync));
-    await EnsureDefaultEmployeeFilterAsync().ConfigureAwait(false);
-    await LoadAttendancesAsync();
+    await TraceCommandAsync(nameof(InitializeAsync)).ConfigureAwait(false);
+
+    MainThread.BeginInvokeOnMainThread(() =>
+    {
+      LoadChargings();
+
+      if (SelectedCharging is not null)
+      {
+        _ = LoadAttendanceSummariesAsync();
+      }
+    });
   }
 
   [RelayCommand]
   private async Task RefreshAsync()
   {
-    await TraceCommandAsync(nameof(RefreshAsync));
-    await LoadAttendancesAsync();
+    await TraceCommandAsync(nameof(RefreshAsync)).ConfigureAwait(false);
+    await LoadAttendanceSummariesAsync().ConfigureAwait(false);
   }
 
   [RelayCommand]
-  private void BeginCreateAttendance()
+  private async Task ApplyDateRangeAsync()
   {
-    EditableAttendance = CreateNewAttendance();
-    if (EmployeeFilter.HasValue)
-    {
-      EditableAttendance.EmployeeId = EmployeeFilter.Value;
-    }
-    SelectedAttendance = null;
+    await TraceCommandAsync(nameof(ApplyDateRangeAsync)).ConfigureAwait(false);
+    await LoadAttendanceSummariesAsync().ConfigureAwait(false);
   }
 
   [RelayCommand]
-  private void BeginEditAttendance(AttendanceSummary? attendance)
+  private async Task SubmitAsync()
   {
-    if (attendance is null)
+    if (IsBusy || EmployeeAttendances.Count == 0)
     {
       return;
     }
 
-    SelectedAttendance = attendance;
-    EditableAttendance = CloneAttendance(attendance);
-  }
-
-  [RelayCommand]
-  private async Task SaveAttendanceAsync()
-  {
-    if (EditableAttendance is null || EditableAttendance.EmployeeId == Guid.Empty)
-    {
-      return;
-    }
-
-    bool isNew = Attendances.All(attendance => attendance.Id != EditableAttendance.Id);
+    await TraceCommandAsync(nameof(SubmitAsync)).ConfigureAwait(false);
 
     try
     {
       IsBusy = true;
 
-      AttendanceSummary? saved = isNew
-        ? await attendanceApiService.CreateAttendanceAsync(EditableAttendance)
-        : await attendanceApiService.UpdateAttendanceAsync(EditableAttendance);
-
-      AttendanceSummary result = saved ?? EditableAttendance;
-
-      if (isNew)
+      foreach (EmployeeAttendanceSummary summary in EmployeeAttendances)
       {
-        result.RowIndex = Attendances.Count;
-        Attendances.Add(result);
-      }
-      else
-      {
-        int index = FindAttendanceIndex(result.Id);
-        if (index >= 0)
+        foreach (AttendanceSummary attendance in summary.Attendances)
         {
-          result.RowIndex = index;
-          Attendances[index] = result;
-        }
-        else
-        {
-          result.RowIndex = Attendances.Count;
-          Attendances.Add(result);
-        }
-      }
+          try
+          {
+            if (attendance.EmployeeId == Guid.Empty)
+            {
+              attendance.EmployeeId = summary.EmployeeId;
+            }
 
-      UpdateAttendanceRowIndexes();
-      EditableAttendance = CloneAttendance(result);
-      await TraceCommandAsync(nameof(SaveAttendanceAsync), result.Id);
+            if (attendance.EntryDate is null)
+            {
+              continue;
+            }
+
+            await attendanceApiService.CreateAttendanceAsync(attendance).ConfigureAwait(false);
+          }
+          catch (Exception ex)
+          {
+            ExceptionHandlingService.Handle(ex, "Creating attendance");
+          }
+        }
+      }
     }
     catch (Exception ex)
     {
-      ExceptionHandlingService.Handle(ex, isNew ? "Creating attendance" : "Updating attendance");
+      ExceptionHandlingService.Handle(ex, "Submitting attendances");
     }
     finally
     {
       IsBusy = false;
     }
+
+    await LoadAttendanceSummariesAsync().ConfigureAwait(false);
   }
 
-  [RelayCommand]
-  private async Task DeleteAttendanceAsync(AttendanceSummary? attendance)
+  private async Task LoadAttendanceSummariesAsync()
   {
-    if (attendance is null)
+    if (SelectedCharging is null)
     {
+      MainThread.BeginInvokeOnMainThread(ClearEmployeeAttendances);
       return;
     }
 
@@ -158,47 +173,24 @@ public partial class AttendanceViewModel : BaseViewModel
     {
       IsBusy = true;
 
-      bool deleted = await attendanceApiService.DeleteAttendanceAsync(attendance.Id);
+      await TraceCommandAsync(nameof(LoadAttendanceSummariesAsync), SelectedCharging.Id).ConfigureAwait(false);
 
-      if (deleted)
-      {
-        Attendances.Remove(attendance);
-        UpdateAttendanceRowIndexes();
-        await TraceCommandAsync(nameof(DeleteAttendanceAsync), attendance.Id);
-      }
-    }
-    catch (Exception ex)
-    {
-      ExceptionHandlingService.Handle(ex, "Deleting attendance");
-    }
-    finally
-    {
-      IsBusy = false;
-    }
-  }
-
-  private async Task LoadAttendancesAsync()
-  {
-    if (!EmployeeFilter.HasValue || EmployeeFilter.Value == Guid.Empty)
-    {
-      Attendances.Clear();
-      return;
-    }
-
-    try
-    {
-      IsBusy = true;
-
-      IReadOnlyList<AttendanceSummary> attendances = await attendanceApiService
-        .GetAttendancesAsync(EmployeeFilter.Value, StartDate, EndDate)
+      IReadOnlyList<EmployeeAttendanceSummary> summaries = await attendanceApiService
+        .GetAttendanceSummariesAsync(
+          SelectedCharging.Name,
+          StartDate,
+          EndDate,
+          tenant: SelectedTenant)
         .ConfigureAwait(false);
 
-      Attendances.Clear();
-      foreach (AttendanceSummary attendance in attendances)
+      await MainThread.InvokeOnMainThreadAsync(() =>
       {
-        attendance.RowIndex = Attendances.Count;
-        Attendances.Add(attendance);
-      }
+        ClearEmployeeAttendances();
+        foreach (EmployeeAttendanceSummary summary in summaries)
+        {
+          EmployeeAttendances.Add(summary);
+        }
+      }).ConfigureAwait(false);
     }
     catch (Exception ex)
     {
@@ -210,79 +202,43 @@ public partial class AttendanceViewModel : BaseViewModel
     }
   }
 
-  private async Task EnsureDefaultEmployeeFilterAsync()
+  private void LoadChargings()
   {
-    if (EmployeeFilter.HasValue && EmployeeFilter.Value != Guid.Empty)
+    suppressSelectedChargingChanged = true;
+
+    Guid? previousId = SelectedCharging?.Id;
+
+    Chargings.Clear();
+    foreach (ChargingSummary charging in referenceDataService.Chargings
+                 .OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase))
     {
-      return;
+      Chargings.Add(charging);
     }
 
-    try
+    if (previousId is Guid id)
     {
-      IReadOnlyList<EmployeeSummary> employees = await employeeApiService
-        .GetEmployeesAsync(take: 1)
-        .ConfigureAwait(false);
-
-      Guid? defaultEmployeeId = employees.FirstOrDefault()?.Id;
-
-      if (defaultEmployeeId.HasValue && defaultEmployeeId.Value != Guid.Empty)
+      ChargingSummary? previous = Chargings.FirstOrDefault(item => item.Id == id);
+      if (previous is not null)
       {
-        EmployeeFilter = defaultEmployeeId.Value;
-      }
-    }
-    catch (Exception ex)
-    {
-      ExceptionHandlingService.Handle(ex, "Loading default employee");
-    }
-  }
-
-  private static AttendanceSummary CreateNewAttendance()
-  {
-    return new AttendanceSummary
-    {
-      Id = Guid.NewGuid(),
-      EntryDate = DateOnly.FromDateTime(DateTime.Today),
-      RowIndex = 0
-    };
-  }
-
-  private static AttendanceSummary CloneAttendance(AttendanceSummary attendance)
-  {
-    return new AttendanceSummary
-    {
-      Id = attendance.Id,
-      EmployeeId = attendance.EmployeeId,
-      ShiftId = attendance.ShiftId,
-      TimesheetId = attendance.TimesheetId,
-      LeaveId = attendance.LeaveId,
-      EntryDate = attendance.EntryDate,
-      WorkHours = attendance.WorkHours,
-      LateHours = attendance.LateHours,
-      UnderHours = attendance.UnderHours,
-      OverbreakHours = attendance.OverbreakHours,
-      NightShiftHours = attendance.NightShiftHours,
-      IsLocked = attendance.IsLocked,
-      Shift = attendance.Shift,
-      Timesheet = attendance.Timesheet,
-      RowIndex = attendance.RowIndex
-    };
-  }
-
-  private int FindAttendanceIndex(Guid attendanceId)
-  {
-    for (int i = 0; i < Attendances.Count; i++)
-    {
-      if (Attendances[i].Id == attendanceId)
-      {
-        return i;
+        SelectedCharging = previous;
       }
     }
 
-    return -1;
+    if (SelectedCharging is null && Chargings.Count > 0)
+    {
+      SelectedCharging = Chargings[0];
+    }
+
+    suppressSelectedChargingChanged = false;
+
+    if (SelectedCharging is not null)
+    {
+      _ = LoadAttendanceSummariesAsync();
+    }
   }
 
-  private void UpdateAttendanceRowIndexes()
+  private void ClearEmployeeAttendances()
   {
-    Attendances.UpdateRowIndexes();
+    EmployeeAttendances.Clear();
   }
 }
