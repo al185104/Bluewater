@@ -1,33 +1,59 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Graphics;
 
 namespace Bluewater.App.ViewModels;
 
 public partial class HomeViewModel : BaseViewModel
 {
+  private static readonly Color[] ChartPalette =
+  [
+    Color.FromArgb("#2563EB"),
+    Color.FromArgb("#10B981"),
+    Color.FromArgb("#F97316"),
+    Color.FromArgb("#EF4444"),
+    Color.FromArgb("#8B5CF6"),
+    Color.FromArgb("#F59E0B"),
+    Color.FromArgb("#14B8A6"),
+    Color.FromArgb("#0EA5E9"),
+  ];
+
+  private readonly IDashboardApiService dashboardApiService;
   private bool hasInitialized;
 
-  public HomeViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
+  public HomeViewModel(
+    IDashboardApiService dashboardApiService,
+    IActivityTraceService activityTraceService,
+    IExceptionHandlingService exceptionHandlingService)
     : base(activityTraceService, exceptionHandlingService)
   {
-    EditableAnnouncement = CreateNewAnnouncement();
+    this.dashboardApiService = dashboardApiService;
   }
 
-  public ObservableCollection<HomeAnnouncement> Announcements { get; } = new();
+  public ObservableCollection<DashboardChartSegment> AttendanceSummarySegments { get; } = new();
+
+  public ObservableCollection<DashboardTrendPoint> WeeklyAttendanceTrend { get; } = new();
+
+  public ObservableCollection<DashboardChartSegment> LeaveDistributionSegments { get; } = new();
+
+  public ObservableCollection<DashboardTrendPoint> MonthlyAbsenceTrend { get; } = new();
+
+  public ObservableCollection<DashboardLeaderboardEntry> PerfectAttendanceLeaders { get; } = new();
 
   [ObservableProperty]
-  public partial HomeAnnouncement? SelectedAnnouncement { get; set; }
+  private DateTime? dashboardGeneratedAtUtc;
 
-  [ObservableProperty]
-  public partial HomeAnnouncement EditableAnnouncement { get; set; }
+  public string LastUpdatedDisplay => DashboardGeneratedAtUtc.HasValue
+    ? DashboardGeneratedAtUtc.Value.ToLocalTime().ToString("MMM d, yyyy h:mm tt")
+    : "—";
 
   public override async Task InitializeAsync()
   {
@@ -38,116 +64,173 @@ public partial class HomeViewModel : BaseViewModel
 
     hasInitialized = true;
     await TraceCommandAsync(nameof(InitializeAsync));
-    EnsureSeedAnnouncements();
+    await LoadDashboardAsync().ConfigureAwait(false);
   }
 
   [RelayCommand]
-  private void BeginCreateAnnouncement()
+  private async Task RefreshAsync()
   {
-    EditableAnnouncement = CreateNewAnnouncement();
-    SelectedAnnouncement = null;
+    await TraceCommandAsync(nameof(RefreshAsync));
+    await LoadDashboardAsync().ConfigureAwait(false);
   }
 
-  [RelayCommand]
-  private void BeginEditAnnouncement(HomeAnnouncement? announcement)
+  private async Task LoadDashboardAsync()
   {
-    if (announcement is null)
+    try
+    {
+      IsBusy = true;
+
+      HomeDashboardSummary? dashboard = await dashboardApiService
+        .GetHomeDashboardAsync()
+        .ConfigureAwait(false);
+
+      UpdateCollections(dashboard);
+      DashboardGeneratedAtUtc = dashboard?.GeneratedAtUtc;
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Loading dashboard");
+    }
+    finally
+    {
+      IsBusy = false;
+    }
+  }
+
+  private void UpdateCollections(HomeDashboardSummary? dashboard)
+  {
+    UpdateSegments(AttendanceSummarySegments, dashboard?.AttendanceSummary);
+    UpdateTrend(WeeklyAttendanceTrend, dashboard?.WeeklyAttendanceTrend);
+    UpdateSegments(LeaveDistributionSegments, dashboard?.LeaveDistribution);
+    UpdateTrend(MonthlyAbsenceTrend, dashboard?.MonthlyAbsenceTrend);
+    UpdateLeaders(PerfectAttendanceLeaders, dashboard?.PerfectAttendanceLeaders);
+  }
+
+  private static void UpdateSegments(
+    ObservableCollection<DashboardChartSegment> target,
+    IEnumerable<ChartSegmentSummary>? source)
+  {
+    target.Clear();
+
+    if (source is null)
     {
       return;
     }
 
-    SelectedAnnouncement = announcement;
-    EditableAnnouncement = announcement with { };
-  }
-
-  [RelayCommand]
-  private async Task SaveAnnouncementAsync()
-  {
-    if (string.IsNullOrWhiteSpace(EditableAnnouncement.Title))
-    {
-      return;
-    }
-
-    bool isNew = Announcements.All(item => item.Id != EditableAnnouncement.Id);
-
-    HomeAnnouncement announcement = EditableAnnouncement;
-
-    if (isNew)
-    {
-      announcement = EditableAnnouncement with { Id = Guid.NewGuid(), RowIndex = Announcements.Count };
-      Announcements.Add(announcement);
-    }
-    else
-    {
-      int index = FindAnnouncementIndex(announcement.Id);
-      if (index >= 0)
+    List<ChartSegmentSummary> segments = source
+      .Where(segment => segment is not null)
+      .Select(segment => new ChartSegmentSummary
       {
-        Announcements[index] = announcement with { RowIndex = index };
-      }
-      else
-      {
-        announcement = announcement with { RowIndex = Announcements.Count };
-        Announcements.Add(announcement);
-      }
-    }
+        Label = segment!.Label ?? string.Empty,
+        Value = Math.Max(segment.Value, 0d)
+      })
+      .ToList();
 
-    UpdateAnnouncementRowIndexes();
-    EditableAnnouncement = announcement;
-    await TraceCommandAsync(nameof(SaveAnnouncementAsync), announcement.Id);
+    double total = segments.Sum(segment => segment.Value);
+    int index = 0;
+
+    foreach (ChartSegmentSummary segment in segments)
+    {
+      double percentage = total > 0 ? segment.Value / total : 0d;
+      Color color = ChartPalette[index % ChartPalette.Length];
+
+      target.Add(new DashboardChartSegment
+      {
+        Label = segment.Label,
+        Value = segment.Value,
+        Percentage = percentage,
+        Color = color
+      });
+
+      index++;
+    }
   }
 
-  [RelayCommand]
-  private async Task DeleteAnnouncementAsync(HomeAnnouncement? announcement)
+  private static void UpdateTrend(
+    ObservableCollection<DashboardTrendPoint> target,
+    IEnumerable<TrendPointSummary>? source)
   {
-    if (announcement is null)
+    target.Clear();
+
+    if (source is null)
     {
       return;
     }
 
-    if (Announcements.Remove(announcement))
+    foreach (TrendPointSummary point in source.Where(point => point is not null))
     {
-      UpdateAnnouncementRowIndexes();
-      await TraceCommandAsync(nameof(DeleteAnnouncementAsync), announcement.Id);
+      target.Add(new DashboardTrendPoint
+      {
+        Label = point.Label ?? string.Empty,
+        Value = Math.Max(point.Value, 0d)
+      });
     }
   }
 
-  private void EnsureSeedAnnouncements()
+  private static void UpdateLeaders(
+    ObservableCollection<DashboardLeaderboardEntry> target,
+    IEnumerable<PerfectAttendanceLeaderboardEntry>? source)
   {
-    if (Announcements.Count > 0)
+    target.Clear();
+
+    if (source is null)
     {
       return;
     }
 
-    Announcements.Add(new HomeAnnouncement(Guid.NewGuid(), "Welcome to Bluewater", "Stay up-to-date with your workforce."));
-    Announcements.Add(new HomeAnnouncement(Guid.NewGuid(), "Latest Payroll", "Review the latest payroll summaries."));
-    Announcements.Add(new HomeAnnouncement(Guid.NewGuid(), "Attendance Alerts", "Check today's attendance variances."));
-    UpdateAnnouncementRowIndexes();
-  }
-
-  private static HomeAnnouncement CreateNewAnnouncement()
-  {
-    return new HomeAnnouncement(Guid.NewGuid(), string.Empty, string.Empty);
-  }
-  private int FindAnnouncementIndex(Guid announcementId)
-  {
-    for (int i = 0; i < Announcements.Count; i++)
+    int rank = 1;
+    foreach (PerfectAttendanceLeaderboardEntry entry in source.Where(entry => entry is not null))
     {
-      if (Announcements[i].Id == announcementId)
+      target.Add(new DashboardLeaderboardEntry
       {
-        return i;
-      }
+        Rank = rank++,
+        EmployeeName = entry.EmployeeName ?? string.Empty,
+        PerfectDays = entry.PerfectDays,
+        TotalTrackedDays = entry.TotalTrackedDays,
+        AttendanceRate = entry.AttendanceRate,
+        LateDays = entry.LateDays,
+        Absences = entry.Absences
+      });
     }
-
-    return -1;
   }
 
-  private void UpdateAnnouncementRowIndexes()
+  partial void OnDashboardGeneratedAtUtcChanged(DateTime? value)
   {
-    Announcements.UpdateRowIndexes();
+    OnPropertyChanged(nameof(LastUpdatedDisplay));
   }
 }
 
-public record HomeAnnouncement(Guid Id, string Title, string Description) : IRowIndexed
+public class DashboardChartSegment
 {
-  public int RowIndex { get; set; }
+  public string Label { get; set; } = string.Empty;
+
+  public double Value { get; set; }
+
+  public double Percentage { get; set; }
+
+  public Color Color { get; set; } = Colors.Transparent;
+}
+
+public class DashboardTrendPoint
+{
+  public string Label { get; set; } = string.Empty;
+
+  public double Value { get; set; }
+}
+
+public class DashboardLeaderboardEntry
+{
+  public int Rank { get; set; }
+
+  public string EmployeeName { get; set; } = string.Empty;
+
+  public int PerfectDays { get; set; }
+
+  public int TotalTrackedDays { get; set; }
+
+  public double AttendanceRate { get; set; }
+
+  public int LateDays { get; set; }
+
+  public int Absences { get; set; }
 }
