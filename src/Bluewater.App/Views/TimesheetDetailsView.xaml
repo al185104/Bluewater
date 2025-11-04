@@ -8,6 +8,7 @@
     <controls:SlideInEditorView x:Name="EditorView"
                                 Title="{Binding Source={x:Reference RootView}, Path=Title}"
                                 IsOpen="{Binding Source={x:Reference RootView}, Path=IsOpen}"
+                                PanelWidthRatio="0.6667"
                                 UpdateCommand="{Binding Source={x:Reference RootView}, Path=UpdateCommand}"
                                 UpdateCommandParameter="{Binding Source={x:Reference RootView}, Path=UpdateCommandParameter}"
                                 UpdateButtonText="{Binding Source={x:Reference RootView}, Path=UpdateButtonText}"
