@@ -64,6 +64,9 @@ public partial class TimesheetsViewModel : BaseViewModel
   [ObservableProperty]
   public partial EmployeeTimesheetSummary? SelectedEmployeeTimesheet { get; set; }
 
+  [ObservableProperty]
+  public partial EditableTimesheetEntry? SelectedEditableTimesheet { get; set; }
+
   public bool CanSaveTimesheets => !IsBusy && EditableTimesheets.Any(entry => entry.HasChanges);
 
   partial void OnIsDetailsOpenChanged(bool value)
@@ -80,6 +83,7 @@ public partial class TimesheetsViewModel : BaseViewModel
       DetailsTitle = string.Empty;
       DetailsPrimaryActionText = DefaultDetailsPrimaryActionText;
       SelectedEmployeeTimesheet = null;
+      SelectedEditableTimesheet = null;
     });
   }
 
@@ -326,6 +330,7 @@ public partial class TimesheetsViewModel : BaseViewModel
     }
 
     OnPropertyChanged(nameof(EditableTimesheets));
+    SelectedEditableTimesheet = EditableTimesheets.FirstOrDefault();
     UpdateCanSaveTimesheets();
   }
 
@@ -337,6 +342,7 @@ public partial class TimesheetsViewModel : BaseViewModel
     }
 
     EditableTimesheets.Clear();
+    SelectedEditableTimesheet = null;
     UpdateCanSaveTimesheets();
   }
 

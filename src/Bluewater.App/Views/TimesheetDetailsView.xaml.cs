@@ -21,6 +21,13 @@ public partial class TimesheetDetailsView : ContentView
   public static readonly BindableProperty TimesheetsProperty = BindableProperty.Create(
     nameof(Timesheets), typeof(IEnumerable<EditableTimesheetEntry>), typeof(TimesheetDetailsView), null);
 
+  public static readonly BindableProperty SelectedTimesheetProperty = BindableProperty.Create(
+    nameof(SelectedTimesheet),
+    typeof(EditableTimesheetEntry),
+    typeof(TimesheetDetailsView),
+    defaultValue: null,
+    defaultBindingMode: BindingMode.TwoWay);
+
   public static readonly BindableProperty UpdateCommandProperty = BindableProperty.Create(
     nameof(UpdateCommand), typeof(ICommand), typeof(TimesheetDetailsView));
 
@@ -55,6 +62,12 @@ public partial class TimesheetDetailsView : ContentView
   {
     get => (IEnumerable<EditableTimesheetEntry>?)GetValue(TimesheetsProperty);
     set => SetValue(TimesheetsProperty, value);
+  }
+
+  public EditableTimesheetEntry? SelectedTimesheet
+  {
+    get => (EditableTimesheetEntry?)GetValue(SelectedTimesheetProperty);
+    set => SetValue(SelectedTimesheetProperty, value);
   }
 
   public ICommand? UpdateCommand
