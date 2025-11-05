@@ -3,12 +3,13 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:Bluewater.App.Models"
              xmlns:controls="clr-namespace:Bluewater.App.Views.Controls"
+             xmlns:helper="clr-namespace:Bluewater.App.Helpers"
              x:Class="Bluewater.App.Views.TimesheetDetailsView"
              x:Name="RootView">
     <controls:SlideInEditorView x:Name="EditorView"
                                 Title="{Binding Source={x:Reference RootView}, Path=Title}"
                                 IsOpen="{Binding Source={x:Reference RootView}, Path=IsOpen}"
-                                PanelWidthRatio="0.9"
+                                PanelWidthRatio="0.5"
                                 UpdateCommand="{Binding Source={x:Reference RootView}, Path=UpdateCommand}"
                                 UpdateCommandParameter="{Binding Source={x:Reference RootView}, Path=UpdateCommandParameter}"
                                 UpdateButtonText="{Binding Source={x:Reference RootView}, Path=UpdateButtonText}"
@@ -16,9 +17,82 @@
                                 CloseCommand="{Binding Source={x:Reference RootView}, Path=CloseCommand}"
                                 CloseCommandParameter="{Binding Source={x:Reference RootView}, Path=CloseCommandParameter}">
         <controls:SlideInEditorView.EditorContent>
-            <Grid Padding="0,0,12,24">
-                <CollectionView ItemsSource="{Binding Source={x:Reference RootView}, Path=Timesheets}"
-                                SelectionMode="None">
+            <Grid Padding="10" RowDefinitions="Auto,*">
+                <Border Grid.Row="0"
+                        Stroke="Transparent"
+                        BackgroundColor="{StaticResource TextAccentColor}"
+                        StrokeShape="RoundRectangle 12">
+                    <Grid RowDefinitions="Auto,Auto,Auto,Auto"
+                          Padding="20,10">
+                        <Label Grid.Row="0" 
+                               Text="Edit selected time" />
+                        <HorizontalStackLayout Grid.Row="0" 
+                                               HorizontalOptions="End" 
+                                               Spacing="20" >
+                            <Label Text="Time in 1" />
+                            <TimePicker TranslationY="7" />
+                            <DatePicker />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Grid.Row="1"
+                                               HorizontalOptions="End"
+                                               Spacing="20">
+                            <Label Text="Time out 1" />
+                            <TimePicker TranslationY="7" />
+                            <DatePicker />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Grid.Row="2"
+                                               HorizontalOptions="End"
+                                               Spacing="20">
+                            <Label Text="Time in 2" />
+                            <TimePicker TranslationY="7" />
+                            <DatePicker />
+                        </HorizontalStackLayout>
+                        <HorizontalStackLayout Grid.Row="3"
+                                               HorizontalOptions="End"
+                                               Spacing="20" >
+                            <Label Text="Time out 2" />
+                            <TimePicker TranslationY="7" />
+                            <DatePicker />
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+                <CollectionView x:Name="timeCollection"
+                                Grid.Row="1"
+                                ItemsSource="{Binding Source={x:Reference RootView}, Path=Timesheets}"
+                                SelectionMode="Single">
+                    <CollectionView.Header>
+                        <Border StrokeShape="RoundRectangle 10 10 0 0"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                            <Grid ColumnSpacing="12"
+                                  Padding="20"
+                                  ColumnDefinitions="*,*,*,*,*">
+                                <Label Text="Date"
+                                       TextColor="White"
+                                       HorizontalTextAlignment="Center"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="1"
+                                       Text="Time in 1"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="2"
+                                       Text="Time out 1"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="3"
+                                       Text="Time in 2"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="4"
+                                       Text="Time out 2"
+                                       HorizontalTextAlignment="Center"
+                                       TextColor="White"
+                                       FontAttributes="Bold" />                                
+                            </Grid>
+                        </Border>
+                    </CollectionView.Header>
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:EditableTimesheetEntry">
                             <Border StrokeThickness="1"
@@ -26,25 +100,23 @@
                                     BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
                                     Padding="16,12"
                                     StrokeShape="RoundRectangle 12">
-                                <HorizontalStackLayout Spacing="6"
-                                                        VerticalOptions="Center">
-                                    <Label Text="{Binding EntryDateDateTime}"
-                                           HorizontalOptions="Fill"
-                                            VerticalTextAlignment="Center" />
-                                    <TimePicker Time="{Binding TimeIn1, Mode=TwoWay}"
-                                                Format="t"
-                                                TranslationY="7" />
-                                    <TimePicker Time="{Binding TimeOut1, Mode=TwoWay}"
-                                                Format="t"
-                                                TranslationY="7" />
-                                    <TimePicker Time="{Binding TimeIn2}"
-                                                Format="t"
-                                                TranslationY="7" />
-                                    <TimePicker Time="{Binding TimeOut2}"
-                                                Format="t"
-                                                TranslationY="7" />
-                                </HorizontalStackLayout>
-
+                                <Grid ColumnDefinitions="*,*,*,*,*">
+                                    <Label Grid.Column="0"
+                                           HorizontalTextAlignment="Center"
+                                           Text="{Binding EntryDate, StringFormat='{0: MMM dd yyyy (ddd)}'}" />
+                                    <Label Grid.Column="1"
+                                           HorizontalTextAlignment="Center"
+                                           Text="{Binding TimeIn1, StringFormat='{}{0:HH:mm ttt}'}" />
+                                    <Label Grid.Column="2"
+                                           HorizontalTextAlignment="Center"
+                                           Text="{Binding TimeOut1, StringFormat='{}{0:HH:mm ttt}'}" />
+                                    <Label Grid.Column="3"
+                                           HorizontalTextAlignment="Center"
+                                           Text="{Binding TimeIn2, StringFormat='{}{0:HH:mm ttt}'}" />
+                                    <Label Grid.Column="4"
+                                           HorizontalTextAlignment="Center"
+                                           Text="{Binding TimeOut2, StringFormat='{}{0:HH:mm ttt}'}" />
+                                </Grid>
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>
