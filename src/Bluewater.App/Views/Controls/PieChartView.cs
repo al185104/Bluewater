@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bluewater.App.ViewModels;
@@ -80,7 +80,9 @@ public class PieChartView : GraphicsView
 
         float sweep = (float)(value / total * 360d);
         canvas.FillColor = segment.Color.WithAlpha(0.85f);
-        canvas.FillPie(pieRect.X, pieRect.Y, pieRect.Width, pieRect.Height, startAngle, sweep);
+        canvas.FillCircle(sweep, startAngle, startAngle);
+        //canvas.FillArc(sweep, startAngle, startAngle, startAngle, startAngle);
+        //canvas.FillPie(pieRect.X, pieRect.Y, pieRect.Width, pieRect.Height, startAngle, sweep);
         startAngle += sweep;
       }
 

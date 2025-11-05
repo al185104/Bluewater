@@ -8,7 +8,7 @@
     <controls:SlideInEditorView x:Name="EditorView"
                                 Title="{Binding Source={x:Reference RootView}, Path=Title}"
                                 IsOpen="{Binding Source={x:Reference RootView}, Path=IsOpen}"
-                                PanelWidthRatio="0.6667"
+                                PanelWidthRatio="0.9"
                                 UpdateCommand="{Binding Source={x:Reference RootView}, Path=UpdateCommand}"
                                 UpdateCommandParameter="{Binding Source={x:Reference RootView}, Path=UpdateCommandParameter}"
                                 UpdateButtonText="{Binding Source={x:Reference RootView}, Path=UpdateButtonText}"
@@ -26,51 +26,25 @@
                                     BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
                                     Padding="16,12"
                                     StrokeShape="RoundRectangle 12">
-                                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto"
-                                      ColumnDefinitions="*,1.5*"
-                                      RowSpacing="5"
-                                      ColumnSpacing="20">
-                                    <HorizontalStackLayout Margin="0,0,0,10"
-                                                           Spacing="10">
-                                        <Label Text="Entry Date"
-                                               VerticalOptions="Center"
-                                               FontAttributes="Bold" />
-                                        <DatePicker Grid.Column="1"
-                                                    Date="{Binding EntryDateDateTime}" />
-                                    </HorizontalStackLayout>
-                                    <Label Text="Time In 1 :"
-                                           Grid.Row="1"
-                                           HorizontalOptions="End"
-                                           VerticalOptions="Start" />
-                                    <TimePicker Time="{Binding TimeIn1Time}"
-                                                Grid.Row="1"
-                                                Grid.Column="1"
-                                                Format="HH:mm" />
-                                    <Label Text="Time Out 1 :"
-                                           Grid.Row="2"
-                                           HorizontalOptions="End"
-                                           VerticalOptions="Start" />
-                                    <TimePicker Time="{Binding TimeOut1Time}"
-                                                Grid.Row="2"
-                                                Grid.Column="1"
-                                                Format="HH:mm" />
-                                    <Label Text="Time In 2 :"
-                                           Grid.Row="3"
-                                           HorizontalOptions="End"
-                                           VerticalOptions="Start" />
-                                    <TimePicker Time="{Binding TimeIn2Time}"
-                                                Grid.Row="3"
-                                                Grid.Column="1"
-                                                Format="HH:mm" />
-                                    <Label Text="Time Out 2 :"
-                                           Grid.Row="4"
-                                           HorizontalOptions="End"
-                                           VerticalOptions="Start" />
-                                    <TimePicker Time="{Binding TimeOut2Time}"
-                                                Grid.Row="4"
-                                                Grid.Column="1"
-                                                Format="HH:mm" />
-                                </Grid>
+                                <HorizontalStackLayout Spacing="6"
+                                                        VerticalOptions="Center">
+                                    <Label Text="{Binding EntryDateDateTime}"
+                                           HorizontalOptions="Fill"
+                                            VerticalTextAlignment="Center" />
+                                    <TimePicker Time="{Binding TimeIn1, Mode=TwoWay}"
+                                                Format="t"
+                                                TranslationY="7" />
+                                    <TimePicker Time="{Binding TimeOut1, Mode=TwoWay}"
+                                                Format="t"
+                                                TranslationY="7" />
+                                    <TimePicker Time="{Binding TimeIn2}"
+                                                Format="t"
+                                                TranslationY="7" />
+                                    <TimePicker Time="{Binding TimeOut2}"
+                                                Format="t"
+                                                TranslationY="7" />
+                                </HorizontalStackLayout>
+
                             </Border>
                         </DataTemplate>
                     </CollectionView.ItemTemplate>

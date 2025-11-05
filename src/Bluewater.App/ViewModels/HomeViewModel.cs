@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -49,7 +49,7 @@ public partial class HomeViewModel : BaseViewModel
   public ObservableCollection<DashboardLeaderboardEntry> PerfectAttendanceLeaders { get; } = new();
 
   [ObservableProperty]
-  private DateTime? dashboardGeneratedAtUtc;
+  public partial DateTime? DashboardGeneratedAtUtc { get; set; }
 
   public string LastUpdatedDisplay => DashboardGeneratedAtUtc.HasValue
     ? DashboardGeneratedAtUtc.Value.ToLocalTime().ToString("MMM d, yyyy h:mm tt")
@@ -99,14 +99,17 @@ public partial class HomeViewModel : BaseViewModel
 
   private void UpdateCollections(HomeDashboardSummary? dashboard)
   {
-    UpdateSegments(AttendanceSummarySegments, dashboard?.AttendanceSummary);
-    UpdateTrend(WeeklyAttendanceTrend, dashboard?.WeeklyAttendanceTrend);
-    UpdateSegments(LeaveDistributionSegments, dashboard?.LeaveDistribution);
-    UpdateTrend(MonthlyAbsenceTrend, dashboard?.MonthlyAbsenceTrend);
-    UpdateLeaders(PerfectAttendanceLeaders, dashboard?.PerfectAttendanceLeaders);
+    MainThread.BeginInvokeOnMainThread(() =>
+    {
+      UpdateSegments(AttendanceSummarySegments, dashboard?.AttendanceSummary);
+      UpdateTrend(WeeklyAttendanceTrend, dashboard?.WeeklyAttendanceTrend);
+      UpdateSegments(LeaveDistributionSegments, dashboard?.LeaveDistribution);
+      UpdateTrend(MonthlyAbsenceTrend, dashboard?.MonthlyAbsenceTrend);
+      UpdateLeaders(PerfectAttendanceLeaders, dashboard?.PerfectAttendanceLeaders);
+    });
   }
 
-  private static void UpdateSegments(
+  private void UpdateSegments(
     ObservableCollection<DashboardChartSegment> target,
     IEnumerable<ChartSegmentSummary>? source)
   {
@@ -146,7 +149,7 @@ public partial class HomeViewModel : BaseViewModel
     }
   }
 
-  private static void UpdateTrend(
+  private void UpdateTrend(
     ObservableCollection<DashboardTrendPoint> target,
     IEnumerable<TrendPointSummary>? source)
   {
@@ -167,7 +170,7 @@ public partial class HomeViewModel : BaseViewModel
     }
   }
 
-  private static void UpdateLeaders(
+  private void UpdateLeaders(
     ObservableCollection<DashboardLeaderboardEntry> target,
     IEnumerable<PerfectAttendanceLeaderboardEntry>? source)
   {

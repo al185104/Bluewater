@@ -130,14 +130,16 @@ public partial class TimesheetsViewModel : BaseViewModel
       return;
     }
 
-    await MainThread.InvokeOnMainThreadAsync(() =>
-    {
+    //await MainThread.InvokeOnMainThreadAsync(() =>
+    //{
+    MainThread.BeginInvokeOnMainThread(() => { 
       SelectedEmployeeTimesheet = summary;
       DetailsTitle = $"Edit Timesheet - {summary.Name}";
       DetailsPrimaryActionText = DefaultDetailsPrimaryActionText;
       LoadEditableTimesheets(summary);
       IsDetailsOpen = true;
-    }).ConfigureAwait(false);
+    });
+    //}).ConfigureAwait(false);
 
     await TraceCommandAsync(nameof(EditTimesheetAsync), summary.EmployeeId).ConfigureAwait(false);
   }
@@ -323,6 +325,7 @@ public partial class TimesheetsViewModel : BaseViewModel
       EditableTimesheets.Add(entry);
     }
 
+    OnPropertyChanged(nameof(EditableTimesheets));
     UpdateCanSaveTimesheets();
   }
 

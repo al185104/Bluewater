@@ -1,5 +1,6 @@
 ﻿using System;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Windows.UI.WebUI;
 
 namespace Bluewater.App.Models;
 
@@ -263,10 +264,10 @@ public partial class EditableTimesheetEntry : ObservableObject
       Id = summary.Id,
       EmployeeId = summary.EmployeeId,
       EntryDate = summary.EntryDate,
-      TimeIn1 = summary.TimeIn1,
-      TimeOut1 = summary.TimeOut1,
-      TimeIn2 = summary.TimeIn2,
-      TimeOut2 = summary.TimeOut2,
+      TimeIn1 = new DateTime(summary.TimeIn1Date.Year, summary.TimeIn1Date.Month, summary.TimeIn1Date.Day, summary.TimeIn1Time.Hours, summary.TimeIn1Time.Minutes, summary.TimeIn1Time.Seconds),
+      TimeOut1 = new DateTime(summary.TimeOut1Date.Year, summary.TimeOut1Date.Month, summary.TimeOut1Date.Day, summary.TimeOut1Time.Hours, summary.TimeOut1Time.Minutes, summary.TimeOut1Time.Seconds),
+      TimeIn2 = new DateTime(summary.TimeIn2Date.Year, summary.TimeIn2Date.Month, summary.TimeIn2Date.Day, summary.TimeIn2Time.Hours, summary.TimeIn2Time.Minutes, summary.TimeIn2Time.Seconds),
+      TimeOut2 = new DateTime(summary.TimeOut2Date.Year, summary.TimeOut2Date.Month, summary.TimeOut2Date.Day, summary.TimeOut2Time.Hours, summary.TimeOut2Time.Minutes, summary.TimeOut2Time.Seconds),
       IsEdited = summary.IsEdited,
       IsLocked = false
     };

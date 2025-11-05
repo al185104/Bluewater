@@ -86,7 +86,7 @@
                                 BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
                             <Grid ColumnSpacing="12"
                                   Padding="20,14"
-                                  ColumnDefinitions="2*,1.2*,1*,1*,1*,1*,1*,Auto">
+                                  ColumnDefinitions="2*,1.2*,1*,1*,1*,1*,1*,1*,Auto">
                                 <Label Text="Employee"
                                        TextColor="White"
                                        FontAttributes="Bold" />
@@ -131,7 +131,7 @@
                         <DataTemplate x:DataType="models:EmployeeAttendanceSummary">
                             <Border Style="{StaticResource AttendanceRowBorderStyle}">
                                 <Grid ColumnSpacing="12"
-                                      ColumnDefinitions="2*,1.2*,1*,1*,1*,1*,1*,Auto"
+                                      ColumnDefinitions="2*,1.2*,1*,1*,1*,1*,1*,1*,Auto"
                                       VerticalOptions="Center">
                                     <VerticalStackLayout Spacing="4">
                                         <Label Text="{Binding Name}"

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
@@ -12,7 +8,7 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace Bluewater.App.ViewModels;
 
-[SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "CommunityToolkit.Mvvm RelayCommand attributes are platform-agnostic in .NET MAUI view models.")]
+//[SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "CommunityToolkit.Mvvm RelayCommand attributes are platform-agnostic in .NET MAUI view models.")]
 public partial class SettingViewModel : BaseViewModel
 {
   private readonly IDivisionApiService _divisionApiService;
@@ -67,6 +63,8 @@ public partial class SettingViewModel : BaseViewModel
     _timesheetApiService = timesheetApiService;
     _scheduleApiService = scheduleApiService;
     _shiftApiService = shiftApiService;
+
+    EditorTitle = "Title";
   }
 
   [RelayCommand]
@@ -360,7 +358,7 @@ public partial class SettingViewModel : BaseViewModel
       var random = new Random();
 
       await GenerateRandomTimesheetsAsync(employees, startDate, endDate, random).ConfigureAwait(false);
-      await GenerateRandomScheduleAsync(employees, startDate, endDate, random).ConfigureAwait(false);
+      //await GenerateRandomScheduleAsync(employees, startDate, endDate, random).ConfigureAwait(false);
     }
     catch (Exception ex)
     {

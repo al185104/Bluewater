@@ -84,6 +84,11 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
         //attendance.CalculateWorkHours();
         attendance.CalculateWorkHours();
 
+        if(attendance.Timesheet == null || attendance.Timesheet.Id == Guid.Empty)
+        {
+          continue;
+        }
+
         results.Add(new AttendanceDTO(attendance.Id, emp.Id, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, attendance.WorkHrs, attendance.LateHrs, attendance.UnderHrs, attendance.OverbreakHrs, attendance.NightShiftHours, attendance.IsLocked, 
         new ShiftDTO(attendance.Shift.Id, attendance.Shift.Name, attendance.Shift.ShiftStartTime, attendance.Shift.ShiftBreakTime, attendance.Shift.ShiftBreakEndTime, attendance.Shift.ShiftEndTime, attendance.Shift.BreakHours), 
         new TimesheetDTO(attendance.Timesheet?.Id ?? Guid.Empty, emp.Id, attendance.Timesheet?.TimeIn1, attendance.Timesheet?.TimeOut1, attendance.Timesheet?.TimeIn2, attendance.Timesheet?.TimeOut2, attendance.Timesheet?.EntryDate, attendance.Timesheet?.IsEdited ?? false)));
