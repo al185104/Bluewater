@@ -22,44 +22,53 @@
                         Stroke="Transparent"
                         BackgroundColor="{StaticResource TextAccentColor}"
                         StrokeShape="RoundRectangle 12">
+                    <Border.BindingContext>
+                        <Binding Source="{x:Reference RootView}"
+                                 Path="SelectedTimesheet" />
+                    </Border.BindingContext>
                     <Grid RowDefinitions="Auto,Auto,Auto,Auto"
                           Padding="20,10">
-                        <Label Grid.Row="0" 
+                        <Label Grid.Row="0"
                                Text="Edit selected time" />
-                        <HorizontalStackLayout Grid.Row="0" 
-                                               HorizontalOptions="End" 
+                        <HorizontalStackLayout Grid.Row="0"
+                                               HorizontalOptions="End"
                                                Spacing="20" >
                             <Label Text="Time in 1" />
-                            <TimePicker TranslationY="7" />
-                            <DatePicker />
+                            <TimePicker TranslationY="7"
+                                        Time="{Binding TimeIn1Time}" />
+                            <DatePicker Date="{Binding EntryDateDateTime}" />
                         </HorizontalStackLayout>
                         <HorizontalStackLayout Grid.Row="1"
                                                HorizontalOptions="End"
                                                Spacing="20">
                             <Label Text="Time out 1" />
-                            <TimePicker TranslationY="7" />
-                            <DatePicker />
+                            <TimePicker TranslationY="7"
+                                        Time="{Binding TimeOut1Time}" />
+                            <DatePicker Date="{Binding EntryDateDateTime}" />
                         </HorizontalStackLayout>
                         <HorizontalStackLayout Grid.Row="2"
                                                HorizontalOptions="End"
                                                Spacing="20">
                             <Label Text="Time in 2" />
-                            <TimePicker TranslationY="7" />
-                            <DatePicker />
+                            <TimePicker TranslationY="7"
+                                        Time="{Binding TimeIn2Time}" />
+                            <DatePicker Date="{Binding EntryDateDateTime}" />
                         </HorizontalStackLayout>
                         <HorizontalStackLayout Grid.Row="3"
                                                HorizontalOptions="End"
                                                Spacing="20" >
                             <Label Text="Time out 2" />
-                            <TimePicker TranslationY="7" />
-                            <DatePicker />
+                            <TimePicker TranslationY="7"
+                                        Time="{Binding TimeOut2Time}" />
+                            <DatePicker Date="{Binding EntryDateDateTime}" />
                         </HorizontalStackLayout>
                     </Grid>
                 </Border>
                 <CollectionView x:Name="timeCollection"
                                 Grid.Row="1"
                                 ItemsSource="{Binding Source={x:Reference RootView}, Path=Timesheets}"
-                                SelectionMode="Single">
+                                SelectionMode="Single"
+                                SelectedItem="{Binding Source={x:Reference RootView}, Path=SelectedTimesheet, Mode=TwoWay}">
                     <CollectionView.Header>
                         <Border StrokeShape="RoundRectangle 10 10 0 0"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">

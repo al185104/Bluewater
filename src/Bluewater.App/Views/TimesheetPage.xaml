@@ -203,6 +203,7 @@
                                        IsOpen="{Binding IsDetailsOpen}"
                                        Title="{Binding DetailsTitle}"
                                        Timesheets="{Binding EditableTimesheets}"
+                                       SelectedTimesheet="{Binding SelectedEditableTimesheet}"
                                        UpdateCommand="{Binding SaveTimesheetsCommand}"
                                        UpdateButtonText="{Binding DetailsPrimaryActionText}"
                                        IsUpdateEnabled="{Binding CanSaveTimesheets}"
