@@ -234,10 +234,14 @@
                                        Title="{Binding DetailsTitle}"
                                        Summary="{Binding SelectedEmployeeAttendance}"
                                        Attendances="{Binding DisplayAttendances}"
-                                       UpdateCommand="{Binding CloseAttendanceDetailsCommand}"
-                                       UpdateCommandParameter="{Binding SelectedEmployeeAttendance}"
+                                       SelectedAttendance="{Binding SelectedAttendance}"
+                                       ShiftOptions="{Binding ShiftOptions}"
+                                       SelectedShift="{Binding SelectedShift}"
+                                       EditableTimesheet="{Binding EditableTimesheet}"
+                                       UpdateCommand="{Binding SaveAttendanceChangesCommand}"
+                                       UpdateCommandParameter="{Binding SelectedAttendance}"
                                        UpdateButtonText="{Binding DetailsPrimaryActionText}"
-                                       IsUpdateEnabled="True"
+                                       IsUpdateEnabled="{Binding CanSaveAttendanceChanges}"
                                        CloseCommand="{Binding CloseAttendanceDetailsCommand}"
                                        CloseCommandParameter="{Binding SelectedEmployeeAttendance}" />
     </Grid>

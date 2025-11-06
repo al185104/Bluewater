@@ -73,8 +73,244 @@
                                Text="{Binding Charging}" />
                     </Grid>
                 </Border>
+                <Border Stroke="Transparent"
+                        IsVisible="False"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="20">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border"
+                                     Binding="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=SelectedAttendance}"
+                                     Value="{x:Null}">
+                            <Setter Property="IsVisible"
+                                    Value="True" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Label Text="Select an attendance entry to view details."
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                </Border>
+                <Border Stroke="Transparent"
+                        IsVisible="False"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="20">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border"
+                                     Binding="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=SelectedAttendance.Id}"
+                                     Value="00000000-0000-0000-0000-000000000000">
+                            <Setter Property="IsVisible"
+                                    Value="True" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border"
+                                     Binding="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=SelectedAttendance}"
+                                     Value="{x:Null}">
+                            <Setter Property="IsVisible"
+                                    Value="False" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="No attendance record exists for the selected date."
+                               FontAttributes="Bold"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="Choose another entry to edit shift and timesheet details."
+                               HorizontalTextAlignment="Center"
+                               FontSize="12" />
+                    </VerticalStackLayout>
+                </Border>
+                <Border Stroke="Transparent"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                        StrokeShape="RoundRectangle 12"
+                        Padding="20">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border"
+                                     Binding="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=SelectedAttendance}"
+                                     Value="{x:Null}">
+                            <Setter Property="IsVisible"
+                                    Value="False" />
+                        </DataTrigger>
+                        <DataTrigger TargetType="Border"
+                                     Binding="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=SelectedAttendance.Id}"
+                                     Value="00000000-0000-0000-0000-000000000000">
+                            <Setter Property="IsVisible"
+                                    Value="False" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <VerticalStackLayout Spacing="20">
+                        <Grid RowDefinitions="Auto,Auto"
+                              ColumnDefinitions="Auto,*"
+                              ColumnSpacing="16"
+                              RowSpacing="12">
+                            <Label Grid.Row="0"
+                                   Grid.Column="0"
+                                   Text="Date"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource TextSecondaryColor}" />
+                            <Label Grid.Row="0"
+                                   Grid.Column="1"
+                                   Text="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=SelectedAttendance.EntryDate, StringFormat='{}{0:MMM dd yyyy (ddd)}'}" />
+                            <Label Grid.Row="1"
+                                   Grid.Column="0"
+                                   Text="Shift"
+                                   FontAttributes="Bold"
+                                   TextColor="{StaticResource TextSecondaryColor}" />
+                            <Picker Grid.Row="1"
+                                    Grid.Column="1"
+                                    Title="Select shift"
+                                    ItemsSource="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=ShiftOptions}"
+                                    ItemDisplayBinding="{Binding Name}"
+                                    SelectedItem="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=SelectedShift, Mode=TwoWay}" />
+                        </Grid>
+                        <Button Text="Clear shift selection"
+                                SemanticProperties.Hint="Remove the assigned shift"
+                                Clicked="OnClearShiftClicked">
+                            <Button.Triggers>
+                                <DataTrigger TargetType="Button"
+                                             Binding="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=SelectedShift}"
+                                             Value="{x:Null}">
+                                    <Setter Property="IsVisible"
+                                            Value="False" />
+                                </DataTrigger>
+                            </Button.Triggers>
+                        </Button>
+                        <Border Stroke="Transparent"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource TextAccentColor}, Dark=#1F1F1F}"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="16">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=EditableTimesheet}"
+                                             Value="{x:Null}">
+                                    <Setter Property="IsVisible"
+                                            Value="False" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <Border.BindingContext>
+                                <Binding Source="{x:Reference AttendanceDetailViewRoot}"
+                                         Path="EditableTimesheet" />
+                            </Border.BindingContext>
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto"
+                                  RowSpacing="12">
+                                <Label Grid.Row="0"
+                                       Text="Timesheet Details"
+                                       FontAttributes="Bold" />
+                                <Grid Grid.Row="1"
+                                      ColumnDefinitions="Auto,*"
+                                      ColumnSpacing="12">
+                                    <Label Text="Entry Date"
+                                           VerticalOptions="Center" />
+                                    <DatePicker Grid.Column="1"
+                                                Date="{Binding EntryDateDateTime, Mode=TwoWay}" />
+                                </Grid>
+                                <Grid Grid.Row="2"
+                                      ColumnDefinitions="Auto,Auto,*,Auto"
+                                      ColumnSpacing="12">
+                                    <CheckBox VerticalOptions="Center"
+                                              IsChecked="{Binding HasTimeIn1}" />
+                                    <Label Grid.Column="1"
+                                           Text="Time in 1"
+                                           VerticalOptions="Center" />
+                                    <TimePicker Grid.Column="2"
+                                                Time="{Binding TimeIn1Time, Mode=TwoWay}"
+                                                IsEnabled="{Binding HasTimeIn1}" />
+                                    <DatePicker Grid.Column="3"
+                                                Date="{Binding EntryDateDateTime, Mode=TwoWay}"
+                                                IsEnabled="{Binding HasTimeIn1}" />
+                                </Grid>
+                                <Grid Grid.Row="3"
+                                      ColumnDefinitions="Auto,Auto,*,Auto"
+                                      ColumnSpacing="12">
+                                    <CheckBox VerticalOptions="Center"
+                                              IsChecked="{Binding HasTimeOut1}" />
+                                    <Label Grid.Column="1"
+                                           Text="Time out 1"
+                                           VerticalOptions="Center" />
+                                    <TimePicker Grid.Column="2"
+                                                Time="{Binding TimeOut1Time, Mode=TwoWay}"
+                                                IsEnabled="{Binding HasTimeOut1}" />
+                                    <DatePicker Grid.Column="3"
+                                                Date="{Binding EntryDateDateTime, Mode=TwoWay}"
+                                                IsEnabled="{Binding HasTimeOut1}" />
+                                </Grid>
+                                <Grid Grid.Row="4"
+                                      ColumnDefinitions="Auto,Auto,*,Auto"
+                                      ColumnSpacing="12">
+                                    <CheckBox VerticalOptions="Center"
+                                              IsChecked="{Binding HasTimeIn2}" />
+                                    <Label Grid.Column="1"
+                                           Text="Time in 2"
+                                           VerticalOptions="Center" />
+                                    <TimePicker Grid.Column="2"
+                                                Time="{Binding TimeIn2Time, Mode=TwoWay}"
+                                                IsEnabled="{Binding HasTimeIn2}" />
+                                    <DatePicker Grid.Column="3"
+                                                Date="{Binding EntryDateDateTime, Mode=TwoWay}"
+                                                IsEnabled="{Binding HasTimeIn2}" />
+                                </Grid>
+                                <Grid Grid.Row="5"
+                                      ColumnDefinitions="Auto,Auto,*,Auto"
+                                      ColumnSpacing="12">
+                                    <CheckBox VerticalOptions="Center"
+                                              IsChecked="{Binding HasTimeOut2}" />
+                                    <Label Grid.Column="1"
+                                           Text="Time out 2"
+                                           VerticalOptions="Center" />
+                                    <TimePicker Grid.Column="2"
+                                                Time="{Binding TimeOut2Time, Mode=TwoWay}"
+                                                IsEnabled="{Binding HasTimeOut2}" />
+                                    <DatePicker Grid.Column="3"
+                                                Date="{Binding EntryDateDateTime, Mode=TwoWay}"
+                                                IsEnabled="{Binding HasTimeOut2}" />
+                                </Grid>
+                                <Grid Grid.Row="6"
+                                      ColumnDefinitions="Auto,Auto"
+                                      ColumnSpacing="12">
+                                    <Label Text="Locked"
+                                           VerticalOptions="Center" />
+                                    <Switch Grid.Column="1"
+                                            IsToggled="{Binding IsLocked}" />
+                                </Grid>
+                            </Grid>
+                        </Border>
+                        <Border Stroke="Transparent"
+                                BackgroundColor="{AppThemeBinding Light={StaticResource TextAccentColor}, Dark=#1F1F1F}"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="16"
+                                IsVisible="False">
+                            <Border.Triggers>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=EditableTimesheet}"
+                                             Value="{x:Null}">
+                                    <Setter Property="IsVisible"
+                                            Value="True" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=SelectedAttendance.Id}"
+                                             Value="00000000-0000-0000-0000-000000000000">
+                                    <Setter Property="IsVisible"
+                                            Value="False" />
+                                </DataTrigger>
+                                <DataTrigger TargetType="Border"
+                                             Binding="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=SelectedAttendance}"
+                                             Value="{x:Null}">
+                                    <Setter Property="IsVisible"
+                                            Value="False" />
+                                </DataTrigger>
+                            </Border.Triggers>
+                            <VerticalStackLayout Spacing="8">
+                                <Label Text="No timesheet information available for this attendance."
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center" />
+                                <Label Text="Update the linked timesheet separately if one should be associated."
+                                       HorizontalTextAlignment="Center"
+                                       FontSize="12" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </VerticalStackLayout>
+                </Border>
                 <CollectionView ItemsSource="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=Attendances}"
-                                SelectionMode="None">
+                                SelectionMode="Single"
+                                SelectedItem="{Binding Source={x:Reference AttendanceDetailViewRoot}, Path=SelectedAttendance, Mode=TwoWay}">
                     <CollectionView.Header>
                         <Border StrokeShape="RoundRectangle 10 10 0 0"
                                 BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
@@ -121,6 +357,19 @@
                     <CollectionView.ItemTemplate>
                         <DataTemplate x:DataType="models:AttendanceSummary">
                             <Border Style="{StaticResource AttendanceDetailRowStyle}">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup Name="SelectionStates">
+                                        <VisualState Name="Normal" />
+                                        <VisualState Name="Selected">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor"
+                                                        Value="{AppThemeBinding Light=#DBEAFE, Dark=#1E3A5F}" />
+                                                <Setter Property="Stroke"
+                                                        Value="{AppThemeBinding Light=#2563EB, Dark=#60A5FA}" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
                                 <Grid ColumnSpacing="12"
                                       ColumnDefinitions="1.5*,1*,1*,1*,1*,1*,Auto"
                                       VerticalOptions="Center">
