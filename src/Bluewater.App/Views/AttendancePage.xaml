@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:models="clr-namespace:Bluewater.App.Models"
              xmlns:converters="clr-namespace:Bluewater.App.Converters"
+             xmlns:appViews="clr-namespace:Bluewater.App.Views"
              x:Class="Bluewater.App.Views.AttendancePage"
              x:Name="AttendancePageRoot"
              Title="Attendances">
@@ -200,7 +201,8 @@
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             HorizontalOptions="End"
                                             VerticalOptions="Center"
-                                            Clicked="OnEditAttendanceClicked" />
+                                            Command="{Binding Source={x:Reference AttendancePageRoot}, Path=BindingContext.EditAttendanceCommand}"
+                                            CommandParameter="{Binding .}" />
                                 </Grid>
                             </Border>
                         </DataTemplate>
@@ -225,5 +227,18 @@
                                    VerticalOptions="Center" />
             </Grid>
         </Grid>
+        <appViews:AttendanceDetailView HorizontalOptions="Fill"
+                                       VerticalOptions="Fill"
+                                       IsVisible="{Binding IsDetailsOpen}"
+                                       IsOpen="{Binding IsDetailsOpen}"
+                                       Title="{Binding DetailsTitle}"
+                                       Summary="{Binding SelectedEmployeeAttendance}"
+                                       Attendances="{Binding DisplayAttendances}"
+                                       UpdateCommand="{Binding CloseAttendanceDetailsCommand}"
+                                       UpdateCommandParameter="{Binding SelectedEmployeeAttendance}"
+                                       UpdateButtonText="{Binding DetailsPrimaryActionText}"
+                                       IsUpdateEnabled="True"
+                                       CloseCommand="{Binding CloseAttendanceDetailsCommand}"
+                                       CloseCommandParameter="{Binding SelectedEmployeeAttendance}" />
     </Grid>
 </ContentPage>
