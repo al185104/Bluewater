@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 using Bluewater.App.Models;
@@ -23,6 +24,33 @@ public partial class AttendanceDetailView : ContentView
 
   public static readonly BindableProperty AttendancesProperty = BindableProperty.Create(
     nameof(Attendances), typeof(IEnumerable<AttendanceSummary>), typeof(AttendanceDetailView), null);
+
+  public static readonly BindableProperty SelectedAttendanceProperty = BindableProperty.Create(
+    nameof(SelectedAttendance),
+    typeof(AttendanceSummary),
+    typeof(AttendanceDetailView),
+    null,
+    BindingMode.TwoWay);
+
+  public static readonly BindableProperty ShiftOptionsProperty = BindableProperty.Create(
+    nameof(ShiftOptions),
+    typeof(IEnumerable<ShiftSummary>),
+    typeof(AttendanceDetailView),
+    null);
+
+  public static readonly BindableProperty SelectedShiftProperty = BindableProperty.Create(
+    nameof(SelectedShift),
+    typeof(ShiftSummary),
+    typeof(AttendanceDetailView),
+    null,
+    BindingMode.TwoWay);
+
+  public static readonly BindableProperty EditableTimesheetProperty = BindableProperty.Create(
+    nameof(EditableTimesheet),
+    typeof(EditableTimesheetEntry),
+    typeof(AttendanceDetailView),
+    null,
+    BindingMode.TwoWay);
 
   public static readonly BindableProperty UpdateCommandProperty = BindableProperty.Create(
     nameof(UpdateCommand), typeof(ICommand), typeof(AttendanceDetailView));
@@ -66,6 +94,30 @@ public partial class AttendanceDetailView : ContentView
     set => SetValue(AttendancesProperty, value);
   }
 
+  public AttendanceSummary? SelectedAttendance
+  {
+    get => (AttendanceSummary?)GetValue(SelectedAttendanceProperty);
+    set => SetValue(SelectedAttendanceProperty, value);
+  }
+
+  public IEnumerable<ShiftSummary>? ShiftOptions
+  {
+    get => (IEnumerable<ShiftSummary>?)GetValue(ShiftOptionsProperty);
+    set => SetValue(ShiftOptionsProperty, value);
+  }
+
+  public ShiftSummary? SelectedShift
+  {
+    get => (ShiftSummary?)GetValue(SelectedShiftProperty);
+    set => SetValue(SelectedShiftProperty, value);
+  }
+
+  public EditableTimesheetEntry? EditableTimesheet
+  {
+    get => (EditableTimesheetEntry?)GetValue(EditableTimesheetProperty);
+    set => SetValue(EditableTimesheetProperty, value);
+  }
+
   public ICommand? UpdateCommand
   {
     get => (ICommand?)GetValue(UpdateCommandProperty);
@@ -100,5 +152,10 @@ public partial class AttendanceDetailView : ContentView
   {
     get => GetValue(CloseCommandParameterProperty);
     set => SetValue(CloseCommandParameterProperty, value);
+  }
+
+  private void OnClearShiftClicked(object? sender, EventArgs e)
+  {
+    SelectedShift = null;
   }
 }
