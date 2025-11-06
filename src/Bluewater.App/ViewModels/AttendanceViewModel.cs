@@ -14,6 +14,8 @@ namespace Bluewater.App.ViewModels;
 
 public partial class AttendanceViewModel : BaseViewModel
 {
+  private const string DefaultDetailsPrimaryActionText = "Close";
+
   private readonly IAttendanceApiService attendanceApiService;
   private readonly IReferenceDataService referenceDataService;
   private bool hasInitialized;
@@ -28,12 +30,12 @@ public partial class AttendanceViewModel : BaseViewModel
   {
     this.attendanceApiService = attendanceApiService;
     this.referenceDataService = referenceDataService;
-    StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-7));
-    EndDate = DateOnly.FromDateTime(DateTime.Today);
+    SetCurrentPayslipPeriod();
   }
 
   public ObservableCollection<ChargingSummary> Chargings { get; } = new();
   public ObservableCollection<EmployeeAttendanceSummary> EmployeeAttendances { get; } = new();
+  public ObservableCollection<AttendanceSummary> DisplayAttendances { get; } = new();
   public IReadOnlyList<TenantDto> TenantOptions { get; } = Array.AsReadOnly(Enum.GetValues<TenantDto>());
 
   [ObservableProperty]
@@ -48,6 +50,18 @@ public partial class AttendanceViewModel : BaseViewModel
   [ObservableProperty]
   public partial TenantDto SelectedTenant { get; set; } = TenantDto.Maribago;
 
+  [ObservableProperty]
+  public partial bool IsDetailsOpen { get; set; }
+
+  [ObservableProperty]
+  public partial string DetailsTitle { get; set; } = string.Empty;
+
+  [ObservableProperty]
+  public partial string DetailsPrimaryActionText { get; set; } = DefaultDetailsPrimaryActionText;
+
+  [ObservableProperty]
+  public partial EmployeeAttendanceSummary? SelectedEmployeeAttendance { get; set; }
+
   partial void OnSelectedChargingChanged(ChargingSummary? value)
   {
     if (suppressSelectedChargingChanged)
@@ -57,7 +71,11 @@ public partial class AttendanceViewModel : BaseViewModel
 
     if (value is null)
     {
-      MainThread.BeginInvokeOnMainThread(ClearEmployeeAttendances);
+      MainThread.BeginInvokeOnMainThread(() =>
+      {
+        IsDetailsOpen = false;
+        ClearEmployeeAttendances();
+      });
       return;
     }
 
@@ -72,6 +90,32 @@ public partial class AttendanceViewModel : BaseViewModel
     }
 
     _ = MainThread.InvokeOnMainThreadAsync(LoadAttendanceSummariesAsync);
+  }
+
+  partial void OnStartDateChanged(DateOnly value)
+  {
+    RefreshSelectedAttendanceDetails();
+  }
+
+  partial void OnEndDateChanged(DateOnly value)
+  {
+    RefreshSelectedAttendanceDetails();
+  }
+
+  partial void OnIsDetailsOpenChanged(bool value)
+  {
+    if (value)
+    {
+      return;
+    }
+
+    MainThread.BeginInvokeOnMainThread(() =>
+    {
+      DisplayAttendances.Clear();
+      DetailsTitle = string.Empty;
+      DetailsPrimaryActionText = DefaultDetailsPrimaryActionText;
+      SelectedEmployeeAttendance = null;
+    });
   }
 
   public override async Task InitializeAsync()
@@ -108,6 +152,34 @@ public partial class AttendanceViewModel : BaseViewModel
   {
     await TraceCommandAsync(nameof(ApplyDateRangeAsync)).ConfigureAwait(false);
     await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+  }
+
+  [RelayCommand]
+  private async Task EditAttendanceAsync(EmployeeAttendanceSummary? summary)
+  {
+    if (summary is null)
+    {
+      return;
+    }
+
+    await TraceCommandAsync(nameof(EditAttendanceAsync), summary.EmployeeId).ConfigureAwait(false);
+
+    await MainThread.InvokeOnMainThreadAsync(() =>
+    {
+      SelectedEmployeeAttendance = summary;
+      DetailsTitle = string.IsNullOrWhiteSpace(summary.Name)
+        ? "Attendance Details"
+        : $"Attendance Details - {summary.Name}";
+      DetailsPrimaryActionText = DefaultDetailsPrimaryActionText;
+      LoadDisplayAttendances(summary);
+      IsDetailsOpen = true;
+    }).ConfigureAwait(false);
+  }
+
+  [RelayCommand]
+  private void CloseAttendanceDetails()
+  {
+    IsDetailsOpen = false;
   }
 
   [RelayCommand]
@@ -183,12 +255,28 @@ public partial class AttendanceViewModel : BaseViewModel
           tenant: SelectedTenant)
         .ConfigureAwait(false);
 
+      Guid? openEmployeeId = SelectedEmployeeAttendance?.EmployeeId;
+
       await MainThread.InvokeOnMainThreadAsync(() =>
       {
         ClearEmployeeAttendances();
         foreach (EmployeeAttendanceSummary summary in summaries)
         {
           EmployeeAttendances.Add(summary);
+        }
+
+        if (IsDetailsOpen && openEmployeeId is Guid id)
+        {
+          EmployeeAttendanceSummary? selected = EmployeeAttendances.FirstOrDefault(item => item.EmployeeId == id);
+          if (selected is not null)
+          {
+            SelectedEmployeeAttendance = selected;
+            LoadDisplayAttendances(selected);
+          }
+          else
+          {
+            IsDetailsOpen = false;
+          }
         }
       }).ConfigureAwait(false);
     }
@@ -240,5 +328,100 @@ public partial class AttendanceViewModel : BaseViewModel
   private void ClearEmployeeAttendances()
   {
     EmployeeAttendances.Clear();
+    DisplayAttendances.Clear();
+  }
+
+  private void RefreshSelectedAttendanceDetails()
+  {
+    if (!IsDetailsOpen || SelectedEmployeeAttendance is null)
+    {
+      return;
+    }
+
+    MainThread.BeginInvokeOnMainThread(() => LoadDisplayAttendances(SelectedEmployeeAttendance));
+  }
+
+  private void LoadDisplayAttendances(EmployeeAttendanceSummary summary)
+  {
+    DisplayAttendances.Clear();
+
+    Dictionary<DateOnly, AttendanceSummary> attendancesByDate = new();
+    foreach (AttendanceSummary attendance in summary.Attendances)
+    {
+      if (attendance.EntryDate is null)
+      {
+        continue;
+      }
+
+      DateOnly date = attendance.EntryDate.Value;
+      if (!attendancesByDate.ContainsKey(date))
+      {
+        attendancesByDate[date] = attendance;
+      }
+    }
+
+    int rowIndex = 0;
+    for (DateOnly date = StartDate; date <= EndDate; date = date.AddDays(1), rowIndex++)
+    {
+      if (attendancesByDate.TryGetValue(date, out AttendanceSummary? existing))
+      {
+        DisplayAttendances.Add(CloneAttendance(existing, rowIndex));
+        continue;
+      }
+
+      DisplayAttendances.Add(new AttendanceSummary
+      {
+        EmployeeId = summary.EmployeeId,
+        EntryDate = date,
+        RowIndex = rowIndex
+      });
+    }
+  }
+
+  private static AttendanceSummary CloneAttendance(AttendanceSummary source, int rowIndex)
+  {
+    return new AttendanceSummary
+    {
+      Id = source.Id,
+      EmployeeId = source.EmployeeId,
+      ShiftId = source.ShiftId,
+      TimesheetId = source.TimesheetId,
+      LeaveId = source.LeaveId,
+      EntryDate = source.EntryDate,
+      WorkHours = source.WorkHours,
+      LateHours = source.LateHours,
+      UnderHours = source.UnderHours,
+      OverbreakHours = source.OverbreakHours,
+      NightShiftHours = source.NightShiftHours,
+      IsLocked = source.IsLocked,
+      Shift = source.Shift,
+      Timesheet = source.Timesheet,
+      RowIndex = rowIndex
+    };
+  }
+
+  private void SetCurrentPayslipPeriod(DateOnly? referenceDate = null)
+  {
+    DateOnly date = referenceDate ?? DateOnly.FromDateTime(DateTime.Today);
+    (DateOnly startDate, DateOnly endDate) = CalculatePayslipPeriod(date);
+    StartDate = startDate;
+    EndDate = endDate;
+  }
+
+  private static (DateOnly startDate, DateOnly endDate) CalculatePayslipPeriod(DateOnly date)
+  {
+    if (date.Day >= 11 && date.Day <= 25)
+    {
+      return (new DateOnly(date.Year, date.Month, 11), new DateOnly(date.Year, date.Month, 25));
+    }
+
+    if (date.Day >= 26)
+    {
+      DateOnly nextMonth = date.AddMonths(1);
+      return (new DateOnly(date.Year, date.Month, 26), new DateOnly(nextMonth.Year, nextMonth.Month, 10));
+    }
+
+    DateOnly previousMonth = date.AddMonths(-1);
+    return (new DateOnly(previousMonth.Year, previousMonth.Month, 26), new DateOnly(date.Year, date.Month, 10));
   }
 }

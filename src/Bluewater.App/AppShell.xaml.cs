@@ -1,5 +1,4 @@
 using Bluewater.App.Interfaces;
-using Bluewater.App.Views;
 
 namespace Bluewater.App;
 
@@ -11,8 +10,6 @@ public partial class AppShell : Shell
   {
     InitializeComponent();
     this.activityTraceService = activityTraceService;
-
-    Routing.RegisterRoute(nameof(AttendanceDetailPage), typeof(AttendanceDetailPage));
 
     //Navigated += OnShellNavigated;
     //Navigating += OnShellNavigating;
