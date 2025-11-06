@@ -86,7 +86,7 @@
                                 BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
                             <Grid ColumnSpacing="12"
                                   Padding="20,14"
-                                  ColumnDefinitions="2*,1.2*,1*,1*,1*,1*,1*,1*,Auto">
+                                  ColumnDefinitions="2*,1.2*,1*,1*,1*,1*,1*,1*,Auto,Auto">
                                 <Label Text="Employee"
                                        TextColor="White"
                                        FontAttributes="Bold" />
@@ -124,6 +124,11 @@
                                        TextColor="White"
                                        HorizontalOptions="End"
                                        FontAttributes="Bold" />
+                                <Label Grid.Column="9"
+                                       Text="Actions"
+                                       TextColor="White"
+                                       HorizontalOptions="End"
+                                       FontAttributes="Bold" />
                             </Grid>
                         </Border>
                     </CollectionView.Header>
@@ -131,7 +136,7 @@
                         <DataTemplate x:DataType="models:EmployeeAttendanceSummary">
                             <Border Style="{StaticResource AttendanceRowBorderStyle}">
                                 <Grid ColumnSpacing="12"
-                                      ColumnDefinitions="2*,1.2*,1*,1*,1*,1*,1*,1*,Auto"
+                                      ColumnDefinitions="2*,1.2*,1*,1*,1*,1*,1*,1*,Auto,Auto"
                                       VerticalOptions="Center">
                                     <VerticalStackLayout Spacing="4">
                                         <Label Text="{Binding Name}"
@@ -190,6 +195,12 @@
                                            Text="{Binding Attendances.Count}"
                                            HorizontalOptions="End"
                                            VerticalTextAlignment="Center" />
+                                    <Button Grid.Column="9"
+                                            Text="Edit"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            HorizontalOptions="End"
+                                            VerticalOptions="Center"
+                                            Clicked="OnEditAttendanceClicked" />
                                 </Grid>
                             </Border>
                         </DataTemplate>

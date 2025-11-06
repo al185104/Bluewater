@@ -86,6 +86,9 @@
           <MauiXaml Update="Views\AttendancePage.xaml">
             <Generator>MSBuild:Compile</Generator>
           </MauiXaml>
+          <MauiXaml Update="Views\AttendanceDetailPage.xaml">
+            <Generator>MSBuild:Compile</Generator>
+          </MauiXaml>
           <MauiXaml Update="Views\Controls\SlideInEditorView.xaml">
             <Generator>MSBuild:Compile</Generator>
           </MauiXaml>
@@ -154,6 +157,9 @@
       </Compile>
       <Compile Update="Views\TimesheetDetailsView.xaml.cs">
         <DependentUpon>TimesheetDetailsView.xaml</DependentUpon>
+      </Compile>
+      <Compile Update="Views\AttendanceDetailPage.xaml.cs">
+        <DependentUpon>AttendanceDetailPage.xaml</DependentUpon>
       </Compile>
 	</ItemGroup>
 
