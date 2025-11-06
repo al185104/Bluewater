@@ -80,6 +80,7 @@ public static class MauiProgram
 
     // pages
     builder.Services.AddTransient<AttendancePage>();
+    builder.Services.AddTransient<AttendanceDetailPage>();
     builder.Services.AddTransient<EmployeePage>();
     builder.Services.AddTransient<HomePage>();
     builder.Services.AddTransient<LeavePage>();
