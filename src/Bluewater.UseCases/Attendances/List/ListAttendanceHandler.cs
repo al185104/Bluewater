@@ -84,7 +84,9 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
         //attendance.CalculateWorkHours();
         attendance.CalculateWorkHours();
 
-        if(attendance.Timesheet == null || attendance.Timesheet.Id == Guid.Empty)
+        if(attendance.Timesheet == null || attendance.Timesheet.Id == Guid.Empty ||
+          attendance.Shift == null || attendance.Shift.Id == Guid.Empty
+          )
         {
           continue;
         }
