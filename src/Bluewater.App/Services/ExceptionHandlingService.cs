@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
 using System.Threading.Tasks;
 using Bluewater.App.Exceptions;
 using Bluewater.App.Interfaces;
@@ -10,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Dispatching;
+using Microsoft.Maui.Storage;
 
 namespace Bluewater.App.Services;
 
@@ -89,6 +93,7 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     LogException(source, exception, context, isTerminating);
 
     PresentationException presentationException = ConvertToPresentationException(exception);
+    _ = CopyLatestLogToDesktopAsync();
     ShowOutOfSyncPopup(presentationException);
   }
 
@@ -201,6 +206,71 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
       catch (Exception loggingException)
       {
         logger?.LogError(loggingException, "Failed to write exception trace for {EventName}", eventName);
+      }
+    });
+  }
+
+  private Task CopyLatestLogToDesktopAsync()
+  {
+    return Task.Run(() =>
+    {
+      try
+      {
+        if (!OperatingSystem.IsWindows())
+        {
+          logger?.LogDebug("Skipping log archive because Desktop export is only enabled on Windows.");
+          return;
+        }
+
+        string appDataDirectory = FileSystem.AppDataDirectory;
+
+        if (!Directory.Exists(appDataDirectory))
+        {
+          logger?.LogWarning("App data directory '{AppDataDirectory}' does not exist; skipping log archive.", appDataDirectory);
+          return;
+        }
+
+        FileInfo? latestLog = Directory
+          .EnumerateFiles(appDataDirectory, "activity-trace-*.log")
+          .Select(path => new FileInfo(path))
+          .OrderByDescending(file => file.LastWriteTimeUtc)
+          .ThenByDescending(file => file.CreationTimeUtc)
+          .FirstOrDefault(file => file.Exists);
+
+        if (latestLog is null)
+        {
+          logger?.LogWarning("No activity trace logs found to archive.");
+          return;
+        }
+
+        string desktopDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+        if (string.IsNullOrWhiteSpace(desktopDirectory))
+        {
+          logger?.LogWarning("Desktop directory could not be resolved; skipping log archive.");
+          return;
+        }
+
+        Directory.CreateDirectory(desktopDirectory);
+
+        string zipFileName = $"{Path.GetFileNameWithoutExtension(latestLog.Name)}-{DateTimeOffset.Now:yyyyMMddHHmmss}.zip";
+        string destinationPath = Path.Combine(desktopDirectory, zipFileName);
+
+        if (File.Exists(destinationPath))
+        {
+          File.Delete(destinationPath);
+        }
+
+        using (ZipArchive archive = ZipFile.Open(destinationPath, ZipArchiveMode.Create))
+        {
+          archive.CreateEntryFromFile(latestLog.FullName, latestLog.Name);
+        }
+
+        logger?.LogInformation("Copied latest activity log '{LogFile}' to Desktop as '{ArchivePath}'.", latestLog.FullName, destinationPath);
+      }
+      catch (Exception archiveException)
+      {
+        logger?.LogError(archiveException, "Failed to archive the latest activity log to the Desktop.");
       }
     });
   }
