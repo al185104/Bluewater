@@ -160,7 +160,7 @@
                                                      Spacing="4">
                                     <Label Text="Department"
                                            Style="{StaticResource CaptionTextStyle}" />
-                                    <Entry Text="{Binding Department}"
+                                    <Entry Text="{Binding Department}" IsEnabled="False"
                                            Placeholder="Department" />
                                 </VerticalStackLayout>
                             </Grid>
@@ -169,7 +169,7 @@
                                 <VerticalStackLayout Spacing="4">
                                     <Label Text="Section"
                                            Style="{StaticResource CaptionTextStyle}" />
-                                    <Entry Text="{Binding Section}"
+                                    <Entry Text="{Binding Section}" IsEnabled="False"
                                            Placeholder="Section" />
                                 </VerticalStackLayout>
                                 <Picker x:Name="TypePicker"

@@ -1,12 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using System.Windows.Input;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Maui.Controls;
+using Bluewater.Core.DepartmentAggregate;
 
 namespace Bluewater.App.Views;
 
@@ -247,6 +243,22 @@ public partial class EmployeeDetailsView : ContentView
     {
       EditableEmployee.PositionId = selectedPosition.Id;
       EditableEmployee.Position = selectedPosition.Name;
+
+      // check for section where this position id belongs. 
+      var _position = referenceDataService.Positions.FirstOrDefault(i => i.Id.Equals(selectedPosition.Id));
+      if (_position != null) { 
+        var _section = referenceDataService.Sections.FirstOrDefault(i => i.Id.Equals(_position.SectionId));
+        if (_section != null)
+        {
+          EditableEmployee.Section = _section.Name;
+
+          var _department = referenceDataService.Departments.FirstOrDefault(i => i.Id.Equals(_section.DepartmentId));
+          if (_department != null)
+            EditableEmployee.Department = _department.Name;
+          else
+            EditableEmployee.Department = null;
+        }
+      }
     }
     else
     {

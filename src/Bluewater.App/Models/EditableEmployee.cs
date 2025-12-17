@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using Bluewater.Core.EmployeeAggregate.Enum;
+﻿using Bluewater.Core.EmployeeAggregate.Enum;
 using Bluewater.Core.UserAggregate.Enum;
 using CommunityToolkit.Mvvm.ComponentModel;
 
