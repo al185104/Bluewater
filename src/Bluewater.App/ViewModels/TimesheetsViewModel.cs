@@ -52,6 +52,8 @@ public partial class TimesheetsViewModel : BaseViewModel
   [ObservableProperty]
   public partial DateOnly EndDate { get; set; }
 
+  public string PeriodRangeDisplay => $"{StartDate:MMMM dd} - {EndDate:MMMM dd}";
+
   [ObservableProperty]
   public partial bool IsDetailsOpen { get; set; }
 
@@ -91,6 +93,7 @@ public partial class TimesheetsViewModel : BaseViewModel
   {
     base.IsBusyChanged(isBusy);
     UpdateCanSaveTimesheets();
+    RaiseNavigationState();
   }
 
   public override async Task InitializeAsync()
@@ -119,12 +122,23 @@ public partial class TimesheetsViewModel : BaseViewModel
     await LoadTimesheetsAsync().ConfigureAwait(false);
   }
 
-  [RelayCommand]
-  private async Task ApplyDateRangeAsync()
+  [RelayCommand(CanExecute = nameof(CanChangePeriod))]
+  private async Task PreviousPeriodAsync()
   {
-    await TraceCommandAsync(nameof(ApplyDateRangeAsync)).ConfigureAwait(false);
+    SetPreviousPayslipPeriod();
+    await TraceCommandAsync(nameof(PreviousPeriodAsync)).ConfigureAwait(false);
     await LoadTimesheetsAsync().ConfigureAwait(false);
   }
+
+  [RelayCommand(CanExecute = nameof(CanChangePeriod))]
+  private async Task NextPeriodAsync()
+  {
+    SetNextPayslipPeriod();
+    await TraceCommandAsync(nameof(NextPeriodAsync)).ConfigureAwait(false);
+    await LoadTimesheetsAsync().ConfigureAwait(false);
+  }
+
+  private bool CanChangePeriod() => !IsBusy;
 
   [RelayCommand]
   private async Task EditTimesheetAsync(EmployeeTimesheetSummary? summary)
@@ -134,16 +148,14 @@ public partial class TimesheetsViewModel : BaseViewModel
       return;
     }
 
-    //await MainThread.InvokeOnMainThreadAsync(() =>
-    //{
-    MainThread.BeginInvokeOnMainThread(() => { 
+    MainThread.BeginInvokeOnMainThread(() =>
+    {
       SelectedEmployeeTimesheet = summary;
       DetailsTitle = $"Edit Timesheet - {summary.Name}";
       DetailsPrimaryActionText = DefaultDetailsPrimaryActionText;
       LoadEditableTimesheets(summary);
       IsDetailsOpen = true;
     });
-    //}).ConfigureAwait(false);
 
     await TraceCommandAsync(nameof(EditTimesheetAsync), summary.EmployeeId).ConfigureAwait(false);
   }
@@ -416,6 +428,16 @@ public partial class TimesheetsViewModel : BaseViewModel
     EndDate = endDate;
   }
 
+  private void SetPreviousPayslipPeriod()
+  {
+    SetCurrentPayslipPeriod(StartDate.AddDays(-1));
+  }
+
+  private void SetNextPayslipPeriod()
+  {
+    SetCurrentPayslipPeriod(EndDate.AddDays(1));
+  }
+
   private static (DateOnly startDate, DateOnly endDate) CalculatePayslipPeriod(DateOnly date)
   {
     if (date.Day >= 11 && date.Day <= 25)
@@ -431,5 +453,32 @@ public partial class TimesheetsViewModel : BaseViewModel
 
     DateOnly previousMonth = date.AddMonths(-1);
     return (new DateOnly(previousMonth.Year, previousMonth.Month, 26), new DateOnly(date.Year, date.Month, 10));
+  }
+
+  partial void OnStartDateChanged(DateOnly value)
+  {
+    OnPropertyChanged(nameof(PeriodRangeDisplay));
+  }
+
+  partial void OnEndDateChanged(DateOnly value)
+  {
+    OnPropertyChanged(nameof(PeriodRangeDisplay));
+  }
+
+  private void RaiseNavigationState()
+  {
+    void UpdateNavigationCommands()
+    {
+      PreviousPeriodCommand.NotifyCanExecuteChanged();
+      NextPeriodCommand.NotifyCanExecuteChanged();
+    }
+
+    if (MainThread.IsMainThread)
+    {
+      UpdateNavigationCommands();
+      return;
+    }
+
+    MainThread.BeginInvokeOnMainThread(UpdateNavigationCommands);
   }
 }
