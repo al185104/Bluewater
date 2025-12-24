@@ -24,8 +24,7 @@ public partial class PayrollViewModel : BaseViewModel
     : base(activityTraceService, exceptionHandlingService)
   {
     this.payrollApiService = payrollApiService;
-    StartDate = DateOnly.FromDateTime(DateTime.Today.AddMonths(-1));
-    EndDate = DateOnly.FromDateTime(DateTime.Today);
+    SetCurrentPayslipPeriod();
     EditablePayroll = CreateNewPayroll();
   }
 
@@ -36,6 +35,8 @@ public partial class PayrollViewModel : BaseViewModel
 
   [ObservableProperty]
   public partial DateOnly EndDate { get; set; }
+
+  public string PeriodRangeDisplay => $"{StartDate:MMMM dd} - {EndDate:MMMM dd}";
 
   [ObservableProperty]
   public partial string? ChargingFilter { get; set; }
@@ -64,6 +65,24 @@ public partial class PayrollViewModel : BaseViewModel
     await TraceCommandAsync(nameof(RefreshAsync));
     await LoadPayrollsAsync();
   }
+
+  [RelayCommand(CanExecute = nameof(CanChangePeriod))]
+  private async Task PreviousPeriodAsync()
+  {
+    SetPreviousPayslipPeriod();
+    await TraceCommandAsync(nameof(PreviousPeriodAsync));
+    await LoadPayrollsAsync();
+  }
+
+  [RelayCommand(CanExecute = nameof(CanChangePeriod))]
+  private async Task NextPeriodAsync()
+  {
+    SetNextPayslipPeriod();
+    await TraceCommandAsync(nameof(NextPeriodAsync));
+    await LoadPayrollsAsync();
+  }
+
+  private bool CanChangePeriod() => !IsBusy;
 
   [RelayCommand]
   private void BeginCreatePayroll()
@@ -176,6 +195,12 @@ public partial class PayrollViewModel : BaseViewModel
     }
   }
 
+  public override void IsBusyChanged(bool isBusy)
+  {
+    base.IsBusyChanged(isBusy);
+    RaiseNavigationState();
+  }
+
   private async Task LoadPayrollsAsync()
   {
     try
@@ -213,6 +238,41 @@ public partial class PayrollViewModel : BaseViewModel
     };
   }
 
+  private void SetCurrentPayslipPeriod(DateOnly? referenceDate = null)
+  {
+    DateOnly date = referenceDate ?? DateOnly.FromDateTime(DateTime.Today);
+    (DateOnly startDate, DateOnly endDate) = CalculatePayslipPeriod(date);
+    StartDate = startDate;
+    EndDate = endDate;
+  }
+
+  private void SetPreviousPayslipPeriod()
+  {
+    SetCurrentPayslipPeriod(StartDate.AddDays(-1));
+  }
+
+  private void SetNextPayslipPeriod()
+  {
+    SetCurrentPayslipPeriod(EndDate.AddDays(1));
+  }
+
+  private static (DateOnly startDate, DateOnly endDate) CalculatePayslipPeriod(DateOnly date)
+  {
+    if (date.Day >= 11 && date.Day <= 25)
+    {
+      return (new DateOnly(date.Year, date.Month, 11), new DateOnly(date.Year, date.Month, 25));
+    }
+
+    if (date.Day >= 26)
+    {
+      DateOnly nextMonth = date.AddMonths(1);
+      return (new DateOnly(date.Year, date.Month, 26), new DateOnly(nextMonth.Year, nextMonth.Month, 10));
+    }
+
+    DateOnly previousMonth = date.AddMonths(-1);
+    return (new DateOnly(previousMonth.Year, previousMonth.Month, 26), new DateOnly(date.Year, date.Month, 10));
+  }
+
   private int FindPayrollIndex(Guid payrollId)
   {
     for (int i = 0; i < Payrolls.Count; i++)
@@ -229,5 +289,32 @@ public partial class PayrollViewModel : BaseViewModel
   private void UpdatePayrollRowIndexes()
   {
     Payrolls.UpdateRowIndexes();
+  }
+
+  partial void OnStartDateChanged(DateOnly value)
+  {
+    OnPropertyChanged(nameof(PeriodRangeDisplay));
+  }
+
+  partial void OnEndDateChanged(DateOnly value)
+  {
+    OnPropertyChanged(nameof(PeriodRangeDisplay));
+  }
+
+  private void RaiseNavigationState()
+  {
+    void UpdateNavigationCommands()
+    {
+      PreviousPeriodCommand.NotifyCanExecuteChanged();
+      NextPeriodCommand.NotifyCanExecuteChanged();
+    }
+
+    if (Microsoft.Maui.ApplicationModel.MainThread.IsMainThread)
+    {
+      UpdateNavigationCommands();
+      return;
+    }
+
+    Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(UpdateNavigationCommands);
   }
 }

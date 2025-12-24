@@ -59,6 +59,8 @@ public partial class AttendanceViewModel : BaseViewModel
   [ObservableProperty]
   public partial DateOnly EndDate { get; set; }
 
+  public string PeriodRangeDisplay => $"{StartDate:MMMM dd} - {EndDate:MMMM dd}";
+
   [ObservableProperty]
   public partial TenantDto SelectedTenant { get; set; } = TenantDto.Maribago;
 
@@ -150,11 +152,13 @@ public partial class AttendanceViewModel : BaseViewModel
   partial void OnStartDateChanged(DateOnly value)
   {
     RefreshSelectedAttendanceDetails();
+    OnPropertyChanged(nameof(PeriodRangeDisplay));
   }
 
   partial void OnEndDateChanged(DateOnly value)
   {
     RefreshSelectedAttendanceDetails();
+    OnPropertyChanged(nameof(PeriodRangeDisplay));
   }
 
   partial void OnSelectedAttendanceChanged(AttendanceSummary? value)
@@ -222,6 +226,12 @@ public partial class AttendanceViewModel : BaseViewModel
     });
   }
 
+  public override void IsBusyChanged(bool isBusy)
+  {
+    base.IsBusyChanged(isBusy);
+    RaiseNavigationState();
+  }
+
   public override async Task InitializeAsync()
   {
     if (hasInitialized)
@@ -250,6 +260,24 @@ public partial class AttendanceViewModel : BaseViewModel
     await TraceCommandAsync(nameof(RefreshAsync)).ConfigureAwait(false);
     await LoadAttendanceSummariesAsync().ConfigureAwait(false);
   }
+
+  [RelayCommand(CanExecute = nameof(CanChangePeriod))]
+  private async Task PreviousPeriodAsync()
+  {
+    SetPreviousPayslipPeriod();
+    await TraceCommandAsync(nameof(PreviousPeriodAsync)).ConfigureAwait(false);
+    await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+  }
+
+  [RelayCommand(CanExecute = nameof(CanChangePeriod))]
+  private async Task NextPeriodAsync()
+  {
+    SetNextPayslipPeriod();
+    await TraceCommandAsync(nameof(NextPeriodAsync)).ConfigureAwait(false);
+    await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+  }
+
+  private bool CanChangePeriod() => !IsBusy;
 
   [RelayCommand]
   private async Task ApplyDateRangeAsync()
@@ -846,6 +874,16 @@ public partial class AttendanceViewModel : BaseViewModel
     EndDate = endDate;
   }
 
+  private void SetPreviousPayslipPeriod()
+  {
+    SetCurrentPayslipPeriod(StartDate.AddDays(-1));
+  }
+
+  private void SetNextPayslipPeriod()
+  {
+    SetCurrentPayslipPeriod(EndDate.AddDays(1));
+  }
+
   private static (DateOnly startDate, DateOnly endDate) CalculatePayslipPeriod(DateOnly date)
   {
     if (date.Day >= 11 && date.Day <= 25)
@@ -861,5 +899,22 @@ public partial class AttendanceViewModel : BaseViewModel
 
     DateOnly previousMonth = date.AddMonths(-1);
     return (new DateOnly(previousMonth.Year, previousMonth.Month, 26), new DateOnly(date.Year, date.Month, 10));
+  }
+
+  private void RaiseNavigationState()
+  {
+    void UpdateNavigationCommands()
+    {
+      PreviousPeriodCommand.NotifyCanExecuteChanged();
+      NextPeriodCommand.NotifyCanExecuteChanged();
+    }
+
+    if (MainThread.IsMainThread)
+    {
+      UpdateNavigationCommands();
+      return;
+    }
+
+    MainThread.BeginInvokeOnMainThread(UpdateNavigationCommands);
   }
 }

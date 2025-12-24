@@ -27,35 +27,43 @@
         <Grid Padding="20,40"
               RowDefinitions="Auto,Auto,*"
               RowSpacing="16">
-            <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto"
                   ColumnSpacing="12">
                 <Label Text="Attendances"
                        Style="{StaticResource HeadingTextStyle}" />
                 <Button Grid.Column="1"
-                        Text="Apply"
-                        Command="{Binding ApplyDateRangeCommand}"
-                        IsEnabled="{Binding IsBusy, Converter={StaticResource BooleanNegationConverter}}" />
+                        Text="Previous Period"
+                        Command="{Binding PreviousPeriodCommand}"
+                        SemanticProperties.Hint="View the previous payroll period" />
                 <Button Grid.Column="2"
+                        Text="Next Period"
+                        Command="{Binding NextPeriodCommand}"
+                        SemanticProperties.Hint="View the next payroll period" />
+                <Button Grid.Column="3"
                         Text="Refresh"
                         Command="{Binding RefreshCommand}"
-                        IsEnabled="{Binding IsBusy, Converter={StaticResource BooleanNegationConverter}}" />
-                <Button Grid.Column="3"
+                        IsEnabled="{Binding IsBusy, Converter={StaticResource BooleanNegationConverter}}"
+                        SemanticProperties.Hint="Reload the current payroll period attendances" />
+                <Button Grid.Column="4"
                         Text="Submit"
                         Command="{Binding SubmitCommand}"
                         IsEnabled="{Binding IsBusy, Converter={StaticResource BooleanNegationConverter}}" />
             </Grid>
             <Grid Grid.Row="1"
-                  ColumnDefinitions="Auto,*,Auto,*,Auto,*,Auto,*"
+                  ColumnDefinitions="Auto,*,Auto,*,Auto,*"
                   ColumnSpacing="12"
                   RowSpacing="4">
-                <Label Text="Charging"
-                       VerticalOptions="Center"
-                       TextColor="{StaticResource TextSecondaryColor}" />
-                <Picker Grid.Column="1"
-                        Title="Select charging"
-                        ItemsSource="{Binding Chargings}"
-                        ItemDisplayBinding="{Binding Name}"
-                        SelectedItem="{Binding SelectedCharging}" />
+                <VerticalStackLayout Padding="0 " VerticalOptions="End">
+                    <Label Text="Period"
+                           VerticalOptions="Center"
+                           TextColor="{StaticResource TextSecondaryColor}" />
+                    <Label Grid.Column="1"
+                           Text="{Binding PeriodRangeDisplay}"
+                           FontAttributes="Bold"
+                           FontSize="Small"
+                           VerticalTextAlignment="Center"
+                           VerticalOptions="End" />
+                </VerticalStackLayout>
                 <Label Grid.Column="2"
                        Text="Tenant"
                        VerticalOptions="Center"
@@ -65,19 +73,14 @@
                         ItemsSource="{Binding TenantOptions}"
                         SelectedItem="{Binding SelectedTenant}" />
                 <Label Grid.Column="4"
-                       Text="Start Date"
+                       Text="Charging"
                        VerticalOptions="Center"
                        TextColor="{StaticResource TextSecondaryColor}" />
-                <DatePicker Grid.Column="5"
-                            Date="{Binding StartDate}"
-                            MaximumDate="{Binding EndDate}" />
-                <Label Grid.Column="6"
-                       Text="End Date"
-                       VerticalOptions="Center"
-                       TextColor="{StaticResource TextSecondaryColor}" />
-                <DatePicker Grid.Column="7"
-                            Date="{Binding EndDate}"
-                            MinimumDate="{Binding StartDate}" />
+                <Picker Grid.Column="5"
+                        Title="Select charging"
+                        ItemsSource="{Binding Chargings}"
+                        ItemDisplayBinding="{Binding Name}"
+                        SelectedItem="{Binding SelectedCharging}" />
             </Grid>
             <Grid Grid.Row="2">
                 <CollectionView ItemsSource="{Binding EmployeeAttendances}"

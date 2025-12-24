@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:converters="clr-namespace:Bluewater.App.Converters"
              xmlns:models="clr-namespace:Bluewater.App.Models"
              xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
              x:Class="Bluewater.App.Views.PayrollPage"
              Title="PayrollPage">
     <ContentPage.Resources>
         <ResourceDictionary>
+            <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
             <Style x:Key="PayrollRowBorderStyle"
                    TargetType="Border">
                 <Setter Property="StrokeThickness"
@@ -65,42 +67,94 @@
                                                     AlternateTemplate="{StaticResource PayrollAlternateTemplate}" />
         </ResourceDictionary>
     </ContentPage.Resources>
-    <CollectionView ItemsSource="{Binding Payrolls}"
-                    ItemTemplate="{StaticResource PayrollTemplateSelector}">
-        <CollectionView.Header>
-            <Border StrokeShape="RoundRectangle 10 10 0 0"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
-                <Grid ColumnSpacing="12"
-                      Padding="20,14"
-                      ColumnDefinitions="2*,Auto,Auto">
-                    <Label Text="Employee"
-                           TextColor="White"
-                           FontAttributes="Bold" />
-                    <Label Grid.Column="1"
-                           Text="Net Amount"
-                           TextColor="White"
-                           FontAttributes="Bold"
-                           HorizontalTextAlignment="End" />
-                    <Label Grid.Column="2"
-                           Text="Date"
-                           TextColor="White"
-                           FontAttributes="Bold"
-                           HorizontalTextAlignment="End" />
-                </Grid>
-            </Border>
-        </CollectionView.Header>
-        <CollectionView.EmptyView>
-            <VerticalStackLayout Padding="24"
-                                 HorizontalOptions="Center"
-                                 VerticalOptions="Center"
-                                 Spacing="8">
-                <Label Text="No payroll records"
+    <Grid Padding="20,40"
+          RowDefinitions="Auto,Auto,*"
+          RowSpacing="16">
+        <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+              ColumnSpacing="12">
+            <Label Text="Payroll"
+                   Style="{StaticResource HeadingTextStyle}" />
+            <Button Grid.Column="1"
+                    Text="Previous Period"
+                    Command="{Binding PreviousPeriodCommand}"
+                    SemanticProperties.Hint="View the previous payroll period" />
+            <Button Grid.Column="2"
+                    Text="Next Period"
+                    Command="{Binding NextPeriodCommand}"
+                    SemanticProperties.Hint="View the next payroll period" />
+            <Button Grid.Column="3"
+                    Text="Refresh"
+                    Command="{Binding RefreshCommand}"
+                    IsEnabled="{Binding IsBusy, Converter={StaticResource BooleanNegationConverter}}"
+                    SemanticProperties.Hint="Reload the current payroll period records" />
+        </Grid>
+        <Grid Grid.Row="1"
+              ColumnDefinitions="Auto,*,Auto,*"
+              ColumnSpacing="12"
+              RowSpacing="4">
+            <VerticalStackLayout Padding="0 " VerticalOptions="End">
+                <Label Text="Period"
+                       VerticalOptions="Center"
+                       TextColor="{StaticResource TextSecondaryColor}" />
+                <Label Grid.Column="1"
+                       Text="{Binding PeriodRangeDisplay}"
                        FontAttributes="Bold"
-                       HorizontalTextAlignment="Center" />
-                <Label Text="Generate payroll to populate this list."
-                       HorizontalTextAlignment="Center"
-                       FontSize="12" />
+                       FontSize="Small"
+                       VerticalTextAlignment="Center"
+                       VerticalOptions="End" />
             </VerticalStackLayout>
-        </CollectionView.EmptyView>
-    </CollectionView>
+            <Label Grid.Column="2"
+                   Text="Charging Filter"
+                   VerticalOptions="Center"
+                   TextColor="{StaticResource TextSecondaryColor}" />
+            <Entry Grid.Column="3"
+                   Text="{Binding ChargingFilter}"
+                   Placeholder="Filter by charging"
+                   ClearButtonVisibility="WhileEditing" />
+        </Grid>
+        <Grid Grid.Row="2">
+            <CollectionView ItemsSource="{Binding Payrolls}"
+                            ItemTemplate="{StaticResource PayrollTemplateSelector}">
+                <CollectionView.Header>
+                    <Border StrokeShape="RoundRectangle 10 10 0 0"
+                            BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+                        <Grid ColumnSpacing="12"
+                              Padding="20,14"
+                              ColumnDefinitions="2*,Auto,Auto">
+                            <Label Text="Employee"
+                                   TextColor="White"
+                                   FontAttributes="Bold" />
+                            <Label Grid.Column="1"
+                                   Text="Net Amount"
+                                   TextColor="White"
+                                   FontAttributes="Bold"
+                                   HorizontalTextAlignment="End" />
+                            <Label Grid.Column="2"
+                                   Text="Date"
+                                   TextColor="White"
+                                   FontAttributes="Bold"
+                                   HorizontalTextAlignment="End" />
+                        </Grid>
+                    </Border>
+                </CollectionView.Header>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24"
+                                         HorizontalOptions="Center"
+                                         VerticalOptions="Center"
+                                         Spacing="8">
+                        <Label Text="No payroll records"
+                               FontAttributes="Bold"
+                               HorizontalTextAlignment="Center" />
+                        <Label Text="Generate payroll to populate this list."
+                               HorizontalTextAlignment="Center"
+                               FontSize="12" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+            </CollectionView>
+            <ActivityIndicator IsRunning="{Binding IsBusy}"
+                               IsVisible="{Binding IsBusy}"
+                               HorizontalOptions="Center"
+                               VerticalOptions="Center" />
+        </Grid>
+    </Grid>
 </ContentPage>
