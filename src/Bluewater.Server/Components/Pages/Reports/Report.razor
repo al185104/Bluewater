@@ -94,7 +94,7 @@
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListPayrollQuery(null, null, null, startDate, endDate, GlobalService.CurrentTenant));
                 if (result.IsSuccess) {
-                    var payrolls = result.Value.ToList();
+                    var payrolls = result.Value.Items.ToList();
                     var fileName = $"payroll_{startDate.ToString("MMM-dd-yy")}_to_{endDate.ToString("MMM-dd-yy")}";
                     CsvUtility.ExportPayrollToExcel($"{fileName}.xlsx", payrolls);
                     await DialogService.ShowInfoAsync($"Exported {fileName}.xlsx to Download folder.", "Export");

@@ -14,7 +14,7 @@ public interface IAttendanceApiService
     int? take = null,
     CancellationToken cancellationToken = default);
 
-  Task<IReadOnlyList<EmployeeAttendanceSummary>> GetAttendanceSummariesAsync(
+  Task<PagedResult<EmployeeAttendanceSummary>> GetAttendanceSummariesAsync(
     string charging,
     DateOnly startDate,
     DateOnly endDate,

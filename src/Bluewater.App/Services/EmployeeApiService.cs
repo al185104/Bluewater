@@ -11,7 +11,7 @@ namespace Bluewater.App.Services;
 
 public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
 {
-  public async Task<IReadOnlyList<EmployeeSummary>> GetEmployeesAsync(
+  public async Task<PagedResult<EmployeeSummary>> GetEmployeesAsync(
     int? skip = null,
     int? take = null,
     CancellationToken cancellationToken = default)
@@ -22,13 +22,15 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
 
     if (response?.Employees is not { Count: > 0 })
     {
-      return Array.Empty<EmployeeSummary>();
+      return new PagedResult<EmployeeSummary>(Array.Empty<EmployeeSummary>(), response?.TotalCount ?? 0);
     }
 
-    return response.Employees
+    IReadOnlyList<EmployeeSummary> employees = response.Employees
       .Where(dto => dto is not null)
       .Select(MapToSummary)
       .ToList();
+
+    return new PagedResult<EmployeeSummary>(employees, response.TotalCount);
   }
 
   public async Task<bool> CreateEmployeeAsync(

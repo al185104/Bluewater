@@ -39,6 +39,17 @@ public partial class TimesheetsViewModel : BaseViewModel
   public ObservableCollection<ChargingSummary> Chargings { get; } = new();
   public ObservableCollection<EmployeeTimesheetSummary> Timesheets { get; } = new();
   public ObservableCollection<EditableTimesheetEntry> EditableTimesheets { get; } = new();
+  public ObservableCollection<int> PageNumbers { get; } = new();
+
+  [ObservableProperty]
+  public partial int CurrentPage { get; set; } = 1;
+
+  [ObservableProperty]
+  public partial int TotalCount { get; set; }
+
+  public int TotalPages => TotalCount == 0 ? 0 : (int)Math.Ceiling(TotalCount / (double)PageSize);
+
+  public bool HasPagination => TotalPages > 0;
   public IReadOnlyList<TenantDto> TenantOptions { get; } = Array.AsReadOnly(Enum.GetValues<TenantDto>());
 
   [ObservableProperty]
@@ -127,6 +138,7 @@ public partial class TimesheetsViewModel : BaseViewModel
   private async Task PreviousPeriodAsync()
   {
     SetPreviousPayslipPeriod();
+    CurrentPage = 1;
     await TraceCommandAsync(nameof(PreviousPeriodAsync)).ConfigureAwait(false);
     await LoadTimesheetsAsync().ConfigureAwait(false);
   }
@@ -135,6 +147,7 @@ public partial class TimesheetsViewModel : BaseViewModel
   private async Task NextPeriodAsync()
   {
     SetNextPayslipPeriod();
+    CurrentPage = 1;
     await TraceCommandAsync(nameof(NextPeriodAsync)).ConfigureAwait(false);
     await LoadTimesheetsAsync().ConfigureAwait(false);
   }
@@ -241,6 +254,7 @@ public partial class TimesheetsViewModel : BaseViewModel
       return;
     }
 
+    CurrentPage = 1;
     _ = LoadTimesheetsAsync();
   }
 
@@ -251,7 +265,25 @@ public partial class TimesheetsViewModel : BaseViewModel
       return;
     }
 
+    CurrentPage = 1;
     _ = LoadTimesheetsAsync();
+  }
+
+  [RelayCommand]
+  private async Task GoToPageAsync(int page)
+  {
+    if (IsBusy || page < 1 || page == CurrentPage)
+    {
+      return;
+    }
+
+    if (TotalPages > 0 && page > TotalPages)
+    {
+      return;
+    }
+
+    CurrentPage = page;
+    await LoadTimesheetsAsync().ConfigureAwait(false);
   }
 
   private async Task LoadTimesheetsAsync()
@@ -266,40 +298,23 @@ public partial class TimesheetsViewModel : BaseViewModel
     {
       IsBusy = true;
 
-      var summaries = new List<EmployeeTimesheetSummary>();
-      int skip = 0;
+      int skip = (CurrentPage - 1) * PageSize;
+      PagedResult<EmployeeTimesheetSummary> page = await timesheetApiService
+        .GetTimesheetSummariesAsync(
+          SelectedCharging.Name,
+          StartDate,
+          EndDate,
+          SelectedTenant,
+          skip,
+          PageSize)
+        .ConfigureAwait(false);
 
-      while (true)
-      {
-        IReadOnlyList<EmployeeTimesheetSummary> page = await timesheetApiService
-          .GetTimesheetSummariesAsync(
-            SelectedCharging.Name,
-            StartDate,
-            EndDate,
-            SelectedTenant,
-            skip,
-            PageSize)
-          .ConfigureAwait(false);
-
-        if (page.Count == 0)
-        {
-          break;
-        }
-
-        summaries.AddRange(page);
-
-        if (page.Count < PageSize)
-        {
-          break;
-        }
-
-        skip += PageSize;
-      }
+      UpdatePagination(page.TotalCount);
 
       await MainThread.InvokeOnMainThreadAsync(() =>
       {
         Timesheets.Clear();
-        foreach (EmployeeTimesheetSummary summary in summaries)
+        foreach (EmployeeTimesheetSummary summary in page.Items)
         {
           UpdateTimesheetRowIndexes(summary);
           Timesheets.Add(summary);
@@ -351,6 +366,7 @@ public partial class TimesheetsViewModel : BaseViewModel
   private void ClearTimesheets()
   {
     Timesheets.Clear();
+    UpdatePagination(0);
   }
 
   private void LoadEditableTimesheets(EmployeeTimesheetSummary summary)
@@ -503,5 +519,27 @@ public partial class TimesheetsViewModel : BaseViewModel
     }
 
     MainThread.BeginInvokeOnMainThread(UpdateNavigationCommands);
+  }
+
+  private void UpdatePagination(int totalCount)
+  {
+    TotalCount = totalCount;
+    OnPropertyChanged(nameof(TotalPages));
+    OnPropertyChanged(nameof(HasPagination));
+
+    PageNumbers.Clear();
+    for (int page = 1; page <= TotalPages; page++)
+    {
+      PageNumbers.Add(page);
+    }
+
+    if (TotalPages == 0)
+    {
+      CurrentPage = 1;
+    }
+    else if (CurrentPage > TotalPages)
+    {
+      CurrentPage = TotalPages;
+    }
   }
 }

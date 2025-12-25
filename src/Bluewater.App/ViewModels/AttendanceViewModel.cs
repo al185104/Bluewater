@@ -50,6 +50,17 @@ public partial class AttendanceViewModel : BaseViewModel
   public ObservableCollection<AttendanceSummary> DisplayAttendances { get; } = new();
   public ObservableCollection<ShiftSummary> ShiftOptions { get; } = new();
   public IReadOnlyList<TenantDto> TenantOptions { get; } = Array.AsReadOnly(Enum.GetValues<TenantDto>());
+  public ObservableCollection<int> PageNumbers { get; } = new();
+
+  [ObservableProperty]
+  public partial int CurrentPage { get; set; } = 1;
+
+  [ObservableProperty]
+  public partial int TotalCount { get; set; }
+
+  public int TotalPages => TotalCount == 0 ? 0 : (int)Math.Ceiling(TotalCount / (double)PageSize);
+
+  public bool HasPagination => TotalPages > 0;
 
   [ObservableProperty]
   public partial ChargingSummary? SelectedCharging { get; set; }
@@ -137,6 +148,7 @@ public partial class AttendanceViewModel : BaseViewModel
       return;
     }
 
+    CurrentPage = 1;
     _ = MainThread.InvokeOnMainThreadAsync(LoadAttendanceSummariesAsync);
   }
 
@@ -147,6 +159,7 @@ public partial class AttendanceViewModel : BaseViewModel
       return;
     }
 
+    CurrentPage = 1;
     _ = MainThread.InvokeOnMainThreadAsync(LoadAttendanceSummariesAsync);
   }
 
@@ -266,6 +279,7 @@ public partial class AttendanceViewModel : BaseViewModel
   private async Task PreviousPeriodAsync()
   {
     SetPreviousPayslipPeriod();
+    CurrentPage = 1;
     await TraceCommandAsync(nameof(PreviousPeriodAsync)).ConfigureAwait(false);
     await LoadAttendanceSummariesAsync().ConfigureAwait(false);
   }
@@ -274,7 +288,25 @@ public partial class AttendanceViewModel : BaseViewModel
   private async Task NextPeriodAsync()
   {
     SetNextPayslipPeriod();
+    CurrentPage = 1;
     await TraceCommandAsync(nameof(NextPeriodAsync)).ConfigureAwait(false);
+    await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+  }
+
+  [RelayCommand]
+  private async Task GoToPageAsync(int page)
+  {
+    if (IsBusy || page < 1 || page == CurrentPage)
+    {
+      return;
+    }
+
+    if (TotalPages > 0 && page > TotalPages)
+    {
+      return;
+    }
+
+    CurrentPage = page;
     await LoadAttendanceSummariesAsync().ConfigureAwait(false);
   }
 
@@ -498,42 +530,25 @@ public partial class AttendanceViewModel : BaseViewModel
 
       await TraceCommandAsync(nameof(LoadAttendanceSummariesAsync), SelectedCharging.Id).ConfigureAwait(false);
 
-      var summaries = new List<EmployeeAttendanceSummary>();
-      int skip = 0;
+      int skip = (CurrentPage - 1) * PageSize;
+      PagedResult<EmployeeAttendanceSummary> page = await attendanceApiService
+        .GetAttendanceSummariesAsync(
+          SelectedCharging.Name,
+          StartDate,
+          EndDate,
+          skip,
+          PageSize,
+          SelectedTenant)
+        .ConfigureAwait(false);
 
-      while (true)
-      {
-        IReadOnlyList<EmployeeAttendanceSummary> page = await attendanceApiService
-          .GetAttendanceSummariesAsync(
-            SelectedCharging.Name,
-            StartDate,
-            EndDate,
-            skip,
-            PageSize,
-            SelectedTenant)
-          .ConfigureAwait(false);
-
-        if (page.Count == 0)
-        {
-          break;
-        }
-
-        summaries.AddRange(page);
-
-        if (page.Count < PageSize)
-        {
-          break;
-        }
-
-        skip += PageSize;
-      }
+      UpdatePagination(page.TotalCount);
 
       Guid? openEmployeeId = SelectedEmployeeAttendance?.EmployeeId;
 
       await MainThread.InvokeOnMainThreadAsync(() =>
       {
         ClearEmployeeAttendances();
-        foreach (EmployeeAttendanceSummary summary in summaries)
+        foreach (EmployeeAttendanceSummary summary in page.Items)
         {
           EmployeeAttendances.Add(summary);
         }
@@ -635,6 +650,7 @@ public partial class AttendanceViewModel : BaseViewModel
     SelectedShift = null;
     selectedAttendanceOriginalShiftId = null;
     CanSaveAttendanceChanges = false;
+    UpdatePagination(0);
   }
 
   private void RefreshSelectedAttendanceDetails()
@@ -939,5 +955,27 @@ public partial class AttendanceViewModel : BaseViewModel
     }
 
     MainThread.BeginInvokeOnMainThread(UpdateNavigationCommands);
+  }
+
+  private void UpdatePagination(int totalCount)
+  {
+    TotalCount = totalCount;
+    OnPropertyChanged(nameof(TotalPages));
+    OnPropertyChanged(nameof(HasPagination));
+
+    PageNumbers.Clear();
+    for (int page = 1; page <= TotalPages; page++)
+    {
+      PageNumbers.Add(page);
+    }
+
+    if (TotalPages == 0)
+    {
+      CurrentPage = 1;
+    }
+    else if (CurrentPage > TotalPages)
+    {
+      CurrentPage = TotalPages;
+    }
   }
 }

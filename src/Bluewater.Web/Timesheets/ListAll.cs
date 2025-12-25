@@ -1,5 +1,6 @@
 using System.Linq;
 using Ardalis.Result;
+using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Timesheets;
 using Bluewater.UseCases.Timesheets.List;
 using FastEndpoints;
@@ -21,7 +22,7 @@ public class ListAll(IMediator _mediator) : Endpoint<TimesheetListAllRequest, Ti
 
   public override async Task HandleAsync(TimesheetListAllRequest request, CancellationToken cancellationToken)
   {
-    Result<IEnumerable<AllEmployeeTimesheetDTO>> result = await _mediator.Send(
+    Result<PagedResult<AllEmployeeTimesheetDTO>> result = await _mediator.Send(
       new ListAllTimesheetQuery(request.Skip, request.Take, request.Charging, request.StartDate, request.EndDate, request.Tenant),
       cancellationToken);
 
@@ -35,7 +36,8 @@ public class ListAll(IMediator _mediator) : Endpoint<TimesheetListAllRequest, Ti
     {
       Response = new TimesheetListAllResponse
       {
-        Employees = result.Value.Select(TimesheetMapper.ToRecord).ToList()
+        Employees = result.Value.Items.Select(TimesheetMapper.ToRecord).ToList(),
+        TotalCount = result.Value.TotalCount
       };
     }
   }

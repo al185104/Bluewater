@@ -6,6 +6,7 @@ namespace Bluewater.App.Models;
 public class PayrollListResponseDto
 {
   public List<PayrollDto?> Payrolls { get; set; } = new();
+  public int TotalCount { get; set; }
 }
 
 public class PayrollGroupedListResponseDto

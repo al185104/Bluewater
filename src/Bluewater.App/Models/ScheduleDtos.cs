@@ -6,6 +6,7 @@ namespace Bluewater.App.Models;
 public class ScheduleListResponseDto
 {
   public List<EmployeeScheduleDto?> Employees { get; set; } = new();
+  public int TotalCount { get; set; }
 }
 
 public class ScheduleDto

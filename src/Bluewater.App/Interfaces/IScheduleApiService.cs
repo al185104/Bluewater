@@ -6,7 +6,7 @@ namespace Bluewater.App.Interfaces;
 
 public interface IScheduleApiService
 {
-  Task<IReadOnlyList<EmployeeScheduleSummary>> GetSchedulesAsync(
+  Task<PagedResult<EmployeeScheduleSummary>> GetSchedulesAsync(
     string chargingName,
     DateOnly startDate,
     DateOnly endDate,

@@ -1,5 +1,6 @@
 ﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
+using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Employees.List;
 using MediatR;
@@ -7,24 +8,28 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bluewater.UseCases.Attendances.List;
 
-internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAllAttendancesQuery, Result<IEnumerable<AllAttendancesDTO>>>
+internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAllAttendancesQuery, Result<PagedResult<AllAttendancesDTO>>>
 {
-  public async Task<Result<IEnumerable<AllAttendancesDTO>>> Handle(ListAllAttendancesQuery request, CancellationToken cancellationToken)
+  public async Task<Result<PagedResult<AllAttendancesDTO>>> Handle(ListAllAttendancesQuery request, CancellationToken cancellationToken)
   {
     try{
       // first get all employees
       List<EmployeeDTO> employees = new();
+      int totalCount = 0;
       using (var scope = serviceScopeFactory.CreateScope())
       {
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         //var ret = await mediator.Send(new ListEmployeeQuery(null, null));
         var ret = await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.charging, request.tenant));
         if (ret.IsSuccess)
-            employees = ret.Value.ToList();
+        {
+            employees = ret.Value.Items.ToList();
+            totalCount = ret.Value.TotalCount;
+        }
             //employees = ret.Value.Where(i => !string.IsNullOrEmpty(i.Charging) && i.Charging.Equals(request.charging, StringComparison.InvariantCultureIgnoreCase)).ToList();
       }
 
-      if(employees.Count == 0) return Result<IEnumerable<AllAttendancesDTO>>.NotFound();
+      if(employees.Count == 0) return Result<PagedResult<AllAttendancesDTO>>.NotFound();
 
       List<AllAttendancesDTO> results = new();
       // get all Attendances per employee and per date. If no Attendance, create a default Attendance using ListAttendanceQuery
@@ -41,7 +46,7 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
             }
           }
       }
-      return Result<IEnumerable<AllAttendancesDTO>>.Success(results);
+      return Result<PagedResult<AllAttendancesDTO>>.Success(new PagedResult<AllAttendancesDTO>(results, totalCount));
     }
     catch(Exception){
       throw;

@@ -186,7 +186,7 @@
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListPayrollQuery(null, null, selectCharging!.Name, _startDate, _endDate, GlobalService.CurrentTenant));
                 if (result.IsSuccess)
-                    Payrolls = result.Value.AsQueryable();
+                    Payrolls = result.Value.Items.AsQueryable();
             }
         } 
         catch (Exception) {

@@ -37,7 +37,7 @@ public class AttendanceApiService(IApiClient apiClient) : IAttendanceApiService
       .ToList();
   }
 
-  public async Task<IReadOnlyList<EmployeeAttendanceSummary>> GetAttendanceSummariesAsync(
+  public async Task<PagedResult<EmployeeAttendanceSummary>> GetAttendanceSummariesAsync(
     string charging,
     DateOnly startDate,
     DateOnly endDate,
@@ -57,13 +57,15 @@ public class AttendanceApiService(IApiClient apiClient) : IAttendanceApiService
 
     if (response?.Employees is not { Count: > 0 })
     {
-      return Array.Empty<EmployeeAttendanceSummary>();
+      return new PagedResult<EmployeeAttendanceSummary>(Array.Empty<EmployeeAttendanceSummary>(), response?.TotalCount ?? 0);
     }
 
-    return response.Employees
+    IReadOnlyList<EmployeeAttendanceSummary> attendances = response.Employees
       .Where(dto => dto is not null)
       .Select(MapToEmployeeSummary)
       .ToList();
+
+    return new PagedResult<EmployeeAttendanceSummary>(attendances, response.TotalCount);
   }
 
   public async Task<AttendanceSummary?> GetAttendanceByIdAsync(Guid attendanceId, CancellationToken cancellationToken = default)

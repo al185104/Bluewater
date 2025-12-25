@@ -1,4 +1,5 @@
 using Ardalis.Result;
+using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Schedules;
 using Bluewater.UseCases.Schedules.List;
 using FastEndpoints;
@@ -20,7 +21,7 @@ public class List(IMediator _mediator) : Endpoint<ScheduleListRequest, ScheduleL
 
   public override async Task HandleAsync(ScheduleListRequest request, CancellationToken cancellationToken)
   {
-    Result<IEnumerable<EmployeeScheduleDTO>> result = await _mediator.Send(
+    Result<PagedResult<EmployeeScheduleDTO>> result = await _mediator.Send(
       new ListScheduleQuery(request.Skip, request.Take, request.ChargingName, request.StartDate, request.EndDate, request.Tenant),
       cancellationToken);
 
@@ -28,7 +29,8 @@ public class List(IMediator _mediator) : Endpoint<ScheduleListRequest, ScheduleL
     {
       Response = new ScheduleListResponse
       {
-        Employees = result.Value.Select(ScheduleMapper.ToRecord).ToList()
+        Employees = result.Value.Items.Select(ScheduleMapper.ToRecord).ToList(),
+        TotalCount = result.Value.TotalCount
       };
     }
   }

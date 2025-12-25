@@ -12,6 +12,7 @@ public class TimesheetListResponseDto
 public class TimesheetListAllResponseDto
 {
   public List<AllEmployeeTimesheetDto?> Employees { get; set; } = new();
+  public int TotalCount { get; set; }
 }
 
 public class EmployeeTimesheetDto
