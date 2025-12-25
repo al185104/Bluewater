@@ -32,13 +32,14 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
     using (var scope = serviceScopeFactory.CreateScope())
     {
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-      var ret = await mediator.Send(new ListEmployeeQuery(null, null, request.tenant));
+      Result<IEnumerable<EmployeeDTO>> ret;
+      if (string.IsNullOrEmpty(request.chargingName))
+        ret = await mediator.Send(new ListEmployeeQuery(request.skip, request.take, request.tenant));
+      else
+        ret = await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.chargingName, request.tenant));
+
       if (ret.IsSuccess)
         employees = ret.Value
-        .Where(c => 
-          string.IsNullOrEmpty(request.chargingName) || 
-          (!string.IsNullOrEmpty(c.Charging) && request.chargingName.Equals(c.Charging, StringComparison.InvariantCultureIgnoreCase))
-        )
         .Select(s => (s.Id, $"{s.LastName}, {s.FirstName}", s.Pay, s.Type, s.User?.Username, 
           s.Division, s.Department, s.Section, s.Position, s.Charging, s.EmploymentInfo?.BankAccount)).ToList();
     }
@@ -47,7 +48,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
     using (var scope = serviceScopeFactory.CreateScope())
     {
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var ret = await mediator.Send(new ListAllAttendancesQuery(null, null, request.chargingName ?? string.Empty, request.start, request.end, request.tenant));
+        var ret = await mediator.Send(new ListAllAttendancesQuery(request.skip, request.take, request.chargingName ?? string.Empty, request.start, request.end, request.tenant));
         if (ret.IsSuccess)
             attendances = ret.Value.ToList();
     }

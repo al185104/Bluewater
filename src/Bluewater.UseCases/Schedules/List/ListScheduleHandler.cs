@@ -19,9 +19,9 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
     using (var scope = serviceScopeFactory.CreateScope())
     {
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var ret = await mediator.Send(new ListEmployeeQuery(null, null, request.tenant));
+        var ret = await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.chargingName, request.tenant));
         if (ret.IsSuccess)
-            employees = ret.Value.Where(i => i.Charging != null && i.Charging.Equals(request.chargingName, StringComparison.InvariantCultureIgnoreCase)).ToList();
+            employees = ret.Value.ToList();
     }
 
     List<EmployeeScheduleDTO> results = new();

@@ -51,6 +51,12 @@ internal class ListTimesheetHandler(IRepository<Timesheet> _repository, IService
           results.Add(new TimesheetInfo(timesheet.Id, timesheet.TimeIn1, timesheet.TimeOut1, timesheet.TimeIn2, timesheet.TimeOut2, timesheet.EntryDate, isEdited: timesheet.IsEdited));
     }
 
-    return Result<EmployeeTimesheetDTO>.Success(new EmployeeTimesheetDTO(emp!.Id, emp.Name, emp.Department ?? string.Empty, emp.Section ?? string.Empty, emp.Charging ?? string.Empty, results.OrderByDescending(i => i.EntryDate).ToList()));
+    var orderedResults = results.OrderByDescending(i => i.EntryDate);
+    if (request.skip.HasValue)
+      orderedResults = orderedResults.Skip(request.skip.Value);
+    if (request.take.HasValue)
+      orderedResults = orderedResults.Take(request.take.Value);
+
+    return Result<EmployeeTimesheetDTO>.Success(new EmployeeTimesheetDTO(emp!.Id, emp.Name, emp.Department ?? string.Empty, emp.Section ?? string.Empty, emp.Charging ?? string.Empty, orderedResults.ToList()));
   }
 }

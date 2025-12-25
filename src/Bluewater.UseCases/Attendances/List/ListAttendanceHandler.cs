@@ -97,6 +97,12 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
       }
     }
 
-    return Result.Success(results.OrderByDescending(i => i.EntryDate).AsEnumerable());
+    var orderedResults = results.OrderByDescending(i => i.EntryDate);
+    if (request.skip.HasValue)
+      orderedResults = orderedResults.Skip(request.skip.Value);
+    if (request.take.HasValue)
+      orderedResults = orderedResults.Take(request.take.Value);
+
+    return Result.Success(orderedResults.AsEnumerable());
   } 
 }
