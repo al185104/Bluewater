@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.UserAggregate;
-using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Employees.List;
 using MediatR;
@@ -30,8 +29,8 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
 
       if (employeeResult.IsSuccess)
       {
-        employees = employeeResult.Value.Items.ToList();
-        totalCount = employeeResult.Value.TotalCount;
+        employees = employeeResult.Value.Value;
+        totalCount = employeeResult.Value.PagedInfo.TotalRecords;
       }
     }
 
@@ -71,6 +70,9 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
       }
     }
 
-    return Result<PagedResult<AllEmployeeTimesheetDTO>>.Success(new PagedResult<AllEmployeeTimesheetDTO>(results, totalCount));
+    var pageSize = request.take ?? results.Count;
+    var pageNumber = pageSize > 0 ? ((request.skip ?? 0) / pageSize) + 1 : 1;
+    var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount);
+    return Result<PagedResult<AllEmployeeTimesheetDTO>>.Success(new PagedResult<AllEmployeeTimesheetDTO>(results, pagedInfo));
   }
 }

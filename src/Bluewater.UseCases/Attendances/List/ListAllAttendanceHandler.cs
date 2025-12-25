@@ -1,6 +1,5 @@
 ﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
-using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Employees.List;
 using MediatR;
@@ -23,8 +22,8 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
         var ret = await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.charging, request.tenant));
         if (ret.IsSuccess)
         {
-            employees = ret.Value.Items.ToList();
-            totalCount = ret.Value.TotalCount;
+            employees = ret.Value.Value;
+            totalCount = ret.Value.PagedInfo.TotalRecords;
         }
             //employees = ret.Value.Where(i => !string.IsNullOrEmpty(i.Charging) && i.Charging.Equals(request.charging, StringComparison.InvariantCultureIgnoreCase)).ToList();
       }
@@ -46,7 +45,10 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
             }
           }
       }
-      return Result<PagedResult<AllAttendancesDTO>>.Success(new PagedResult<AllAttendancesDTO>(results, totalCount));
+      var pageSize = request.take ?? results.Count;
+      var pageNumber = pageSize > 0 ? ((request.skip ?? 0) / pageSize) + 1 : 1;
+      var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount);
+      return Result<PagedResult<AllAttendancesDTO>>.Success(new PagedResult<AllAttendancesDTO>(results, pagedInfo));
     }
     catch(Exception){
       throw;

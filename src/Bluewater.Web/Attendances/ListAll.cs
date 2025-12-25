@@ -1,5 +1,4 @@
 using Ardalis.Result;
-using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Attendances;
 using Bluewater.UseCases.Attendances.List;
 using FastEndpoints;
@@ -29,8 +28,8 @@ public class ListAll(IMediator _mediator) : Endpoint<AttendanceListAllRequest, A
     {
       Response = new AttendanceListAllResponse
       {
-        Employees = result.Value.Items.Select(AttendanceMapper.ToRecord).ToList(),
-        TotalCount = result.Value.TotalCount
+        Employees = result.Value.Value.Select(AttendanceMapper.ToRecord).ToList(),
+        TotalCount = result.Value.PagedInfo.TotalRecords
       };
     }
   }

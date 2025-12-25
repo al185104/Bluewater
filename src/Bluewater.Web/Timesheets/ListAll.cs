@@ -1,6 +1,5 @@
 using System.Linq;
 using Ardalis.Result;
-using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Timesheets;
 using Bluewater.UseCases.Timesheets.List;
 using FastEndpoints;
@@ -36,8 +35,8 @@ public class ListAll(IMediator _mediator) : Endpoint<TimesheetListAllRequest, Ti
     {
       Response = new TimesheetListAllResponse
       {
-        Employees = result.Value.Items.Select(TimesheetMapper.ToRecord).ToList(),
-        TotalCount = result.Value.TotalCount
+        Employees = result.Value.Value.Select(TimesheetMapper.ToRecord).ToList(),
+        TotalCount = result.Value.PagedInfo.TotalRecords
       };
     }
   }
