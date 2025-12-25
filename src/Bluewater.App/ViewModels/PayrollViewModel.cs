@@ -14,6 +14,7 @@ namespace Bluewater.App.ViewModels;
 
 public partial class PayrollViewModel : BaseViewModel
 {
+  private const int PageSize = 100;
   private readonly IPayrollApiService payrollApiService;
   private bool hasInitialized;
 
@@ -207,9 +208,29 @@ public partial class PayrollViewModel : BaseViewModel
     {
       IsBusy = true;
 
-      IReadOnlyList<PayrollSummary> payrolls = await payrollApiService
-        .GetPayrollsAsync(StartDate, EndDate, chargingName: ChargingFilter)
-        .ConfigureAwait(false);
+      var payrolls = new List<PayrollSummary>();
+      int skip = 0;
+
+      while (true)
+      {
+        IReadOnlyList<PayrollSummary> page = await payrollApiService
+          .GetPayrollsAsync(StartDate, EndDate, ChargingFilter, skip, PageSize)
+          .ConfigureAwait(false);
+
+        if (page.Count == 0)
+        {
+          break;
+        }
+
+        payrolls.AddRange(page);
+
+        if (page.Count < PageSize)
+        {
+          break;
+        }
+
+        skip += PageSize;
+      }
 
       Payrolls.Clear();
       foreach (PayrollSummary payroll in payrolls)

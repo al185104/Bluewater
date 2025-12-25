@@ -16,6 +16,7 @@ namespace Bluewater.App.ViewModels;
 public partial class TimesheetsViewModel : BaseViewModel
 {
   private const string DefaultDetailsPrimaryActionText = "Save Changes";
+  private const int PageSize = 100;
 
   private readonly ITimesheetApiService timesheetApiService;
   private readonly IReferenceDataService referenceDataService;
@@ -265,13 +266,35 @@ public partial class TimesheetsViewModel : BaseViewModel
     {
       IsBusy = true;
 
-      IReadOnlyList<EmployeeTimesheetSummary> summaries = await timesheetApiService
-        .GetTimesheetSummariesAsync(
-          SelectedCharging.Name,
-          StartDate,
-          EndDate,
-          SelectedTenant)
-        .ConfigureAwait(false);
+      var summaries = new List<EmployeeTimesheetSummary>();
+      int skip = 0;
+
+      while (true)
+      {
+        IReadOnlyList<EmployeeTimesheetSummary> page = await timesheetApiService
+          .GetTimesheetSummariesAsync(
+            SelectedCharging.Name,
+            StartDate,
+            EndDate,
+            SelectedTenant,
+            skip,
+            PageSize)
+          .ConfigureAwait(false);
+
+        if (page.Count == 0)
+        {
+          break;
+        }
+
+        summaries.AddRange(page);
+
+        if (page.Count < PageSize)
+        {
+          break;
+        }
+
+        skip += PageSize;
+      }
 
       await MainThread.InvokeOnMainThreadAsync(() =>
       {
