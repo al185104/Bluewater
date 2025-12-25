@@ -114,7 +114,14 @@ public static class MauiProgram
     exceptionHandlingService.Initialize();
 
     IReferenceDataService referenceDataService = app.Services.GetRequiredService<IReferenceDataService>();
-    referenceDataService.InitializeAsync().GetAwaiter().GetResult();
+    try
+    {
+      referenceDataService.InitializeAsync().GetAwaiter().GetResult();
+    }
+    catch (Exception ex)
+    {
+      exceptionHandlingService.Handle(ex, "Initializing reference data");
+    }
 
     return app;
   }

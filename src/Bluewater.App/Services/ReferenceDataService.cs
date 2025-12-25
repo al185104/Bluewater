@@ -22,6 +22,7 @@ public class ReferenceDataService : IReferenceDataService, IDisposable
 
   private readonly SemaphoreSlim _initializationSemaphore = new(1, 1);
   private Task? _initializationTask;
+  private bool hasInitializationFailed;
 
   private IReadOnlyList<ChargingSummary> _chargings = Array.Empty<ChargingSummary>();
   private IReadOnlyList<DivisionSummary> _divisions = Array.Empty<DivisionSummary>();
@@ -64,6 +65,7 @@ public class ReferenceDataService : IReferenceDataService, IDisposable
   public IReadOnlyList<EmployeeTypeSummary> EmployeeTypes => _employeeTypes;
   public IReadOnlyList<LevelSummary> Levels => _levels;
   public IReadOnlyList<LeaveCreditSummary> LeaveCredits => _leaveCredits;
+  public bool HasInitializationFailed => hasInitializationFailed;
 
   public async Task InitializeAsync(CancellationToken cancellationToken = default)
   {
@@ -146,9 +148,11 @@ public class ReferenceDataService : IReferenceDataService, IDisposable
     try
     {
       await initializationTask.ConfigureAwait(false);
+      hasInitializationFailed = false;
     }
     catch
     {
+      hasInitializationFailed = true;
       if (ReferenceEquals(_initializationTask, initializationTask))
       {
         _initializationTask = null;

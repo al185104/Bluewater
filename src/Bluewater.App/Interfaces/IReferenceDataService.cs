@@ -7,6 +7,7 @@ namespace Bluewater.App.Interfaces;
 
 public interface IReferenceDataService
 {
+  bool HasInitializationFailed { get; }
   IReadOnlyList<ChargingSummary> Chargings { get; }
   IReadOnlyList<DivisionSummary> Divisions { get; }
   IReadOnlyList<DepartmentSummary> Departments { get; }
