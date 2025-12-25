@@ -17,6 +17,7 @@ public partial class AttendanceViewModel : BaseViewModel
 {
   private const string DefaultDetailsPrimaryActionText = "Close";
   private const string SaveDetailsPrimaryActionText = "Save Changes";
+  private const int PageSize = 100;
 
   private readonly IAttendanceApiService attendanceApiService;
   private readonly IReferenceDataService referenceDataService;
@@ -497,13 +498,35 @@ public partial class AttendanceViewModel : BaseViewModel
 
       await TraceCommandAsync(nameof(LoadAttendanceSummariesAsync), SelectedCharging.Id).ConfigureAwait(false);
 
-      IReadOnlyList<EmployeeAttendanceSummary> summaries = await attendanceApiService
-        .GetAttendanceSummariesAsync(
-          SelectedCharging.Name,
-          StartDate,
-          EndDate,
-          tenant: SelectedTenant)
-        .ConfigureAwait(false);
+      var summaries = new List<EmployeeAttendanceSummary>();
+      int skip = 0;
+
+      while (true)
+      {
+        IReadOnlyList<EmployeeAttendanceSummary> page = await attendanceApiService
+          .GetAttendanceSummariesAsync(
+            SelectedCharging.Name,
+            StartDate,
+            EndDate,
+            skip,
+            PageSize,
+            SelectedTenant)
+          .ConfigureAwait(false);
+
+        if (page.Count == 0)
+        {
+          break;
+        }
+
+        summaries.AddRange(page);
+
+        if (page.Count < PageSize)
+        {
+          break;
+        }
+
+        skip += PageSize;
+      }
 
       Guid? openEmployeeId = SelectedEmployeeAttendance?.EmployeeId;
 

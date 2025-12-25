@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
@@ -13,6 +14,7 @@ namespace Bluewater.App.ViewModels;
 public partial class EmployeeViewModel : BaseViewModel
 {
   private const string DefaultPrimaryActionText = "Save Employee";
+  private const int PageSize = 100;
   private readonly IEmployeeApiService employeeApiService;
   private bool hasInitialized;
 
@@ -313,7 +315,27 @@ public partial class EmployeeViewModel : BaseViewModel
       IsBusy = true;
 
       Employees.Clear();
-      IReadOnlyList<EmployeeSummary> employees = await employeeApiService.GetEmployeesAsync();
+
+      var employees = new List<EmployeeSummary>();
+      int skip = 0;
+
+      while (true)
+      {
+        IReadOnlyList<EmployeeSummary> page = await employeeApiService.GetEmployeesAsync(skip, PageSize);
+        if (page.Count == 0)
+        {
+          break;
+        }
+
+        employees.AddRange(page);
+
+        if (page.Count < PageSize)
+        {
+          break;
+        }
+
+        skip += PageSize;
+      }
 
       int index = 0;
 

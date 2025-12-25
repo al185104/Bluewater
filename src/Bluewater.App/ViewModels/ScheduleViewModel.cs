@@ -18,6 +18,7 @@ namespace Bluewater.App.ViewModels;
 [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "CommunityToolkit.Mvvm RelayCommand attributes are platform-agnostic in .NET MAUI view models.")]
 public partial class ScheduleViewModel : BaseViewModel
 {
+  private const int PageSize = 100;
   private readonly IScheduleApiService scheduleApiService;
   private readonly IShiftApiService shiftApiService;
   private readonly IReferenceDataService referenceDataService;
@@ -150,9 +151,29 @@ public partial class ScheduleViewModel : BaseViewModel
 
       await EnsureShiftOptionsAsync().ConfigureAwait(false);
 
-      IReadOnlyList<EmployeeScheduleSummary> schedules = await scheduleApiService
-        .GetSchedulesAsync(SelectedCharging.Name, CurrentWeekStart, CurrentWeekEnd, tenant: SelectedTenant)
-        .ConfigureAwait(false);
+      var schedules = new List<EmployeeScheduleSummary>();
+      int skip = 0;
+
+      while (true)
+      {
+        IReadOnlyList<EmployeeScheduleSummary> page = await scheduleApiService
+          .GetSchedulesAsync(SelectedCharging.Name, CurrentWeekStart, CurrentWeekEnd, skip, PageSize, SelectedTenant)
+          .ConfigureAwait(false);
+
+        if (page.Count == 0)
+        {
+          break;
+        }
+
+        schedules.AddRange(page);
+
+        if (page.Count < PageSize)
+        {
+          break;
+        }
+
+        skip += PageSize;
+      }
 
       var weeklySchedules = new List<WeeklyEmployeeSchedule>();
       int rowIndex = 0;
