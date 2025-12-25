@@ -97,7 +97,7 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
       }
     }
 
-    var orderedResults = results.OrderByDescending(i => i.EntryDate);
+    IEnumerable<AttendanceDTO> orderedResults = results.OrderByDescending(i => i.EntryDate);
     if (request.skip.HasValue)
       orderedResults = orderedResults.Skip(request.skip.Value);
     if (request.take.HasValue)

@@ -51,7 +51,7 @@ internal class ListTimesheetHandler(IRepository<Timesheet> _repository, IService
           results.Add(new TimesheetInfo(timesheet.Id, timesheet.TimeIn1, timesheet.TimeOut1, timesheet.TimeIn2, timesheet.TimeOut2, timesheet.EntryDate, isEdited: timesheet.IsEdited));
     }
 
-    var orderedResults = results.OrderByDescending(i => i.EntryDate);
+    IEnumerable<TimesheetInfo> orderedResults = results.OrderByDescending(i => i.EntryDate);
     if (request.skip.HasValue)
       orderedResults = orderedResults.Skip(request.skip.Value);
     if (request.take.HasValue)
