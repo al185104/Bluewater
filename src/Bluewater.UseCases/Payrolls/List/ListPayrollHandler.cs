@@ -5,6 +5,7 @@ using Bluewater.Core.PayrollAggregate.Specifications;
 using Microsoft.Extensions.DependencyInjection;
 using MediatR;
 using Bluewater.UseCases.Employees.List;
+using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Attendances;
 using Bluewater.UseCases.Attendances.List;
 using Bluewater.UseCases.Pays;
