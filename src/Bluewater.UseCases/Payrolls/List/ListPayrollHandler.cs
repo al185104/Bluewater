@@ -20,7 +20,6 @@ using Bluewater.UseCases.Forms.Deductions;
 using Bluewater.UseCases.Forms.Deductions.List;
 using Bluewater.UseCases.ServiceCharges;
 using Bluewater.UseCases.ServiceCharges.List;
-using Bluewater.UseCases.Common;
 
 namespace Bluewater.UseCases.Payrolls.List;
 
@@ -43,10 +42,10 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
 
       if (ret.IsSuccess)
       {
-        employees = ret.Value.Items
+        employees = ret.Value.Value
         .Select(s => (s.Id, $"{s.LastName}, {s.FirstName}", s.Pay, s.Type, s.User?.Username, 
           s.Division, s.Department, s.Section, s.Position, s.Charging, s.EmploymentInfo?.BankAccount)).ToList();
-        totalCount = ret.Value.TotalCount;
+        totalCount = ret.Value.PagedInfo.TotalRecords;
       }
     }
 
@@ -56,7 +55,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         var ret = await mediator.Send(new ListAllAttendancesQuery(request.skip, request.take, request.chargingName ?? string.Empty, request.start, request.end, request.tenant));
         if (ret.IsSuccess)
-            attendances = ret.Value.Items.ToList();
+            attendances = ret.Value.Value;
     }
 
     // get all holidays by dates
@@ -206,7 +205,10 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
 
       results.Add(_payRoll);
     }
-    return Result.Success(new PagedResult<PayrollDTO>(results, totalCount));
+    var pageSize = request.take ?? results.Count;
+    var pageNumber = pageSize > 0 ? ((request.skip ?? 0) / pageSize) + 1 : 1;
+    var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount);
+    return Result.Success(new PagedResult<PayrollDTO>(results, pagedInfo));
   }
 
   private decimal CalculateNightDiffOvertimePremium(decimal hourlyRate, List<OvertimeDTO> overtimes)

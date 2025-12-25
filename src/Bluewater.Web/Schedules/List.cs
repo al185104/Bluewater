@@ -1,5 +1,4 @@
 using Ardalis.Result;
-using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Schedules;
 using Bluewater.UseCases.Schedules.List;
 using FastEndpoints;
@@ -29,8 +28,8 @@ public class List(IMediator _mediator) : Endpoint<ScheduleListRequest, ScheduleL
     {
       Response = new ScheduleListResponse
       {
-        Employees = result.Value.Items.Select(ScheduleMapper.ToRecord).ToList(),
-        TotalCount = result.Value.TotalCount
+        Employees = result.Value.Value.Select(ScheduleMapper.ToRecord).ToList(),
+        TotalCount = result.Value.PagedInfo.TotalRecords
       };
     }
   }

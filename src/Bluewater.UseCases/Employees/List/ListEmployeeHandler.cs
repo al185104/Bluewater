@@ -23,7 +23,6 @@ using Bluewater.UseCases.Users.Get;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Bluewater.Core.EmployeeAggregate.Specifications;
-using Bluewater.UseCases.Common;
 
 namespace Bluewater.UseCases.Employees.List;
 
@@ -208,7 +207,10 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
             ));
         }
 
-        return Result.Success(new PagedResult<EmployeeDTO>(_employees, totalCount));
+        var pageSize = request.take ?? _employees.Count;
+        var pageNumber = pageSize > 0 ? ((request.skip ?? 0) / pageSize) + 1 : 1;
+        var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount);
+        return Result.Success(new PagedResult<EmployeeDTO>(_employees, pagedInfo));
     }
     catch (Exception e) {
         return Result.Error(e.Message);

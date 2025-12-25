@@ -1,5 +1,4 @@
 using Ardalis.Result;
-using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Payrolls;
 using Bluewater.UseCases.Payrolls.List;
 using FastEndpoints;
@@ -29,8 +28,8 @@ public class List(IMediator _mediator) : Endpoint<PayrollListRequest, PayrollLis
     {
       Response = new PayrollListResponse
       {
-        Payrolls = result.Value.Items.ToList(),
-        TotalCount = result.Value.TotalCount
+        Payrolls = result.Value.Value,
+        TotalCount = result.Value.PagedInfo.TotalRecords
       };
     }
   }

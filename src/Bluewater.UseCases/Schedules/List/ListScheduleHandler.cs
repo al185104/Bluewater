@@ -2,7 +2,6 @@
 using Ardalis.SharedKernel;
 using Bluewater.Core.ScheduleAggregate;
 using Bluewater.Core.ScheduleAggregate.Specifications;
-using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Employees.List;
 using Bluewater.UseCases.Shifts;
@@ -24,8 +23,8 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
         var ret = await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.chargingName, request.tenant));
         if (ret.IsSuccess)
         {
-            employees = ret.Value.Items.ToList();
-            totalCount = ret.Value.TotalCount;
+            employees = ret.Value.Value;
+            totalCount = ret.Value.PagedInfo.TotalRecords;
         }
     }
 
@@ -85,7 +84,10 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
         results.Add(new EmployeeScheduleDTO(emp.Id, emp.User!.Username, $"{emp.LastName}, {emp.FirstName}", emp.Section ?? string.Empty, emp.Charging ?? string.Empty, shifts.OrderBy(s => s.ScheduleDate).ToList()));
     }
 
+    var pageSize = request.take ?? results.Count;
+    var pageNumber = pageSize > 0 ? ((request.skip ?? 0) / pageSize) + 1 : 1;
+    var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount);
     return Result<PagedResult<EmployeeScheduleDTO>>.Success(
-      new PagedResult<EmployeeScheduleDTO>(results.OrderBy(r => r.Name).ToList(), totalCount));
+      new PagedResult<EmployeeScheduleDTO>(results.OrderBy(r => r.Name).ToList(), pagedInfo));
   }
 }
