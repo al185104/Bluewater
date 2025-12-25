@@ -11,6 +11,7 @@ public class AttendanceListResponseDto
 public class AttendanceListAllResponseDto
 {
   public List<EmployeeAttendanceDto?> Employees { get; set; } = new();
+  public int TotalCount { get; set; }
 }
 
 public class AttendanceDto

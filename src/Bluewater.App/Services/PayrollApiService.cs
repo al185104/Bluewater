@@ -9,7 +9,7 @@ namespace Bluewater.App.Services;
 
 public class PayrollApiService(IApiClient apiClient) : IPayrollApiService
 {
-  public async Task<IReadOnlyList<PayrollSummary>> GetPayrollsAsync(
+  public async Task<PagedResult<PayrollSummary>> GetPayrollsAsync(
     DateOnly startDate,
     DateOnly endDate,
     string? chargingName = null,
@@ -24,13 +24,15 @@ public class PayrollApiService(IApiClient apiClient) : IPayrollApiService
 
     if (response?.Payrolls is not { Count: > 0 })
     {
-      return Array.Empty<PayrollSummary>();
+      return new PagedResult<PayrollSummary>(Array.Empty<PayrollSummary>(), response?.TotalCount ?? 0);
     }
 
-    return response.Payrolls
+    IReadOnlyList<PayrollSummary> payrolls = response.Payrolls
       .Where(dto => dto is not null)
       .Select(MapToSummary)
       .ToList();
+
+    return new PagedResult<PayrollSummary>(payrolls, response.TotalCount);
   }
 
   public async Task<IReadOnlyList<PayrollGroupedSummary>> GetGroupedPayrollsAsync(

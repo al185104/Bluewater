@@ -30,6 +30,17 @@ public partial class PayrollViewModel : BaseViewModel
   }
 
   public ObservableCollection<PayrollSummary> Payrolls { get; } = new();
+  public ObservableCollection<int> PageNumbers { get; } = new();
+
+  [ObservableProperty]
+  public partial int CurrentPage { get; set; } = 1;
+
+  [ObservableProperty]
+  public partial int TotalCount { get; set; }
+
+  public int TotalPages => TotalCount == 0 ? 0 : (int)Math.Ceiling(TotalCount / (double)PageSize);
+
+  public bool HasPagination => TotalPages > 0;
 
   [ObservableProperty]
   public partial DateOnly StartDate { get; set; }
@@ -64,6 +75,7 @@ public partial class PayrollViewModel : BaseViewModel
   private async Task RefreshAsync()
   {
     await TraceCommandAsync(nameof(RefreshAsync));
+    CurrentPage = 1;
     await LoadPayrollsAsync();
   }
 
@@ -71,6 +83,7 @@ public partial class PayrollViewModel : BaseViewModel
   private async Task PreviousPeriodAsync()
   {
     SetPreviousPayslipPeriod();
+    CurrentPage = 1;
     await TraceCommandAsync(nameof(PreviousPeriodAsync));
     await LoadPayrollsAsync();
   }
@@ -79,8 +92,26 @@ public partial class PayrollViewModel : BaseViewModel
   private async Task NextPeriodAsync()
   {
     SetNextPayslipPeriod();
+    CurrentPage = 1;
     await TraceCommandAsync(nameof(NextPeriodAsync));
     await LoadPayrollsAsync();
+  }
+
+  [RelayCommand]
+  private async Task GoToPageAsync(int page)
+  {
+    if (IsBusy || page < 1 || page == CurrentPage)
+    {
+      return;
+    }
+
+    if (TotalPages > 0 && page > TotalPages)
+    {
+      return;
+    }
+
+    CurrentPage = page;
+    await LoadPayrollsAsync().ConfigureAwait(false);
   }
 
   private bool CanChangePeriod() => !IsBusy;
@@ -208,32 +239,15 @@ public partial class PayrollViewModel : BaseViewModel
     {
       IsBusy = true;
 
-      var payrolls = new List<PayrollSummary>();
-      int skip = 0;
+      int skip = (CurrentPage - 1) * PageSize;
+      PagedResult<PayrollSummary> page = await payrollApiService
+        .GetPayrollsAsync(StartDate, EndDate, ChargingFilter, skip, PageSize)
+        .ConfigureAwait(false);
 
-      while (true)
-      {
-        IReadOnlyList<PayrollSummary> page = await payrollApiService
-          .GetPayrollsAsync(StartDate, EndDate, ChargingFilter, skip, PageSize)
-          .ConfigureAwait(false);
-
-        if (page.Count == 0)
-        {
-          break;
-        }
-
-        payrolls.AddRange(page);
-
-        if (page.Count < PageSize)
-        {
-          break;
-        }
-
-        skip += PageSize;
-      }
+      UpdatePagination(page.TotalCount);
 
       Payrolls.Clear();
-      foreach (PayrollSummary payroll in payrolls)
+      foreach (PayrollSummary payroll in page.Items)
       {
         payroll.RowIndex = Payrolls.Count;
         Payrolls.Add(payroll);
@@ -246,6 +260,28 @@ public partial class PayrollViewModel : BaseViewModel
     finally
     {
       IsBusy = false;
+    }
+  }
+
+  private void UpdatePagination(int totalCount)
+  {
+    TotalCount = totalCount;
+    OnPropertyChanged(nameof(TotalPages));
+    OnPropertyChanged(nameof(HasPagination));
+
+    PageNumbers.Clear();
+    for (int page = 1; page <= TotalPages; page++)
+    {
+      PageNumbers.Add(page);
+    }
+
+    if (TotalPages == 0)
+    {
+      CurrentPage = 1;
+    }
+    else if (CurrentPage > TotalPages)
+    {
+      CurrentPage = TotalPages;
     }
   }
 

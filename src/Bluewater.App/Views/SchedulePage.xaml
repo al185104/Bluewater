@@ -147,7 +147,7 @@
     </ContentPage.Resources>
     <Grid>
         <Grid Padding="20,40"
-              RowDefinitions="Auto,Auto,*"
+              RowDefinitions="Auto,Auto,*,Auto"
               RowSpacing="16">
             <Grid ColumnDefinitions="*,Auto,Auto"
                   ColumnSpacing="12">
@@ -259,6 +259,26 @@
                                    HorizontalOptions="Center"
                                    VerticalOptions="Center" />
             </Grid>
+            <HorizontalStackLayout Grid.Row="3"
+                                   HorizontalOptions="End"
+                                   Spacing="8"
+                                   IsVisible="{Binding HasPagination}">
+                <Label Text="Page"
+                       VerticalOptions="Center"
+                       TextColor="{StaticResource TextSecondaryColor}" />
+                <CollectionView ItemsSource="{Binding PageNumbers}"
+                                SelectionMode="None"
+                                ItemsLayout="HorizontalList">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Button Text="{Binding .}"
+                                    Padding="8,4"
+                                    Command="{Binding Source={x:Reference Page}, Path=BindingContext.GoToPageCommand}"
+                                    CommandParameter="{Binding .}" />
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </HorizontalStackLayout>
         </Grid>
     </Grid>
 </ContentPage>

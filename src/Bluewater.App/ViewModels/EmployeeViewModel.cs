@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Bluewater.App.Helpers;
@@ -28,6 +29,17 @@ public partial class EmployeeViewModel : BaseViewModel
   }
 
   public ObservableCollection<EmployeeSummary> Employees { get; } = new();
+  public ObservableCollection<int> PageNumbers { get; } = new();
+
+  [ObservableProperty]
+  public partial int CurrentPage { get; set; } = 1;
+
+  [ObservableProperty]
+  public partial int TotalCount { get; set; }
+
+  public int TotalPages => TotalCount == 0 ? 0 : (int)Math.Ceiling(TotalCount / (double)PageSize);
+
+  public bool HasPagination => TotalPages > 0;
 
   [ObservableProperty]
   public partial EditableEmployee? EditableEmployee { get; set; }
@@ -293,6 +305,23 @@ public partial class EmployeeViewModel : BaseViewModel
     }
   }
 
+  [RelayCommand]
+  private async Task GoToPageAsync(int page)
+  {
+    if (IsBusy || page < 1 || page == CurrentPage)
+    {
+      return;
+    }
+
+    if (TotalPages > 0 && page > TotalPages)
+    {
+      return;
+    }
+
+    CurrentPage = page;
+    await LoadEmployeesAsync(forceRefresh: true).ConfigureAwait(false);
+  }
+
   public override Task InitializeAsync()
   {
     return LoadEmployeesAsync();
@@ -314,32 +343,15 @@ public partial class EmployeeViewModel : BaseViewModel
     {
       IsBusy = true;
 
+      int skip = (CurrentPage - 1) * PageSize;
+      PagedResult<EmployeeSummary> page = await employeeApiService.GetEmployeesAsync(skip, PageSize);
+
+      UpdatePagination(page.TotalCount);
       Employees.Clear();
-
-      var employees = new List<EmployeeSummary>();
-      int skip = 0;
-
-      while (true)
-      {
-        IReadOnlyList<EmployeeSummary> page = await employeeApiService.GetEmployeesAsync(skip, PageSize);
-        if (page.Count == 0)
-        {
-          break;
-        }
-
-        employees.AddRange(page);
-
-        if (page.Count < PageSize)
-        {
-          break;
-        }
-
-        skip += PageSize;
-      }
 
       int index = 0;
 
-      foreach (EmployeeSummary employee in employees
+      foreach (EmployeeSummary employee in page.Items
                .OrderBy(e => e.LastName ?? string.Empty)
                .ThenBy(e => e.FirstName ?? string.Empty))
       {
@@ -356,6 +368,28 @@ public partial class EmployeeViewModel : BaseViewModel
     finally
     {
       IsBusy = false;
+    }
+  }
+
+  private void UpdatePagination(int totalCount)
+  {
+    TotalCount = totalCount;
+    OnPropertyChanged(nameof(TotalPages));
+    OnPropertyChanged(nameof(HasPagination));
+
+    PageNumbers.Clear();
+    for (int page = 1; page <= TotalPages; page++)
+    {
+      PageNumbers.Add(page);
+    }
+
+    if (TotalPages == 0)
+    {
+      CurrentPage = 1;
+    }
+    else if (CurrentPage > TotalPages)
+    {
+      CurrentPage = TotalPages;
     }
   }
 }

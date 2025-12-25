@@ -140,10 +140,10 @@
 
                 var result = await mediator.Send(new ListEmployeeQuery(skip,take, GlobalService.CurrentTenant));
                 if (result.IsSuccess){
-                    return GridItemsProviderResult.From<EmployeeDTO>(result.Value.ToList(), 200);
+                    return GridItemsProviderResult.From<EmployeeDTO>(result.Value.Items.ToList(), result.Value.TotalCount);
                 }
             }
-            return GridItemsProviderResult.From<EmployeeDTO>(new List<EmployeeDTO>(), 200);
+            return GridItemsProviderResult.From<EmployeeDTO>(new List<EmployeeDTO>(), 0);
         }
         finally {
             isBusy = false;
@@ -307,7 +307,7 @@
 
                 var result = await mediator.Send(new ListEmployeeQuery(null,null, GlobalService.CurrentTenant));
                 if (result.IsSuccess){
-                    Employees = result.Value.AsQueryable();
+                    Employees = result.Value.Items.AsQueryable();
                 }
             }
         }

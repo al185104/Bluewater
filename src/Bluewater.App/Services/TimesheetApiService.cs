@@ -53,7 +53,7 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
       .ToList();
   }
 
-  public async Task<IReadOnlyList<EmployeeTimesheetSummary>> GetTimesheetSummariesAsync(
+  public async Task<PagedResult<EmployeeTimesheetSummary>> GetTimesheetSummariesAsync(
     string charging,
     DateOnly startDate,
     DateOnly endDate,
@@ -75,15 +75,17 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
 
     if (response?.Employees is not { Count: > 0 })
     {
-      return Array.Empty<EmployeeTimesheetSummary>();
+      return new PagedResult<EmployeeTimesheetSummary>(Array.Empty<EmployeeTimesheetSummary>(), response?.TotalCount ?? 0);
     }
 
-    return response.Employees
+    IReadOnlyList<EmployeeTimesheetSummary> timesheets = response.Employees
       .Where(employee => employee is not null)
       .Select(employee => MapToEmployeeSummary(employee!))
       .Where(summary => summary.Timesheets.Count > 0)
       .OrderBy(summary => summary.Name, StringComparer.OrdinalIgnoreCase)
       .ToList();
+
+    return new PagedResult<EmployeeTimesheetSummary>(timesheets, response.TotalCount);
   }
 
   public async Task<bool> CreateTimesheetEntryAsync(

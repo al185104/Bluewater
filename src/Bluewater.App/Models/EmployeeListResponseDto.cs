@@ -8,6 +8,7 @@ namespace Bluewater.App.Models;
 public class EmployeeListResponseDto
 {
   public List<EmployeeDto> Employees { get; set; } = new();
+  public int TotalCount { get; set; }
 }
 
 public class EmployeeDto

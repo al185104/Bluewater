@@ -20,29 +20,34 @@ using Bluewater.UseCases.Forms.Deductions;
 using Bluewater.UseCases.Forms.Deductions.List;
 using Bluewater.UseCases.ServiceCharges;
 using Bluewater.UseCases.ServiceCharges.List;
+using Bluewater.UseCases.Common;
 
 namespace Bluewater.UseCases.Payrolls.List;
 
-internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListPayrollQuery, Result<IEnumerable<PayrollDTO>>>
+internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListPayrollQuery, Result<PagedResult<PayrollDTO>>>
 {
-  public async Task<Result<IEnumerable<PayrollDTO>>> Handle(ListPayrollQuery request, CancellationToken cancellationToken)
+  public async Task<Result<PagedResult<PayrollDTO>>> Handle(ListPayrollQuery request, CancellationToken cancellationToken)
   {
     List<(Guid, string, PayDTO?, string?, string?, 
     string?, string?, string?, string?, string?,
     string?)> employees = new();
+    int totalCount = 0;
     using (var scope = serviceScopeFactory.CreateScope())
     {
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-      Result<IEnumerable<EmployeeDTO>> ret;
+      Result<PagedResult<EmployeeDTO>> ret;
       if (string.IsNullOrEmpty(request.chargingName))
         ret = await mediator.Send(new ListEmployeeQuery(request.skip, request.take, request.tenant));
       else
         ret = await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.chargingName, request.tenant));
 
       if (ret.IsSuccess)
-        employees = ret.Value
+      {
+        employees = ret.Value.Items
         .Select(s => (s.Id, $"{s.LastName}, {s.FirstName}", s.Pay, s.Type, s.User?.Username, 
           s.Division, s.Department, s.Section, s.Position, s.Charging, s.EmploymentInfo?.BankAccount)).ToList();
+        totalCount = ret.Value.TotalCount;
+      }
     }
 
     List<AllAttendancesDTO> attendances = new();
@@ -51,7 +56,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         var ret = await mediator.Send(new ListAllAttendancesQuery(request.skip, request.take, request.chargingName ?? string.Empty, request.start, request.end, request.tenant));
         if (ret.IsSuccess)
-            attendances = ret.Value.ToList();
+            attendances = ret.Value.Items.ToList();
     }
 
     // get all holidays by dates
@@ -201,7 +206,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
 
       results.Add(_payRoll);
     }
-    return Result.Success(results.AsEnumerable());
+    return Result.Success(new PagedResult<PayrollDTO>(results, totalCount));
   }
 
   private decimal CalculateNightDiffOvertimePremium(decimal hourlyRate, List<OvertimeDTO> overtimes)

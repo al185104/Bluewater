@@ -1683,7 +1683,7 @@
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListEmployeeQuery(null, null, GlobalService.CurrentTenant));
                 if (result.IsSuccess) {
-                    employeeIds = result.Value.Select(e => e.Id).ToList();
+                    employeeIds = result.Value.Items.Select(e => e.Id).ToList();
                 }
             }
 
@@ -1740,7 +1740,7 @@
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListEmployeeQuery(null, null, GlobalService.CurrentTenant));
                 if (result.IsSuccess) {
-                    employeeIds = result.Value.Select(e => e.Id).ToList();
+                    employeeIds = result.Value.Items.Select(e => e.Id).ToList();
                 }
             }
 

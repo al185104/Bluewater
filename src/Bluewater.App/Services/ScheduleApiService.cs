@@ -9,7 +9,7 @@ namespace Bluewater.App.Services;
 
 public class ScheduleApiService(IApiClient apiClient) : IScheduleApiService
 {
-  public async Task<IReadOnlyList<EmployeeScheduleSummary>> GetSchedulesAsync(
+  public async Task<PagedResult<EmployeeScheduleSummary>> GetSchedulesAsync(
     string chargingName,
     DateOnly startDate,
     DateOnly endDate,
@@ -29,13 +29,15 @@ public class ScheduleApiService(IApiClient apiClient) : IScheduleApiService
 
     if (response?.Employees is not { Count: > 0 })
     {
-      return Array.Empty<EmployeeScheduleSummary>();
+      return new PagedResult<EmployeeScheduleSummary>(Array.Empty<EmployeeScheduleSummary>(), response?.TotalCount ?? 0);
     }
 
-    return response.Employees
+    IReadOnlyList<EmployeeScheduleSummary> employees = response.Employees
       .Where(dto => dto is not null)
       .Select(dto => MapToEmployeeSummary(dto!))
       .ToList();
+
+    return new PagedResult<EmployeeScheduleSummary>(employees, response.TotalCount);
   }
 
   public async Task<ScheduleSummary?> GetScheduleByIdAsync(Guid scheduleId, CancellationToken cancellationToken = default)

@@ -48,6 +48,17 @@ public partial class ScheduleViewModel : BaseViewModel
   }
 
   public ObservableCollection<WeeklyEmployeeSchedule> Employees { get; } = new();
+  public ObservableCollection<int> PageNumbers { get; } = new();
+
+  [ObservableProperty]
+  public partial int CurrentPage { get; set; } = 1;
+
+  [ObservableProperty]
+  public partial int TotalCount { get; set; }
+
+  public int TotalPages => TotalCount == 0 ? 0 : (int)Math.Ceiling(TotalCount / (double)PageSize);
+
+  public bool HasPagination => TotalPages > 0;
   public ObservableCollection<ShiftPickerItem> ShiftOptions { get; } = new();
   public ObservableCollection<ChargingSummary> Chargings { get; } = new();
   public IReadOnlyList<TenantDto> TenantOptions { get; } = Array.AsReadOnly(Enum.GetValues<TenantDto>());
@@ -105,6 +116,7 @@ public partial class ScheduleViewModel : BaseViewModel
   private async Task PreviousWeekAsync()
   {
     SetWeek(CurrentWeekStart.AddDays(-7));
+    CurrentPage = 1;
     await LoadSchedulesAsync().ConfigureAwait(false);
   }
 
@@ -112,6 +124,7 @@ public partial class ScheduleViewModel : BaseViewModel
   private async Task NextWeekAsync()
   {
     SetWeek(CurrentWeekStart.AddDays(7));
+    CurrentPage = 1;
     await LoadSchedulesAsync().ConfigureAwait(false);
   }
 
@@ -125,13 +138,32 @@ public partial class ScheduleViewModel : BaseViewModel
       ResetEmployeesCollection();
       return;
     }
+    CurrentPage = 1;
     _ = LoadSchedulesAsync();
   }
 
   partial void OnSelectedTenantChanged(TenantDto value)
   {
     if (!hasInitialized) return;
+    CurrentPage = 1;
     _ = LoadSchedulesAsync();
+  }
+
+  [RelayCommand]
+  private async Task GoToPageAsync(int page)
+  {
+    if (IsBusy || page < 1 || page == CurrentPage)
+    {
+      return;
+    }
+
+    if (TotalPages > 0 && page > TotalPages)
+    {
+      return;
+    }
+
+    CurrentPage = page;
+    await LoadSchedulesAsync().ConfigureAwait(false);
   }
 
   partial void OnCurrentWeekStartChanged(DateOnly value) => RaiseWeekHeaderProperties();
@@ -151,34 +183,17 @@ public partial class ScheduleViewModel : BaseViewModel
 
       await EnsureShiftOptionsAsync().ConfigureAwait(false);
 
-      var schedules = new List<EmployeeScheduleSummary>();
-      int skip = 0;
+      int skip = (CurrentPage - 1) * PageSize;
+      PagedResult<EmployeeScheduleSummary> page = await scheduleApiService
+        .GetSchedulesAsync(SelectedCharging.Name, CurrentWeekStart, CurrentWeekEnd, skip, PageSize, SelectedTenant)
+        .ConfigureAwait(false);
 
-      while (true)
-      {
-        IReadOnlyList<EmployeeScheduleSummary> page = await scheduleApiService
-          .GetSchedulesAsync(SelectedCharging.Name, CurrentWeekStart, CurrentWeekEnd, skip, PageSize, SelectedTenant)
-          .ConfigureAwait(false);
-
-        if (page.Count == 0)
-        {
-          break;
-        }
-
-        schedules.AddRange(page);
-
-        if (page.Count < PageSize)
-        {
-          break;
-        }
-
-        skip += PageSize;
-      }
+      UpdatePagination(page.TotalCount);
 
       var weeklySchedules = new List<WeeklyEmployeeSchedule>();
       int rowIndex = 0;
 
-      foreach (var employee in schedules.OrderBy(emp => emp.Name, StringComparer.OrdinalIgnoreCase))
+      foreach (var employee in page.Items.OrderBy(emp => emp.Name, StringComparer.OrdinalIgnoreCase))
       {
         var days = new List<DailyShiftSelection>(7);
 
@@ -305,6 +320,7 @@ public partial class ScheduleViewModel : BaseViewModel
 
     Employees.Clear();
     previousSelections.Clear();
+    UpdatePagination(0);
   }
 
   private void AttachDaySelectionHandlers(DailyShiftSelection day)
@@ -619,6 +635,28 @@ public partial class ScheduleViewModel : BaseViewModel
   }
 
   private static string FormatTime(TimeOnly? time) => time?.ToString("hh:mm tt", CultureInfo.CurrentCulture) ?? string.Empty;
+
+  private void UpdatePagination(int totalCount)
+  {
+    TotalCount = totalCount;
+    OnPropertyChanged(nameof(TotalPages));
+    OnPropertyChanged(nameof(HasPagination));
+
+    PageNumbers.Clear();
+    for (int page = 1; page <= TotalPages; page++)
+    {
+      PageNumbers.Add(page);
+    }
+
+    if (TotalPages == 0)
+    {
+      CurrentPage = 1;
+    }
+    else if (CurrentPage > TotalPages)
+    {
+      CurrentPage = TotalPages;
+    }
+  }
 }
 
 public sealed class WeeklyEmployeeSchedule : IRowIndexed

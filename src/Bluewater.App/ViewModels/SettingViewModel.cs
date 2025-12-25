@@ -346,9 +346,30 @@ public partial class SettingViewModel : BaseViewModel
 
       await TraceCommandAsync(nameof(RandomizeDataAsync), new { startDate, endDate }).ConfigureAwait(false);
 
-      IReadOnlyList<EmployeeSummary> employees = await _employeeApiService
-        .GetEmployeesAsync()
-        .ConfigureAwait(false);
+      const int employeePageSize = 100;
+      var employees = new List<EmployeeSummary>();
+      int skip = 0;
+
+      while (true)
+      {
+        PagedResult<EmployeeSummary> page = await _employeeApiService
+          .GetEmployeesAsync(skip, employeePageSize)
+          .ConfigureAwait(false);
+
+        if (page.Items.Count == 0)
+        {
+          break;
+        }
+
+        employees.AddRange(page.Items);
+
+        if (employees.Count >= page.TotalCount)
+        {
+          break;
+        }
+
+        skip += employeePageSize;
+      }
 
       if (employees.Count == 0)
       {

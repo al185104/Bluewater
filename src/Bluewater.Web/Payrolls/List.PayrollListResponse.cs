@@ -5,4 +5,5 @@ namespace Bluewater.Web.Payrolls;
 public class PayrollListResponse
 {
   public List<PayrollDTO> Payrolls { get; set; } = new();
+  public int TotalCount { get; set; }
 }

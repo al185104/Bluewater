@@ -157,7 +157,7 @@
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
                 var result = await mediator.Send(new ListAllAttendancesQuery(null, null, selectCharging.Name, _startDate, _endDate, GlobalService.CurrentTenant));
                 if (result.IsSuccess)
-                    EmployeeAttendance = result.Value.AsQueryable();
+                    EmployeeAttendance = result.Value.Items.AsQueryable();
             }            
         }
         catch (Exception)

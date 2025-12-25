@@ -6,7 +6,7 @@ namespace Bluewater.App.Interfaces;
 
 public interface IPayrollApiService
 {
-  Task<IReadOnlyList<PayrollSummary>> GetPayrollsAsync(
+  Task<PagedResult<PayrollSummary>> GetPayrollsAsync(
     DateOnly startDate,
     DateOnly endDate,
     string? chargingName = null,

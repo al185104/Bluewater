@@ -2,6 +2,7 @@
 using Ardalis.SharedKernel;
 using Bluewater.Core.ScheduleAggregate;
 using Bluewater.Core.ScheduleAggregate.Specifications;
+using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Employees.List;
 using Bluewater.UseCases.Shifts;
@@ -11,17 +12,21 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bluewater.UseCases.Schedules.List;
 
-internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListScheduleQuery, Result<IEnumerable<EmployeeScheduleDTO>>>
+internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListScheduleQuery, Result<PagedResult<EmployeeScheduleDTO>>>
 {
-  public async Task<Result<IEnumerable<EmployeeScheduleDTO>>> Handle(ListScheduleQuery request, CancellationToken cancellationToken)
+  public async Task<Result<PagedResult<EmployeeScheduleDTO>>> Handle(ListScheduleQuery request, CancellationToken cancellationToken)
   {
     List<EmployeeDTO> employees = new();
+    int totalCount = 0;
     using (var scope = serviceScopeFactory.CreateScope())
     {
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         var ret = await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.chargingName, request.tenant));
         if (ret.IsSuccess)
-            employees = ret.Value.ToList();
+        {
+            employees = ret.Value.Items.ToList();
+            totalCount = ret.Value.TotalCount;
+        }
     }
 
     List<EmployeeScheduleDTO> results = new();
@@ -80,6 +85,7 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
         results.Add(new EmployeeScheduleDTO(emp.Id, emp.User!.Username, $"{emp.LastName}, {emp.FirstName}", emp.Section ?? string.Empty, emp.Charging ?? string.Empty, shifts.OrderBy(s => s.ScheduleDate).ToList()));
     }
 
-    return results.OrderBy(r => r.Name).ToList();
+    return Result<PagedResult<EmployeeScheduleDTO>>.Success(
+      new PagedResult<EmployeeScheduleDTO>(results.OrderBy(r => r.Name).ToList(), totalCount));
   }
 }

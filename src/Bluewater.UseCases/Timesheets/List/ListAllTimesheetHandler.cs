@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.UserAggregate;
+using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Employees.List;
 using MediatR;
@@ -13,28 +14,30 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bluewater.UseCases.Timesheets.List;
 
-internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAllTimesheetQuery, Result<IEnumerable<AllEmployeeTimesheetDTO>>>
+internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAllTimesheetQuery, Result<PagedResult<AllEmployeeTimesheetDTO>>>
 {
-  public async Task<Result<IEnumerable<AllEmployeeTimesheetDTO>>> Handle(ListAllTimesheetQuery request, CancellationToken cancellationToken)
+  public async Task<Result<PagedResult<AllEmployeeTimesheetDTO>>> Handle(ListAllTimesheetQuery request, CancellationToken cancellationToken)
   {
     List<EmployeeDTO> employees = new();
+    int totalCount = 0;
 
     using (var scope = serviceScopeFactory.CreateScope())
     {
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-      Result<IEnumerable<EmployeeDTO>> employeeResult = string.IsNullOrWhiteSpace(request.charging)
-        ? await mediator.Send(new ListEmployeeQuery(null, null, request.tenant), cancellationToken)
-        : await mediator.Send(new ListEmployeeByChargingQuery(null, null, request.charging, request.tenant), cancellationToken);
+      Result<PagedResult<EmployeeDTO>> employeeResult = string.IsNullOrWhiteSpace(request.charging)
+        ? await mediator.Send(new ListEmployeeQuery(request.skip, request.take, request.tenant), cancellationToken)
+        : await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.charging, request.tenant), cancellationToken);
 
       if (employeeResult.IsSuccess)
       {
-        employees = employeeResult.Value.ToList();
+        employees = employeeResult.Value.Items.ToList();
+        totalCount = employeeResult.Value.TotalCount;
       }
     }
 
     if (employees.Count == 0)
     {
-      return Result<IEnumerable<AllEmployeeTimesheetDTO>>.NotFound();
+      return Result<PagedResult<AllEmployeeTimesheetDTO>>.NotFound();
     }
 
     List<AllEmployeeTimesheetDTO> results = new();
@@ -68,6 +71,6 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
       }
     }
 
-    return Result<IEnumerable<AllEmployeeTimesheetDTO>>.Success(results);
+    return Result<PagedResult<AllEmployeeTimesheetDTO>>.Success(new PagedResult<AllEmployeeTimesheetDTO>(results, totalCount));
   }
 }

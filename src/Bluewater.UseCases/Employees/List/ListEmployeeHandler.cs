@@ -23,17 +23,21 @@ using Bluewater.UseCases.Users.Get;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Bluewater.Core.EmployeeAggregate.Specifications;
+using Bluewater.UseCases.Common;
 
 namespace Bluewater.UseCases.Employees.List;
 
-internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceScopeFactory _serviceScopeFactory) : IQueryHandler<ListEmployeeQuery, Result<IEnumerable<EmployeeDTO>>>
+internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceScopeFactory _serviceScopeFactory) : IQueryHandler<ListEmployeeQuery, Result<PagedResult<EmployeeDTO>>>
 {
-  public async Task<Result<IEnumerable<EmployeeDTO>>> Handle(ListEmployeeQuery request, CancellationToken cancellationToken)
+  public async Task<Result<PagedResult<EmployeeDTO>>> Handle(ListEmployeeQuery request, CancellationToken cancellationToken)
   {
     try {
         var spec = new EmployeeListSpec(request.skip, request.take, request.tenant);
         var employees = await _repository.ListAsync(spec, cancellationToken);
         if(employees == null) return Result.NotFound();
+
+        var countSpec = new EmployeeCountSpec(request.tenant);
+        var totalCount = await _repository.CountAsync(countSpec, cancellationToken);
 
 
         List<EmployeeDTO> _employees = new List<EmployeeDTO>();
@@ -204,7 +208,7 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
             ));
         }
 
-        return Result.Success(_employees.AsEnumerable());
+        return Result.Success(new PagedResult<EmployeeDTO>(_employees, totalCount));
     }
     catch (Exception e) {
         return Result.Error(e.Message);
