@@ -18,7 +18,7 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
       {
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         //var ret = await mediator.Send(new ListEmployeeQuery(null, null));
-        var ret = await mediator.Send(new ListEmployeeByChargingQuery(null, null, request.charging, request.tenant));
+        var ret = await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.charging, request.tenant));
         if (ret.IsSuccess)
             employees = ret.Value.ToList();
             //employees = ret.Value.Where(i => !string.IsNullOrEmpty(i.Charging) && i.Charging.Equals(request.charging, StringComparison.InvariantCultureIgnoreCase)).ToList();
