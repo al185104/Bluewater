@@ -30,7 +30,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
     List<(Guid, string, PayDTO?, string?, string?, 
     string?, string?, string?, string?, string?,
     string?)> employees = new();
-    int totalCount = 0;
+    long totalCount = 0;
     using (var scope = serviceScopeFactory.CreateScope())
     {
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -43,8 +43,9 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
       if (ret.IsSuccess)
       {
         employees = ret.Value.Value
-        .Select(s => (s.Id, $"{s.LastName}, {s.FirstName}", s.Pay, s.Type, s.User?.Username, 
-          s.Division, s.Department, s.Section, s.Position, s.Charging, s.EmploymentInfo?.BankAccount)).ToList();
+          .Select(s => (s.Id, $"{s.LastName}, {s.FirstName}", s.Pay, s.Type, s.User?.Username,
+            s.Division, s.Department, s.Section, s.Position, s.Charging, s.EmploymentInfo?.BankAccount))
+          .ToList();
         totalCount = ret.Value.PagedInfo.TotalRecords;
       }
     }
@@ -55,7 +56,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         var ret = await mediator.Send(new ListAllAttendancesQuery(request.skip, request.take, request.chargingName ?? string.Empty, request.start, request.end, request.tenant));
         if (ret.IsSuccess)
-            attendances = ret.Value.Value;
+            attendances = ret.Value.Value.ToList();
     }
 
     // get all holidays by dates
@@ -205,10 +206,11 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
 
       results.Add(_payRoll);
     }
-    var pageSize = request.take ?? results.Count;
+    var pageSize = (long)(request.take ?? results.Count);
     var pageNumber = pageSize > 0 ? ((request.skip ?? 0) / pageSize) + 1 : 1;
-    var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount);
-    return Result.Success(new PagedResult<PayrollDTO>(results, pagedInfo));
+    var totalPages = pageSize > 0 ? (long)Math.Ceiling(totalCount / (double)pageSize) : 0;
+    var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount, totalPages);
+    return Result<PagedResult<PayrollDTO>>.Success(new PagedResult<PayrollDTO>(pagedInfo, results));
   }
 
   private decimal CalculateNightDiffOvertimePremium(decimal hourlyRate, List<OvertimeDTO> overtimes)

@@ -16,14 +16,14 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
   public async Task<Result<PagedResult<EmployeeScheduleDTO>>> Handle(ListScheduleQuery request, CancellationToken cancellationToken)
   {
     List<EmployeeDTO> employees = new();
-    int totalCount = 0;
+    long totalCount = 0;
     using (var scope = serviceScopeFactory.CreateScope())
     {
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
         var ret = await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.chargingName, request.tenant));
         if (ret.IsSuccess)
         {
-            employees = ret.Value.Value;
+            employees = ret.Value.Value.ToList();
             totalCount = ret.Value.PagedInfo.TotalRecords;
         }
     }
@@ -84,10 +84,11 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
         results.Add(new EmployeeScheduleDTO(emp.Id, emp.User!.Username, $"{emp.LastName}, {emp.FirstName}", emp.Section ?? string.Empty, emp.Charging ?? string.Empty, shifts.OrderBy(s => s.ScheduleDate).ToList()));
     }
 
-    var pageSize = request.take ?? results.Count;
+    var pageSize = (long)(request.take ?? results.Count);
     var pageNumber = pageSize > 0 ? ((request.skip ?? 0) / pageSize) + 1 : 1;
-    var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount);
+    var totalPages = pageSize > 0 ? (long)Math.Ceiling(totalCount / (double)pageSize) : 0;
+    var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount, totalPages);
     return Result<PagedResult<EmployeeScheduleDTO>>.Success(
-      new PagedResult<EmployeeScheduleDTO>(results.OrderBy(r => r.Name).ToList(), pagedInfo));
+      new PagedResult<EmployeeScheduleDTO>(pagedInfo, results.OrderBy(r => r.Name).ToList()));
   }
 }

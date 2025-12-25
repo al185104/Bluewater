@@ -14,7 +14,7 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
     try{
       // first get all employees
       List<EmployeeDTO> employees = new();
-      int totalCount = 0;
+      long totalCount = 0;
       using (var scope = serviceScopeFactory.CreateScope())
       {
         var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -22,7 +22,7 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
         var ret = await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.charging, request.tenant));
         if (ret.IsSuccess)
         {
-            employees = ret.Value.Value;
+            employees = ret.Value.Value.ToList();
             totalCount = ret.Value.PagedInfo.TotalRecords;
         }
             //employees = ret.Value.Where(i => !string.IsNullOrEmpty(i.Charging) && i.Charging.Equals(request.charging, StringComparison.InvariantCultureIgnoreCase)).ToList();
@@ -45,10 +45,11 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
             }
           }
       }
-      var pageSize = request.take ?? results.Count;
+      var pageSize = (long)(request.take ?? results.Count);
       var pageNumber = pageSize > 0 ? ((request.skip ?? 0) / pageSize) + 1 : 1;
-      var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount);
-      return Result<PagedResult<AllAttendancesDTO>>.Success(new PagedResult<AllAttendancesDTO>(results, pagedInfo));
+      var totalPages = pageSize > 0 ? (long)Math.Ceiling(totalCount / (double)pageSize) : 0;
+      var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount, totalPages);
+      return Result<PagedResult<AllAttendancesDTO>>.Success(new PagedResult<AllAttendancesDTO>(pagedInfo, results));
     }
     catch(Exception){
       throw;

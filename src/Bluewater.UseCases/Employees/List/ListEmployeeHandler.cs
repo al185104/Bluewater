@@ -36,7 +36,7 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
         if(employees == null) return Result.NotFound();
 
         var countSpec = new EmployeeCountSpec(request.tenant);
-        var totalCount = await _repository.CountAsync(countSpec, cancellationToken);
+        long totalCount = await _repository.CountAsync(countSpec, cancellationToken);
 
 
         List<EmployeeDTO> _employees = new List<EmployeeDTO>();
@@ -207,13 +207,14 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
             ));
         }
 
-        var pageSize = request.take ?? _employees.Count;
+        var pageSize = (long)(request.take ?? _employees.Count);
         var pageNumber = pageSize > 0 ? ((request.skip ?? 0) / pageSize) + 1 : 1;
-        var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount);
-        return Result.Success(new PagedResult<EmployeeDTO>(_employees, pagedInfo));
+        var totalPages = pageSize > 0 ? (long)Math.Ceiling(totalCount / (double)pageSize) : 0;
+        var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount, totalPages);
+        return Result<PagedResult<EmployeeDTO>>.Success(new PagedResult<EmployeeDTO>(pagedInfo, _employees));
     }
     catch (Exception e) {
-        return Result.Error(e.Message);
+        return Result<PagedResult<EmployeeDTO>>.Error(e.Message);
     }
   }
 }

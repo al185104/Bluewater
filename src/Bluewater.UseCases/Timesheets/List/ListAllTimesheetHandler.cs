@@ -18,7 +18,7 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
   public async Task<Result<PagedResult<AllEmployeeTimesheetDTO>>> Handle(ListAllTimesheetQuery request, CancellationToken cancellationToken)
   {
     List<EmployeeDTO> employees = new();
-    int totalCount = 0;
+    long totalCount = 0;
 
     using (var scope = serviceScopeFactory.CreateScope())
     {
@@ -29,7 +29,7 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
 
       if (employeeResult.IsSuccess)
       {
-        employees = employeeResult.Value.Value;
+        employees = employeeResult.Value.Value.ToList();
         totalCount = employeeResult.Value.PagedInfo.TotalRecords;
       }
     }
@@ -70,9 +70,10 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
       }
     }
 
-    var pageSize = request.take ?? results.Count;
+    var pageSize = (long)(request.take ?? results.Count);
     var pageNumber = pageSize > 0 ? ((request.skip ?? 0) / pageSize) + 1 : 1;
-    var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount);
-    return Result<PagedResult<AllEmployeeTimesheetDTO>>.Success(new PagedResult<AllEmployeeTimesheetDTO>(results, pagedInfo));
+    var totalPages = pageSize > 0 ? (long)Math.Ceiling(totalCount / (double)pageSize) : 0;
+    var pagedInfo = new PagedInfo(pageNumber, pageSize, totalCount, totalPages);
+    return Result<PagedResult<AllEmployeeTimesheetDTO>>.Success(new PagedResult<AllEmployeeTimesheetDTO>(pagedInfo, results));
   }
 }
