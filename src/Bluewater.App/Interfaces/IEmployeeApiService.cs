@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Bluewater.App.Models;
 
 namespace Bluewater.App.Interfaces;

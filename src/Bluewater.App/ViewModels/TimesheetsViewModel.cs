@@ -16,7 +16,7 @@ namespace Bluewater.App.ViewModels;
 public partial class TimesheetsViewModel : BaseViewModel
 {
   private const string DefaultDetailsPrimaryActionText = "Save Changes";
-  private const int PageSize = 100;
+  private const int PageSize = 24;
 
   private readonly ITimesheetApiService timesheetApiService;
   private readonly IReferenceDataService referenceDataService;

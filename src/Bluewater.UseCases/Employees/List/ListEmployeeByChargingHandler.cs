@@ -27,9 +27,9 @@ using Bluewater.UseCases.Common;
 
 namespace Bluewater.UseCases.Employees.List;
 
-internal class ListEmployeeByChargingHandler(IRepository<Employee> _repository, IServiceScopeFactory _serviceScopeFactory) : IQueryHandler<ListEmployeeByChargingQuery, Result<PagedResult<EmployeeDTO>>>
+internal class ListEmployeeByChargingHandler(IRepository<Employee> _repository, IServiceScopeFactory _serviceScopeFactory) : IQueryHandler<ListEmployeeByChargingQuery, Result<Common.PagedResult<EmployeeDTO>>>
 {
-  public async Task<Result<PagedResult<EmployeeDTO>>> Handle(ListEmployeeByChargingQuery request, CancellationToken cancellationToken)
+  public async Task<Result<Common.PagedResult<EmployeeDTO>>> Handle(ListEmployeeByChargingQuery request, CancellationToken cancellationToken)
   {
     try
     {
@@ -207,7 +207,7 @@ internal class ListEmployeeByChargingHandler(IRepository<Employee> _repository, 
         ));
       }
 
-      return Result.Success(new PagedResult<EmployeeDTO>(_employees, totalCount));
+      return Result.Success(new Common.PagedResult<EmployeeDTO>(_employees, totalCount));
     }
     catch (Exception e)
     {

@@ -18,7 +18,7 @@ namespace Bluewater.App.ViewModels;
 [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "CommunityToolkit.Mvvm RelayCommand attributes are platform-agnostic in .NET MAUI view models.")]
 public partial class ScheduleViewModel : BaseViewModel
 {
-  private const int PageSize = 100;
+  private const int PageSize = 24;
   private readonly IScheduleApiService scheduleApiService;
   private readonly IShiftApiService shiftApiService;
   private readonly IReferenceDataService referenceDataService;

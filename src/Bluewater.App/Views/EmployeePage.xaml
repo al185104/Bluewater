@@ -277,8 +277,11 @@
                        VerticalOptions="Center"
                        TextColor="{StaticResource TextSecondaryColor}" />
                 <CollectionView ItemsSource="{Binding PageNumbers}"
-                                SelectionMode="None"
-                                ItemsLayout="HorizontalList">
+                                SelectionMode="None">
+                    <CollectionView.ItemsLayout>
+                        <LinearItemsLayout Orientation="Horizontal"
+                                           ItemSpacing="4" />
+                    </CollectionView.ItemsLayout>
                     <CollectionView.ItemTemplate>
                         <DataTemplate>
                             <Button Text="{Binding .}"

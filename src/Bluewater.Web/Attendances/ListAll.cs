@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Attendances;
 using Bluewater.UseCases.Attendances.List;
@@ -21,7 +21,7 @@ public class ListAll(IMediator _mediator) : Endpoint<AttendanceListAllRequest, A
 
   public override async Task HandleAsync(AttendanceListAllRequest request, CancellationToken cancellationToken)
   {
-    Result<PagedResult<AllAttendancesDTO>> result = await _mediator.Send(
+    Result<UseCases.Common.PagedResult<AllAttendancesDTO>> result = await _mediator.Send(
       new ListAllAttendancesQuery(request.Skip, request.Take, request.Charging, request.StartDate, request.EndDate, request.Tenant),
       cancellationToken);
 

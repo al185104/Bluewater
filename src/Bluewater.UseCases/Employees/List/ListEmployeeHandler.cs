@@ -23,13 +23,12 @@ using Bluewater.UseCases.Users.Get;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Bluewater.Core.EmployeeAggregate.Specifications;
-using Bluewater.UseCases.Common;
 
 namespace Bluewater.UseCases.Employees.List;
 
-internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceScopeFactory _serviceScopeFactory) : IQueryHandler<ListEmployeeQuery, Result<PagedResult<EmployeeDTO>>>
+internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceScopeFactory _serviceScopeFactory) : IQueryHandler<ListEmployeeQuery, Result<Common.PagedResult<EmployeeDTO>>>
 {
-  public async Task<Result<PagedResult<EmployeeDTO>>> Handle(ListEmployeeQuery request, CancellationToken cancellationToken)
+  public async Task<Result<Common.PagedResult<EmployeeDTO>>> Handle(ListEmployeeQuery request, CancellationToken cancellationToken)
   {
     try {
         var spec = new EmployeeListSpec(request.skip, request.take, request.tenant);
@@ -208,7 +207,7 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
             ));
         }
 
-        return Result.Success(new PagedResult<EmployeeDTO>(_employees, totalCount));
+        return Result.Success(new Common.PagedResult<EmployeeDTO>(_employees, totalCount));
     }
     catch (Exception e) {
         return Result.Error(e.Message);

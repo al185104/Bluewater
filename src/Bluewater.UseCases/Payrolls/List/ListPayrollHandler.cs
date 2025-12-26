@@ -24,9 +24,9 @@ using Bluewater.UseCases.Common;
 
 namespace Bluewater.UseCases.Payrolls.List;
 
-internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListPayrollQuery, Result<PagedResult<PayrollDTO>>>
+internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListPayrollQuery, Result<Common.PagedResult<PayrollDTO>>>
 {
-  public async Task<Result<PagedResult<PayrollDTO>>> Handle(ListPayrollQuery request, CancellationToken cancellationToken)
+  public async Task<Result<Common.PagedResult<PayrollDTO>>> Handle(ListPayrollQuery request, CancellationToken cancellationToken)
   {
     List<(Guid, string, PayDTO?, string?, string?, 
     string?, string?, string?, string?, string?,
@@ -35,7 +35,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
     using (var scope = serviceScopeFactory.CreateScope())
     {
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-      Result<PagedResult<EmployeeDTO>> ret;
+      Result<Common.PagedResult<EmployeeDTO>> ret;
       if (string.IsNullOrEmpty(request.chargingName))
         ret = await mediator.Send(new ListEmployeeQuery(request.skip, request.take, request.tenant));
       else
@@ -206,7 +206,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
 
       results.Add(_payRoll);
     }
-    return Result.Success(new PagedResult<PayrollDTO>(results, totalCount));
+    return Result.Success(new Common.PagedResult<PayrollDTO>(results, totalCount));
   }
 
   private decimal CalculateNightDiffOvertimePremium(decimal hourlyRate, List<OvertimeDTO> overtimes)

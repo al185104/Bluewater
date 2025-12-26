@@ -15,7 +15,7 @@ namespace Bluewater.App.ViewModels;
 public partial class EmployeeViewModel : BaseViewModel
 {
   private const string DefaultPrimaryActionText = "Save Employee";
-  private const int PageSize = 100;
+  private const int PageSize = 24;
   private readonly IEmployeeApiService employeeApiService;
   private bool hasInitialized;
 

@@ -8,9 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bluewater.UseCases.Attendances.List;
 
-internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAllAttendancesQuery, Result<PagedResult<AllAttendancesDTO>>>
+internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAllAttendancesQuery, Result<Common.PagedResult<AllAttendancesDTO>>>
 {
-  public async Task<Result<PagedResult<AllAttendancesDTO>>> Handle(ListAllAttendancesQuery request, CancellationToken cancellationToken)
+  public async Task<Result<Common.PagedResult<AllAttendancesDTO>>> Handle(ListAllAttendancesQuery request, CancellationToken cancellationToken)
   {
     try{
       // first get all employees
@@ -29,7 +29,7 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
             //employees = ret.Value.Where(i => !string.IsNullOrEmpty(i.Charging) && i.Charging.Equals(request.charging, StringComparison.InvariantCultureIgnoreCase)).ToList();
       }
 
-      if(employees.Count == 0) return Result<PagedResult<AllAttendancesDTO>>.NotFound();
+      if(employees.Count == 0) return Result<Common.PagedResult<AllAttendancesDTO>>.NotFound();
 
       List<AllAttendancesDTO> results = new();
       // get all Attendances per employee and per date. If no Attendance, create a default Attendance using ListAttendanceQuery
@@ -46,7 +46,7 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
             }
           }
       }
-      return Result<PagedResult<AllAttendancesDTO>>.Success(new PagedResult<AllAttendancesDTO>(results, totalCount));
+      return Result<Common.PagedResult<AllAttendancesDTO>>.Success(new Common.PagedResult<AllAttendancesDTO>(results, totalCount));
     }
     catch(Exception){
       throw;

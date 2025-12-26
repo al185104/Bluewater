@@ -14,7 +14,7 @@ namespace Bluewater.App.ViewModels;
 
 public partial class PayrollViewModel : BaseViewModel
 {
-  private const int PageSize = 100;
+  private const int PageSize = 24;
   private readonly IPayrollApiService payrollApiService;
   private bool hasInitialized;
 

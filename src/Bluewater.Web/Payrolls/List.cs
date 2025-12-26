@@ -1,4 +1,4 @@
-using Ardalis.Result;
+﻿using Ardalis.Result;
 using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Payrolls;
 using Bluewater.UseCases.Payrolls.List;
@@ -21,7 +21,7 @@ public class List(IMediator _mediator) : Endpoint<PayrollListRequest, PayrollLis
 
   public override async Task HandleAsync(PayrollListRequest request, CancellationToken cancellationToken)
   {
-    Result<PagedResult<PayrollDTO>> result = await _mediator.Send(
+    Result<UseCases.Common.PagedResult<PayrollDTO>> result = await _mediator.Send(
       new ListPayrollQuery(request.Skip, request.Take, request.ChargingName, request.StartDate, request.EndDate, request.Tenant),
       cancellationToken);
 

@@ -12,9 +12,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bluewater.UseCases.Schedules.List;
 
-internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListScheduleQuery, Result<PagedResult<EmployeeScheduleDTO>>>
+internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListScheduleQuery, Result<Common.PagedResult<EmployeeScheduleDTO>>>
 {
-  public async Task<Result<PagedResult<EmployeeScheduleDTO>>> Handle(ListScheduleQuery request, CancellationToken cancellationToken)
+  public async Task<Result<Common.PagedResult<EmployeeScheduleDTO>>> Handle(ListScheduleQuery request, CancellationToken cancellationToken)
   {
     List<EmployeeDTO> employees = new();
     int totalCount = 0;
@@ -85,7 +85,7 @@ internal class ListScheduleHandler(IRepository<Schedule> _schedRepository, IServ
         results.Add(new EmployeeScheduleDTO(emp.Id, emp.User!.Username, $"{emp.LastName}, {emp.FirstName}", emp.Section ?? string.Empty, emp.Charging ?? string.Empty, shifts.OrderBy(s => s.ScheduleDate).ToList()));
     }
 
-    return Result<PagedResult<EmployeeScheduleDTO>>.Success(
-      new PagedResult<EmployeeScheduleDTO>(results.OrderBy(r => r.Name).ToList(), totalCount));
+    return Result<Common.PagedResult<EmployeeScheduleDTO>>.Success(
+      new Common.PagedResult<EmployeeScheduleDTO>(results.OrderBy(r => r.Name).ToList(), totalCount));
   }
 }

@@ -31,8 +31,21 @@ public class CreateTimesheetFromTimeLogHandler(IRepository<Employee> _empReposit
     }
 
     var input = request.inputType;
-    if (input == 3 && timesheetDTO != null && timesheetDTO.TimeOut1 == null)
+    if (input == 3 && timesheetDTO != null && timesheetDTO.TimeOut1 == null) // this is to make the timeout 2 considered as timeout 1 if timeout 1 is null
       input = 1;
+
+    // if input - 0, which is timein 1, but there's already time in 1, and there's no time in 2, and the new time in is greater than timeout 1, and it's the same entry date or if time in 2 is only one our from timeout 1, then make this as input 2
+
+    if (input == 0 &&
+      timesheetDTO != null &&
+      timesheetDTO.TimeIn1 != null &&
+      timesheetDTO.TimeIn2 == null &&
+      timesheetDTO.TimeOut1 != null &&
+      request.timeInput > timesheetDTO.TimeOut1 &&
+      request.entryDate == DateOnly.FromDateTime(timesheetDTO.TimeOut1.Value.Date))
+      input = 2;
+
+
 
     switch (input)
     {

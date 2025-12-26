@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -14,9 +14,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bluewater.UseCases.Timesheets.List;
 
-internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAllTimesheetQuery, Result<PagedResult<AllEmployeeTimesheetDTO>>>
+internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAllTimesheetQuery, Result<Common.PagedResult<AllEmployeeTimesheetDTO>>>
 {
-  public async Task<Result<PagedResult<AllEmployeeTimesheetDTO>>> Handle(ListAllTimesheetQuery request, CancellationToken cancellationToken)
+  public async Task<Result<Common.PagedResult<AllEmployeeTimesheetDTO>>> Handle(ListAllTimesheetQuery request, CancellationToken cancellationToken)
   {
     List<EmployeeDTO> employees = new();
     int totalCount = 0;
@@ -24,7 +24,7 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
     using (var scope = serviceScopeFactory.CreateScope())
     {
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-      Result<PagedResult<EmployeeDTO>> employeeResult = string.IsNullOrWhiteSpace(request.charging)
+      Result<Common.PagedResult<EmployeeDTO>> employeeResult = string.IsNullOrWhiteSpace(request.charging)
         ? await mediator.Send(new ListEmployeeQuery(request.skip, request.take, request.tenant), cancellationToken)
         : await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.charging, request.tenant), cancellationToken);
 
@@ -37,7 +37,7 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
 
     if (employees.Count == 0)
     {
-      return Result<PagedResult<AllEmployeeTimesheetDTO>>.NotFound();
+      return Result<Common.PagedResult<AllEmployeeTimesheetDTO>>.NotFound();
     }
 
     List<AllEmployeeTimesheetDTO> results = new();
@@ -71,6 +71,6 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
       }
     }
 
-    return Result<PagedResult<AllEmployeeTimesheetDTO>>.Success(new PagedResult<AllEmployeeTimesheetDTO>(results, totalCount));
+    return Result<Common.PagedResult<AllEmployeeTimesheetDTO>>.Success(new Common.PagedResult<AllEmployeeTimesheetDTO>(results, totalCount));
   }
 }

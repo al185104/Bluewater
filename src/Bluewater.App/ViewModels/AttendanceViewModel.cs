@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -17,7 +17,7 @@ public partial class AttendanceViewModel : BaseViewModel
 {
   private const string DefaultDetailsPrimaryActionText = "Close";
   private const string SaveDetailsPrimaryActionText = "Save Changes";
-  private const int PageSize = 100;
+  private const int PageSize = 24;
 
   private readonly IAttendanceApiService attendanceApiService;
   private readonly IReferenceDataService referenceDataService;
