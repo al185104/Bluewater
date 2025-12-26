@@ -414,7 +414,7 @@ public partial class EditableEmployee : ObservableObject
       Remarks = Remarks,
       MealCredits = MealCredits,
       Tenant = Tenant,
-      ContactInfo = CreateContactInfoRequest(),
+      ContactInfo = CreateContactInfoRequest(existingSummary.ContactInfo),
       EducationInfo = CreateEducationInfoRequest(),
       EmploymentInfo = CreateEmploymentInfoRequest(),
       UserId = UserId ?? existingSummary.UserId,
@@ -443,7 +443,7 @@ public partial class EditableEmployee : ObservableObject
 
     return request;
 
-    UpdateEmployeeContactInfoDto? CreateContactInfoRequest()
+    UpdateEmployeeContactInfoDto? CreateContactInfoRequest(ContactInfoSummary existingContactInfo)
     {
       UpdateEmployeeContactInfoDto contactInfo = new()
       {
@@ -461,7 +461,15 @@ public partial class EditableEmployee : ObservableObject
         MobileNoContact = MobileNoContact
       };
 
-      return IsContactInfoEmpty(contactInfo) ? null : contactInfo;
+      bool hasExistingContactInfo = !IsContactInfoEmpty(existingContactInfo);
+      bool hasNewContactInfo = !IsContactInfoEmpty(contactInfo);
+
+      if (!hasExistingContactInfo && !hasNewContactInfo)
+      {
+        return null;
+      }
+
+      return contactInfo;
     }
 
     UpdateEmployeeEducationInfoDto CreateEducationInfoRequest()
@@ -510,6 +518,22 @@ public partial class EditableEmployee : ObservableObject
   }
 
   private static bool IsContactInfoEmpty(UpdateEmployeeContactInfoDto contactInfo)
+  {
+    return string.IsNullOrWhiteSpace(contactInfo.Email)
+      && string.IsNullOrWhiteSpace(contactInfo.TelNumber)
+      && string.IsNullOrWhiteSpace(contactInfo.MobileNumber)
+      && string.IsNullOrWhiteSpace(contactInfo.Address)
+      && string.IsNullOrWhiteSpace(contactInfo.ProvincialAddress)
+      && string.IsNullOrWhiteSpace(contactInfo.MothersMaidenName)
+      && string.IsNullOrWhiteSpace(contactInfo.FathersName)
+      && string.IsNullOrWhiteSpace(contactInfo.EmergencyContact)
+      && string.IsNullOrWhiteSpace(contactInfo.RelationshipContact)
+      && string.IsNullOrWhiteSpace(contactInfo.AddressContact)
+      && string.IsNullOrWhiteSpace(contactInfo.TelNoContact)
+      && string.IsNullOrWhiteSpace(contactInfo.MobileNoContact);
+  }
+
+  private static bool IsContactInfoEmpty(ContactInfoSummary contactInfo)
   {
     return string.IsNullOrWhiteSpace(contactInfo.Email)
       && string.IsNullOrWhiteSpace(contactInfo.TelNumber)
