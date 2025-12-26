@@ -22,3 +22,23 @@ public class CreatePayRecordDto
 {
   public Guid Id { get; set; }
 }
+
+public class UpdatePayRequestDto
+{
+  public const string Route = "Pays/{PayId}";
+
+  public static string BuildRoute(Guid payId) => Route.Replace("{PayId}", payId.ToString());
+
+  public Guid PayId { get; set; }
+  public decimal BasicPay { get; set; }
+  public decimal DailyRate { get; set; }
+  public decimal HourlyRate { get; set; }
+  public decimal HdmfCon { get; set; }
+  public decimal HdmfEr { get; set; }
+  public decimal Cola { get; set; }
+}
+
+public class UpdatePayResponseDto
+{
+  public PayRecordDto? Pay { get; set; }
+}
