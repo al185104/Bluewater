@@ -1,22 +1,52 @@
+﻿using Bluewater.App.Enums;
 using Bluewater.App.ViewModels;
+using Bluewater.App.ViewModels.Content;
+using Bluewater.App.Views.Controls;
 
 namespace Bluewater.App.Views;
 
-public partial class HomePage : ContentPage
+public sealed partial class HomePage : ContentPage
 {
-  public HomePage(HomeViewModel vm)
-  {
-    InitializeComponent();
-    BindingContext = vm;
-  }
+		private readonly IServiceProvider _services;
 
-  protected override async void OnAppearing()
-  {
-    base.OnAppearing();
+		public HomePage(HomeViewModel vm, IServiceProvider services)
+		{
+				InitializeComponent();
+				BindingContext = vm;
+				_services = services;
+				vm.NavigateRequested += OnNavigateRequestedAsync;
 
-    if (BindingContext is HomeViewModel viewModel)
-    {
-      await viewModel.InitializeAsync();
-    }
-  }
+				Host.Content = services.GetRequiredService<DashboardView>();
+		}
+
+		private Task OnNavigateRequestedAsync(MainSectionEnum section)
+		{
+				Host.Content = section switch
+				{
+						MainSectionEnum.Dashboard => _services.GetRequiredService<DashboardView>(),
+						MainSectionEnum.Employees => _services.GetRequiredService<EmployeesView>(),
+						MainSectionEnum.Shifts => _services.GetRequiredService<ShiftsView>(),
+						MainSectionEnum.Schedules => _services.GetRequiredService<SchedulesView>(),
+						MainSectionEnum.MealCredit => _services.GetRequiredService<MealCreditView>(),
+						MainSectionEnum.Leaves => _services.GetRequiredService<LeavesView>(),
+						MainSectionEnum.Timesheet => _services.GetRequiredService<TimesheetView>(),
+						MainSectionEnum.Attendance => _services.GetRequiredService<AttendanceView>(),
+						MainSectionEnum.Payroll => _services.GetRequiredService<PayrollView>(),
+						MainSectionEnum.Users => _services.GetRequiredService<UsersView>(),
+						_ => _services.GetRequiredService<DashboardView>()
+				};
+
+				return Task.CompletedTask;
+		}
+
+		protected override async void OnAppearing()
+		{
+				base.OnAppearing();
+
+				if (BindingContext is HomeViewModel viewModel)
+				{
+						await viewModel.InitializeAsync();
+				}
+		}
+
 }

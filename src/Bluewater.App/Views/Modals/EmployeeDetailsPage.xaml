@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Bluewater.App.Views.Modals.EmployeeDetailsPage"
+			 xmlns:model="clr-namespace:Bluewater.App.Models"
+			 xmlns:vm="clr-namespace:Bluewater.App.ViewModels.Modals"
+			 xmlns:components="clr-namespace:Bluewater.App.Components"
+			 x:DataType="vm:EmployeeDetailsViewModel"
+             Title="EmployeeDetailsPage">
+	<Grid>
+		<!-- FORM CONTENT -->
+		<ScrollView>
+			<VerticalStackLayout Spacing="24" Padding="24">
+				<!--general summary-->
+				<Label Text="Basic information"
+					   FontSize="18"
+					   FontAttributes="Bold" />
+				<Grid ColumnDefinitions="*,*,*">
+					<Entry Grid.Column="0"
+						   Placeholder="First name"
+						   Text="{Binding EditableEmployee.FirstName}" />
+					<Entry Grid.Column="1"
+						   Placeholder="Middle name"
+						   Text="{Binding EditableEmployee.MiddleName}" />
+					<Entry Grid.Column="2"
+						   Placeholder="Last name"
+						   Text="{Binding EditableEmployee.LastName}" />
+				</Grid>
+				<Grid ColumnDefinitions="*,*,*">
+					<Picker Grid.Column="0"
+							Title="Gender"
+							ItemsSource="{Binding EditableEmployee.GenderOptions}"
+							SelectedItem="{Binding EditableEmployee.Gender}" />
+					<Picker Grid.Column="1"
+							Title="Civil status"
+							ItemsSource="{Binding EditableEmployee.CivilStatusOptions}"
+							SelectedItem="{Binding EditableEmployee.CivilStatus}" />
+					<Picker Grid.Column="2"
+							Title="Blood type"
+							ItemsSource="{Binding EditableEmployee.BloodTypeOptions}"
+							SelectedItem="{Binding EditableEmployee.BloodType}" />
+				</Grid>
+				<Grid ColumnDefinitions="*,*,*">
+					<Entry Grid.Column="0"
+						   Placeholder="Height"
+						   Text="{Binding EditableEmployee.Height}" />
+					<Entry Grid.Column="1"
+						   Placeholder="Weight"
+						   Text="{Binding EditableEmployee.Weight}" />
+					<HorizontalStackLayout Grid.Column="2" Spacing="10" HorizontalOptions="Fill">
+						<Label Text="Date of Birth"
+							   VerticalOptions="Center" />
+						<DatePicker Date="{Binding EditableEmployee.DateOfBirth}" HorizontalOptions="End"/>
+					</HorizontalStackLayout>
+				</Grid>
+				
+				
+				<!--employment info summary-->
+				<Label Text="Employee info summary"
+					   FontSize="18"
+					   FontAttributes="Bold" />
+				<Grid ColumnDefinitions="*,*,*">
+					<Picker Grid.Column="0"
+							Title="Employment status"
+							ItemsSource="{Binding EditableEmployee.StatusOptions}"
+							SelectedItem="{Binding EditableEmployee.Status}" />
+					<Picker Grid.Column="1"
+							Title="Employment type"
+							ItemsSource="{Binding TypeOptions}"
+							ItemDisplayBinding="{Binding Name}"
+							SelectedItem="{Binding EmployeeType}" />
+					<Picker Grid.Column="2"
+							Title="Employment level"
+							ItemsSource="{Binding LevelOptions}"
+							ItemDisplayBinding="{Binding Name}"
+							SelectedItem="{Binding Level, Mode=TwoWay}" />
+				</Grid>
+				<Grid ColumnDefinitions="*,*,*">
+					<Picker Grid.Column="0"
+							Title="Position"
+							ItemsSource="{Binding PositionOptions}"
+							ItemDisplayBinding="{Binding Name}"
+							SelectedItem="{Binding Position}" />
+					<Picker Grid.Column="1"
+							Title="Sections"
+							ItemsSource="{Binding SectionOptions}"
+							ItemDisplayBinding="{Binding Name}"
+							SelectedItem="{Binding Section}" />
+					<Picker Grid.Column="2"
+							Title="Department"
+							ItemsSource="{Binding DepartmentOptions}"
+							ItemDisplayBinding="{Binding Name}"
+							SelectedItem="{Binding Department}" />
+				</Grid>
+				<Grid ColumnDefinitions="*,*,*">
+					<Picker Grid.Column="0"
+							Title="Charging"
+							ItemsSource="{Binding ChargingOptions}"
+							ItemDisplayBinding="{Binding Name}"
+							SelectedItem="{Binding Charging}" />
+					<Picker Grid.Column="1"
+							Title="Project"
+							ItemsSource="{Binding EditableEmployee.TenantOptions}" 
+							SelectedItem="{Binding EditableEmployee.Tenant}"/>
+					<Entry Grid.Column="2"
+						   VerticalOptions="End"
+						   Placeholder="Meal credits"
+						   Text="{Binding EditableEmployee.MealCredits}" />
+				</Grid>
+				<Entry Placeholder="Remarks"
+					   Text="{Binding EditableEmployee.Remarks}"/>
+				
+				<Label Text="Contact summary" 
+					   FontSize="18"
+					   FontAttributes="Bold"/>
+				
+				<!--
+						Image = Image,
+						IsDeleted = IsDeleted,
+						UserId = UserId,
+						PayId = PayId,
+				-->
+				
+				<!--contact summary-->
+				<Grid ColumnDefinitions="*,*,*">
+					<Entry Grid.Column="0"
+						   Text="{Binding EditableEmployee.Email}"
+						   Placeholder="Email" />
+					<Entry Grid.Column="1"
+						   Text="{Binding EditableEmployee.TelNumber}" 
+						   Placeholder="Landline number"/>
+					<Entry Grid.Column="2"
+						   Text="{Binding EditableEmployee.MobileNumber}" 
+						   Placeholder="Mobile number"/>
+				</Grid>
+				<Grid ColumnDefinitions="*,*">
+					<Entry Grid.Column="0"
+						   Text="{Binding EditableEmployee.Address}"
+						   Placeholder="Address" />
+					<Entry Grid.Column="1"
+						   Text="{Binding EditableEmployee.ProvincialAddress}" 
+						   Placeholder="Provincial address"/>
+				</Grid>
+				<Grid ColumnDefinitions="*,*">
+					<Entry Grid.Column="0"
+						   Text="{Binding EditableEmployee.MothersMaidenName}"
+						   Placeholder="Mother's maiden name" />
+					<Entry Grid.Column="1"
+						   Text="{Binding EditableEmployee.FathersName}"
+						   Placeholder="Father's name" />
+				</Grid>
+				
+				<Grid ColumnDefinitions="*,*,*">
+					<Entry Grid.Column="0"
+						   Text="{Binding EditableEmployee.EmergencyContact}"
+						   Placeholder="Emergency contact" />
+					<Entry Grid.Column="1"
+						   Text="{Binding EditableEmployee.RelationshipContact}"
+						   Placeholder="Relationship contact" />
+					<Entry Grid.Column="2"
+						   Text="{Binding EditableEmployee.AddressContact}"
+						   Placeholder="Address of contact" />
+				</Grid>
+				
+				<Grid ColumnDefinitions="*,*">
+					<Entry Grid.Column="0"
+						   Text="{Binding EditableEmployee.TelNoContact}"
+						   Placeholder="Landline number of contact" />
+					<Entry Grid.Column="1"
+						   Text="{Binding EditableEmployee.MobileNoContact}"
+						   Placeholder="Mobile number of contact" />
+				</Grid>
+
+				<!--education summary-->
+				<Label Text="Education summary"
+					   FontSize="18"
+					   FontAttributes="Bold" />
+				<Grid ColumnDefinitions="*,*,*">
+					<Picker Grid.Column="0"
+							Title="Educational attainment"
+							ItemsSource="{Binding EditableEmployee.EducationalAttainmentOptions}"
+							SelectedItem="{Binding EditableEmployee.EducationalAttainment}" />
+					<Entry Grid.Column="1"
+						   VerticalOptions="End"
+						   Text="{Binding EditableEmployee.CourseGraduated}"
+						   Placeholder="Course graduated" />
+					<Entry Grid.Column="2"
+						   VerticalOptions="End"
+						   Text="{Binding EditableEmployee.UniversityGraduated}"
+						   Placeholder="University graduated" />
+				</Grid>
+				<Label Text="User summary"
+					   FontSize="18"
+					   FontAttributes="Bold" />
+				<Grid ColumnDefinitions="*,*,*">
+					<Entry Grid.Column="0"
+						   Text="{Binding EditableEmployee.Username}"
+						   VerticalOptions="End"
+						   Placeholder="User name" />
+					<Entry Grid.Column="1"
+						   VerticalOptions="End"
+						   Text="{Binding EditableEmployee.PasswordHash}"
+						   Placeholder="Password" />
+					<Picker Grid.Column="2"
+							Title="Credential"
+							ItemsSource="{Binding EditableEmployee.CredentialOptions}"
+							SelectedItem="{Binding EditableEmployee.Credential}" />
+				</Grid>
+				
+				<!--pay summary-->
+				<Label Text="Pay summary"
+					   FontSize="18"
+					   FontAttributes="Bold" />
+				<Grid ColumnDefinitions="*,*,*">
+					<Entry Grid.Column="0"
+						   Text="{Binding EditableEmployee.BasicPay}"
+						   Placeholder="Basic pay" />
+					<Entry Grid.Column="1"
+						   Text="{Binding EditableEmployee.DailyRate}"
+						   Placeholder="Daily rate" />
+					<Entry Grid.Column="2"
+						   Text="{Binding EditableEmployee.HourlyRate}"
+						   Placeholder="Hourly rate" />
+				</Grid>
+				<Grid ColumnDefinitions="*,*">
+					<Entry Grid.Column="0"
+						   Text="{Binding EditableEmployee.HdmfCon}"
+						   Placeholder="HDMF Contribution" />
+					<Entry Grid.Column="1"
+						   Text="{Binding EditableEmployee.HdmfEr}"
+						   Placeholder="HDMF Employer Contribution" />
+				</Grid>
+				<Grid ColumnDefinitions="*,Auto,Auto">
+					<Button Grid.Column="1"
+							Text="Cancel"
+							Command="{Binding CancelCommand}"
+							Style="{StaticResource SecondaryButtonStyle}" />
+					<Button Grid.Column="2"
+							Text="Save &amp; Update" 
+							Command="{Binding UpdateEmployeeCommand}"/>
+				</Grid>
+			</VerticalStackLayout>
+		</ScrollView>
+		<!-- BUSY OVERLAY -->
+		<Grid IsVisible="{Binding IsBusy}"
+			  BackgroundColor="#80000000">
+			<ActivityIndicator IsRunning="True"
+							   HorizontalOptions="Center"
+							   VerticalOptions="Center" />
+		</Grid>
+	</Grid>
+</ContentPage>

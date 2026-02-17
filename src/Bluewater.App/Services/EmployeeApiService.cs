@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Bluewater.App.Interfaces;
+﻿using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
-using Bluewater.Core.UserAggregate.Enum;
 
 namespace Bluewater.App.Services;
 
@@ -18,7 +12,7 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
   {
     string requestUri = BuildRequestUri(skip, take);
 
-    EmployeeListResponseDto? response = await apiClient.GetAsync<EmployeeListResponseDto>(requestUri, cancellationToken);
+    EmployeeListResponseDto? response = await apiClient.GetAsync<EmployeeListResponseDto>(requestUri, cancellationToken).ConfigureAwait(false);
 
     if (response?.Employees is not { Count: > 0 })
     {

@@ -1,4 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 #if WINDOWS
 using Microsoft.Maui.Platform;
 using Microsoft.UI.Windowing;
@@ -23,14 +23,14 @@ public partial class App : Application
     var window = new Window(serviceProvider.GetRequiredService<AppShell>());
 
 #if WINDOWS
-    window.Created += (sender, args) =>
-    {
-      if (window.Handler?.PlatformView is Microsoft.UI.Xaml.Window nativeWindow)
-      {
-        var appWindow = nativeWindow.GetAppWindow();
-        appWindow?.SetPresenter(AppWindowPresenterKind.FullScreen);
-      }
-    };
+    //window.Created += (sender, args) =>
+    //{
+    //  if (window.Handler?.PlatformView is Microsoft.UI.Xaml.Window nativeWindow)
+    //  {
+    //    var appWindow = nativeWindow.GetAppWindow();
+    //    appWindow?.SetPresenter(AppWindowPresenterKind.FullScreen);
+    //  }
+    //};
 #endif
 
     return window;

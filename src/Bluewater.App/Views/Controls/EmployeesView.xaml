@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Bluewater.App.Views.Controls.EmployeesView"
+			 xmlns:vm="clr-namespace:Bluewater.App.ViewModels.Content"
+			 xmlns:models="clr-namespace:Bluewater.App.Models"
+			 xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+			 x:DataType="vm:EmployeeContentViewModel"
+			 Loaded="ContentView_Loaded"
+			 Unloaded="ContentView_Unloaded"
+			 Background="{StaticResource CollectionBackgroundBrush}">
+    <Grid RowDefinitions="Auto,*,Auto"
+		  Padding="20">
+		<!--header-->
+		<Grid Grid.Row="0" ColumnDefinitions="240,Auto,Auto,*,Auto,Auto"
+			  ColumnSpacing="10">
+			<SearchBar Grid.Column="0"
+					   Placeholder="Search employees"/>
+			<Button Grid.Column="1"
+					Text="{x:Static helpers:Icon.RefreshCcw}"
+					FontFamily="Icons" 
+					Style="{StaticResource SecondaryButtonStyle}"/>
+			<Label Grid.Column="2"
+				   Text="{Binding Employees.Count, StringFormat='{0} employees'}" />
+			<Button Grid.Column="4"
+					Text="Upload" 
+					FontSize="14"
+					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+					Style="{StaticResource SecondaryButtonStyle}"/>
+			<Button Grid.Column="5"
+					Text="Download"
+					FontSize="14"
+					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+					Style="{StaticResource SecondaryButtonStyle}" />
+		</Grid>
+		<!--body-->
+		<CollectionView Grid.Row="1"
+						ItemsSource="{Binding Employees}"
+						ItemsUpdatingScrollMode="KeepScrollOffset"
+						RemainingItemsThreshold="20"
+						RemainingItemsThresholdReachedCommand="{Binding LoadMoreEmployeesCommand}">
+			<CollectionView.ItemsLayout>
+				<LinearItemsLayout Orientation="Vertical"
+								   ItemSpacing="5" />
+			</CollectionView.ItemsLayout>
+			<CollectionView.ItemTemplate>
+				<DataTemplate x:DataType="models:EmployeeSummary">
+					<Border StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="10,10,20,10"
+							  RowDefinitions="Auto,Auto"
+							  ColumnDefinitions="*,Auto,Auto"
+							  RowSpacing="0"
+							  ColumnSpacing="20">
+							<Label Grid.Column="0">
+								<Label.FormattedText>
+									<FormattedString>
+										<Span Text="{Binding LastName}" />
+										<Span Text=", " />
+										<Span Text="{Binding FirstName}" />
+									</FormattedString>
+								</Label.FormattedText>
+							</Label>
+							<Label Grid.Column="0"
+								   Grid.Row="1"
+								   FontSize="12">
+								<Label.FormattedText>
+									<FormattedString>
+										<Span Text="{Binding PositionDisplay}" />
+										<Span Text="   |   " />
+										<Span Text="{Binding SectionDisplay}" />
+										<Span Text="   |   " />
+										<Span Text="{Binding DepartmentDisplay}" />
+									</FormattedString>
+								</Label.FormattedText>
+							</Label>
+							<Label Grid.Column="1"
+								   Grid.Row="0"
+								   Text="{Binding TypeLevelDisplay}" />
+							<Label Grid.Column="1"
+								   Grid.Row="1"
+								   Text="{Binding EmploymentInfo.DateRegularized}"
+								   FontSize="12" />
+							<Label Grid.Column="2"
+								   Grid.RowSpan="2"
+								   VerticalTextAlignment="Center"
+								   Text="{x:Static helpers:Icon.MoreHorizontal}"
+								   FontFamily="Icons">
+								<FlyoutBase.ContextFlyout>
+									<MenuFlyout>
+										<MenuFlyoutItem Text="Edit"
+														Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EmployeeContentViewModel}}, Path=EditEmployeeCommand}" 
+														CommandParameter="{Binding .}"/>
+										<MenuFlyoutSeparator />
+										<MenuFlyoutItem Text="Delete"
+														Command="{Binding Source={RelativeSource AncestorType={x:Type vm:EmployeeContentViewModel}}, Path=DeleteEmployeeCommand}"
+														CommandParameter="{Binding .}" />
+									</MenuFlyout>
+								</FlyoutBase.ContextFlyout>
+							</Label>
+						</Grid>
+					</Border>
+				</DataTemplate>
+			</CollectionView.ItemTemplate>
+		</CollectionView>
+		
+		<Label Grid.Row="2" Text="...Ready" HorizontalOptions="End">
+			<!--add triggers here based on IsLoadingMore-->
+			<Label.Triggers>
+				<DataTrigger TargetType="Label"
+							 Binding="{Binding IsLoadingMore}"
+							 Value="True">
+					<Setter Property="Text"
+							Value="...Loading more employees" />
+				</DataTrigger>
+			</Label.Triggers>
+		</Label>
+		
+		<ActivityIndicator Grid.Row="1"
+						   IsRunning="{Binding IsBusy}"
+						   IsVisible="{Binding IsBusy}"
+						   HorizontalOptions="Center"
+						   VerticalOptions="Center"/>
+	</Grid>
+</ContentView>

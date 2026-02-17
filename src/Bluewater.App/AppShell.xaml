@@ -14,10 +14,16 @@
         FlyoutItemIsVisible="False"
         Shell.FlyoutBehavior="Disabled"
         ContentTemplate="{DataTemplate views:LoginPage}"/>
+    
+    <ShellContent 
+        Route="HomePage"
+        FlyoutItemIsVisible="False"
+        Shell.FlyoutBehavior="Disabled"
+        ContentTemplate="{DataTemplate views:HomePage}" />
 
-    <FlyoutItem Title="Home" Icon="{FontImageSource Glyph={x:Static helpers:Icon.Home}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
+    <!--<FlyoutItem Title="Home" Icon="{FontImageSource Glyph={x:Static helpers:Icon.Home}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
         <ShellContent Route="HomePage" ContentTemplate="{DataTemplate views:HomePage}"/>
-    </FlyoutItem>
+    </FlyoutItem>-->
 
     <FlyoutItem Title="Employee" Icon="{FontImageSource Glyph={x:Static helpers:Icon.Users}, FontFamily=Icons, Color={AppThemeBinding Light={StaticResource TextPrimaryColor}, Dark={StaticResource TextSecondaryColor}}}">
         <ShellContent Route="EmployeePage" ContentTemplate="{DataTemplate views:EmployeePage}"/>
