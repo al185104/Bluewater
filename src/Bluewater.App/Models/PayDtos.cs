@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Bluewater.App.Models;
 
@@ -11,6 +12,11 @@ public class CreatePayRequestDto
   public decimal HourlyRate { get; set; }
   public decimal HdmfCon { get; set; }
   public decimal HdmfEr { get; set; }
+}
+
+public class PayListResponseDto
+{
+  public List<PayRecordDto> Pays { get; set; } = new();
 }
 
 public class CreatePayResponseDto

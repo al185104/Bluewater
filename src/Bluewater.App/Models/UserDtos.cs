@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Bluewater.Core.UserAggregate.Enum;
 
 namespace Bluewater.App.Models;
@@ -13,6 +14,13 @@ public class CreateUserRequestDto
   public Guid? SupervisedGroup { get; set; }
   public bool IsGlobalSupervisor { get; set; }
 }
+
+public class UserListResponseDto
+{
+  public List<UserRecordDto> Users { get; set; } = new();
+}
+
+public record GetUserByIdResponseDto(UserRecordDto? User);
 
 public record CreateUserResponseDto(Guid Id);
 
