@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+			 xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+             x:Class="Bluewater.App.Views.Controls.SettingsView"
+			 Padding="20"
+			 BackgroundColor="{StaticResource CollectionBackgroundBrush}">
+	<ContentView.Resources>
+		<ResourceDictionary>
+			<Style TargetType="Border"
+				   ApplyToDerivedTypes="True">
+				<Setter Property="StrokeShape"
+						Value="RoundRectangle 5 5 5 5" />
+				<Setter Property="Padding"
+						Value="10" />
+				<Setter Property="StrokeThickness"
+						Value="0.5" />
+			</Style>
+			<Style TargetType="Grid"
+				   ApplyToDerivedTypes="True">
+				<Setter Property="ColumnSpacing"
+						Value="10" />
+				<Setter Property="RowSpacing"
+						Value="5" />
+			</Style>
+		</ResourceDictionary>
+	</ContentView.Resources>
+	<Grid>
+		<ScrollView>
+			<VerticalStackLayout Spacing="10">
+				<Border>
+					<Grid ColumnDefinitions="Auto,*,Auto"
+						  RowSpacing="0"
+						  RowDefinitions="Auto,Auto">
+						<Label Grid.RowSpan="2"
+							   Grid.Column="0"
+							   Text="{x:Static helpers:Icon.Package}"
+							   FontFamily="Icons"
+							   FontSize="24" />
+						<Label Grid.Row="0" 
+							   Grid.Column="1"
+							   Text="Project" 
+							   VerticalOptions="End"/>
+						<Label Grid.Row="1"
+							   Grid.Column="1"
+							   VerticalOptions="Start"
+							   Text="Select the current project or tenant this app will currently operate in." 
+							   Style="{StaticResource CaptionTextStyle}"/>
+						<Picker Grid.RowSpan="2"
+								Grid.Column="2"
+								WidthRequest="200"
+								Title="Select project"
+								VerticalOptions="Center"
+								HorizontalOptions="End" 
+								HorizontalTextAlignment="Start"/>
+					</Grid>
+				</Border>
+				<!--Divisions-->
+				<Border HeightRequest="400">
+					<Grid RowDefinitions="Auto,*"
+						  ColumnDefinitions="Auto,*,Auto,Auto">
+						<Label Grid.Column="0"
+							   Text="{x:Static helpers:Icon.List}"
+							   FontFamily="Icons"
+							   FontSize="24" />
+						<VerticalStackLayout Grid.Column="1">
+							<Label Text="Divisions"
+								   FontSize="16"
+								   FontAttributes="Bold"
+								   VerticalOptions="Start" />
+							<Label Text="The quick brown fox jumps over the lazy dog."
+								   Style="{StaticResource CaptionTextStyle}"
+								   VerticalOptions="Start" />
+						</VerticalStackLayout>
+						<Button Grid.Column="2"
+								Text="Upload"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ImportEmployeesCommand}" />
+						<Button Grid.Column="3"
+								Text="Download"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportEmployeesCommand}" />
+						<CollectionView Grid.Row="1"
+										Grid.ColumnSpan="4">
+							<CollectionView.EmptyView>
+								<Label Text="No divisions to show."
+									   HorizontalOptions="Center"
+									   HorizontalTextAlignment="Center"
+									   VerticalOptions="Center" 
+									   VerticalTextAlignment="Center"/>
+							</CollectionView.EmptyView>
+						</CollectionView>
+					</Grid>
+				</Border>
+				<!--Departments-->
+				<Border HeightRequest="400">
+					<Grid RowDefinitions="Auto,*"
+						  ColumnSpacing="5"
+						  ColumnDefinitions="Auto,*,Auto,Auto">
+						<Label Grid.Column="0"
+							   Text="{x:Static helpers:Icon.List}"
+							   FontFamily="Icons"
+							   FontSize="24" />						
+						<VerticalStackLayout Grid.Column="1">
+							<Label Text="Departments"
+								   FontSize="16"
+								   FontAttributes="Bold"
+								   VerticalOptions="Start" />
+							<Label Text="The quick brown fox jumps over the lazy dog."
+								   Style="{StaticResource CaptionTextStyle}"
+								   VerticalOptions="Start" />
+						</VerticalStackLayout>
+						<Button Grid.Column="2"
+								Text="Upload"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ImportEmployeesCommand}" />
+						<Button Grid.Column="3"
+								Text="Download"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportEmployeesCommand}" />
+						<CollectionView Grid.Row="1"
+										Grid.ColumnSpan="4">
+							<CollectionView.EmptyView>
+								<Label Text="No departments to show."
+									   HorizontalOptions="Center"
+									   HorizontalTextAlignment="Center"
+									   VerticalOptions="Center"
+									   VerticalTextAlignment="Center" />
+							</CollectionView.EmptyView>
+						</CollectionView>
+					</Grid>
+				</Border>
+				<!--Sections-->
+				<Border HeightRequest="400">
+					<Grid RowDefinitions="Auto,*"
+						  ColumnSpacing="5"
+						  ColumnDefinitions="Auto,*,Auto,Auto">
+						<Label Grid.Column="0"
+							   Text="{x:Static helpers:Icon.List}"
+							   FontFamily="Icons"
+							   FontSize="24" />						
+						<VerticalStackLayout Grid.Column="1">
+							<Label Text="Sections"
+								   FontSize="16"
+								   FontAttributes="Bold"
+								   VerticalOptions="Start" />
+							<Label Text="The quick brown fox jumps over the lazy dog."
+								   Style="{StaticResource CaptionTextStyle}"
+								   VerticalOptions="Start" />
+						</VerticalStackLayout>
+						<Button Grid.Column="2"
+								Text="Upload"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ImportEmployeesCommand}" />
+						<Button Grid.Column="3"
+								Text="Download"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportEmployeesCommand}" />
+						<CollectionView Grid.Row="1"
+										Grid.ColumnSpan="4">
+							<CollectionView.EmptyView>
+								<Label Text="No sections to show."
+									   HorizontalOptions="Center"
+									   HorizontalTextAlignment="Center"
+									   VerticalOptions="Center"
+									   VerticalTextAlignment="Center" />
+							</CollectionView.EmptyView>
+						</CollectionView>
+					</Grid>
+				</Border>
+				<!--Positions-->
+				<Border HeightRequest="400">
+					<Grid RowDefinitions="Auto,*"
+						  ColumnSpacing="5"
+						  ColumnDefinitions="Auto,*,Auto,Auto">
+						<Label Grid.Column="0"
+							   Text="{x:Static helpers:Icon.List}"
+							   FontFamily="Icons"
+							   FontSize="24" />						
+						<VerticalStackLayout Grid.Column="1">
+							<Label Text="Positions"
+								   FontSize="16"
+								   FontAttributes="Bold"
+								   VerticalOptions="Start" />
+							<Label Text="The quick brown fox jumps over the lazy dog."
+								   Style="{StaticResource CaptionTextStyle}"
+								   VerticalOptions="Start" />
+						</VerticalStackLayout>
+						<Button Grid.Column="2"
+								Text="Upload"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ImportEmployeesCommand}" />
+						<Button Grid.Column="3"
+								Text="Download"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportEmployeesCommand}" />
+						<CollectionView Grid.Row="1"
+										Grid.ColumnSpan="4">
+							<CollectionView.EmptyView>
+								<Label Text="No positions to show."
+									   HorizontalOptions="Center"
+									   HorizontalTextAlignment="Center"
+									   VerticalOptions="Center"
+									   VerticalTextAlignment="Center" />
+							</CollectionView.EmptyView>
+						</CollectionView>
+					</Grid>
+				</Border>
+				<!--Chargings-->
+				<Border HeightRequest="400">
+					<Grid RowDefinitions="Auto,*"
+						  ColumnSpacing="5"
+						  ColumnDefinitions="Auto,*,Auto,Auto">
+						<Label Grid.Column="0"
+							   Text="{x:Static helpers:Icon.List}"
+							   FontFamily="Icons"
+							   FontSize="24" />						
+						<VerticalStackLayout Grid.Column="1">
+							<Label Text="Chargings"
+								   FontSize="16"
+								   FontAttributes="Bold"
+								   VerticalOptions="Start" />
+							<Label Text="The quick brown fox jumps over the lazy dog."
+								   Style="{StaticResource CaptionTextStyle}"
+								   VerticalOptions="Start" />
+						</VerticalStackLayout>
+						<Button Grid.Column="2"
+								Text="Upload"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ImportEmployeesCommand}" />
+						<Button Grid.Column="3"
+								Text="Download"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportEmployeesCommand}" />
+						<CollectionView Grid.Row="1"
+										Grid.ColumnSpan="4">
+							<CollectionView.EmptyView>
+								<Label Text="No chargings to show."
+									   HorizontalOptions="Center"
+									   HorizontalTextAlignment="Center"
+									   VerticalOptions="Center"
+									   VerticalTextAlignment="Center" />
+							</CollectionView.EmptyView>
+						</CollectionView>
+					</Grid>
+				</Border>
+				<!--Type-->
+				<Border HeightRequest="200">
+					<Grid RowDefinitions="Auto,*"
+						  ColumnSpacing="5"
+						  ColumnDefinitions="Auto,*,Auto,Auto">
+						<Label Grid.Column="0"
+							   Text="{x:Static helpers:Icon.List}"
+							   FontFamily="Icons"
+							   FontSize="24" />
+						<VerticalStackLayout Grid.Column="1">
+							<Label Text="Employee type"
+								   FontSize="16"
+								   FontAttributes="Bold"
+								   VerticalOptions="Start" />
+							<Label Text="The quick brown fox jumps over the lazy dog."
+								   Style="{StaticResource CaptionTextStyle}"
+								   VerticalOptions="Start" />
+						</VerticalStackLayout>
+						<Button Grid.Column="2"
+								Text="Upload"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ImportEmployeesCommand}" />
+						<Button Grid.Column="3"
+								Text="Download"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportEmployeesCommand}" />
+						<CollectionView Grid.Row="1"
+										Grid.ColumnSpan="4">
+							<CollectionView.EmptyView>
+								<Label Text="No employee types to show."
+									   HorizontalOptions="Center"
+									   HorizontalTextAlignment="Center"
+									   VerticalOptions="Center"
+									   VerticalTextAlignment="Center" />
+							</CollectionView.EmptyView>
+						</CollectionView>
+					</Grid>
+				</Border>
+				<!--Level-->
+				<Border HeightRequest="200">
+					<Grid RowDefinitions="Auto,*"
+						  ColumnSpacing="5"
+						  ColumnDefinitions="Auto,*,Auto,Auto">
+						<Label Grid.Column="0"
+							   Text="{x:Static helpers:Icon.List}"
+							   FontFamily="Icons"
+							   FontSize="24" />
+						<VerticalStackLayout Grid.Column="1">
+							<Label Text="Level"
+								   FontSize="16"
+								   FontAttributes="Bold"
+								   VerticalOptions="Start" />
+							<Label Text="The quick brown fox jumps over the lazy dog."
+								   Style="{StaticResource CaptionTextStyle}"
+								   VerticalOptions="Start" />
+						</VerticalStackLayout>
+						<Button Grid.Column="2"
+								Text="Upload"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ImportEmployeesCommand}" />
+						<Button Grid.Column="3"
+								Text="Download"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportEmployeesCommand}" />
+						<CollectionView Grid.Row="1"
+										Grid.ColumnSpan="4">
+							<CollectionView.EmptyView>
+								<Label Text="No level to show."
+									   HorizontalOptions="Center"
+									   HorizontalTextAlignment="Center"
+									   VerticalOptions="Center"
+									   VerticalTextAlignment="Center" />
+							</CollectionView.EmptyView>
+						</CollectionView>
+					</Grid>
+				</Border>				
+			</VerticalStackLayout>
+		</ScrollView>
+	</Grid>
+</ContentView>

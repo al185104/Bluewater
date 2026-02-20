@@ -113,6 +113,9 @@
           <MauiXaml Update="Views\Controls\SchedulesView.xaml">
             <Generator>MSBuild:Compile</Generator>
           </MauiXaml>
+          <MauiXaml Update="Views\Controls\SettingsView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+          </MauiXaml>
           <MauiXaml Update="Views\Controls\ShiftsView.xaml">
             <Generator>MSBuild:Compile</Generator>
           </MauiXaml>

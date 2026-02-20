@@ -53,7 +53,7 @@
     <!-- 4) Small Details / Captions / Metadata -->
     <Style x:Key="CaptionTextStyle" TargetType="Label">
         <Setter Property="FontFamily" Value="{StaticResource FontNunitoLight}" />
-        <Setter Property="FontSize" Value="16" />
+        <Setter Property="FontSize" Value="14" />
         <Setter Property="TextColor" Value="{StaticResource TextSecondaryColor}" />
     </Style>
 

@@ -8,6 +8,7 @@ using Bluewater.App.Views.Controls;
 using Bluewater.App.Views.Modals;
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
+using Windows.Devices.Usb;
 
 namespace Bluewater.App;
 
@@ -107,6 +108,7 @@ public static class MauiProgram
 				builder.Services.AddTransient<PayrollView>();
 				builder.Services.AddTransient<AttendanceView>();
 				builder.Services.AddTransient<UsersView>();
+				builder.Services.AddTransient<SettingsView>();
 				// modals
 				builder.Services.AddTransient<EmployeeDetailsPage>();
 				builder.Services.AddTransient<TimesheetDetailsPage>();

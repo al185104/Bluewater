@@ -3,17 +3,12 @@ using System.Globalization;
 using System.Text;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
-using Bluewater.App.Services;
 using Bluewater.App.ViewModels.Base;
-using Bluewater.App.Views;
 using Bluewater.App.Views.Modals;
 using Bluewater.Core.EmployeeAggregate.Enum;
-using Bluewater.Core.PayAggregate;
-using Bluewater.Core.PositionAggregate;
 using Bluewater.Core.UserAggregate.Enum;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Windows.System;
 
 namespace Bluewater.App.ViewModels.Content;
 
@@ -27,8 +22,10 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		private CancellationTokenSource? _loadMoreCts;
 		private readonly IEmployeeApiService _employeeApiService;
 		private readonly IReferenceDataService _referenceDataService;
+		private readonly IPayApiService _payApiService;
 		private readonly IActivityTraceService _activityTraceService;
 		private readonly IExceptionHandlingService _exceptionHandlingService;
+		private readonly IUserApiService _userApiService;
 
 		public ObservableCollection<EmployeeSummary>? Employees { get; set; } = new();
 
@@ -40,6 +37,8 @@ public partial class EmployeeContentViewModel : BaseViewModel
         IActivityTraceService activityTraceService, 
         IExceptionHandlingService exceptionHandlingService,
         IEmployeeApiService employeeApiService,
+				IUserApiService userApiService,
+				IPayApiService payApiService,
 				IReferenceDataService referenceDataService
 		) : base(activityTraceService, exceptionHandlingService)
     {
@@ -47,6 +46,8 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				_exceptionHandlingService = exceptionHandlingService;
         _employeeApiService = employeeApiService;
 				_referenceDataService = referenceDataService;
+				_payApiService = payApiService;
+				_userApiService = userApiService;
 		}
 
     public override async Task InitializeAsync()
@@ -244,7 +245,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 												Weight = TryDecimal(Get("Weight")),
 												Remarks = Get("Remarks"),
 												MealCredits = TryInt(Get("MealCredits"), 0),
-												Tenant = (Tenant)TryInt(Get("Project"), (int)Tenant.Maribago),
+												Tenant = TryEnum(Get("Project"), Tenant.Maribago),
 
 												Email = Get("Email"),
 												TelNumber = Get("TelNumber"),
@@ -311,14 +312,32 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						// loop this
 						foreach(var employee in employees)
 						{
-								var userPayload = new CreateUserRequest
+								var user = await _userApiService.CreateUserAsync(new UserRecordDto
 								{
 										Username = employee.Username,
-										Password = employee.PasswordHash,
+										PasswordHash = employee.PasswordHash,
+										IsGlobalSupervisor = false,
+										SupervisedGroup = null,
 										Credential = employee.Credential
-								};
+								}, _cts.Token);
+
+								var pay = await _payApiService.CreatePayAsync(new PayRecordDto
+								{
+										BasicPay = employee.BasicPay,
+										DailyRate = employee.DailyRate,
+										HourlyRate = employee.HourlyRate,
+										HdmfEmployeeContribution = employee.HdmfCon,
+										HdmfEmployerContribution = employee.HdmfEr
+								}, _cts.Token);
 
 								var employeePayload = employee.ToCreateRequest(employee.ToSummary(-1));
+
+								if(pay != null)
+										employeePayload.PayId = pay.Id;
+
+								if(user != null)
+										employeePayload.UserId = user.Id;
+
 								await _employeeApiService.CreateEmployeeAsync(employeePayload, _cts.Token);
 						}
 				}

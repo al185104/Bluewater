@@ -19,7 +19,8 @@
 			<Button Grid.Column="1"
 					Text="{x:Static helpers:Icon.RefreshCcw}"
 					FontFamily="Icons" 
-					Style="{StaticResource SecondaryButtonStyle}"/>
+					Style="{StaticResource SecondaryButtonStyle}"
+					Command="{Binding InitializeCommand}"/>
 			<Label Grid.Column="2"
 				   Text="{Binding Employees.Count, StringFormat='{0} employees'}" />
 			<Button Grid.Column="4"

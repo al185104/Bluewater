@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bluewater.App.Interfaces;
@@ -43,30 +43,30 @@ public class UserApiService(IApiClient apiClient) : IUserApiService
     return response?.User;
   }
 
-  public async Task<UserRecordDto?> CreateUserAsync(UserRecordDto user, CancellationToken cancellationToken = default)
-  {
-    if (user is null)
-    {
-      throw new ArgumentNullException(nameof(user));
-    }
+		public async Task<UserRecordDto?> CreateUserAsync(UserRecordDto user, CancellationToken cancellationToken = default)
+		{
+				if (user is null)
+				{
+						throw new ArgumentNullException(nameof(user));
+				}
 
-    CreateUserRequestDto request = new()
-    {
-      Username = user.Username,
-      PasswordHash = user.PasswordHash,
-      Credential = user.Credential,
-      SupervisedGroup = user.SupervisedGroup,
-      IsGlobalSupervisor = user.IsGlobalSupervisor
-    };
+				CreateUserRequestDto request = new()
+				{
+						Username = user.Username,
+						PasswordHash = user.PasswordHash,
+						Credential = user.Credential,
+						SupervisedGroup = user.SupervisedGroup,
+						IsGlobalSupervisor = user.IsGlobalSupervisor
+				};
 
-    CreateUserResponseDto? response = await apiClient
-      .PostAsync<CreateUserRequestDto, CreateUserResponseDto>(CreateUserRequestDto.Route, request, cancellationToken)
-      .ConfigureAwait(false);
+				CreateUserResponseDto? response = await apiClient
+					.PostAsync<CreateUserRequestDto, CreateUserResponseDto>(CreateUserRequestDto.Route, request, cancellationToken)
+					.ConfigureAwait(false);
 
-    return response is null
-      ? null
-      : await GetUserByIdAsync(response.Id, cancellationToken).ConfigureAwait(false);
-  }
+				return response is null
+					? null
+					: await GetUserByIdAsync(response.Id, cancellationToken).ConfigureAwait(false);
+		}
 
   public async Task<UserRecordDto?> UpdateUserAsync(UserRecordDto user, CancellationToken cancellationToken = default)
   {
