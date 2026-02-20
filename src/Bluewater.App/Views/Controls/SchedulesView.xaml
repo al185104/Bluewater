@@ -21,6 +21,17 @@
 					ItemsSource="{Binding Chargings}"
 					ItemDisplayBinding="{Binding Name}"
 					SelectedItem="{Binding SelectedCharging}"/>
+			<HorizontalStackLayout Grid.Column="1" VerticalOptions="End" Spacing="20">
+				<Button Text="{x:Static helpers:Icon.ChevronLeft}"
+						FontFamily="Icons" 
+						Command="{Binding PreviousWeekCommand}"
+						Style="{StaticResource SecondaryButtonStyle}"/>
+				<Label Text="{Binding WeekRangeDisplay}"/>
+				<Button Text="{x:Static helpers:Icon.ChevronRight}" 
+						FontFamily="Icons"
+						Command="{Binding NextWeekCommand}"
+						Style="{StaticResource SecondaryButtonStyle}"/>
+			</HorizontalStackLayout>
 			<Button Grid.Column="2"
 					Text="Upload"
 					VerticalOptions="End"
@@ -41,7 +52,6 @@
 			</CollectionView.ItemsLayout>
 			<CollectionView.Header>
 				<Grid ColumnSpacing="12"
-					  Padding="20,14"
 					  ColumnDefinitions="1.5*,1.2*,1.2*,1.2*,1.2*,1.2*,1.2*,1.2*">
 					<Label Text="Employee"
 						   FontAttributes="Bold" />

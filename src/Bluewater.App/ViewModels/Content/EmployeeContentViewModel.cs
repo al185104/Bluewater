@@ -1,10 +1,19 @@
 ﻿using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Text;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
+using Bluewater.App.Services;
 using Bluewater.App.ViewModels.Base;
+using Bluewater.App.Views;
 using Bluewater.App.Views.Modals;
+using Bluewater.Core.EmployeeAggregate.Enum;
+using Bluewater.Core.PayAggregate;
+using Bluewater.Core.PositionAggregate;
+using Bluewater.Core.UserAggregate.Enum;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Windows.System;
 
 namespace Bluewater.App.ViewModels.Content;
 
@@ -17,6 +26,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		private CancellationTokenSource? _cts;
 		private CancellationTokenSource? _loadMoreCts;
 		private readonly IEmployeeApiService _employeeApiService;
+		private readonly IReferenceDataService _referenceDataService;
 		private readonly IActivityTraceService _activityTraceService;
 		private readonly IExceptionHandlingService _exceptionHandlingService;
 
@@ -29,12 +39,14 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		public EmployeeContentViewModel(
         IActivityTraceService activityTraceService, 
         IExceptionHandlingService exceptionHandlingService,
-        IEmployeeApiService employeeApiService
-    ) : base(activityTraceService, exceptionHandlingService)
+        IEmployeeApiService employeeApiService,
+				IReferenceDataService referenceDataService
+		) : base(activityTraceService, exceptionHandlingService)
     {
 				_activityTraceService = activityTraceService;
 				_exceptionHandlingService = exceptionHandlingService;
         _employeeApiService = employeeApiService;
+				_referenceDataService = referenceDataService;
 		}
 
     public override async Task InitializeAsync()
@@ -45,6 +57,8 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				try
 				{
 						IsBusy = true;
+						skip = 0; 
+						take = 50;
 						var employees = await _employeeApiService.GetEmployeesAsync(skip, take, _cts.Token);
 						if(employees != null && employees.Items.Count > 0)
 						{
@@ -149,6 +163,164 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				try
 				{
 						IsBusy = true;
+
+						var employees = new List<EditableEmployee>();
+
+						var customFileType = new FilePickerFileType(
+						new Dictionary<DevicePlatform, IEnumerable<string>>
+						{
+                { DevicePlatform.WinUI, new[] { ".csv" } }, // file extension
+								{ DevicePlatform.macOS, new[] { "csv" } }, // UTType values
+						});
+
+						PickOptions options = new()
+						{
+								PickerTitle = "Please select an employee 201 file",
+								FileTypes = customFileType,
+						};
+
+						var result = await FilePicker.PickAsync(options);
+
+						if (result == null)
+						{
+								await Shell.Current.DisplayAlert("Import warning", "There is nothing to import. Please select a correct 201 import file.", "Okay");
+								return;
+						}
+
+						using var stream = await result.OpenReadAsync();
+						using var reader = new StreamReader(stream, Encoding.UTF8);
+
+						var headerLine = await reader.ReadLineAsync();
+						if (string.IsNullOrWhiteSpace(headerLine))
+						{
+								await Shell.Current.DisplayAlert("Import error", "Unable to read a correct header file.", "Back");
+								return;
+						}
+
+						var headers = headerLine.Split(',').Select(h => h.Trim()).ToList();
+
+						while (!reader.EndOfStream)
+						{
+								var line = await reader.ReadLineAsync();
+								if (string.IsNullOrWhiteSpace(line))
+										continue;
+
+								var values = line.Split(',');
+
+								try
+								{
+										string Get(string name)
+										{
+												var index = headers.FindIndex(h =>
+														h.Equals(name, StringComparison.OrdinalIgnoreCase));
+												return index >= 0 && index < values.Length
+														? values[index].Trim()
+														: string.Empty;
+										}
+
+										var positionId = _referenceDataService.Positions.FirstOrDefault(i => i.Name.ToLower().Trim().Equals(Get("Position").ToLower()))?.Id ?? null;
+										var typeId = _referenceDataService.EmployeeTypes.FirstOrDefault(i => i.Name.ToLower().Trim().Equals(Get("Type").ToLower()))?.Id ?? null;
+										var levelId = _referenceDataService.Levels.FirstOrDefault(i => i.Name.ToLower().Trim().Equals(Get("Level").ToLower()))?.Id ?? null;
+										var chargingId = _referenceDataService.Chargings.FirstOrDefault(i => i.Name.ToLower().Trim().Equals(Get("Charging").ToLower()))?.Id ?? null;	
+										var payId = Guid.Empty;
+										var userId = Guid.Empty;
+
+										var employee = new EditableEmployee
+										{
+												Id = Guid.NewGuid(),
+
+												FirstName = Get("FirstName"),
+												LastName = Get("LastName"),
+												MiddleName = Get("MiddleName"),
+
+												DateOfBirth = TryDate(Get("DateOfBirth")),
+
+												Gender = TryEnum(Get("Gender"), Gender.NotSet),
+												CivilStatus = TryEnum(Get("CivilStatus"), CivilStatus.NotSet),
+												BloodType = TryEnum(Get("BloodType"), BloodType.NotSet),
+												Status = TryEnum(Get("Status"), Status.NotSet),
+
+												Height = TryDecimal(Get("Height")),
+												Weight = TryDecimal(Get("Weight")),
+												Remarks = Get("Remarks"),
+												MealCredits = TryInt(Get("MealCredits"), 0),
+												Tenant = (Tenant)TryInt(Get("Project"), (int)Tenant.Maribago),
+
+												Email = Get("Email"),
+												TelNumber = Get("TelNumber"),
+												MobileNumber = Get("MobileNumber"),
+												Address = Get("Address"),
+												ProvincialAddress = Get("ProvincialAddress"),
+
+												MothersMaidenName = Get("MothersMaidenName"),
+												FathersName = Get("FathersName"),
+												EmergencyContact = Get("EmergencyContact"),
+												RelationshipContact = Get("RelationshipContact"),
+												AddressContact = Get("AddressContact"),
+												TelNoContact = Get("TelNoContact"),
+												MobileNoContact = Get("MobileNoContact"),
+
+												EducationalAttainment = TryEnum(Get("EducationalAttainment"), EducationalAttainment.NotSet),
+												CourseGraduated = Get("CourseGraduated"),
+												UniversityGraduated = Get("UniversityGraduated"),
+
+												DateHired = TryDate(Get("DateHired")),
+												DateRegularized = TryDate(Get("DateRegularized")),
+												DateResigned = TryDate(Get("DateResigned")),
+												DateTerminated = TryDate(Get("DateTerminated")),
+
+												TinNo = Get("TinNo"),
+												SssNo = Get("SssNo"),
+												HdmfNo = Get("HdmfNo"),
+												PhicNo = Get("PhicNo"),
+												BankAccount = Get("BankAccount"),
+
+												HasServiceCharge = TryBool(Get("HasServiceCharge")),
+
+												Username = Get("Username"),
+												PasswordHash = Get("Password"),
+												Credential = TryEnum(Get("Credential"), Credential.Employee),// todo: decouple from core
+
+												BasicPay = TryDecimal(Get("BasicPay")),
+												DailyRate = TryDecimal(Get("DailyRate")),
+												HourlyRate = TryDecimal(Get("HourlyRate")),
+												HdmfCon = TryDecimal(Get("HdmfCon")),
+												HdmfEr = TryDecimal(Get("HdmfEr")),
+
+												// IDs
+												PositionId = positionId,
+												TypeId = typeId,
+												LevelId = levelId,
+												ChargingId = chargingId,
+												PayId = payId,
+												UserId = userId,
+
+												CreatedDate = DateTime.UtcNow,
+												CreateBy = Guid.Empty
+										};
+
+										employees.Add(employee);
+								}
+								catch
+								{
+										// Skip bad row (log if needed)
+										continue;
+								}
+						}
+
+						// loop this
+						foreach(var employee in employees)
+						{
+								var userPayload = new CreateUserRequest
+								{
+										Username = employee.Username,
+										Password = employee.PasswordHash,
+										Credential = employee.Credential
+								};
+
+								var employeePayload = employee.ToCreateRequest(employee.ToSummary(-1));
+								await _employeeApiService.CreateEmployeeAsync(employeePayload, _cts.Token);
+						}
 				}
 				finally
 				{
@@ -156,6 +328,30 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				}
 		}
 
+		private int TryInt(string value, int defaultValue)
+		=> int.TryParse(value, out var v) ? v : defaultValue;
+
+		private decimal? TryDecimal(string value)
+				=> decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var v) ? v : null;
+
+		private bool TryBool(string value)
+				=> bool.TryParse(value, out var v) && v;
+
+		private DateTime? TryDate(string value)
+				=> DateTime.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.None, out var d) ? d : null;
+
+		private T TryEnum<T>(string value, T defaultValue)
+				where T : struct, Enum
+		{
+				if (string.IsNullOrWhiteSpace(value))
+						return defaultValue;
+
+				return Enum.TryParse<T>(value, ignoreCase: true, out var result)
+						? result
+						: defaultValue;
+		}
+
+		[RelayCommand]
 		public async Task ExportEmployeesAsync()
 		{
 				CancelAndDispose();

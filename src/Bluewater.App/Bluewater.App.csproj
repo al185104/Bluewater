@@ -161,6 +161,9 @@
 	  <MauiXaml Update="Views\ShiftsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\TimesheetDetailsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
       <MauiXaml Update="Views\TimesheetPage.xaml">
         <Generator>MSBuild:Compile</Generator>
       </MauiXaml>

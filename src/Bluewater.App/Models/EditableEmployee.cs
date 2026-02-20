@@ -9,43 +9,43 @@ public partial class EditableEmployee : ObservableObject
 		public Guid Id { get; set; }
 
 		[ObservableProperty]
-		public partial string FirstName { get; set; } = string.Empty;
+		public partial string FirstName { get; set; } = string.Empty; //done
 
 		[ObservableProperty]
-		public partial string LastName { get; set; } = string.Empty;
+		public partial string LastName { get; set; } = string.Empty; //done
 
 		[ObservableProperty]
-		public partial string? MiddleName { get; set; }
+		public partial string? MiddleName { get; set; } //done
 
 		[ObservableProperty]
-		public partial DateTime? DateOfBirth { get; set; }
+		public partial DateTime? DateOfBirth { get; set; } //done
 
 		[ObservableProperty]
-		public partial Gender Gender { get; set; } = Gender.NotSet;
+		public partial Gender Gender { get; set; } = Gender.NotSet; //done
 
 		[ObservableProperty]
-		public partial CivilStatus CivilStatus { get; set; } = CivilStatus.NotSet;
+		public partial CivilStatus CivilStatus { get; set; } = CivilStatus.NotSet; //done
 
 		[ObservableProperty]
-		public partial BloodType BloodType { get; set; } = BloodType.NotSet;
+		public partial BloodType BloodType { get; set; } = BloodType.NotSet; //done
 
 		[ObservableProperty]
-		public partial Status Status { get; set; } = Status.NotSet;
+		public partial Status Status { get; set; } = Status.NotSet; //done
 
 		[ObservableProperty]
-		public partial decimal? Height { get; set; }
+		public partial decimal? Height { get; set; } //done
 
 		[ObservableProperty]
-		public partial decimal? Weight { get; set; }
+		public partial decimal? Weight { get; set; } //done
 
 		[ObservableProperty]
-		public partial string? Remarks { get; set; }
+		public partial string? Remarks { get; set; } //done
 
 		[ObservableProperty]
-		public partial int MealCredits { get; set; }
+		public partial int MealCredits { get; set; } //done
 
 		[ObservableProperty]
-		public partial Tenant Tenant { get; set; } = Tenant.Maribago;
+		public partial Tenant Tenant { get; set; } = Tenant.Maribago; //done
 
 		[ObservableProperty]
 		public partial string? Position { get; set; }
@@ -498,6 +498,66 @@ public partial class EditableEmployee : ObservableObject
 								HasServiceCharge = HasServiceCharge
 						};
 				}
+		}
+
+		public CreateEmployeeRequestDto ToCreateRequest(EmployeeSummary summary)
+		{
+				return new CreateEmployeeRequestDto
+				{
+						FirstName = summary.FirstName,
+						LastName = summary.LastName,
+						MiddleName = summary.MiddleName,
+						DateOfBirth = summary.DateOfBirth,
+						Gender = summary.Gender,
+						CivilStatus = summary.CivilStatus,
+						BloodType = summary.BloodType,
+						Status = summary.Status,
+						MealCredits = summary.MealCredits,
+						Tenant = summary.Tenant,
+						Remarks = summary.Remarks,
+						Height = summary.Height,
+						Weight = summary.Weight,
+						UserId = summary.UserId,
+						PositionId = summary.PositionId,
+						PayId = summary.PayId,
+						TypeId = summary.TypeId,
+						LevelId = summary.LevelId,
+						ChargingId = summary.ChargingId,
+						ContactInfo = new CreateEmployeeContactInfoDto
+						{
+								Email = summary.ContactInfo.Email,
+								TelNumber = summary.ContactInfo.TelNumber,
+								MobileNumber = summary.ContactInfo.MobileNumber,
+								Address = summary.ContactInfo.Address,
+								ProvincialAddress = summary.ContactInfo.ProvincialAddress,
+								MothersMaidenName = summary.ContactInfo.MothersMaidenName,
+								FathersName = summary.ContactInfo.FathersName,
+								EmergencyContact = summary.ContactInfo.EmergencyContact,
+								RelationshipContact = summary.ContactInfo.RelationshipContact,
+								AddressContact = summary.ContactInfo.AddressContact,
+								TelNoContact = summary.ContactInfo.TelNoContact,
+								MobileNoContact = summary.ContactInfo.MobileNoContact
+						},
+						EducationInfo = new CreateEmployeeEducationInfoDto
+						{
+								EducationalAttainment = summary.EducationInfo.EducationalAttainment,
+								CourseGraduated = summary.EducationInfo.CourseGraduated,
+								UniversityGraduated = summary.EducationInfo.UniversityGraduated
+						},
+						EmploymentInfo = new CreateEmployeeEmploymentInfoDto
+						{
+								DateHired = summary.EmploymentInfo.DateHired,
+								DateRegularized = summary.EmploymentInfo.DateRegularized,
+								DateResigned = summary.EmploymentInfo.DateResigned,
+								DateTerminated = summary.EmploymentInfo.DateTerminated,
+								TinNo = summary.EmploymentInfo.TinNo,
+								SssNo = summary.EmploymentInfo.SssNo,
+								HdmfNo = summary.EmploymentInfo.HdmfNo,
+								PhicNo = summary.EmploymentInfo.PhicNo,
+								BankAccount = summary.EmploymentInfo.BankAccount,
+								HasServiceCharge = summary.EmploymentInfo.HasServiceCharge
+						},
+				};
 		}
 
 		private static byte[]? ConvertImageToBytes(string? image)

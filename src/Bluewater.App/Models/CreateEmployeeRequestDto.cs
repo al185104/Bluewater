@@ -1,5 +1,4 @@
-using System;
-using Bluewater.Core.EmployeeAggregate.Enum;
+﻿using Bluewater.Core.EmployeeAggregate.Enum;
 
 namespace Bluewater.App.Models;
 

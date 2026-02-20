@@ -230,6 +230,25 @@
 						   Text="{Binding EditableEmployee.HdmfEr}"
 						   Placeholder="HDMF Employer Contribution" />
 				</Grid>
+				<Grid ColumnDefinitions="*,*,*">
+					<Entry Grid.Column="0"
+						   Text="{Binding EditableEmployee.TinNo}"
+						   Placeholder="TIN No." />
+					<Entry Grid.Column="1"
+						   Text="{Binding EditableEmployee.SssNo}"
+						   Placeholder="SSS No." />
+					<Entry Grid.Column="2"
+						   Text="{Binding EditableEmployee.BankAccount}"
+						   Placeholder="Bank Account No." />
+				</Grid>
+				<Grid ColumnDefinitions="*,*">
+					<Entry Grid.Column="0"
+						   Text="{Binding EditableEmployee.HdmfNo}"
+						   Placeholder="HDMF No." />
+					<Entry Grid.Column="1"
+						   Text="{Binding EditableEmployee.PhicNo}"
+						   Placeholder="PHIC No." />
+				</Grid>
 				<Grid ColumnDefinitions="*,Auto,Auto">
 					<Button Grid.Column="1"
 							Text="Cancel"
@@ -237,7 +256,8 @@
 							Style="{StaticResource SecondaryButtonStyle}" />
 					<Button Grid.Column="2"
 							Text="Save &amp; Update" 
-							Command="{Binding UpdateEmployeeCommand}"/>
+							Command="{Binding UpdateEmployeeCommand}"
+							Style="{StaticResource PrimaryButtonStyle}"/>
 				</Grid>
 			</VerticalStackLayout>
 		</ScrollView>

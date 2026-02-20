@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Bluewater.App.Views.TimesheetDetailsPage"
+			 xmlns:vm="clr-namespace:Bluewater.App.ViewModels.Modals"
+			 xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+			 xmlns:models="clr-namespace:Bluewater.App.Models"
+			 x:DataType="vm:TimesheetDetailsViewModel"
+             Title="TimesheetDetailsPage">
+	<Grid Padding="10"
+		  RowDefinitions="Auto,*"
+		  RowSpacing="10">
+		<Border Grid.Row="0"
+				Stroke="Transparent"
+				BackgroundColor="{StaticResource TextAccentColor}"
+				StrokeShape="RoundRectangle 12">
+			<Grid ColumnDefinitions="*,*,Auto" 
+				  RowDefinitions="Auto,Auto,Auto"
+				  RowSpacing="5"
+				  Padding="20,10">
+				<Label Grid.Row="0"
+					   Grid.Column="0"
+					   FontSize="16"
+					   FontAttributes="Bold"
+					   Text="Name here" />
+				<Label Grid.Row="0" 
+					   Grid.Column="2"
+					   FontSize="16"
+					   FontAttributes="Bold"
+					   HorizontalTextAlignment="End"
+					   HorizontalOptions="End"
+					   Text="{Binding SelectedEditableTimesheet.EntryDate, StringFormat='{0:dddd, MMM-dd-yyyy}'}" />
+				<HorizontalStackLayout Grid.Row="1"
+									   Grid.Column="0"
+									   HorizontalOptions="Center"
+									   Spacing="20">
+					<Label Text="Time in 1" />
+					<TimePicker TranslationY="7"
+								Time="{Binding SelectedEditableTimesheet.TimeIn1Time}" />
+					<DatePicker Date="{Binding SelectedEditableTimesheet.EntryDateDateTime}" />
+				</HorizontalStackLayout>
+				<HorizontalStackLayout Grid.Row="2"
+									   Grid.Column="0"
+									   HorizontalOptions="Center"
+									   Spacing="20">
+					<Label Text="Time out 1" />
+					<TimePicker TranslationY="7"
+								Time="{Binding SelectedEditableTimesheet.TimeOut1Time}" />
+					<DatePicker Date="{Binding SelectedEditableTimesheet.EntryDateDateTime}" />
+				</HorizontalStackLayout>
+				<HorizontalStackLayout Grid.Row="1"
+									   Grid.Column="1"
+									   HorizontalOptions="Center"
+									   Spacing="20">
+					<Label Text="Time in 2" />
+					<TimePicker TranslationY="7"
+								Time="{Binding SelectedEditableTimesheet.TimeIn2Time}" />
+					<DatePicker Date="{Binding SelectedEditableTimesheet.EntryDateDateTime}" />
+				</HorizontalStackLayout>
+				<HorizontalStackLayout Grid.Row="2"
+									   Grid.Column="1"
+									   HorizontalOptions="Center"
+									   Spacing="20">
+					<Label Text="Time out 2" />
+					<TimePicker TranslationY="7"
+								Time="{Binding SelectedEditableTimesheet.TimeOut2Time}" />
+					<DatePicker Date="{Binding SelectedEditableTimesheet.EntryDateDateTime}" />
+				</HorizontalStackLayout>
+				
+				<Button Grid.Row="1"
+						Grid.RowSpan="2"
+						Grid.Column="2"
+						VerticalOptions="End"
+						Text="Save"
+						ImageSource="{FontImage Glyph={x:Static helpers:Icon.Save},FontFamily=Icons, Color={StaticResource ButtonTextColor},Size=18}"
+						Style="{StaticResource PrimaryButtonStyle}"/>
+			</Grid>
+		</Border>
+		<CollectionView x:Name="timeCollection"
+						Grid.Row="1"
+						ItemsSource="{Binding EditableTimesheets}"
+						SelectionMode="Single"
+						SelectedItem="{Binding SelectedEditableTimesheet, Mode=TwoWay}">
+			<CollectionView.Header>
+				<Border StrokeShape="RoundRectangle 10 10 0 0"
+						BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
+					<Grid ColumnSpacing="12"
+						  Padding="20"
+						  ColumnDefinitions="*,*,*,*,*">
+						<Label Text="Date"
+							   TextColor="White"
+							   HorizontalTextAlignment="Center"
+							   FontAttributes="Bold" />
+						<Label Grid.Column="1"
+							   Text="Time in 1"
+							   HorizontalTextAlignment="Center"
+							   TextColor="White"
+							   FontAttributes="Bold" />
+						<Label Grid.Column="2"
+							   Text="Time out 1"
+							   HorizontalTextAlignment="Center"
+							   TextColor="White"
+							   FontAttributes="Bold" />
+						<Label Grid.Column="3"
+							   Text="Time in 2"
+							   HorizontalTextAlignment="Center"
+							   TextColor="White"
+							   FontAttributes="Bold" />
+						<Label Grid.Column="4"
+							   Text="Time out 2"
+							   HorizontalTextAlignment="Center"
+							   TextColor="White"
+							   FontAttributes="Bold" />
+					</Grid>
+				</Border>
+			</CollectionView.Header>
+			<CollectionView.ItemTemplate>
+				<DataTemplate x:DataType="models:EditableTimesheetEntry">
+					<Border StrokeThickness="1"
+							Stroke="Transparent"
+							BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+							Padding="16,12"
+							StrokeShape="RoundRectangle 12">
+						<Grid ColumnDefinitions="*,*,*,*,*">
+							<Label Grid.Column="0"
+								   HorizontalTextAlignment="Center"
+								   Text="{Binding EntryDate, StringFormat='{0: MMM dd yyyy (ddd)}'}" />
+							<Label Grid.Column="1"
+								   HorizontalTextAlignment="Center"
+								   Text="{Binding TimeIn1, StringFormat='{}{0:HH:mm ttt}'}" />
+							<Label Grid.Column="2"
+								   HorizontalTextAlignment="Center"
+								   Text="{Binding TimeOut1, StringFormat='{}{0:HH:mm ttt}'}" />
+							<Label Grid.Column="3"
+								   HorizontalTextAlignment="Center"
+								   Text="{Binding TimeIn2, StringFormat='{}{0:HH:mm ttt}'}" />
+							<Label Grid.Column="4"
+								   HorizontalTextAlignment="Center"
+								   Text="{Binding TimeOut2, StringFormat='{}{0:HH:mm ttt}'}" />
+						</Grid>
+					</Border>
+				</DataTemplate>
+			</CollectionView.ItemTemplate>
+			<CollectionView.EmptyView>
+				<VerticalStackLayout Padding="24"
+									 Spacing="8"
+									 HorizontalOptions="Center"
+									 VerticalOptions="Center">
+					<Label Text="Select an employee to edit timesheets."
+						   HorizontalTextAlignment="Center"
+						   FontAttributes="Bold" />
+					<Label Text="Timesheet entries will appear here once an employee is selected."
+						   HorizontalTextAlignment="Center"
+						   FontSize="12" />
+				</VerticalStackLayout>
+			</CollectionView.EmptyView>
+		</CollectionView>
+	</Grid>
+</ContentPage>

@@ -77,7 +77,8 @@
                     BackgroundColor="Transparent"
                     Margin="5, 0"
                     Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.MealCredit}" />
+                    CommandParameter="{x:Static enum:MainSectionEnum.MealCredit}" 
+					IsVisible="False"/>
             <Button x:Name="btnLeaves" 
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.Map}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Leaves"
@@ -87,7 +88,8 @@
                     BackgroundColor="Transparent"
                     Margin="5, 0"
                     Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Leaves}" />
+                    CommandParameter="{x:Static enum:MainSectionEnum.Leaves}" 
+					IsVisible="False"/>
             <Button x:Name="btnTimesheet" 
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.Calendar}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Timesheet"

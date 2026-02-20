@@ -26,12 +26,14 @@
 					Text="Upload" 
 					FontSize="14"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
-					Style="{StaticResource SecondaryButtonStyle}"/>
+					Style="{StaticResource SecondaryButtonStyle}"
+					Command="{Binding ImportEmployeesCommand}"/>
 			<Button Grid.Column="5"
 					Text="Download"
 					FontSize="14"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
-					Style="{StaticResource SecondaryButtonStyle}" />
+					Style="{StaticResource SecondaryButtonStyle}" 
+					Command="{Binding ExportEmployeesCommand}"/>
 		</Grid>
 		<!--body-->
 		<CollectionView Grid.Row="1"

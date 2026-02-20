@@ -20,10 +20,10 @@ public partial class EmployeesView : ContentView
 
 		private void ContentView_Unloaded(object sender, EventArgs e)
 		{
-				if(BindingContext is EmployeeContentViewModel vm)
-				{
-						vm.Dispose();
-						BindingContext = null;
-				}
+				//if(BindingContext is EmployeeContentViewModel vm)
+				//{
+				//		vm.Dispose();
+				//		BindingContext = null;
+				//}
 		}
 }

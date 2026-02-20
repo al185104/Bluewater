@@ -3,6 +3,7 @@ using Bluewater.App.Services;
 using Bluewater.App.ViewModels;
 using Bluewater.App.ViewModels.Content;
 using Bluewater.App.ViewModels.Modals;
+using Bluewater.App.Views;
 using Bluewater.App.Views.Controls;
 using Bluewater.App.Views.Modals;
 using CommunityToolkit.Maui;
@@ -106,6 +107,7 @@ public static class MauiProgram
 				builder.Services.AddTransient<UsersView>();
 				// modals
 				builder.Services.AddTransient<EmployeeDetailsPage>();
+				builder.Services.AddTransient<TimesheetDetailsPage>();
 
 
 				// control viewmodels
@@ -115,6 +117,7 @@ public static class MauiProgram
 				builder.Services.AddTransient<ScheduleContentViewModel>();
 				// modals
 				builder.Services.AddTransient<EmployeeDetailsViewModel>();
+				builder.Services.AddTransient<TimesheetDetailsViewModel>();
 
 				MauiApp app = builder.Build();
 
