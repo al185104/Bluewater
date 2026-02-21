@@ -37,6 +37,27 @@ public partial class SettingViewModel : BaseViewModel
 		[ObservableProperty]
 		public partial DateTime EndDate { get; set; } = DateTime.Today;
 
+		[ObservableProperty]
+		public partial string NewDivisionName { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial string NewDepartmentName { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial string NewSectionName { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial string NewPositionName { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial string NewChargingName { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial string NewEmployeeTypeName { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial string NewEmployeeLevelName { get; set; } = string.Empty;
+
 		public ObservableCollection<DivisionSummary> Divisions { get; } = new();
 		public ObservableCollection<DepartmentSummary> Departments { get; } = new();
 		public ObservableCollection<SectionSummary> Sections { get; } = new();
@@ -324,6 +345,106 @@ public partial class SettingViewModel : BaseViewModel
 				}
 
 				await TraceCommandAsync(nameof(DeletePositionAsync), position.Id);
+		}
+
+		[RelayCommand]
+		private async Task EditEmployeeTypeAsync(EmployeeTypeSummary? employeeType)
+		{
+				if (employeeType is null)
+				{
+						return;
+				}
+
+				await TraceCommandAsync(nameof(EditEmployeeTypeAsync), employeeType.Id);
+		}
+
+		[RelayCommand]
+		private async Task DeleteEmployeeTypeAsync(EmployeeTypeSummary? employeeType)
+		{
+				if (employeeType is null)
+				{
+						return;
+				}
+
+				await TraceCommandAsync(nameof(DeleteEmployeeTypeAsync), employeeType.Id);
+		}
+
+		[RelayCommand]
+		private async Task EditEmployeeLevelAsync(LevelSummary? level)
+		{
+				if (level is null)
+				{
+						return;
+				}
+
+				await TraceCommandAsync(nameof(EditEmployeeLevelAsync), level.Id);
+		}
+
+		[RelayCommand]
+		private async Task DeleteEmployeeLevelAsync(LevelSummary? level)
+		{
+				if (level is null)
+				{
+						return;
+				}
+
+				await TraceCommandAsync(nameof(DeleteEmployeeLevelAsync), level.Id);
+		}
+
+		[RelayCommand]
+		private void AddDivision()
+		{
+				if (string.IsNullOrWhiteSpace(NewDivisionName)) return;
+				Divisions.Add(new DivisionSummary { Id = Guid.NewGuid(), Name = NewDivisionName.Trim(), RowIndex = Divisions.Count + 1 });
+				NewDivisionName = string.Empty;
+		}
+
+		[RelayCommand]
+		private void AddDepartment()
+		{
+				if (string.IsNullOrWhiteSpace(NewDepartmentName)) return;
+				Departments.Add(new DepartmentSummary { Id = Guid.NewGuid(), Name = NewDepartmentName.Trim(), RowIndex = Departments.Count + 1 });
+				NewDepartmentName = string.Empty;
+		}
+
+		[RelayCommand]
+		private void AddSection()
+		{
+				if (string.IsNullOrWhiteSpace(NewSectionName)) return;
+				Sections.Add(new SectionSummary { Id = Guid.NewGuid(), Name = NewSectionName.Trim(), RowIndex = Sections.Count + 1 });
+				NewSectionName = string.Empty;
+		}
+
+		[RelayCommand]
+		private void AddPosition()
+		{
+				if (string.IsNullOrWhiteSpace(NewPositionName)) return;
+				Positions.Add(new PositionSummary { Id = Guid.NewGuid(), Name = NewPositionName.Trim(), RowIndex = Positions.Count + 1 });
+				NewPositionName = string.Empty;
+		}
+
+		[RelayCommand]
+		private void AddCharging()
+		{
+				if (string.IsNullOrWhiteSpace(NewChargingName)) return;
+				Chargings.Add(new ChargingSummary { Id = Guid.NewGuid(), Name = NewChargingName.Trim(), RowIndex = Chargings.Count + 1 });
+				NewChargingName = string.Empty;
+		}
+
+		[RelayCommand]
+		private void AddEmployeeType()
+		{
+				if (string.IsNullOrWhiteSpace(NewEmployeeTypeName)) return;
+				EmployeeTypes.Add(new EmployeeTypeSummary { Id = Guid.NewGuid(), Name = NewEmployeeTypeName.Trim(), Value = NewEmployeeTypeName.Trim(), IsActive = true });
+				NewEmployeeTypeName = string.Empty;
+		}
+
+		[RelayCommand]
+		private void AddEmployeeLevel()
+		{
+				if (string.IsNullOrWhiteSpace(NewEmployeeLevelName)) return;
+				EmployeeLevels.Add(new LevelSummary { Id = Guid.NewGuid(), Name = NewEmployeeLevelName.Trim(), Value = NewEmployeeLevelName.Trim(), IsActive = true });
+				NewEmployeeLevelName = string.Empty;
 		}
 
 
