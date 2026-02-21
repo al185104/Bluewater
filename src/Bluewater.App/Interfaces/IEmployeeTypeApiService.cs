@@ -11,4 +11,6 @@ public interface IEmployeeTypeApiService
     int? skip = null,
     int? take = null,
     CancellationToken cancellationToken = default);
+
+  Task<EmployeeTypeSummary?> CreateEmployeeTypeAsync(EmployeeTypeSummary employeeType, CancellationToken cancellationToken = default);
 }

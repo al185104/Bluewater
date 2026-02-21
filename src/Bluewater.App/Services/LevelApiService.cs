@@ -32,6 +32,27 @@ public class LevelApiService(IApiClient apiClient) : ILevelApiService
       .ToList();
   }
 
+  public async Task<LevelSummary?> CreateLevelAsync(LevelSummary level, CancellationToken cancellationToken = default)
+  {
+    if (level is null)
+    {
+      throw new ArgumentNullException(nameof(level));
+    }
+
+    CreateLevelRequestDto request = new()
+    {
+      Name = level.Name,
+      Value = level.Value,
+      IsActive = level.IsActive
+    };
+
+    LevelDto? response = await apiClient
+      .PostAsync<CreateLevelRequestDto, LevelDto>("Levels", request, cancellationToken)
+      .ConfigureAwait(false);
+
+    return response is null ? null : MapToSummary(response);
+  }
+
   private static string BuildRequestUri(int? skip, int? take)
   {
     List<string> parameters = [];

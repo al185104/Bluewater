@@ -32,6 +32,27 @@ public class EmployeeTypeApiService(IApiClient apiClient) : IEmployeeTypeApiServ
       .ToList();
   }
 
+  public async Task<EmployeeTypeSummary?> CreateEmployeeTypeAsync(EmployeeTypeSummary employeeType, CancellationToken cancellationToken = default)
+  {
+    if (employeeType is null)
+    {
+      throw new ArgumentNullException(nameof(employeeType));
+    }
+
+    CreateEmployeeTypeRequestDto request = new()
+    {
+      Name = employeeType.Name,
+      Value = employeeType.Value,
+      IsActive = employeeType.IsActive
+    };
+
+    EmployeeTypeDto? response = await apiClient
+      .PostAsync<CreateEmployeeTypeRequestDto, EmployeeTypeDto>("EmployeeTypes", request, cancellationToken)
+      .ConfigureAwait(false);
+
+    return response is null ? null : MapToSummary(response);
+  }
+
   private static string BuildRequestUri(int? skip, int? take)
   {
     List<string> parameters = [];
