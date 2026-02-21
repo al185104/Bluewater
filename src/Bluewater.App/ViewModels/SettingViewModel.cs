@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -14,6 +15,8 @@ public partial class SettingViewModel : BaseViewModel
 		private readonly ISectionApiService _sectionApiService;
 		private readonly IChargingApiService _chargingApiService;
 		private readonly IPositionApiService _positionApiService;
+		private readonly IEmployeeTypeApiService _employeeTypeApiService;
+		private readonly ILevelApiService _levelApiService;
 		private readonly IEmployeeApiService _employeeApiService;
 		private readonly ITimesheetApiService _timesheetApiService;
 		private readonly IScheduleApiService _scheduleApiService;
@@ -39,6 +42,8 @@ public partial class SettingViewModel : BaseViewModel
 		public ObservableCollection<SectionSummary> Sections { get; } = new();
 		public ObservableCollection<ChargingSummary> Chargings { get; } = new();
 		public ObservableCollection<PositionSummary> Positions { get; } = new();
+		public ObservableCollection<EmployeeTypeSummary> EmployeeTypes { get; } = new();
+		public ObservableCollection<LevelSummary> EmployeeLevels { get; } = new();
 
 		public SettingViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService,
 			IDivisionApiService divisionApiService,
@@ -46,6 +51,8 @@ public partial class SettingViewModel : BaseViewModel
 			ISectionApiService sectionApiService,
 			IChargingApiService chargingApiService,
 			IPositionApiService positionApiService,
+			IEmployeeTypeApiService employeeTypeApiService,
+			ILevelApiService levelApiService,
 			IEmployeeApiService employeeApiService,
 			ITimesheetApiService timesheetApiService,
 			IScheduleApiService scheduleApiService,
@@ -57,6 +64,8 @@ public partial class SettingViewModel : BaseViewModel
 				_sectionApiService = sectionApiService;
 				_chargingApiService = chargingApiService;
 				_positionApiService = positionApiService;
+				_employeeTypeApiService = employeeTypeApiService;
+				_levelApiService = levelApiService;
 				_employeeApiService = employeeApiService;
 				_timesheetApiService = timesheetApiService;
 				_scheduleApiService = scheduleApiService;
@@ -317,6 +326,57 @@ public partial class SettingViewModel : BaseViewModel
 				await TraceCommandAsync(nameof(DeletePositionAsync), position.Id);
 		}
 
+
+
+		[RelayCommand]
+		private Task ImportDivisionsAsync() => ImportSettingsAsync(
+			"Select divisions CSV file",
+			"Importing divisions",
+			rows => CreateSettingsAsync(rows, CreateDivisionFromRow, _divisionApiService.CreateDivisionAsync),
+			InitializeAsync);
+
+		[RelayCommand]
+		private Task ImportDepartmentsAsync() => ImportSettingsAsync(
+			"Select departments CSV file",
+			"Importing departments",
+			rows => CreateSettingsAsync(rows, CreateDepartmentFromRow, _departmentApiService.CreateDepartmentAsync),
+			InitializeAsync);
+
+		[RelayCommand]
+		private Task ImportSectionsAsync() => ImportSettingsAsync(
+			"Select sections CSV file",
+			"Importing sections",
+			rows => CreateSettingsAsync(rows, CreateSectionFromRow, _sectionApiService.CreateSectionAsync),
+			InitializeAsync);
+
+		[RelayCommand]
+		private Task ImportPositionsAsync() => ImportSettingsAsync(
+			"Select positions CSV file",
+			"Importing positions",
+			rows => CreateSettingsAsync(rows, CreatePositionFromRow, _positionApiService.CreatePositionAsync),
+			InitializeAsync);
+
+		[RelayCommand]
+		private Task ImportChargingsAsync() => ImportSettingsAsync(
+			"Select chargings CSV file",
+			"Importing chargings",
+			rows => CreateSettingsAsync(rows, CreateChargingFromRow, _chargingApiService.CreateChargingAsync),
+			InitializeAsync);
+
+		[RelayCommand]
+		private Task ImportEmployeeTypesAsync() => ImportSettingsAsync(
+			"Select employee types CSV file",
+			"Importing employee types",
+			rows => CreateSettingsAsync(rows, CreateEmployeeTypeFromRow, _employeeTypeApiService.CreateEmployeeTypeAsync),
+			InitializeAsync);
+
+		[RelayCommand]
+		private Task ImportEmployeeLevelsAsync() => ImportSettingsAsync(
+			"Select employee levels CSV file",
+			"Importing employee levels",
+			rows => CreateSettingsAsync(rows, CreateEmployeeLevelFromRow, _levelApiService.CreateLevelAsync),
+			InitializeAsync);
+
 		[RelayCommand]
 		private async Task RandomizeDataAsync()
 		{
@@ -497,6 +557,166 @@ public partial class SettingViewModel : BaseViewModel
 				return random.NextDouble() < threshold;
 		}
 
+
+		private async Task ImportSettingsAsync(
+			string pickerTitle,
+			string errorContext,
+			Func<IReadOnlyList<SettingsCsvRow>, Task<int>> importAction,
+			Func<Task> onSuccess)
+		{
+			if (IsBusy)
+			{
+				return;
+			}
+
+			try
+			{
+				PickOptions options = new()
+				{
+					PickerTitle = pickerTitle,
+					FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+					{
+						[DevicePlatform.iOS] = ["public.comma-separated-values-text", "public.text"],
+						[DevicePlatform.Android] = ["text/csv", "text/comma-separated-values"],
+						[DevicePlatform.WinUI] = [".csv"],
+						[DevicePlatform.MacCatalyst] = ["public.comma-separated-values-text", "public.text"]
+					})
+				};
+
+				FileResult? file = await FilePicker.Default.PickAsync(options).ConfigureAwait(false);
+
+				if (file is null)
+				{
+					return;
+				}
+
+				await using Stream stream = await file.OpenReadAsync().ConfigureAwait(false);
+				IReadOnlyList<SettingsCsvRow> rows = await SettingsCsvImporter.ParseAsync(stream).ConfigureAwait(false);
+
+				if (rows.Count == 0)
+				{
+					return;
+				}
+
+				IsBusy = true;
+				int imported = await importAction(rows).ConfigureAwait(false);
+
+				if (imported > 0)
+				{
+					await onSuccess().ConfigureAwait(false);
+				}
+			}
+			catch (OperationCanceledException)
+			{
+			}
+			catch (Exception ex)
+			{
+				ExceptionHandlingService.Handle(ex, errorContext);
+			}
+			finally
+			{
+				IsBusy = false;
+			}
+		}
+
+		private async Task<int> CreateSettingsAsync<TSetting>(
+			IReadOnlyList<SettingsCsvRow> rows,
+			Func<SettingsCsvRow, TSetting> map,
+			Func<TSetting, CancellationToken, Task<TSetting?>> createAsync)
+			where TSetting : class
+		{
+			int success = 0;
+
+			foreach (SettingsCsvRow row in rows)
+			{
+				TSetting setting = map(row);
+				TSetting? created = await createAsync(setting, CancellationToken.None).ConfigureAwait(false);
+
+				if (created is not null)
+				{
+					success++;
+				}
+			}
+
+			return success;
+		}
+
+		private DivisionSummary CreateDivisionFromRow(SettingsCsvRow row) => new()
+		{
+			Name = row.Name,
+			Description = row.Description
+		};
+
+		private DepartmentSummary CreateDepartmentFromRow(SettingsCsvRow row) => new()
+		{
+			Name = row.Name,
+			Description = row.Description,
+			DivisionId = ResolveId(row, Divisions.Select(i => (i.Id, i.Name)), "division")
+		};
+
+		private SectionSummary CreateSectionFromRow(SettingsCsvRow row) => new()
+		{
+			Name = row.Name,
+			Description = row.Description,
+			DepartmentId = ResolveId(row, Departments.Select(i => (i.Id, i.Name)), "department")
+		};
+
+		private PositionSummary CreatePositionFromRow(SettingsCsvRow row) => new()
+		{
+			Name = row.Name,
+			Description = row.Description,
+			SectionId = ResolveId(row, Sections.Select(i => (i.Id, i.Name)), "section")
+		};
+
+		private ChargingSummary CreateChargingFromRow(SettingsCsvRow row) => new()
+		{
+			Name = row.Name,
+			Description = row.Description,
+			DepartmentId = ResolveOptionalId(row, Departments.Select(i => (i.Id, i.Name)))
+		};
+
+		private EmployeeTypeSummary CreateEmployeeTypeFromRow(SettingsCsvRow row) => new()
+		{
+			Name = row.Name,
+			Value = string.IsNullOrWhiteSpace(row.Value) ? row.Name : row.Value,
+			IsActive = row.IsActive
+		};
+
+		private LevelSummary CreateEmployeeLevelFromRow(SettingsCsvRow row) => new()
+		{
+			Name = row.Name,
+			Value = string.IsNullOrWhiteSpace(row.Value) ? row.Name : row.Value,
+			IsActive = row.IsActive
+		};
+
+		private static Guid ResolveId(SettingsCsvRow row, IEnumerable<(Guid Id, string Name)> source, string sourceName)
+		{
+			Guid? id = ResolveOptionalId(row, source);
+
+			if (id.HasValue && id.Value != Guid.Empty)
+			{
+				return id.Value;
+			}
+
+			throw new FormatException($"{sourceName} reference is required for '{row.Name}'.");
+		}
+
+		private static Guid? ResolveOptionalId(SettingsCsvRow row, IEnumerable<(Guid Id, string Name)> source)
+		{
+			if (row.ParentId.HasValue && row.ParentId.Value != Guid.Empty)
+			{
+				return row.ParentId.Value;
+			}
+
+			if (string.IsNullOrWhiteSpace(row.ParentName))
+			{
+				return null;
+			}
+
+			(Guid Id, string Name) match = source.FirstOrDefault(item => string.Equals(item.Name, row.ParentName, StringComparison.OrdinalIgnoreCase));
+			return match.Id == Guid.Empty ? null : match.Id;
+		}
+
 		public override async Task InitializeAsync()
 		{
 				if (IsBusy)
@@ -513,14 +733,18 @@ public partial class SettingViewModel : BaseViewModel
 						Sections.Clear();
 						Chargings.Clear();
 						Positions.Clear();
+					EmployeeTypes.Clear();
+					EmployeeLevels.Clear();
 
 						var divisionTask = _divisionApiService.GetDivisionsAsync();
 						var departmentTask = _departmentApiService.GetDepartmentsAsync();
 						var sectionTask = _sectionApiService.GetSectionsAsync();
 						var chargingTask = _chargingApiService.GetChargingsAsync();
-						var positionTask = _positionApiService.GetPositionsAsync();
+					var positionTask = _positionApiService.GetPositionsAsync();
+					var employeeTypeTask = _employeeTypeApiService.GetEmployeeTypesAsync();
+					var levelTask = _levelApiService.GetLevelsAsync();
 
-						await Task.WhenAll(divisionTask, departmentTask, sectionTask, chargingTask, positionTask);
+					await Task.WhenAll(divisionTask, departmentTask, sectionTask, chargingTask, positionTask, employeeTypeTask, levelTask);
 
 						int index = 0;
 						foreach (var division in divisionTask.Result.OrderBy(d => d.Name))
@@ -551,11 +775,21 @@ public partial class SettingViewModel : BaseViewModel
 						}
 
 						index = 0;
-						foreach (var position in positionTask.Result.OrderBy(p => p.Name))
-						{
-								position.RowIndex = index++;
-								Positions.Add(position);
-						}
+					foreach (var position in positionTask.Result.OrderBy(p => p.Name))
+					{
+						position.RowIndex = index++;
+						Positions.Add(position);
+					}
+
+					foreach (var employeeType in employeeTypeTask.Result.OrderBy(t => t.Name))
+					{
+						EmployeeTypes.Add(employeeType);
+					}
+
+					foreach (var level in levelTask.Result.OrderBy(l => l.Name))
+					{
+						EmployeeLevels.Add(level);
+					}
 				}
 				catch (Exception ex)
 				{

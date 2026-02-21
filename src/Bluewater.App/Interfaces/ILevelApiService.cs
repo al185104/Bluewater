@@ -11,4 +11,6 @@ public interface ILevelApiService
     int? skip = null,
     int? take = null,
     CancellationToken cancellationToken = default);
+
+  Task<LevelSummary?> CreateLevelAsync(LevelSummary level, CancellationToken cancellationToken = default);
 }
