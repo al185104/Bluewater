@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,4 +14,8 @@ public interface IEmployeeTypeApiService
     CancellationToken cancellationToken = default);
 
   Task<EmployeeTypeSummary?> CreateEmployeeTypeAsync(EmployeeTypeSummary employeeType, CancellationToken cancellationToken = default);
+
+  Task<EmployeeTypeSummary?> UpdateEmployeeTypeAsync(EmployeeTypeSummary employeeType, CancellationToken cancellationToken = default);
+
+  Task<bool> DeleteEmployeeTypeAsync(Guid employeeTypeId, CancellationToken cancellationToken = default);
 }

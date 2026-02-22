@@ -53,6 +53,39 @@ public class EmployeeTypeApiService(IApiClient apiClient) : IEmployeeTypeApiServ
     return response is null ? null : MapToSummary(response);
   }
 
+
+  public async Task<EmployeeTypeSummary?> UpdateEmployeeTypeAsync(EmployeeTypeSummary employeeType, CancellationToken cancellationToken = default)
+  {
+    if (employeeType is null)
+    {
+      throw new ArgumentNullException(nameof(employeeType));
+    }
+
+    UpdateEmployeeTypeRequestDto request = new()
+    {
+      Id = employeeType.Id,
+      Name = employeeType.Name,
+      Value = employeeType.Value,
+      IsActive = employeeType.IsActive
+    };
+
+    UpdateEmployeeTypeResponseDto? response = await apiClient
+      .PutAsync<UpdateEmployeeTypeRequestDto, UpdateEmployeeTypeResponseDto>("EmployeeTypes", request, cancellationToken)
+      .ConfigureAwait(false);
+
+    return response?.EmployeeType is null ? null : MapToSummary(response.EmployeeType);
+  }
+
+  public Task<bool> DeleteEmployeeTypeAsync(Guid employeeTypeId, CancellationToken cancellationToken = default)
+  {
+    if (employeeTypeId == Guid.Empty)
+    {
+      throw new ArgumentException("Employee type ID must be provided", nameof(employeeTypeId));
+    }
+
+    return apiClient.DeleteAsync($"EmployeeTypes/{employeeTypeId}", cancellationToken);
+  }
+
   private static string BuildRequestUri(int? skip, int? take)
   {
     List<string> parameters = [];

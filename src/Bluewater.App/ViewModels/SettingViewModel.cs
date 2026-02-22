@@ -143,7 +143,21 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				await TraceCommandAsync(nameof(DeleteDivisionAsync), division.Id);
+				try
+				{
+						bool deleted = await _divisionApiService.DeleteDivisionAsync(division.Id).ConfigureAwait(false);
+						if (!deleted)
+						{
+								return;
+						}
+
+						await MainThread.InvokeOnMainThreadAsync(() => Divisions.Remove(division));
+						await TraceCommandAsync(nameof(DeleteDivisionAsync), division.Id).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Deleting division");
+				}
 		}
 
 		[RelayCommand]
@@ -169,7 +183,21 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				await TraceCommandAsync(nameof(DeleteDepartmentAsync), department.Id);
+				try
+				{
+						bool deleted = await _departmentApiService.DeleteDepartmentAsync(department.Id).ConfigureAwait(false);
+						if (!deleted)
+						{
+								return;
+						}
+
+						await MainThread.InvokeOnMainThreadAsync(() => Departments.Remove(department));
+						await TraceCommandAsync(nameof(DeleteDepartmentAsync), department.Id).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Deleting department");
+				}
 		}
 
 		[RelayCommand]
@@ -195,7 +223,21 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				await TraceCommandAsync(nameof(DeleteSectionAsync), section.Id);
+				try
+				{
+						bool deleted = await _sectionApiService.DeleteSectionAsync(section.Id).ConfigureAwait(false);
+						if (!deleted)
+						{
+								return;
+						}
+
+						await MainThread.InvokeOnMainThreadAsync(() => Sections.Remove(section));
+						await TraceCommandAsync(nameof(DeleteSectionAsync), section.Id).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Deleting section");
+				}
 		}
 
 		[RelayCommand]
@@ -221,7 +263,21 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				await TraceCommandAsync(nameof(DeleteChargingAsync), charging.Id);
+				try
+				{
+						bool deleted = await _chargingApiService.DeleteChargingAsync(charging.Id).ConfigureAwait(false);
+						if (!deleted)
+						{
+								return;
+						}
+
+						await MainThread.InvokeOnMainThreadAsync(() => Chargings.Remove(charging));
+						await TraceCommandAsync(nameof(DeleteChargingAsync), charging.Id).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Deleting charging");
+				}
 		}
 
 		[RelayCommand]
@@ -240,7 +296,7 @@ public partial class SettingViewModel : BaseViewModel
 		}
 
 		[RelayCommand]
-		private void UpdateSetting()
+		private async Task UpdateSettingAsync()
 		{
 				if (EditableSetting is null)
 				{
@@ -250,19 +306,25 @@ public partial class SettingViewModel : BaseViewModel
 				switch (EditableSetting.Type)
 				{
 						case SettingItemType.Division:
-								UpdateDivision();
+								await UpdateDivisionAsync().ConfigureAwait(false);
 								break;
 						case SettingItemType.Department:
-								UpdateDepartment();
+								await UpdateDepartmentAsync().ConfigureAwait(false);
 								break;
 						case SettingItemType.Section:
-								UpdateSection();
+								await UpdateSectionAsync().ConfigureAwait(false);
 								break;
 						case SettingItemType.Charging:
-								UpdateCharging();
+								await UpdateChargingAsync().ConfigureAwait(false);
 								break;
 						case SettingItemType.Position:
-								UpdatePosition();
+								await UpdatePositionAsync().ConfigureAwait(false);
+								break;
+						case SettingItemType.EmployeeType:
+								await UpdateEmployeeTypeAsync().ConfigureAwait(false);
+								break;
+						case SettingItemType.EmployeeLevel:
+								await UpdateEmployeeLevelAsync().ConfigureAwait(false);
 								break;
 				}
 
@@ -271,7 +333,7 @@ public partial class SettingViewModel : BaseViewModel
 				EditableSetting = null;
 		}
 
-		private void UpdateDivision()
+		private async Task UpdateDivisionAsync()
 		{
 				if (EditableSetting is null)
 				{
@@ -285,11 +347,21 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				int index = Divisions.IndexOf(existing);
-				Divisions[index] = EditableSetting.ToDivision(existing.RowIndex);
+				DivisionSummary? updated = await _divisionApiService.UpdateDivisionAsync(EditableSetting.ToDivision(existing.RowIndex)).ConfigureAwait(false);
+				if (updated is null)
+				{
+						return;
+				}
+
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						int index = Divisions.IndexOf(existing);
+						updated.RowIndex = existing.RowIndex;
+						Divisions[index] = updated;
+				});
 		}
 
-		private void UpdateDepartment()
+		private async Task UpdateDepartmentAsync()
 		{
 				if (EditableSetting is null)
 				{
@@ -303,11 +375,21 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				int index = Departments.IndexOf(existing);
-				Departments[index] = EditableSetting.ToDepartment(existing.RowIndex);
+				DepartmentSummary? updated = await _departmentApiService.UpdateDepartmentAsync(EditableSetting.ToDepartment(existing.RowIndex)).ConfigureAwait(false);
+				if (updated is null)
+				{
+						return;
+				}
+
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						int index = Departments.IndexOf(existing);
+						updated.RowIndex = existing.RowIndex;
+						Departments[index] = updated;
+				});
 		}
 
-		private void UpdateSection()
+		private async Task UpdateSectionAsync()
 		{
 				if (EditableSetting is null)
 				{
@@ -321,11 +403,21 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				int index = Sections.IndexOf(existing);
-				Sections[index] = EditableSetting.ToSection(existing.RowIndex);
+				SectionSummary? updated = await _sectionApiService.UpdateSectionAsync(EditableSetting.ToSection(existing.RowIndex)).ConfigureAwait(false);
+				if (updated is null)
+				{
+						return;
+				}
+
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						int index = Sections.IndexOf(existing);
+						updated.RowIndex = existing.RowIndex;
+						Sections[index] = updated;
+				});
 		}
 
-		private void UpdateCharging()
+		private async Task UpdateChargingAsync()
 		{
 				if (EditableSetting is null)
 				{
@@ -339,11 +431,21 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				int index = Chargings.IndexOf(existing);
-				Chargings[index] = EditableSetting.ToCharging(existing.RowIndex);
+				ChargingSummary? updated = await _chargingApiService.UpdateChargingAsync(EditableSetting.ToCharging(existing.RowIndex)).ConfigureAwait(false);
+				if (updated is null)
+				{
+						return;
+				}
+
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						int index = Chargings.IndexOf(existing);
+						updated.RowIndex = existing.RowIndex;
+						Chargings[index] = updated;
+				});
 		}
 
-		private void UpdatePosition()
+		private async Task UpdatePositionAsync()
 		{
 				if (EditableSetting is null)
 				{
@@ -357,8 +459,70 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				int index = Positions.IndexOf(existing);
-				Positions[index] = EditableSetting.ToPosition(existing.RowIndex);
+				PositionSummary? updated = await _positionApiService.UpdatePositionAsync(EditableSetting.ToPosition(existing.RowIndex)).ConfigureAwait(false);
+				if (updated is null)
+				{
+						return;
+				}
+
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						int index = Positions.IndexOf(existing);
+						updated.RowIndex = existing.RowIndex;
+						Positions[index] = updated;
+				});
+		}
+
+		private async Task UpdateEmployeeTypeAsync()
+		{
+				if (EditableSetting is null)
+				{
+						return;
+				}
+
+				EmployeeTypeSummary? existing = EmployeeTypes.FirstOrDefault(item => item.Id == EditableSetting.Id);
+				if (existing is null)
+				{
+						return;
+				}
+
+				EmployeeTypeSummary? updated = await _employeeTypeApiService.UpdateEmployeeTypeAsync(EditableSetting.ToEmployeeType(existing.IsActive)).ConfigureAwait(false);
+				if (updated is null)
+				{
+						return;
+				}
+
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						int index = EmployeeTypes.IndexOf(existing);
+						EmployeeTypes[index] = updated;
+				});
+		}
+
+		private async Task UpdateEmployeeLevelAsync()
+		{
+				if (EditableSetting is null)
+				{
+						return;
+				}
+
+				LevelSummary? existing = EmployeeLevels.FirstOrDefault(item => item.Id == EditableSetting.Id);
+				if (existing is null)
+				{
+						return;
+				}
+
+				LevelSummary? updated = await _levelApiService.UpdateLevelAsync(EditableSetting.ToEmployeeLevel(existing.IsActive)).ConfigureAwait(false);
+				if (updated is null)
+				{
+						return;
+				}
+
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						int index = EmployeeLevels.IndexOf(existing);
+						EmployeeLevels[index] = updated;
+				});
 		}
 
 		[RelayCommand]
@@ -369,7 +533,21 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				await TraceCommandAsync(nameof(DeletePositionAsync), position.Id);
+				try
+				{
+						bool deleted = await _positionApiService.DeletePositionAsync(position.Id).ConfigureAwait(false);
+						if (!deleted)
+						{
+								return;
+						}
+
+						await MainThread.InvokeOnMainThreadAsync(() => Positions.Remove(position));
+						await TraceCommandAsync(nameof(DeletePositionAsync), position.Id).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Deleting position");
+				}
 		}
 
 		[RelayCommand]
@@ -379,6 +557,10 @@ public partial class SettingViewModel : BaseViewModel
 				{
 						return;
 				}
+
+				EditableSetting = EditableSettingItem.FromEmployeeType(employeeType);
+				EditorTitle = $"Edit Employee Type: {EditableSetting.Name}";
+				IsEditorOpen = true;
 
 				await TraceCommandAsync(nameof(EditEmployeeTypeAsync), employeeType.Id);
 		}
@@ -391,7 +573,14 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				await TraceCommandAsync(nameof(DeleteEmployeeTypeAsync), employeeType.Id);
+				bool deleted = await _employeeTypeApiService.DeleteEmployeeTypeAsync(employeeType.Id).ConfigureAwait(false);
+				if (!deleted)
+				{
+						return;
+				}
+
+				await MainThread.InvokeOnMainThreadAsync(() => EmployeeTypes.Remove(employeeType));
+				await TraceCommandAsync(nameof(DeleteEmployeeTypeAsync), employeeType.Id).ConfigureAwait(false);
 		}
 
 		[RelayCommand]
@@ -401,6 +590,10 @@ public partial class SettingViewModel : BaseViewModel
 				{
 						return;
 				}
+
+				EditableSetting = EditableSettingItem.FromEmployeeLevel(level);
+				EditorTitle = $"Edit Employee Level: {EditableSetting.Name}";
+				IsEditorOpen = true;
 
 				await TraceCommandAsync(nameof(EditEmployeeLevelAsync), level.Id);
 		}
@@ -413,63 +606,110 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				await TraceCommandAsync(nameof(DeleteEmployeeLevelAsync), level.Id);
+				bool deleted = await _levelApiService.DeleteLevelAsync(level.Id).ConfigureAwait(false);
+				if (!deleted)
+				{
+						return;
+				}
+
+				await MainThread.InvokeOnMainThreadAsync(() => EmployeeLevels.Remove(level));
+				await TraceCommandAsync(nameof(DeleteEmployeeLevelAsync), level.Id).ConfigureAwait(false);
 		}
 
 		[RelayCommand]
-		private void AddDivision()
+		private async Task AddDivisionAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewDivisionName)) return;
-				Divisions.Add(new DivisionSummary { Id = Guid.NewGuid(), Name = NewDivisionName.Trim(), RowIndex = Divisions.Count + 1 });
-				NewDivisionName = string.Empty;
+				DivisionSummary? created = await _divisionApiService.CreateDivisionAsync(new DivisionSummary { Name = NewDivisionName.Trim() }).ConfigureAwait(false);
+				if (created is null) return;
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						created.RowIndex = Divisions.Count;
+						Divisions.Add(created);
+						NewDivisionName = string.Empty;
+				});
 		}
 
 		[RelayCommand]
-		private void AddDepartment()
+		private async Task AddDepartmentAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewDepartmentName)) return;
-				Departments.Add(new DepartmentSummary { Id = Guid.NewGuid(), Name = NewDepartmentName.Trim(), RowIndex = Departments.Count + 1 });
-				NewDepartmentName = string.Empty;
+				DepartmentSummary? created = await _departmentApiService.CreateDepartmentAsync(new DepartmentSummary { Name = NewDepartmentName.Trim() }).ConfigureAwait(false);
+				if (created is null) return;
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						created.RowIndex = Departments.Count;
+						Departments.Add(created);
+						NewDepartmentName = string.Empty;
+				});
 		}
 
 		[RelayCommand]
-		private void AddSection()
+		private async Task AddSectionAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewSectionName)) return;
-				Sections.Add(new SectionSummary { Id = Guid.NewGuid(), Name = NewSectionName.Trim(), RowIndex = Sections.Count + 1 });
-				NewSectionName = string.Empty;
+				SectionSummary? created = await _sectionApiService.CreateSectionAsync(new SectionSummary { Name = NewSectionName.Trim() }).ConfigureAwait(false);
+				if (created is null) return;
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						created.RowIndex = Sections.Count;
+						Sections.Add(created);
+						NewSectionName = string.Empty;
+				});
 		}
 
 		[RelayCommand]
-		private void AddPosition()
+		private async Task AddPositionAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewPositionName)) return;
-				Positions.Add(new PositionSummary { Id = Guid.NewGuid(), Name = NewPositionName.Trim(), RowIndex = Positions.Count + 1 });
-				NewPositionName = string.Empty;
+				PositionSummary? created = await _positionApiService.CreatePositionAsync(new PositionSummary { Name = NewPositionName.Trim() }).ConfigureAwait(false);
+				if (created is null) return;
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						created.RowIndex = Positions.Count;
+						Positions.Add(created);
+						NewPositionName = string.Empty;
+				});
 		}
 
 		[RelayCommand]
-		private void AddCharging()
+		private async Task AddChargingAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewChargingName)) return;
-				Chargings.Add(new ChargingSummary { Id = Guid.NewGuid(), Name = NewChargingName.Trim(), RowIndex = Chargings.Count + 1 });
-				NewChargingName = string.Empty;
+				ChargingSummary? created = await _chargingApiService.CreateChargingAsync(new ChargingSummary { Name = NewChargingName.Trim() }).ConfigureAwait(false);
+				if (created is null) return;
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						created.RowIndex = Chargings.Count;
+						Chargings.Add(created);
+						NewChargingName = string.Empty;
+				});
 		}
 
 		[RelayCommand]
-		private void AddEmployeeType()
+		private async Task AddEmployeeTypeAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewEmployeeTypeName)) return;
-				EmployeeTypes.Add(new EmployeeTypeSummary { Id = Guid.NewGuid(), Name = NewEmployeeTypeName.Trim(), Value = NewEmployeeTypeName.Trim(), IsActive = true });
-				NewEmployeeTypeName = string.Empty;
+				EmployeeTypeSummary? created = await _employeeTypeApiService.CreateEmployeeTypeAsync(new EmployeeTypeSummary { Name = NewEmployeeTypeName.Trim(), Value = NewEmployeeTypeName.Trim(), IsActive = true }).ConfigureAwait(false);
+				if (created is null) return;
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						EmployeeTypes.Add(created);
+						NewEmployeeTypeName = string.Empty;
+				});
 		}
 
 		[RelayCommand]
-		private void AddEmployeeLevel()
+		private async Task AddEmployeeLevelAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewEmployeeLevelName)) return;
-				EmployeeLevels.Add(new LevelSummary { Id = Guid.NewGuid(), Name = NewEmployeeLevelName.Trim(), Value = NewEmployeeLevelName.Trim(), IsActive = true });
-				NewEmployeeLevelName = string.Empty;
+				LevelSummary? created = await _levelApiService.CreateLevelAsync(new LevelSummary { Name = NewEmployeeLevelName.Trim(), Value = NewEmployeeLevelName.Trim(), IsActive = true }).ConfigureAwait(false);
+				if (created is null) return;
+				await MainThread.InvokeOnMainThreadAsync(() =>
+				{
+						EmployeeLevels.Add(created);
+						NewEmployeeLevelName = string.Empty;
+				});
 		}
 
 

@@ -9,7 +9,9 @@ public enum SettingItemType
   Department,
   Section,
   Charging,
-  Position
+  Position,
+  EmployeeType,
+  EmployeeLevel
 }
 
 public partial class EditableSettingItem : ObservableObject
@@ -79,6 +81,28 @@ public partial class EditableSettingItem : ObservableObject
     };
   }
 
+  public EmployeeTypeSummary ToEmployeeType(bool isActive)
+  {
+    return new EmployeeTypeSummary
+    {
+      Id = Id,
+      Name = Name,
+      Value = string.IsNullOrWhiteSpace(Description) ? Name : Description,
+      IsActive = isActive
+    };
+  }
+
+  public LevelSummary ToEmployeeLevel(bool isActive)
+  {
+    return new LevelSummary
+    {
+      Id = Id,
+      Name = Name,
+      Value = string.IsNullOrWhiteSpace(Description) ? Name : Description,
+      IsActive = isActive
+    };
+  }
+
   public static EditableSettingItem FromDivision(DivisionSummary summary)
   {
     return new EditableSettingItem
@@ -131,6 +155,28 @@ public partial class EditableSettingItem : ObservableObject
       Type = SettingItemType.Position,
       Name = summary.Name,
       Description = summary.Description
+    };
+  }
+
+  public static EditableSettingItem FromEmployeeType(EmployeeTypeSummary summary)
+  {
+    return new EditableSettingItem
+    {
+      Id = summary.Id,
+      Type = SettingItemType.EmployeeType,
+      Name = summary.Name,
+      Description = summary.Value
+    };
+  }
+
+  public static EditableSettingItem FromEmployeeLevel(LevelSummary summary)
+  {
+    return new EditableSettingItem
+    {
+      Id = summary.Id,
+      Type = SettingItemType.EmployeeLevel,
+      Name = summary.Name,
+      Description = summary.Value
     };
   }
 }
