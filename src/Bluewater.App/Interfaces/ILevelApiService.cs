@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,4 +14,8 @@ public interface ILevelApiService
     CancellationToken cancellationToken = default);
 
   Task<LevelSummary?> CreateLevelAsync(LevelSummary level, CancellationToken cancellationToken = default);
+
+  Task<LevelSummary?> UpdateLevelAsync(LevelSummary level, CancellationToken cancellationToken = default);
+
+  Task<bool> DeleteLevelAsync(Guid levelId, CancellationToken cancellationToken = default);
 }

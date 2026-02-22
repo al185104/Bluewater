@@ -281,7 +281,7 @@
 							<Button Grid.Column="2"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
-									Command="{Binding AddDepartmentCommand}"
+									Command="{Binding AddSectionCommand}"
 									Style="{StaticResource SecondaryButtonStyle}" />
 						</Grid>
 						<Button Grid.Column="3"
@@ -377,7 +377,7 @@
 							<Button Grid.Column="2"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
-									Command="{Binding AddDepartmentCommand}"
+									Command="{Binding AddPositionCommand}"
 									Style="{StaticResource SecondaryButtonStyle}" />
 						</Grid>						
 						<Button Grid.Column="3"
@@ -471,7 +471,7 @@
 							<Button Grid.Column="2"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
-									Command="{Binding AddDepartmentCommand}"
+									Command="{Binding AddChargingCommand}"
 									Style="{StaticResource SecondaryButtonStyle}" />
 						</Grid>
 						<Button Grid.Column="3"
@@ -568,7 +568,7 @@
 							<Button Grid.Column="2"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
-									Command="{Binding AddDepartmentCommand}"
+									Command="{Binding AddEmployeeTypeCommand}"
 									Style="{StaticResource SecondaryButtonStyle}" />
 						</Grid>
 						<Button Grid.Column="3"
@@ -665,7 +665,7 @@
 							<Button Grid.Column="2"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
-									Command="{Binding AddDepartmentCommand}"
+									Command="{Binding AddEmployeeLevelCommand}"
 									Style="{StaticResource SecondaryButtonStyle}" />
 						</Grid>						
 						<Button Grid.Column="3"

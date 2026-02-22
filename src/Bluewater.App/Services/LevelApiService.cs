@@ -53,6 +53,40 @@ public class LevelApiService(IApiClient apiClient) : ILevelApiService
     return response is null ? null : MapToSummary(response);
   }
 
+
+  public async Task<LevelSummary?> UpdateLevelAsync(LevelSummary level, CancellationToken cancellationToken = default)
+  {
+    if (level is null)
+    {
+      throw new ArgumentNullException(nameof(level));
+    }
+
+    UpdateLevelRequestDto request = new()
+    {
+      LevelId = level.Id,
+      Id = level.Id,
+      Name = level.Name,
+      Value = level.Value,
+      IsActive = level.IsActive
+    };
+
+    UpdateLevelResponseDto? response = await apiClient
+      .PutAsync<UpdateLevelRequestDto, UpdateLevelResponseDto>(UpdateLevelRequestDto.BuildRoute(level.Id), request, cancellationToken)
+      .ConfigureAwait(false);
+
+    return response?.Level is null ? null : MapToSummary(response.Level);
+  }
+
+  public Task<bool> DeleteLevelAsync(Guid levelId, CancellationToken cancellationToken = default)
+  {
+    if (levelId == Guid.Empty)
+    {
+      throw new ArgumentException("Level ID must be provided", nameof(levelId));
+    }
+
+    return apiClient.DeleteAsync($"Levels/{levelId}", cancellationToken);
+  }
+
   private static string BuildRequestUri(int? skip, int? take)
   {
     List<string> parameters = [];
