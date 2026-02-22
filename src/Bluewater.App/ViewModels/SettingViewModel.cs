@@ -3,6 +3,7 @@ using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
+using Bluewater.Core.EmployeeAggregate.Enum;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -21,6 +22,7 @@ public partial class SettingViewModel : BaseViewModel
 		private readonly ITimesheetApiService _timesheetApiService;
 		private readonly IScheduleApiService _scheduleApiService;
 		private readonly IShiftApiService _shiftApiService;
+		private readonly IReferenceDataService _referenceService;
 
 		[ObservableProperty]
 		public partial EditableSettingItem? EditableSetting { get; set; }
@@ -58,6 +60,9 @@ public partial class SettingViewModel : BaseViewModel
 		[ObservableProperty]
 		public partial string NewEmployeeLevelName { get; set; } = string.Empty;
 
+		[ObservableProperty]
+		public partial Tenant SelectedTenant { get; set; } = Tenant.Maribago;
+
 		public ObservableCollection<DivisionSummary> Divisions { get; } = new();
 		public ObservableCollection<DepartmentSummary> Departments { get; } = new();
 		public ObservableCollection<SectionSummary> Sections { get; } = new();
@@ -65,6 +70,7 @@ public partial class SettingViewModel : BaseViewModel
 		public ObservableCollection<PositionSummary> Positions { get; } = new();
 		public ObservableCollection<EmployeeTypeSummary> EmployeeTypes { get; } = new();
 		public ObservableCollection<LevelSummary> EmployeeLevels { get; } = new();
+		public IReadOnlyList<Tenant> TenantOptions { get; } = Enum.GetValues<Tenant>();
 
 		public SettingViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService,
 			IDivisionApiService divisionApiService,
@@ -77,7 +83,8 @@ public partial class SettingViewModel : BaseViewModel
 			IEmployeeApiService employeeApiService,
 			ITimesheetApiService timesheetApiService,
 			IScheduleApiService scheduleApiService,
-			IShiftApiService shiftApiService)
+			IShiftApiService shiftApiService,
+			IReferenceDataService referenceService)
 			: base(activityTraceService, exceptionHandlingService)
 		{
 				_divisionApiService = divisionApiService;
@@ -91,8 +98,26 @@ public partial class SettingViewModel : BaseViewModel
 				_timesheetApiService = timesheetApiService;
 				_scheduleApiService = scheduleApiService;
 				_shiftApiService = shiftApiService;
+				_referenceService = referenceService;
+
+				var tenant = Preferences.Get(nameof(SelectedTenant), Tenant.Maribago.ToString());
+				SelectedTenant = Enum.TryParse<Tenant>(tenant, out Tenant parsed) ? parsed : Tenant.Maribago;
 
 				EditorTitle = "Title";
+
+				Divisions = new ObservableCollection<DivisionSummary>(_referenceService.Divisions);
+				Departments = new ObservableCollection<DepartmentSummary>(_referenceService.Departments);
+				Sections = new ObservableCollection<SectionSummary>(_referenceService.Sections);
+				Positions = new ObservableCollection<PositionSummary>(_referenceService.Positions);
+				Chargings = new ObservableCollection<ChargingSummary>(_referenceService.Chargings);
+				EmployeeTypes = new ObservableCollection<EmployeeTypeSummary>(_referenceService.EmployeeTypes);
+				EmployeeLevels = new ObservableCollection<LevelSummary>(_referenceService.Levels);
+
+		}
+
+		partial void OnSelectedTenantChanged(Tenant value)
+		{
+				Preferences.Set(nameof(SelectedTenant), value.ToString());
 		}
 
 		[RelayCommand]
