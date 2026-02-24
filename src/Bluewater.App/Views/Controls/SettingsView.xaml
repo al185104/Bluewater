@@ -219,7 +219,7 @@
 							</CollectionView.Header>
 							<CollectionView.ItemTemplate>
 								<DataTemplate>
-									<Grid ColumnDefinitions="Auto,*,Auto,Auto"
+									<Grid ColumnDefinitions="100,*,Auto,Auto"
 										  Padding="5">
 										<Label Grid.Column="0"
 											   Text="{Binding Name}"
@@ -315,7 +315,7 @@
 							</CollectionView.Header>
 							<CollectionView.ItemTemplate>
 								<DataTemplate>
-									<Grid ColumnDefinitions="Auto,*,Auto,Auto"
+									<Grid ColumnDefinitions="100,*,Auto,Auto"
 										  Padding="5">
 										<Label Grid.Column="0"
 											   Text="{Binding Name}"
