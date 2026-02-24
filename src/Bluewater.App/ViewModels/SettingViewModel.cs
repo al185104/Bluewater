@@ -986,12 +986,13 @@ public partial class SettingViewModel : BaseViewModel
 					return;
 				}
 
-				IsBusy = true;
+				await RunOnMainThreadAsync(() => IsBusy = true);
 				int imported = await importAction(rows).ConfigureAwait(false);
+				await RunOnMainThreadAsync(() => IsBusy = false);
 
 				if (imported > 0)
 				{
-					await MainThread.InvokeOnMainThreadAsync(onSuccess);
+					await RunOnMainThreadAsync(onSuccess);
 				}
 			}
 			catch (OperationCanceledException)
@@ -1003,8 +1004,25 @@ public partial class SettingViewModel : BaseViewModel
 			}
 			finally
 			{
-				IsBusy = false;
+				await RunOnMainThreadAsync(() => IsBusy = false);
 			}
+		}
+
+
+		private static Task RunOnMainThreadAsync(Action action) =>
+			MainThread.IsMainThread
+				? ExecuteOnCurrentThread(action)
+				: MainThread.InvokeOnMainThreadAsync(action);
+
+		private static Task RunOnMainThreadAsync(Func<Task> action) =>
+			MainThread.IsMainThread
+				? action()
+				: MainThread.InvokeOnMainThreadAsync(action);
+
+		private static Task ExecuteOnCurrentThread(Action action)
+		{
+			action();
+			return Task.CompletedTask;
 		}
 
 		private async Task<int> CreateSettingsAsync<TSetting>(
@@ -1114,70 +1132,83 @@ public partial class SettingViewModel : BaseViewModel
 
 				try
 				{
-						IsBusy = true;
-
-						Divisions.Clear();
-						Departments.Clear();
-						Sections.Clear();
-						Chargings.Clear();
-						Positions.Clear();
-						EmployeeTypes.Clear();
-						EmployeeLevels.Clear();
+						await RunOnMainThreadAsync(() =>
+						{
+								IsBusy = true;
+								Divisions.Clear();
+								Departments.Clear();
+								Sections.Clear();
+								Chargings.Clear();
+								Positions.Clear();
+								EmployeeTypes.Clear();
+								EmployeeLevels.Clear();
+						});
 
 						var divisionTask = _divisionApiService.GetDivisionsAsync();
 						var departmentTask = _departmentApiService.GetDepartmentsAsync();
 						var sectionTask = _sectionApiService.GetSectionsAsync();
 						var chargingTask = _chargingApiService.GetChargingsAsync();
-					var positionTask = _positionApiService.GetPositionsAsync();
-					var employeeTypeTask = _employeeTypeApiService.GetEmployeeTypesAsync();
-					var levelTask = _levelApiService.GetLevelsAsync();
+						var positionTask = _positionApiService.GetPositionsAsync();
+						var employeeTypeTask = _employeeTypeApiService.GetEmployeeTypesAsync();
+						var levelTask = _levelApiService.GetLevelsAsync();
 
-					await Task.WhenAll(divisionTask, departmentTask, sectionTask, chargingTask, positionTask, employeeTypeTask, levelTask);
+						await Task.WhenAll(divisionTask, departmentTask, sectionTask, chargingTask, positionTask, employeeTypeTask, levelTask).ConfigureAwait(false);
 
-						int index = 0;
-						foreach (var division in divisionTask.Result.OrderBy(d => d.Name))
+						IReadOnlyList<DivisionSummary> divisions = divisionTask.Result.OrderBy(d => d.Name).ToList();
+						IReadOnlyList<DepartmentSummary> departments = departmentTask.Result.OrderBy(d => d.Name).ToList();
+						IReadOnlyList<SectionSummary> sections = sectionTask.Result.OrderBy(s => s.Name).ToList();
+						IReadOnlyList<ChargingSummary> chargings = chargingTask.Result.OrderBy(c => c.Name).ToList();
+						IReadOnlyList<PositionSummary> positions = positionTask.Result.OrderBy(p => p.Name).ToList();
+						IReadOnlyList<EmployeeTypeSummary> employeeTypes = employeeTypeTask.Result.OrderBy(t => t.Name).ToList();
+						IReadOnlyList<LevelSummary> levels = levelTask.Result.OrderBy(l => l.Name).ToList();
+
+						await RunOnMainThreadAsync(() =>
 						{
-								division.RowIndex = index++;
-								Divisions.Add(division);
-						}
+								int index = 0;
+								foreach (DivisionSummary division in divisions)
+								{
+									division.RowIndex = index++;
+									Divisions.Add(division);
+								}
 
-						index = 0;
-						foreach (var department in departmentTask.Result.OrderBy(d => d.Name))
-						{
-								department.RowIndex = index++;
-								Departments.Add(department);
-						}
+								index = 0;
+								foreach (DepartmentSummary department in departments)
+								{
+									department.RowIndex = index++;
+									Departments.Add(department);
+								}
 
-						index = 0;
-						foreach (var section in sectionTask.Result.OrderBy(s => s.Name))
-						{
-								section.RowIndex = index++;
-								Sections.Add(section);
-						}
+								index = 0;
+								foreach (SectionSummary section in sections)
+								{
+									section.RowIndex = index++;
+									Sections.Add(section);
+								}
 
-						index = 0;
-						foreach (var charging in chargingTask.Result.OrderBy(c => c.Name))
-						{
-								charging.RowIndex = index++;
-								Chargings.Add(charging);
-						}
+								index = 0;
+								foreach (ChargingSummary charging in chargings)
+								{
+									charging.RowIndex = index++;
+									Chargings.Add(charging);
+								}
 
-						index = 0;
-					foreach (var position in positionTask.Result.OrderBy(p => p.Name))
-					{
-						position.RowIndex = index++;
-						Positions.Add(position);
-					}
+								index = 0;
+								foreach (PositionSummary position in positions)
+								{
+									position.RowIndex = index++;
+									Positions.Add(position);
+								}
 
-					foreach (var employeeType in employeeTypeTask.Result.OrderBy(t => t.Name))
-					{
-						EmployeeTypes.Add(employeeType);
-					}
+								foreach (EmployeeTypeSummary employeeType in employeeTypes)
+								{
+									EmployeeTypes.Add(employeeType);
+								}
 
-					foreach (var level in levelTask.Result.OrderBy(l => l.Name))
-					{
-						EmployeeLevels.Add(level);
-					}
+								foreach (LevelSummary level in levels)
+								{
+									EmployeeLevels.Add(level);
+								}
+						});
 				}
 				catch (Exception ex)
 				{
@@ -1185,7 +1216,7 @@ public partial class SettingViewModel : BaseViewModel
 				}
 				finally
 				{
-						IsBusy = false;
+						await RunOnMainThreadAsync(() => IsBusy = false);
 				}
 		}
 }
