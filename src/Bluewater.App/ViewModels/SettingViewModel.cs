@@ -991,7 +991,7 @@ public partial class SettingViewModel : BaseViewModel
 
 				if (imported > 0)
 				{
-					await onSuccess().ConfigureAwait(false);
+					await MainThread.InvokeOnMainThreadAsync(onSuccess);
 				}
 			}
 			catch (OperationCanceledException)
