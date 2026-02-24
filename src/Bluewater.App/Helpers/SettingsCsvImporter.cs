@@ -20,7 +20,7 @@ public static class SettingsCsvImporter
       ["Value"] = ["Code"],
       ["IsActive"] = ["Active", "Enabled"],
       ["ParentId"] = ["ReferenceId", "Parent Id"],
-      ["ParentName"] = ["Reference", "Parent", "Parent Name"]
+      ["ParentName"] = ["Reference", "Parent", "Parent Name", "Division", "Department", "Section", "Position"]
     };
 
   public static async Task<IReadOnlyList<SettingsCsvRow>> ParseAsync(

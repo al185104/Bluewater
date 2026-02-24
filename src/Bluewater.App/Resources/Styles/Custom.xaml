@@ -55,7 +55,9 @@
         <Setter Property="FontFamily" Value="{StaticResource FontNunitoLight}" />
         <Setter Property="FontSize" Value="14" />
         <Setter Property="TextColor" Value="{StaticResource TextSecondaryColor}" />
-    </Style>
+		<Setter Property="LineBreakMode"
+				Value="TailTruncation" />
+	</Style>
 
     <!-- 5) Buttons & CTAs -->
     <Style x:Key="PrimaryButtonStyle" TargetType="Button">
