@@ -138,7 +138,8 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeleteDivisionAsync(DivisionSummary? division)
 		{
-				if (division is null)
+				if (division is null ||
+						!await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this division?", "Yes", "No"))
 				{
 						return;
 				}
@@ -178,7 +179,7 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeleteDepartmentAsync(DepartmentSummary? department)
 		{
-				if (department is null)
+				if (department is null || !await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this department?", "Yes", "No"))
 				{
 						return;
 				}
@@ -218,7 +219,7 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeleteSectionAsync(SectionSummary? section)
 		{
-				if (section is null)
+				if (section is null || !await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this section?", "Yes", "No"))
 				{
 						return;
 				}
@@ -258,7 +259,7 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeleteChargingAsync(ChargingSummary? charging)
 		{
-				if (charging is null)
+				if (charging is null || !await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this charging?", "Yes", "No"))
 				{
 						return;
 				}
@@ -528,7 +529,8 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeletePositionAsync(PositionSummary? position)
 		{
-				if (position is null)
+				if (position is null ||
+						!await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this position?", "Yes", "No"))
 				{
 						return;
 				}
@@ -568,7 +570,7 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeleteEmployeeTypeAsync(EmployeeTypeSummary? employeeType)
 		{
-				if (employeeType is null)
+				if (employeeType is null || !await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this employee type?", "Yes", "No"))
 				{
 						return;
 				}
@@ -601,7 +603,7 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeleteEmployeeLevelAsync(LevelSummary? level)
 		{
-				if (level is null)
+				if (level is null || !await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this employee level?", "Yes", "No"))
 				{
 						return;
 				}
@@ -1119,8 +1121,8 @@ public partial class SettingViewModel : BaseViewModel
 						Sections.Clear();
 						Chargings.Clear();
 						Positions.Clear();
-					EmployeeTypes.Clear();
-					EmployeeLevels.Clear();
+						EmployeeTypes.Clear();
+						EmployeeLevels.Clear();
 
 						var divisionTask = _divisionApiService.GetDivisionsAsync();
 						var departmentTask = _departmentApiService.GetDepartmentsAsync();
