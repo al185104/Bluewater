@@ -994,6 +994,12 @@ public partial class SettingViewModel : BaseViewModel
 				{
 					await RunOnMainThreadAsync(onSuccess);
 				}
+
+				await RunOnMainThreadAsync(() =>
+					Shell.Current.DisplayAlert(
+						"Import result",
+						$"Successfully imported {imported} out of {rows.Count} records.",
+						"Okay"));
 			}
 			catch (OperationCanceledException)
 			{
@@ -1027,7 +1033,7 @@ public partial class SettingViewModel : BaseViewModel
 
 		private async Task<int> CreateSettingsAsync<TSetting>(
 			IReadOnlyList<SettingsCsvRow> rows,
-			Func<SettingsCsvRow, TSetting> map,
+			Func<SettingsCsvRow, TSetting?> map,
 			Func<TSetting, CancellationToken, Task<TSetting?>> createAsync)
 			where TSetting : class
 		{
@@ -1035,7 +1041,13 @@ public partial class SettingViewModel : BaseViewModel
 
 			foreach (SettingsCsvRow row in rows)
 			{
-				TSetting setting = map(row);
+				TSetting? setting = map(row);
+
+				if (setting is null)
+				{
+					continue;
+				}
+
 				TSetting? created = await createAsync(setting, CancellationToken.None).ConfigureAwait(false);
 
 				if (created is not null)
@@ -1053,26 +1065,56 @@ public partial class SettingViewModel : BaseViewModel
 			Description = row.Description
 		};
 
-		private DepartmentSummary CreateDepartmentFromRow(SettingsCsvRow row) => new()
+		private DepartmentSummary? CreateDepartmentFromRow(SettingsCsvRow row)
 		{
-			Name = row.Name,
-			Description = row.Description,
-			DivisionId = ResolveId(row, Divisions.Select(i => (i.Id, i.Name)), "division")
-		};
+			Guid? divisionId = ResolveId(row, Divisions.Select(i => (i.Id, i.Name)));
 
-		private SectionSummary CreateSectionFromRow(SettingsCsvRow row) => new()
-		{
-			Name = row.Name,
-			Description = row.Description,
-			DepartmentId = ResolveId(row, Departments.Select(i => (i.Id, i.Name)), "department")
-		};
+			if (!divisionId.HasValue)
+			{
+				return null;
+			}
 
-		private PositionSummary CreatePositionFromRow(SettingsCsvRow row) => new()
+			return new DepartmentSummary
+			{
+				Name = row.Name,
+				Description = row.Description,
+				DivisionId = divisionId.Value
+			};
+		}
+
+		private SectionSummary? CreateSectionFromRow(SettingsCsvRow row)
 		{
-			Name = row.Name,
-			Description = row.Description,
-			SectionId = ResolveId(row, Sections.Select(i => (i.Id, i.Name)), "section")
-		};
+			Guid? departmentId = ResolveId(row, Departments.Select(i => (i.Id, i.Name)));
+
+			if (!departmentId.HasValue)
+			{
+				return null;
+			}
+
+			return new SectionSummary
+			{
+				Name = row.Name,
+				Description = row.Description,
+				DepartmentId = departmentId.Value
+			};
+		}
+
+		private PositionSummary? CreatePositionFromRow(SettingsCsvRow row)
+		{
+			Guid? sectionId = ResolveId(row, Sections.Select(i => (i.Id, i.Name)));
+
+			if (!sectionId.HasValue)
+			{
+				return null;
+			}
+
+			return new PositionSummary
+			{
+				Name = row.Name,
+				Description = row.Description,
+				SectionId = sectionId.Value
+			};
+		}
 
 		private ChargingSummary CreateChargingFromRow(SettingsCsvRow row) => new()
 		{
@@ -1095,17 +1137,8 @@ public partial class SettingViewModel : BaseViewModel
 			IsActive = row.IsActive
 		};
 
-		private static Guid ResolveId(SettingsCsvRow row, IEnumerable<(Guid Id, string Name)> source, string sourceName)
-		{
-			Guid? id = ResolveOptionalId(row, source);
-
-			if (id.HasValue && id.Value != Guid.Empty)
-			{
-				return id.Value;
-			}
-
-			throw new FormatException($"{sourceName} reference is required for '{row.Name}'.");
-		}
+		private static Guid? ResolveId(SettingsCsvRow row, IEnumerable<(Guid Id, string Name)> source) =>
+			ResolveOptionalId(row, source);
 
 		private static Guid? ResolveOptionalId(SettingsCsvRow row, IEnumerable<(Guid Id, string Name)> source)
 		{
