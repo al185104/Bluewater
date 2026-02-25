@@ -43,22 +43,43 @@ public partial class SettingViewModel : BaseViewModel
 		public partial string NewDivisionName { get; set; } = string.Empty;
 
 		[ObservableProperty]
+		public partial string NewDivisionDescription { get; set; } = string.Empty;
+
+		[ObservableProperty]
 		public partial string NewDepartmentName { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial string NewDepartmentDescription { get; set; } = string.Empty;
 
 		[ObservableProperty]
 		public partial string NewSectionName { get; set; } = string.Empty;
 
 		[ObservableProperty]
+		public partial string NewSectionDescription { get; set; } = string.Empty;
+
+		[ObservableProperty]
 		public partial string NewPositionName { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial string NewPositionDescription { get; set; } = string.Empty;
 
 		[ObservableProperty]
 		public partial string NewChargingName { get; set; } = string.Empty;
 
 		[ObservableProperty]
+		public partial string NewChargingDescription { get; set; } = string.Empty;
+
+		[ObservableProperty]
 		public partial string NewEmployeeTypeName { get; set; } = string.Empty;
 
 		[ObservableProperty]
+		public partial string NewEmployeeTypeValue { get; set; } = string.Empty;
+
+		[ObservableProperty]
 		public partial string NewEmployeeLevelName { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial string NewEmployeeLevelValue { get; set; } = string.Empty;
 
 		[ObservableProperty]
 		public partial Tenant SelectedTenant { get; set; } = Tenant.Maribago;
@@ -622,13 +643,18 @@ public partial class SettingViewModel : BaseViewModel
 		private async Task AddDivisionAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewDivisionName)) return;
-				DivisionSummary? created = await _divisionApiService.CreateDivisionAsync(new DivisionSummary { Name = NewDivisionName.Trim() }).ConfigureAwait(false);
+				DivisionSummary? created = await _divisionApiService.CreateDivisionAsync(new DivisionSummary
+				{
+						Name = NewDivisionName.Trim(),
+						Description = string.IsNullOrWhiteSpace(NewDivisionDescription) ? null : NewDivisionDescription.Trim()
+				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
 				{
 						created.RowIndex = Divisions.Count;
 						Divisions.Add(created);
 						NewDivisionName = string.Empty;
+						NewDivisionDescription = string.Empty;
 				});
 		}
 
@@ -636,13 +662,18 @@ public partial class SettingViewModel : BaseViewModel
 		private async Task AddDepartmentAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewDepartmentName)) return;
-				DepartmentSummary? created = await _departmentApiService.CreateDepartmentAsync(new DepartmentSummary { Name = NewDepartmentName.Trim() }).ConfigureAwait(false);
+				DepartmentSummary? created = await _departmentApiService.CreateDepartmentAsync(new DepartmentSummary
+				{
+						Name = NewDepartmentName.Trim(),
+						Description = string.IsNullOrWhiteSpace(NewDepartmentDescription) ? null : NewDepartmentDescription.Trim()
+				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
 				{
 						created.RowIndex = Departments.Count;
 						Departments.Add(created);
 						NewDepartmentName = string.Empty;
+						NewDepartmentDescription = string.Empty;
 				});
 		}
 
@@ -650,13 +681,18 @@ public partial class SettingViewModel : BaseViewModel
 		private async Task AddSectionAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewSectionName)) return;
-				SectionSummary? created = await _sectionApiService.CreateSectionAsync(new SectionSummary { Name = NewSectionName.Trim() }).ConfigureAwait(false);
+				SectionSummary? created = await _sectionApiService.CreateSectionAsync(new SectionSummary
+				{
+						Name = NewSectionName.Trim(),
+						Description = string.IsNullOrWhiteSpace(NewSectionDescription) ? null : NewSectionDescription.Trim()
+				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
 				{
 						created.RowIndex = Sections.Count;
 						Sections.Add(created);
 						NewSectionName = string.Empty;
+						NewSectionDescription = string.Empty;
 				});
 		}
 
@@ -664,13 +700,18 @@ public partial class SettingViewModel : BaseViewModel
 		private async Task AddPositionAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewPositionName)) return;
-				PositionSummary? created = await _positionApiService.CreatePositionAsync(new PositionSummary { Name = NewPositionName.Trim() }).ConfigureAwait(false);
+				PositionSummary? created = await _positionApiService.CreatePositionAsync(new PositionSummary
+				{
+						Name = NewPositionName.Trim(),
+						Description = string.IsNullOrWhiteSpace(NewPositionDescription) ? null : NewPositionDescription.Trim()
+				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
 				{
 						created.RowIndex = Positions.Count;
 						Positions.Add(created);
 						NewPositionName = string.Empty;
+						NewPositionDescription = string.Empty;
 				});
 		}
 
@@ -678,13 +719,18 @@ public partial class SettingViewModel : BaseViewModel
 		private async Task AddChargingAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewChargingName)) return;
-				ChargingSummary? created = await _chargingApiService.CreateChargingAsync(new ChargingSummary { Name = NewChargingName.Trim() }).ConfigureAwait(false);
+				ChargingSummary? created = await _chargingApiService.CreateChargingAsync(new ChargingSummary
+				{
+						Name = NewChargingName.Trim(),
+						Description = string.IsNullOrWhiteSpace(NewChargingDescription) ? null : NewChargingDescription.Trim()
+				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
 				{
 						created.RowIndex = Chargings.Count;
 						Chargings.Add(created);
 						NewChargingName = string.Empty;
+						NewChargingDescription = string.Empty;
 				});
 		}
 
@@ -692,12 +738,18 @@ public partial class SettingViewModel : BaseViewModel
 		private async Task AddEmployeeTypeAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewEmployeeTypeName)) return;
-				EmployeeTypeSummary? created = await _employeeTypeApiService.CreateEmployeeTypeAsync(new EmployeeTypeSummary { Name = NewEmployeeTypeName.Trim(), Value = NewEmployeeTypeName.Trim(), IsActive = true }).ConfigureAwait(false);
+				EmployeeTypeSummary? created = await _employeeTypeApiService.CreateEmployeeTypeAsync(new EmployeeTypeSummary
+				{
+						Name = NewEmployeeTypeName.Trim(),
+						Value = string.IsNullOrWhiteSpace(NewEmployeeTypeValue) ? NewEmployeeTypeName.Trim() : NewEmployeeTypeValue.Trim(),
+						IsActive = true
+				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
 				{
 						EmployeeTypes.Add(created);
 						NewEmployeeTypeName = string.Empty;
+						NewEmployeeTypeValue = string.Empty;
 				});
 		}
 
@@ -705,12 +757,18 @@ public partial class SettingViewModel : BaseViewModel
 		private async Task AddEmployeeLevelAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewEmployeeLevelName)) return;
-				LevelSummary? created = await _levelApiService.CreateLevelAsync(new LevelSummary { Name = NewEmployeeLevelName.Trim(), Value = NewEmployeeLevelName.Trim(), IsActive = true }).ConfigureAwait(false);
+				LevelSummary? created = await _levelApiService.CreateLevelAsync(new LevelSummary
+				{
+						Name = NewEmployeeLevelName.Trim(),
+						Value = string.IsNullOrWhiteSpace(NewEmployeeLevelValue) ? NewEmployeeLevelName.Trim() : NewEmployeeLevelValue.Trim(),
+						IsActive = true
+				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
 				{
 						EmployeeLevels.Add(created);
 						NewEmployeeLevelName = string.Empty;
+						NewEmployeeLevelValue = string.Empty;
 				});
 		}
 

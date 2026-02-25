@@ -84,7 +84,7 @@
 								   WidthRequest="100" />
 							<Entry Grid.Column="1"
 								   Placeholder="Description"
-								   Text="{Binding NewDivisionName}"
+								   Text="{Binding NewDivisionDescription}"
 								   WidthRequest="300" />
 							<Button Grid.Column="2"
 									Text="Add"
@@ -171,16 +171,12 @@
 							  ColumnDefinitions="Auto,Auto,Auto">
 							<Entry Grid.Column="0"
 								   Placeholder="Code"
-								   Text="{Binding NewDivisionName}"
+								   Text="{Binding NewDepartmentName}"
 								   WidthRequest="100" />
 							<Entry Grid.Column="1"
 								   Placeholder="Description"
-								   Text="{Binding NewDepartmentName}"
+								   Text="{Binding NewDepartmentDescription}"
 								   WidthRequest="300" />
-							<Entry Grid.Column="0"
-								   Placeholder="Code"
-								   Text="{Binding NewDivisionName}"
-								   WidthRequest="100" />
 							<Button Grid.Column="2"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
@@ -268,16 +264,12 @@
 							  ColumnDefinitions="Auto,Auto,Auto">
 							<Entry Grid.Column="0"
 								   Placeholder="Code"
-								   Text="{Binding NewDivisionName}"
+								   Text="{Binding NewSectionName}"
 								   WidthRequest="100" />
 							<Entry Grid.Column="1"
 								   Placeholder="Description"
-								   Text="{Binding NewDepartmentName}"
+								   Text="{Binding NewSectionDescription}"
 								   WidthRequest="300" />
-							<Entry Grid.Column="0"
-								   Placeholder="Code"
-								   Text="{Binding NewDivisionName}"
-								   WidthRequest="100" />
 							<Button Grid.Column="2"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
@@ -364,16 +356,12 @@
 							  ColumnDefinitions="Auto,Auto,Auto">
 							<Entry Grid.Column="0"
 								   Placeholder="Code"
-								   Text="{Binding NewDivisionName}"
+								   Text="{Binding NewPositionName}"
 								   WidthRequest="100" />
 							<Entry Grid.Column="1"
 								   Placeholder="Description"
-								   Text="{Binding NewDepartmentName}"
+								   Text="{Binding NewPositionDescription}"
 								   WidthRequest="300" />
-							<Entry Grid.Column="0"
-								   Placeholder="Code"
-								   Text="{Binding NewDivisionName}"
-								   WidthRequest="100" />
 							<Button Grid.Column="2"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
@@ -472,16 +460,12 @@
 							  ColumnDefinitions="Auto,Auto,Auto">
 							<Entry Grid.Column="0"
 								   Placeholder="Code"
-								   Text="{Binding NewDivisionName}"
+								   Text="{Binding NewChargingName}"
 								   WidthRequest="100" />
 							<Entry Grid.Column="1"
 								   Placeholder="Description"
-								   Text="{Binding NewDepartmentName}"
+								   Text="{Binding NewChargingDescription}"
 								   WidthRequest="300" />
-							<Entry Grid.Column="0"
-								   Placeholder="Code"
-								   Text="{Binding NewDivisionName}"
-								   WidthRequest="100" />
 							<Button Grid.Column="2"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
@@ -569,16 +553,12 @@
 							  ColumnDefinitions="Auto,Auto,Auto">
 							<Entry Grid.Column="0"
 								   Placeholder="Code"
-								   Text="{Binding NewDivisionName}"
+								   Text="{Binding NewEmployeeTypeName}"
 								   WidthRequest="100" />
 							<Entry Grid.Column="1"
 								   Placeholder="Description"
-								   Text="{Binding NewDepartmentName}"
+								   Text="{Binding NewEmployeeTypeValue}"
 								   WidthRequest="300" />
-							<Entry Grid.Column="0"
-								   Placeholder="Code"
-								   Text="{Binding NewDivisionName}"
-								   WidthRequest="100" />
 							<Button Grid.Column="2"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
@@ -623,7 +603,7 @@
 											   Text="{Binding Name}"
 											   VerticalOptions="Center" />
 										<Label Grid.Column="1"
-											   Text="{Binding Description}"
+											   Text="{Binding Value}"
 											   VerticalOptions="Center" />										
 										<Button Grid.Column="2"
 												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Edit3},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
@@ -666,16 +646,12 @@
 							  ColumnDefinitions="Auto,Auto,Auto">
 							<Entry Grid.Column="0"
 								   Placeholder="Code"
-								   Text="{Binding NewDivisionName}"
+								   Text="{Binding NewEmployeeLevelName}"
 								   WidthRequest="100" />
 							<Entry Grid.Column="1"
 								   Placeholder="Description"
-								   Text="{Binding NewDepartmentName}"
+								   Text="{Binding NewEmployeeLevelValue}"
 								   WidthRequest="300" />
-							<Entry Grid.Column="0"
-								   Placeholder="Code"
-								   Text="{Binding NewDivisionName}"
-								   WidthRequest="100" />
 							<Button Grid.Column="2"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
@@ -714,17 +690,20 @@
 							</CollectionView.Header>
 							<CollectionView.ItemTemplate>
 								<DataTemplate>
-									<Grid ColumnDefinitions="*,Auto,Auto"
+									<Grid ColumnDefinitions="100,*,Auto,Auto"
 										  Padding="5">
 										<Label Grid.Column="0"
 											   Text="{Binding Name}"
 											   VerticalOptions="Center" />
-										<Button Grid.Column="1"
+										<Label Grid.Column="1"
+											   Text="{Binding Value}"
+											   VerticalOptions="Center" />
+										<Button Grid.Column="2"
 												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Edit3},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 												Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.EditEmployeeLevelCommand}"
 												CommandParameter="{Binding .}"
 												Style="{StaticResource SecondaryButtonStyle}" />
-										<Button Grid.Column="2"
+										<Button Grid.Column="3"
 												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Trash2},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 												Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.DeleteEmployeeLevelCommand}"
 												CommandParameter="{Binding .}"
