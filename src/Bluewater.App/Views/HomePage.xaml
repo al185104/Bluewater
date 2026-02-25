@@ -11,7 +11,7 @@
     <Grid ColumnDefinitions="Auto,*"
           RowDefinitions="*,Auto"
           Padding="0">
-        <VerticalStackLayout x:Name="vslMenu" Grid.Row="0" WidthRequest="150">
+        <VerticalStackLayout x:Name="vslMenu" Grid.Row="0" WidthRequest="140">
             <VerticalStackLayout.Triggers>
                 <DataTrigger TargetType="VerticalStackLayout"
                              Binding="{Binding IsToggled}"
@@ -26,7 +26,6 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0" 
                     Command="{Binding ToggleMenuCommand}"/>
             <Button x:Name="btnHome" 
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.Home}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
@@ -35,7 +34,6 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Dashboard}" />
             <Button x:Name="btnEmployees" 
@@ -45,7 +43,6 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Employees}" />
             <Button x:Name="btnShifts" 
@@ -55,7 +52,6 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Shifts}" />
             <Button x:Name="btnSchedules" 
@@ -65,7 +61,6 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Schedules}" />
             <Button x:Name="btnMealCredits" 
@@ -75,7 +70,6 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.MealCredit}" 
 					IsVisible="False"/>
@@ -97,7 +91,6 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Timesheet}" />
             <Button x:Name="btnAttendance" 
@@ -107,7 +100,6 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Attendance}" />
             <Button x:Name="btnPayroll" 
@@ -117,7 +109,6 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Payroll}" />
             <Button x:Name="btnUsers" 
@@ -127,12 +118,11 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Users}" />
         </VerticalStackLayout>
         
-        <VerticalStackLayout x:Name="vslSubmenu" Grid.Row="1" WidthRequest="150">
+        <VerticalStackLayout x:Name="vslSubmenu" Grid.Row="1" WidthRequest="140">
             <VerticalStackLayout.Triggers>
                 <DataTrigger TargetType="VerticalStackLayout"
                              Binding="{Binding IsToggled}"
@@ -148,7 +138,6 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Employees}" />
             <Button x:Name="btnSettings" 
@@ -158,7 +147,6 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Settings}" />
         </VerticalStackLayout>
