@@ -396,7 +396,7 @@
 										Grid.ColumnSpan="5"
 										ItemsSource="{Binding Positions}">
 							<CollectionView.Header>
-								<Grid ColumnDefinitions="100,*,50,50"
+								<Grid ColumnDefinitions="200,*,200,55,55"
 									  Padding="5">
 									<Label Text="Code"
 										   FontAttributes="Bold" />
@@ -404,25 +404,39 @@
 										   Text="Description"
 										   FontAttributes="Bold" />
 									<Label Grid.Column="2"
+										   Text="Section"
+										   HorizontalTextAlignment="Start"
+										   FontAttributes="Bold" />
+									<Label Grid.Column="3"
 										   Grid.ColumnSpan="2"
 										   Text="Actions"
-										   HorizontalOptions="Start"
+										   HorizontalOptions="Fill"
 										   FontAttributes="Bold" />
 								</Grid>
 							</CollectionView.Header>
 							<CollectionView.ItemTemplate>
 								<DataTemplate>
-									<Grid ColumnDefinitions="*,Auto,Auto"
+									<Grid ColumnDefinitions="200,*,200,Auto,Auto"
 										  Padding="0,5">
 										<Label Grid.Column="0"
 											   Text="{Binding Name}"
 											   VerticalOptions="Center" />
-										<Button Grid.Column="1"
+										<Label Grid.Column="1"
+											   Text="{Binding Description}"
+											   VerticalOptions="Center" />
+										<VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="0">
+											<Label Text="{Binding SectionName}" 
+												   HorizontalTextAlignment="Start"/>
+											<Label Text="{Binding SectionDescription}"
+												   Style="{StaticResource CaptionTextStyle}" 
+												   HorizontalTextAlignment="Start"/>
+										</VerticalStackLayout>
+										<Button Grid.Column="3"
 												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Edit3},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 												Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.EditPositionCommand}"
 												CommandParameter="{Binding .}"
 												Style="{StaticResource SecondaryButtonStyle}" />
-										<Button Grid.Column="2"
+										<Button Grid.Column="4"
 												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Trash2},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 												Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.DeletePositionCommand}"
 												CommandParameter="{Binding .}"
@@ -506,7 +520,7 @@
 							</CollectionView.Header>							
 							<CollectionView.ItemTemplate>
 								<DataTemplate>
-									<Grid ColumnDefinitions="Auto,*,Auto,Auto"
+									<Grid ColumnDefinitions="100,*,Auto,Auto"
 										  Padding="5">
 										<Label Grid.Column="0"
 											   Text="{Binding Name}"
@@ -729,5 +743,10 @@
 				</Border>
 			</VerticalStackLayout>
 		</ScrollView>
+		
+		<ActivityIndicator IsRunning="{Binding IsBusy}"
+						   IsVisible="{Binding IsBusy}"
+						   HorizontalOptions="Center"
+						   VerticalOptions="Center" />
 	</Grid>
 </ContentView>

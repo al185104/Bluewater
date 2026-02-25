@@ -1112,7 +1112,9 @@ public partial class SettingViewModel : BaseViewModel
 			{
 				Name = row.Name,
 				Description = row.Description,
-				SectionId = sectionId.Value
+				SectionId = sectionId.Value,
+				SectionName = Sections.FirstOrDefault(s => s.Id == sectionId.Value)?.Name,
+				SectionDescription = Sections.FirstOrDefault(s => s.Id == sectionId.Value)?.Description
 			};
 		}
 
@@ -1229,6 +1231,8 @@ public partial class SettingViewModel : BaseViewModel
 								foreach (PositionSummary position in positions)
 								{
 									position.RowIndex = index++;
+									position.SectionName = Sections.FirstOrDefault(i => i.Id == position.SectionId)?.Name;
+									position.SectionDescription = Sections.FirstOrDefault(i => i.Id == position.SectionId)?.Description;
 									Positions.Add(position);
 								}
 
