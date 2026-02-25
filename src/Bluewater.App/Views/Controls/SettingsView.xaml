@@ -168,7 +168,7 @@
 								   Style="{StaticResource CaptionTextStyle}" />
 						</VerticalStackLayout>
 						<Grid Grid.Column="2"
-							  ColumnDefinitions="Auto,Auto,Auto">
+							  ColumnDefinitions="Auto,Auto,Auto,Auto">
 							<Entry Grid.Column="0"
 								   Placeholder="Code"
 								   Text="{Binding NewDepartmentName}"
@@ -177,7 +177,13 @@
 								   Placeholder="Description"
 								   Text="{Binding NewDepartmentDescription}"
 								   WidthRequest="300" />
-							<Button Grid.Column="2"
+							<Picker Grid.Column="2"
+										Title="Division"
+										WidthRequest="180"
+										ItemsSource="{Binding Divisions}"
+										ItemDisplayBinding="{Binding Name}"
+										SelectedItem="{Binding SelectedDivisionForDepartment, Mode=TwoWay}" />
+								<Button Grid.Column="3"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 									Command="{Binding AddDepartmentCommand}"
@@ -261,7 +267,7 @@
 								   Style="{StaticResource CaptionTextStyle}" />
 						</VerticalStackLayout>
 						<Grid Grid.Column="2"
-							  ColumnDefinitions="Auto,Auto,Auto">
+							  ColumnDefinitions="Auto,Auto,Auto,Auto">
 							<Entry Grid.Column="0"
 								   Placeholder="Code"
 								   Text="{Binding NewSectionName}"
@@ -270,7 +276,13 @@
 								   Placeholder="Description"
 								   Text="{Binding NewSectionDescription}"
 								   WidthRequest="300" />
-							<Button Grid.Column="2"
+							<Picker Grid.Column="2"
+										Title="Department"
+										WidthRequest="180"
+										ItemsSource="{Binding Departments}"
+										ItemDisplayBinding="{Binding Name}"
+										SelectedItem="{Binding SelectedDepartmentForSection, Mode=TwoWay}" />
+								<Button Grid.Column="3"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 									Command="{Binding AddSectionCommand}"
@@ -353,7 +365,7 @@
 								   Style="{StaticResource CaptionTextStyle}" />
 						</VerticalStackLayout>
 						<Grid Grid.Column="2"
-							  ColumnDefinitions="Auto,Auto,Auto">
+							  ColumnDefinitions="Auto,Auto,Auto,Auto">
 							<Entry Grid.Column="0"
 								   Placeholder="Code"
 								   Text="{Binding NewPositionName}"
@@ -362,7 +374,13 @@
 								   Placeholder="Description"
 								   Text="{Binding NewPositionDescription}"
 								   WidthRequest="300" />
-							<Button Grid.Column="2"
+							<Picker Grid.Column="2"
+										Title="Section"
+										WidthRequest="180"
+										ItemsSource="{Binding Sections}"
+										ItemDisplayBinding="{Binding Name}"
+										SelectedItem="{Binding SelectedSectionForPosition, Mode=TwoWay}" />
+								<Button Grid.Column="3"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 									Command="{Binding AddPositionCommand}"
@@ -457,7 +475,7 @@
 								   Style="{StaticResource CaptionTextStyle}" />
 						</VerticalStackLayout>
 						<Grid Grid.Column="2"
-							  ColumnDefinitions="Auto,Auto,Auto">
+							  ColumnDefinitions="Auto,Auto,Auto,Auto">
 							<Entry Grid.Column="0"
 								   Placeholder="Code"
 								   Text="{Binding NewChargingName}"
@@ -466,7 +484,13 @@
 								   Placeholder="Description"
 								   Text="{Binding NewChargingDescription}"
 								   WidthRequest="300" />
-							<Button Grid.Column="2"
+							<Picker Grid.Column="2"
+										Title="Department"
+										WidthRequest="180"
+										ItemsSource="{Binding Departments}"
+										ItemDisplayBinding="{Binding Name}"
+										SelectedItem="{Binding SelectedDepartmentForCharging, Mode=TwoWay}" />
+								<Button Grid.Column="3"
 									Text="Add"
 									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 									Command="{Binding AddChargingCommand}"

@@ -52,10 +52,16 @@ public partial class SettingViewModel : BaseViewModel
 		public partial string NewDepartmentDescription { get; set; } = string.Empty;
 
 		[ObservableProperty]
+		public partial DivisionSummary? SelectedDivisionForDepartment { get; set; }
+
+		[ObservableProperty]
 		public partial string NewSectionName { get; set; } = string.Empty;
 
 		[ObservableProperty]
 		public partial string NewSectionDescription { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial DepartmentSummary? SelectedDepartmentForSection { get; set; }
 
 		[ObservableProperty]
 		public partial string NewPositionName { get; set; } = string.Empty;
@@ -64,10 +70,16 @@ public partial class SettingViewModel : BaseViewModel
 		public partial string NewPositionDescription { get; set; } = string.Empty;
 
 		[ObservableProperty]
+		public partial SectionSummary? SelectedSectionForPosition { get; set; }
+
+		[ObservableProperty]
 		public partial string NewChargingName { get; set; } = string.Empty;
 
 		[ObservableProperty]
 		public partial string NewChargingDescription { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial DepartmentSummary? SelectedDepartmentForCharging { get; set; }
 
 		[ObservableProperty]
 		public partial string NewEmployeeTypeName { get; set; } = string.Empty;
@@ -133,6 +145,10 @@ public partial class SettingViewModel : BaseViewModel
 				Chargings = new ObservableCollection<ChargingSummary>(_referenceService.Chargings);
 				EmployeeTypes = new ObservableCollection<EmployeeTypeSummary>(_referenceService.EmployeeTypes);
 				EmployeeLevels = new ObservableCollection<LevelSummary>(_referenceService.Levels);
+				SelectedDivisionForDepartment = Divisions.FirstOrDefault();
+				SelectedDepartmentForSection = Departments.FirstOrDefault();
+				SelectedSectionForPosition = Sections.FirstOrDefault();
+				SelectedDepartmentForCharging = Departments.FirstOrDefault();
 
 		}
 
@@ -661,11 +677,12 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task AddDepartmentAsync()
 		{
-				if (string.IsNullOrWhiteSpace(NewDepartmentName)) return;
+				if (string.IsNullOrWhiteSpace(NewDepartmentName) || SelectedDivisionForDepartment is null) return;
 				DepartmentSummary? created = await _departmentApiService.CreateDepartmentAsync(new DepartmentSummary
 				{
 						Name = NewDepartmentName.Trim(),
-						Description = string.IsNullOrWhiteSpace(NewDepartmentDescription) ? null : NewDepartmentDescription.Trim()
+						Description = string.IsNullOrWhiteSpace(NewDepartmentDescription) ? null : NewDepartmentDescription.Trim(),
+						DivisionId = SelectedDivisionForDepartment.Id
 				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
@@ -680,11 +697,12 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task AddSectionAsync()
 		{
-				if (string.IsNullOrWhiteSpace(NewSectionName)) return;
+				if (string.IsNullOrWhiteSpace(NewSectionName) || SelectedDepartmentForSection is null) return;
 				SectionSummary? created = await _sectionApiService.CreateSectionAsync(new SectionSummary
 				{
 						Name = NewSectionName.Trim(),
-						Description = string.IsNullOrWhiteSpace(NewSectionDescription) ? null : NewSectionDescription.Trim()
+						Description = string.IsNullOrWhiteSpace(NewSectionDescription) ? null : NewSectionDescription.Trim(),
+						DepartmentId = SelectedDepartmentForSection.Id
 				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
@@ -699,11 +717,14 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task AddPositionAsync()
 		{
-				if (string.IsNullOrWhiteSpace(NewPositionName)) return;
+				if (string.IsNullOrWhiteSpace(NewPositionName) || SelectedSectionForPosition is null) return;
 				PositionSummary? created = await _positionApiService.CreatePositionAsync(new PositionSummary
 				{
 						Name = NewPositionName.Trim(),
-						Description = string.IsNullOrWhiteSpace(NewPositionDescription) ? null : NewPositionDescription.Trim()
+						Description = string.IsNullOrWhiteSpace(NewPositionDescription) ? null : NewPositionDescription.Trim(),
+						SectionId = SelectedSectionForPosition.Id,
+						SectionName = SelectedSectionForPosition.Name,
+						SectionDescription = SelectedSectionForPosition.Description
 				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
@@ -718,11 +739,12 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task AddChargingAsync()
 		{
-				if (string.IsNullOrWhiteSpace(NewChargingName)) return;
+				if (string.IsNullOrWhiteSpace(NewChargingName) || SelectedDepartmentForCharging is null) return;
 				ChargingSummary? created = await _chargingApiService.CreateChargingAsync(new ChargingSummary
 				{
 						Name = NewChargingName.Trim(),
-						Description = string.IsNullOrWhiteSpace(NewChargingDescription) ? null : NewChargingDescription.Trim()
+						Description = string.IsNullOrWhiteSpace(NewChargingDescription) ? null : NewChargingDescription.Trim(),
+						DepartmentId = SelectedDepartmentForCharging.Id
 				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
