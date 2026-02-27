@@ -11,5 +11,6 @@ public class SectionSummary : IRowIndexed
   public string? Approved2Id { get; set; }
   public string? Approved3Id { get; set; }
   public Guid DepartmentId { get; set; }
+  public string? DepartmentName { get; set; }
   public int RowIndex { get; set; }
 }
