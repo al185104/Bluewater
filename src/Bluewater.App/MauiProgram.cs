@@ -8,7 +8,10 @@ using Bluewater.App.Views.Controls;
 using Bluewater.App.Views.Modals;
 using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.LifecycleEvents;
+using Microsoft.UI.Windowing;
 using Windows.Devices.Usb;
+using static Microsoft.IO.RecyclableMemoryStreamManager;
 
 namespace Bluewater.App;
 
@@ -22,6 +25,22 @@ public static class MauiProgram
 				builder
 					.UseMauiApp<App>()
 					.UseMauiCommunityToolkit(options => options.SetShouldEnableSnackbarOnWindows(true))
+					.ConfigureLifecycleEvents(lifecycle =>
+					{
+#if WINDOWS
+							lifecycle.AddWindows(windows =>
+							{
+									windows.OnWindowCreated(window =>
+									{
+											var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
+											var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+											var appWindow = AppWindow.GetFromWindowId(windowId);
+
+											appWindow.SetPresenter(AppWindowPresenterKind.Default);
+									});
+							});
+#endif
+					})
 					.ConfigureFonts(fonts =>
 					{
 							fonts.AddFont("Feather.ttf", "Icons");

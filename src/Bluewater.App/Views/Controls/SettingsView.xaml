@@ -4,6 +4,7 @@
              xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
 			 xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
              x:Class="Bluewater.App.Views.Controls.SettingsView"
+			 Loaded="ContentView_Loaded"
              Padding="20"
              BackgroundColor="{StaticResource CollectionBackgroundBrush}">
 	<ContentView.Resources>
@@ -143,7 +144,7 @@
 										Grid.ColumnSpan="5"
 										ItemsSource="{Binding Divisions}">
 							<CollectionView.Header>
-								<Grid ColumnDefinitions="100,*,50,50" Padding="5">
+								<Grid ColumnDefinitions="200,*,50,50" Padding="5">
 									<Label Text="Code"
 										   FontAttributes="Bold" />
 									<Label Grid.Column="1"
@@ -158,7 +159,7 @@
 							</CollectionView.Header>
 							<CollectionView.ItemTemplate>
 								<DataTemplate>
-									<Grid ColumnDefinitions="100,*,50,50"
+									<Grid ColumnDefinitions="200,*,50,50"
 										  Padding="5" >
 										<Label Grid.Column="0"
 											   Text="{Binding Name}"
@@ -241,7 +242,7 @@
 										Grid.ColumnSpan="5"
 										ItemsSource="{Binding Departments}">
 							<CollectionView.Header>
-								<Grid ColumnDefinitions="100,*,50,50"
+								<Grid ColumnDefinitions="200,*,*,50,50"
 									  Padding="5">
 									<Label Text="Code"
 										   FontAttributes="Bold" />
@@ -249,6 +250,9 @@
 										   Text="Description"
 										   FontAttributes="Bold" />
 									<Label Grid.Column="2"
+										   Text="Division"
+										   FontAttributes="Bold" />
+									<Label Grid.Column="3"
 										   Grid.ColumnSpan="2"
 										   Text="Actions"
 										   HorizontalOptions="Start"
@@ -257,20 +261,29 @@
 							</CollectionView.Header>
 							<CollectionView.ItemTemplate>
 								<DataTemplate>
-									<Grid ColumnDefinitions="100,*,Auto,Auto"
+									<Grid ColumnDefinitions="200,*,*,Auto,Auto"
 										  Padding="5">
 										<Label Grid.Column="0"
 											   Text="{Binding Name}"
 											   VerticalOptions="Center" />
 										<Label Grid.Column="1"
 											   Text="{Binding Description}"
-											   VerticalOptions="Center" />										
-										<Button Grid.Column="2"
+											   VerticalOptions="Center" />
+										<VerticalStackLayout Grid.Column="2"
+															 VerticalOptions="Center"
+															 Spacing="0">
+											<Label Text="{Binding DivisionName}"
+												   HorizontalTextAlignment="Start" />
+											<Label Text="{Binding DivisionDescription}"
+												   Style="{StaticResource CaptionTextStyle}"
+												   HorizontalTextAlignment="Start" />
+										</VerticalStackLayout>
+										<Button Grid.Column="3"
 												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Edit3},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 												Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.EditDepartmentCommand}"
 												CommandParameter="{Binding .}"
 												Style="{StaticResource SecondaryButtonStyle}" />
-										<Button Grid.Column="3"
+										<Button Grid.Column="4"
 												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Trash2},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 												Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.DeleteDepartmentCommand}"
 												CommandParameter="{Binding .}"
@@ -339,7 +352,7 @@
 										Grid.ColumnSpan="5"
 										ItemsSource="{Binding Sections}">
 							<CollectionView.Header>
-								<Grid ColumnDefinitions="100,*,50,50"
+								<Grid ColumnDefinitions="200,*,*,55,55"
 									  Padding="5">
 									<Label Text="Code"
 										   FontAttributes="Bold" />
@@ -347,6 +360,9 @@
 										   Text="Description"
 										   FontAttributes="Bold" />
 									<Label Grid.Column="2"
+										   Text="Department"
+										   FontAttributes="Bold" />
+									<Label Grid.Column="3"
 										   Grid.ColumnSpan="2"
 										   Text="Actions"
 										   HorizontalOptions="Start"
@@ -355,20 +371,27 @@
 							</CollectionView.Header>
 							<CollectionView.ItemTemplate>
 								<DataTemplate>
-									<Grid ColumnDefinitions="100,*,Auto,Auto"
+									<Grid ColumnDefinitions="200,*,*,Auto,Auto"
 										  Padding="5">
 										<Label Grid.Column="0"
 											   Text="{Binding Name}"
 											   VerticalOptions="Center" />
 										<Label Grid.Column="1"
 											   Text="{Binding Description}"
-											   VerticalOptions="Center" />										
-										<Button Grid.Column="2"
+											   VerticalOptions="Center" />
+										<VerticalStackLayout Grid.Column="2" VerticalOptions="Center" Spacing="0">
+											<Label Text="{Binding DepartmentName}" 
+												   HorizontalTextAlignment="Start"/>
+											<Label Text="{Binding DepartmentDescription}"
+												   Style="{StaticResource CaptionTextStyle}" 
+												   HorizontalTextAlignment="Start"/>
+										</VerticalStackLayout>
+										<Button Grid.Column="3"
 												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Edit3},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 												Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.EditSectionCommand}"
 												CommandParameter="{Binding .}"
 												Style="{StaticResource SecondaryButtonStyle}" />
-										<Button Grid.Column="3"
+										<Button Grid.Column="4"
 												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Trash2},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 												Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.DeleteSectionCommand}"
 												CommandParameter="{Binding .}"
@@ -438,7 +461,7 @@
 										Grid.ColumnSpan="5"
 										ItemsSource="{Binding Positions}">
 							<CollectionView.Header>
-								<Grid ColumnDefinitions="200,*,200,55,55"
+								<Grid ColumnDefinitions="200,*,*,55,55"
 									  Padding="5">
 									<Label Text="Code"
 										   FontAttributes="Bold" />
@@ -458,7 +481,7 @@
 							</CollectionView.Header>
 							<CollectionView.ItemTemplate>
 								<DataTemplate>
-									<Grid ColumnDefinitions="200,*,200,Auto,Auto"
+									<Grid ColumnDefinitions="200,*,*,Auto,Auto"
 										  Padding="0,5">
 										<Label Grid.Column="0"
 											   Text="{Binding Name}"
@@ -548,7 +571,7 @@
 										Grid.ColumnSpan="5"
 										ItemsSource="{Binding Chargings}">
 							<CollectionView.Header>
-								<Grid ColumnDefinitions="100,*,50,50"
+								<Grid ColumnDefinitions="200,*,*,50,50"
 									  Padding="5">
 									<Label Text="Code"
 										   FontAttributes="Bold" />
@@ -556,6 +579,9 @@
 										   Text="Description"
 										   FontAttributes="Bold" />
 									<Label Grid.Column="2"
+										   Text="Department"
+										   FontAttributes="Bold" />									
+									<Label Grid.Column="3"
 										   Grid.ColumnSpan="2"
 										   Text="Actions"
 										   HorizontalOptions="Start"
@@ -564,7 +590,7 @@
 							</CollectionView.Header>							
 							<CollectionView.ItemTemplate>
 								<DataTemplate>
-									<Grid ColumnDefinitions="100,*,Auto,Auto"
+									<Grid ColumnDefinitions="200,*,*,Auto,Auto"
 										  Padding="5">
 										<Label Grid.Column="0"
 											   Text="{Binding Name}"
@@ -572,12 +598,21 @@
 										<Label Grid.Column="1"
 											   Text="{Binding Description}"
 											   VerticalOptions="Center" />
-										<Button Grid.Column="2"
+										<VerticalStackLayout Grid.Column="2"
+															 VerticalOptions="Center"
+															 Spacing="0">
+											<Label Text="{Binding DepartmentName}"
+												   HorizontalTextAlignment="Start" />
+											<Label Text="{Binding DepartmentDescription}"
+												   Style="{StaticResource CaptionTextStyle}"
+												   HorizontalTextAlignment="Start" />
+										</VerticalStackLayout>
+										<Button Grid.Column="3"
 												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Edit3},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 												Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.EditChargingCommand}"
 												CommandParameter="{Binding .}"
 												Style="{StaticResource SecondaryButtonStyle}" />
-										<Button Grid.Column="3"
+										<Button Grid.Column="4"
 												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Trash2},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 												Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.DeleteChargingCommand}"
 												CommandParameter="{Binding .}"
@@ -595,7 +630,7 @@
 					</Grid>
 				</Border>
 				<!--Type-->
-				<Border HeightRequest="200">
+				<Border HeightRequest="300">
 					<Grid RowDefinitions="Auto,*"
 						  ColumnDefinitions="Auto,*,Auto,Auto,Auto">
 						<Label Grid.Column="0"
@@ -641,7 +676,7 @@
 										Grid.ColumnSpan="5"
 										ItemsSource="{Binding EmployeeTypes}">
 							<CollectionView.Header>
-								<Grid ColumnDefinitions="100,*,50,50"
+								<Grid ColumnDefinitions="200,*,50,50"
 									  Padding="5">
 									<Label Text="Code"
 										   FontAttributes="Bold" />
@@ -657,7 +692,7 @@
 							</CollectionView.Header>
 							<CollectionView.ItemTemplate>
 								<DataTemplate>
-									<Grid ColumnDefinitions="100,*,Auto,Auto"
+									<Grid ColumnDefinitions="200,*,Auto,Auto"
 										  Padding="5">
 										<Label Grid.Column="0"
 											   Text="{Binding Name}"
@@ -688,7 +723,7 @@
 					</Grid>
 				</Border>
 				<!--Level-->
-				<Border HeightRequest="200">
+				<Border HeightRequest="300">
 					<Grid RowDefinitions="Auto,*"
 						  ColumnDefinitions="Auto,*,Auto,Auto,Auto">
 						<Label Grid.Column="0"
@@ -734,7 +769,7 @@
 										Grid.ColumnSpan="5"
 										ItemsSource="{Binding EmployeeLevels}">
 							<CollectionView.Header>
-								<Grid ColumnDefinitions="100,*,50,50"
+								<Grid ColumnDefinitions="200,*,50,50"
 									  Padding="5">
 									<Label Text="Code"
 										   FontAttributes="Bold" />
@@ -750,7 +785,7 @@
 							</CollectionView.Header>
 							<CollectionView.ItemTemplate>
 								<DataTemplate>
-									<Grid ColumnDefinitions="100,*,Auto,Auto"
+									<Grid ColumnDefinitions="200,*,Auto,Auto"
 										  Padding="5">
 										<Label Grid.Column="0"
 											   Text="{Binding Name}"

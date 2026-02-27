@@ -688,7 +688,8 @@ public partial class SettingViewModel : BaseViewModel
 						Name = NewDepartmentName.Trim(),
 						Description = string.IsNullOrWhiteSpace(NewDepartmentDescription) ? null : NewDepartmentDescription.Trim(),
 						DivisionId = SelectedDivisionForDepartment.Id,
-						DivisionName = SelectedDivisionForDepartment.Name
+						DivisionName = SelectedDivisionForDepartment.Name,
+						DivisionDescription = SelectedDivisionForDepartment.Description
 				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
@@ -710,7 +711,8 @@ public partial class SettingViewModel : BaseViewModel
 						Name = NewSectionName.Trim(),
 						Description = string.IsNullOrWhiteSpace(NewSectionDescription) ? null : NewSectionDescription.Trim(),
 						DepartmentId = SelectedDepartmentForSection.Id,
-						DepartmentName = SelectedDepartmentForSection.Name
+						DepartmentName = SelectedDepartmentForSection.Name,
+						DepartmentDescription = SelectedDepartmentForSection.Description
 				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
@@ -754,7 +756,8 @@ public partial class SettingViewModel : BaseViewModel
 						Name = NewChargingName.Trim(),
 						Description = string.IsNullOrWhiteSpace(NewChargingDescription) ? null : NewChargingDescription.Trim(),
 						DepartmentId = SelectedDepartmentForCharging.Id,
-						DepartmentName = SelectedDepartmentForCharging.Name
+						DepartmentName = SelectedDepartmentForCharging.Name,
+						DepartmentDescription = SelectedDepartmentForCharging.Description
 				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
@@ -1043,66 +1046,66 @@ public partial class SettingViewModel : BaseViewModel
 			Func<IReadOnlyList<SettingsCsvRow>, Task<int>> importAction,
 			Func<Task> onSuccess)
 		{
-			if (IsBusy)
-			{
-				return;
-			}
-
-			try
-			{
-				PickOptions options = new()
+				if (IsBusy)
 				{
-					PickerTitle = pickerTitle,
-					FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
-					{
-						[DevicePlatform.iOS] = ["public.comma-separated-values-text", "public.text"],
-						[DevicePlatform.Android] = ["text/csv", "text/comma-separated-values"],
-						[DevicePlatform.WinUI] = [".csv"],
-						[DevicePlatform.MacCatalyst] = ["public.comma-separated-values-text", "public.text"]
-					})
-				};
-
-				FileResult? file = await FilePicker.Default.PickAsync(options).ConfigureAwait(false);
-
-				if (file is null)
-				{
-					return;
+						return;
 				}
 
-				await using Stream stream = await file.OpenReadAsync().ConfigureAwait(false);
-				IReadOnlyList<SettingsCsvRow> rows = await SettingsCsvImporter.ParseAsync(stream).ConfigureAwait(false);
-
-				if (rows.Count == 0)
+				try
 				{
-					return;
+						PickOptions options = new()
+						{
+								PickerTitle = pickerTitle,
+								FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+								{
+										[DevicePlatform.iOS] = ["public.comma-separated-values-text", "public.text"],
+										[DevicePlatform.Android] = ["text/csv", "text/comma-separated-values"],
+										[DevicePlatform.WinUI] = [".csv"],
+										[DevicePlatform.MacCatalyst] = ["public.comma-separated-values-text", "public.text"]
+								})
+						};
+
+						FileResult? file = await FilePicker.Default.PickAsync(options).ConfigureAwait(false);
+
+						if (file is null)
+						{
+								return;
+						}
+
+						await using Stream stream = await file.OpenReadAsync().ConfigureAwait(false);
+						IReadOnlyList<SettingsCsvRow> rows = await SettingsCsvImporter.ParseAsync(stream).ConfigureAwait(false);
+
+						if (rows.Count == 0)
+						{
+								return;
+						}
+
+						await RunOnMainThreadAsync(() => IsBusy = true);
+						int imported = await importAction(rows).ConfigureAwait(false);
+						await RunOnMainThreadAsync(() => IsBusy = false);
+
+						if (imported > 0)
+						{
+								await RunOnMainThreadAsync(onSuccess);
+						}
+
+						await RunOnMainThreadAsync(() =>
+							Shell.Current.DisplayAlert(
+								"Import result",
+								$"Successfully imported {imported} out of {rows.Count} records.",
+								"Okay"));
 				}
-
-				await RunOnMainThreadAsync(() => IsBusy = true);
-				int imported = await importAction(rows).ConfigureAwait(false);
-				await RunOnMainThreadAsync(() => IsBusy = false);
-
-				if (imported > 0)
+				catch (OperationCanceledException)
 				{
-					await RunOnMainThreadAsync(onSuccess);
 				}
-
-				await RunOnMainThreadAsync(() =>
-					Shell.Current.DisplayAlert(
-						"Import result",
-						$"Successfully imported {imported} out of {rows.Count} records.",
-						"Okay"));
-			}
-			catch (OperationCanceledException)
-			{
-			}
-			catch (Exception ex)
-			{
-				ExceptionHandlingService.Handle(ex, errorContext);
-			}
-			finally
-			{
-				await RunOnMainThreadAsync(() => IsBusy = false);
-			}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, errorContext);
+				}
+				finally
+				{
+						await RunOnMainThreadAsync(() => IsBusy = false);
+				}
 		}
 
 
@@ -1118,8 +1121,8 @@ public partial class SettingViewModel : BaseViewModel
 
 		private static Task ExecuteOnCurrentThread(Action action)
 		{
-			action();
-			return Task.CompletedTask;
+				action();
+				return Task.CompletedTask;
 		}
 
 		private async Task<int> CreateSettingsAsync<TSetting>(
@@ -1128,109 +1131,121 @@ public partial class SettingViewModel : BaseViewModel
 			Func<TSetting, CancellationToken, Task<TSetting?>> createAsync)
 			where TSetting : class
 		{
-			int success = 0;
+				int success = 0;
 
-			foreach (SettingsCsvRow row in rows)
-			{
-				TSetting? setting = map(row);
-
-				if (setting is null)
+				foreach (SettingsCsvRow row in rows)
 				{
-					continue;
+						TSetting? setting = map(row);
+
+						if (setting is null)
+						{
+								continue;
+						}
+
+						TSetting? created = await createAsync(setting, CancellationToken.None).ConfigureAwait(false);
+
+						if (created is not null)
+						{
+								success++;
+						}
 				}
 
-				TSetting? created = await createAsync(setting, CancellationToken.None).ConfigureAwait(false);
-
-				if (created is not null)
-				{
-					success++;
-				}
-			}
-
-			return success;
+				return success;
 		}
 
 		private DivisionSummary CreateDivisionFromRow(SettingsCsvRow row) => new()
 		{
-			Name = row.Name,
-			Description = row.Description
+				Name = row.Name,
+				Description = row.Description
 		};
 
 		private DepartmentSummary? CreateDepartmentFromRow(SettingsCsvRow row)
 		{
-			Guid? divisionId = ResolveId(row, Divisions.Select(i => (i.Id, i.Name)));
+				Guid? divisionId = ResolveId(row, Divisions.Select(i => (i.Id, i.Name)));
 
-			if (!divisionId.HasValue)
-			{
-				return null;
-			}
+				if (!divisionId.HasValue)
+				{
+						return null;
+				}
 
-			return new DepartmentSummary
-			{
-				Name = row.Name,
-				Description = row.Description,
-				DivisionId = divisionId.Value,
-				DivisionName = row.Reference
-			};
+				return new DepartmentSummary
+				{
+						Name = row.Name,
+						Description = row.Description,
+						DivisionId = divisionId.Value,
+						DivisionName = Divisions.FirstOrDefault(d => d.Id == divisionId.Value)?.Name,
+						DivisionDescription = Divisions.FirstOrDefault(d => d.Id == divisionId.Value)?.Description
+				};
 		}
 
 		private SectionSummary? CreateSectionFromRow(SettingsCsvRow row)
 		{
-			Guid? departmentId = ResolveId(row, Departments.Select(i => (i.Id, i.Name)));
+				Guid? departmentId = ResolveId(row, Departments.Select(i => (i.Id, i.Name)));
 
-			if (!departmentId.HasValue)
-			{
-				return null;
-			}
+				if (!departmentId.HasValue)
+				{
+						return null;
+				}
 
-			return new SectionSummary
-			{
-				Name = row.Name,
-				Description = row.Description,
-				DepartmentId = departmentId.Value,
-				DepartmentName = row.Reference
-			};
+				return new SectionSummary
+				{
+						Name = row.Name,
+						Description = row.Description,
+						DepartmentId = departmentId.Value,
+						DepartmentName = Departments.FirstOrDefault(d => d.Id == departmentId.Value)?.Name,
+						DepartmentDescription = Departments.FirstOrDefault(d => d.Id == departmentId.Value)?.Description
+				};
 		}
 
 		private PositionSummary? CreatePositionFromRow(SettingsCsvRow row)
 		{
-			Guid? sectionId = ResolveId(row, Sections.Select(i => (i.Id, i.Name)));
+				Guid? sectionId = ResolveId(row, Sections.Select(i => (i.Id, i.Name)));
 
-			if (!sectionId.HasValue)
-			{
-				return null;
-			}
+				if (!sectionId.HasValue)
+				{
+						return null;
+				}
 
-			return new PositionSummary
-			{
-				Name = row.Name,
-				Description = row.Description,
-				SectionId = sectionId.Value,
-				SectionName = Sections.FirstOrDefault(s => s.Id == sectionId.Value)?.Name,
-				SectionDescription = Sections.FirstOrDefault(s => s.Id == sectionId.Value)?.Description
-			};
+				return new PositionSummary
+				{
+						Name = row.Name,
+						Description = row.Description,
+						SectionId = sectionId.Value,
+						SectionName = Sections.FirstOrDefault(s => s.Id == sectionId.Value)?.Name,
+						SectionDescription = Sections.FirstOrDefault(s => s.Id == sectionId.Value)?.Description
+				};
 		}
 
-		private ChargingSummary CreateChargingFromRow(SettingsCsvRow row) => new()
+		private ChargingSummary? CreateChargingFromRow(SettingsCsvRow row)
 		{
-			Name = row.Name,
-			Description = row.Description,
-			DepartmentId = ResolveOptionalId(row, Departments.Select(i => (i.Id, i.Name))),
-			DepartmentName = row.Reference
-		};
+				Guid? departmentId = ResolveId(row, Departments.Select(i => (i.Id, i.Name)));
+
+				if (!departmentId.HasValue) {
+						return null;
+				}
+
+				return new ChargingSummary
+				{
+						Name = row.Name,
+						Description = row.Description,
+						DepartmentId = departmentId.Value,
+						DepartmentName = Departments.FirstOrDefault(d => d.Id == departmentId.Value)?.Name,
+						DepartmentDescription = Departments.FirstOrDefault(d => d.Id == departmentId.Value)?.Description
+				};
+		}
 
 		private EmployeeTypeSummary CreateEmployeeTypeFromRow(SettingsCsvRow row) => new()
 		{
-			Name = row.Name,
-			Value = string.IsNullOrWhiteSpace(row.Value) ? row.Name : row.Value,
-			IsActive = row.IsActive
+				Name = row.Name,
+				Value = string.IsNullOrWhiteSpace(row.Value) ? row.Name : row.Value,
+				IsActive = row.IsActive
 		};
 
 		private LevelSummary CreateEmployeeLevelFromRow(SettingsCsvRow row) => new()
 		{
-			Name = row.Name,
-			Value = string.IsNullOrWhiteSpace(row.Value) ? row.Name : row.Value,
-			IsActive = row.IsActive
+				Name = row.Name,
+				Value = string.IsNullOrWhiteSpace(row.Value) ? row.Name : row.Value,
+				IsActive = row.IsActive
 		};
 
 		private static Guid? ResolveId(SettingsCsvRow row, IEnumerable<(Guid Id, string Name)> source) =>
@@ -1238,18 +1253,18 @@ public partial class SettingViewModel : BaseViewModel
 
 		private static Guid? ResolveOptionalId(SettingsCsvRow row, IEnumerable<(Guid Id, string Name)> source)
 		{
-			if (row.ParentId.HasValue && row.ParentId.Value != Guid.Empty)
-			{
-				return row.ParentId.Value;
-			}
+				if (row.ParentId.HasValue && row.ParentId.Value != Guid.Empty)
+				{
+						return row.ParentId.Value;
+				}
 
-			if (string.IsNullOrWhiteSpace(row.ParentName))
-			{
-				return null;
-			}
+				if (string.IsNullOrWhiteSpace(row.ParentName))
+				{
+						return null;
+				}
 
-			(Guid Id, string Name) match = source.FirstOrDefault(item => string.Equals(item.Name, row.ParentName, StringComparison.OrdinalIgnoreCase));
-			return match.Id == Guid.Empty ? null : match.Id;
+				(Guid Id, string Name) match = source.FirstOrDefault(item => string.Equals(item.Name, row.ParentName, StringComparison.OrdinalIgnoreCase));
+				return match.Id == Guid.Empty ? null : match.Id;
 		}
 
 		public override async Task InitializeAsync()
@@ -1296,53 +1311,54 @@ public partial class SettingViewModel : BaseViewModel
 								int index = 0;
 								foreach (DivisionSummary division in divisions)
 								{
-									division.RowIndex = index++;
-									Divisions.Add(division);
+										division.RowIndex = index++;
+										Divisions.Add(division);
 								}
 
 								index = 0;
 								foreach (DepartmentSummary department in departments)
 								{
-									department.RowIndex = index++;
-									department.DivisionName = Divisions.FirstOrDefault(i => i.Id == department.DivisionId)?.Name;
-									Departments.Add(department);
+										department.RowIndex = index++;
+										department.DivisionName = Divisions.FirstOrDefault(i => i.Id == department.DivisionId)?.Name;
+										department.DivisionDescription = Divisions.FirstOrDefault(i => i.Id == department.DivisionId)?.Description;
+										Departments.Add(department);
 								}
 
 								index = 0;
 								foreach (SectionSummary section in sections)
 								{
-									section.RowIndex = index++;
-									section.DepartmentName = Departments.FirstOrDefault(i => i.Id == section.DepartmentId)?.Name;
-									Sections.Add(section);
+										section.RowIndex = index++;
+										section.DepartmentName = Departments.FirstOrDefault(i => i.Id == section.DepartmentId)?.Name;
+										section.DepartmentDescription = Departments.FirstOrDefault(i => i.Id == section.DepartmentId)?.Description;
+										Sections.Add(section);
 								}
 
 								index = 0;
 								foreach (ChargingSummary charging in chargings)
 								{
-									charging.RowIndex = index++;
-									charging.DepartmentName = charging.DepartmentId.HasValue
-										? Departments.FirstOrDefault(i => i.Id == charging.DepartmentId.Value)?.Name
-										: null;
-									Chargings.Add(charging);
+										charging.RowIndex = index++;
+										charging.DepartmentName = Departments.FirstOrDefault(i => i.Id == charging.DepartmentId)?.Name;
+										charging.DepartmentDescription = Departments.FirstOrDefault(i => i.Id == charging.DepartmentId)?.Description;
+										Chargings.Add(charging);
 								}
 
 								index = 0;
 								foreach (PositionSummary position in positions)
 								{
-									position.RowIndex = index++;
-									position.SectionName = Sections.FirstOrDefault(i => i.Id == position.SectionId)?.Name;
-									position.SectionDescription = Sections.FirstOrDefault(i => i.Id == position.SectionId)?.Description;
-									Positions.Add(position);
+										position.RowIndex = index++;
+										position.SectionName = Sections.FirstOrDefault(i => i.Id == position.SectionId)?.Name;
+										position.SectionDescription = Sections.FirstOrDefault(i => i.Id == position.SectionId)?.Description;
+										Positions.Add(position);
 								}
 
 								foreach (EmployeeTypeSummary employeeType in employeeTypes)
 								{
-									EmployeeTypes.Add(employeeType);
+										EmployeeTypes.Add(employeeType);
 								}
 
 								foreach (LevelSummary level in levels)
 								{
-									EmployeeLevels.Add(level);
+										EmployeeLevels.Add(level);
 								}
 						});
 				}

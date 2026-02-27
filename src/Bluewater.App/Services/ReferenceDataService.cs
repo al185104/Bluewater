@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Bluewater.App.Interfaces;
+﻿using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 
 namespace Bluewater.App.Services;
 
-public class ReferenceDataService : IReferenceDataService, IDisposable
+public class ReferenceDataService : IReferenceDataService
 {
 		private readonly IChargingApiService _chargingApiService;
 		private readonly IDivisionApiService _divisionApiService;
@@ -122,7 +117,26 @@ public class ReferenceDataService : IReferenceDataService, IDisposable
 				_departments = ApplyRowIndex(departmentTask.Result.OrderBy(d => d.Name, StringComparer.OrdinalIgnoreCase));
 				_sections = ApplyRowIndex(sectionTask.Result.OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase));
 				_positions = ApplyRowIndex(positionTask.Result.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase));
-				// resolve position section names
+
+				// resolve reference names
+				foreach (var department in _departments)
+				{
+						department.DivisionName = _divisions.FirstOrDefault(d => d.Id == department.DivisionId)?.Name;
+						department.DivisionDescription = _divisions.FirstOrDefault(d => d.Id == department.DivisionId)?.Description;
+				}
+
+				foreach (var section in _sections)
+				{
+						section.DepartmentName = _departments.FirstOrDefault(d => d.Id == section.DepartmentId)?.Name;
+						section.DepartmentDescription = _departments.FirstOrDefault(d => d.Id == section.DepartmentId)?.Description;
+				}
+
+				foreach (var charging in _chargings)
+				{
+						charging.DepartmentName = _departments.FirstOrDefault(s => s.Id == charging.DepartmentId)?.Name;
+						charging.DepartmentDescription = _departments.FirstOrDefault(s => s.Id == charging.DepartmentId)?.Description;
+				}
+
 				foreach (var position in _positions)
 				{
 						position.SectionName = _sections.FirstOrDefault(s => s.Id == position.SectionId)?.Name;
