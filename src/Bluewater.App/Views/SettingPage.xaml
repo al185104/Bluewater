@@ -88,7 +88,7 @@
                 <Border Style="{StaticResource SettingsRowBorderStyle}"
                         BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
                     <Grid ColumnSpacing="12"
-                          ColumnDefinitions="2*,*,Auto"
+                          ColumnDefinitions="2*,*,*,Auto"
                           VerticalOptions="Center">
                         <Label Text="{Binding Name}"
                                FontAttributes="Bold"
@@ -98,7 +98,12 @@
                                LineBreakMode="TailTruncation"
                                FontSize="13"
                                TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <HorizontalStackLayout Grid.Column="2"
+                        <Label Grid.Column="2"
+                               Text="{Binding DivisionName}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="3"
                                                Spacing="8"
                                                HorizontalOptions="End"
                                                VerticalOptions="Center">
@@ -121,7 +126,7 @@
                 <Border Style="{StaticResource SettingsRowBorderStyle}"
                         BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
                     <Grid ColumnSpacing="12"
-                          ColumnDefinitions="2*,*,Auto"
+                          ColumnDefinitions="2*,*,*,Auto"
                           VerticalOptions="Center">
                         <Label Text="{Binding Name}"
                                FontAttributes="Bold"
@@ -131,7 +136,12 @@
                                LineBreakMode="TailTruncation"
                                FontSize="13"
                                TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <HorizontalStackLayout Grid.Column="2"
+                        <Label Grid.Column="2"
+                               Text="{Binding DivisionName}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="3"
                                                Spacing="8"
                                                HorizontalOptions="End"
                                                VerticalOptions="Center">
@@ -154,7 +164,7 @@
                 <Border Style="{StaticResource SettingsRowBorderStyle}"
                         BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
                     <Grid ColumnSpacing="12"
-                          ColumnDefinitions="2*,*,Auto"
+                          ColumnDefinitions="2*,*,*,Auto"
                           VerticalOptions="Center">
                         <Label Text="{Binding Name}"
                                FontAttributes="Bold"
@@ -164,7 +174,12 @@
                                LineBreakMode="TailTruncation"
                                FontSize="13"
                                TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <HorizontalStackLayout Grid.Column="2"
+                        <Label Grid.Column="2"
+                               Text="{Binding DepartmentName}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="3"
                                                Spacing="8"
                                                HorizontalOptions="End"
                                                VerticalOptions="Center">
@@ -187,7 +202,7 @@
                 <Border Style="{StaticResource SettingsRowBorderStyle}"
                         BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
                     <Grid ColumnSpacing="12"
-                          ColumnDefinitions="2*,*,Auto"
+                          ColumnDefinitions="2*,*,*,Auto"
                           VerticalOptions="Center">
                         <Label Text="{Binding Name}"
                                FontAttributes="Bold"
@@ -197,7 +212,12 @@
                                LineBreakMode="TailTruncation"
                                FontSize="13"
                                TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <HorizontalStackLayout Grid.Column="2"
+                        <Label Grid.Column="2"
+                               Text="{Binding DepartmentName}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="3"
                                                Spacing="8"
                                                HorizontalOptions="End"
                                                VerticalOptions="Center">
@@ -220,7 +240,7 @@
                 <Border Style="{StaticResource SettingsRowBorderStyle}"
                         BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
                     <Grid ColumnSpacing="12"
-                          ColumnDefinitions="2*,*,Auto"
+                          ColumnDefinitions="2*,*,*,Auto"
                           VerticalOptions="Center">
                         <Label Text="{Binding Name}"
                                FontAttributes="Bold"
@@ -230,7 +250,12 @@
                                LineBreakMode="TailTruncation"
                                FontSize="13"
                                TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <HorizontalStackLayout Grid.Column="2"
+                        <Label Grid.Column="2"
+                               Text="{Binding DepartmentName}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="3"
                                                Spacing="8"
                                                HorizontalOptions="End"
                                                VerticalOptions="Center">
@@ -253,7 +278,7 @@
                 <Border Style="{StaticResource SettingsRowBorderStyle}"
                         BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
                     <Grid ColumnSpacing="12"
-                          ColumnDefinitions="2*,*,Auto"
+                          ColumnDefinitions="2*,*,*,Auto"
                           VerticalOptions="Center">
                         <Label Text="{Binding Name}"
                                FontAttributes="Bold"
@@ -263,7 +288,12 @@
                                LineBreakMode="TailTruncation"
                                FontSize="13"
                                TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <HorizontalStackLayout Grid.Column="2"
+                        <Label Grid.Column="2"
+                               Text="{Binding DepartmentName}"
+                               LineBreakMode="TailTruncation"
+                               FontSize="13"
+                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                        <HorizontalStackLayout Grid.Column="3"
                                                Spacing="8"
                                                HorizontalOptions="End"
                                                VerticalOptions="Center">
@@ -469,7 +499,7 @@
                                     BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
                                 <Grid ColumnSpacing="12"
                                       Padding="20"
-                                      ColumnDefinitions="2*,*,Auto">
+                                      ColumnDefinitions="2*,*,*,Auto">
                                     <Label Text="Name"
                                            TextColor="White"
                                            FontAttributes="Bold" />
@@ -478,6 +508,10 @@
                                            TextColor="White"
                                            FontAttributes="Bold" />
                                     <Label Grid.Column="2"
+                                           Text="Division"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="3"
                                            Text="Actions"
                                            TextColor="White"
                                            HorizontalOptions="End"
@@ -516,7 +550,7 @@
                                     BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
                                 <Grid ColumnSpacing="12"
                                       Padding="20"
-                                      ColumnDefinitions="2*,*,Auto">
+                                      ColumnDefinitions="2*,*,*,Auto">
                                     <Label Text="Name"
                                            TextColor="White"
                                            FontAttributes="Bold" />
@@ -525,6 +559,10 @@
                                            TextColor="White"
                                            FontAttributes="Bold" />
                                     <Label Grid.Column="2"
+                                           Text="Department"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="3"
                                            Text="Actions"
                                            TextColor="White"
                                            HorizontalOptions="End"
@@ -563,7 +601,7 @@
                                     BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
                                 <Grid ColumnSpacing="12"
                                       Padding="20"
-                                      ColumnDefinitions="2*,*,Auto">
+                                      ColumnDefinitions="2*,*,*,Auto">
                                     <Label Text="Name"
                                            TextColor="White"
                                            FontAttributes="Bold" />
@@ -572,6 +610,10 @@
                                            TextColor="White"
                                            FontAttributes="Bold" />
                                     <Label Grid.Column="2"
+                                           Text="Department"
+                                           TextColor="White"
+                                           FontAttributes="Bold" />
+                                    <Label Grid.Column="3"
                                            Text="Actions"
                                            TextColor="White"
                                            HorizontalOptions="End"

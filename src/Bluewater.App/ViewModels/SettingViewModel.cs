@@ -423,6 +423,7 @@ public partial class SettingViewModel : BaseViewModel
 				{
 						int index = Departments.IndexOf(existing);
 						updated.RowIndex = existing.RowIndex;
+						updated.DivisionName = Divisions.FirstOrDefault(i => i.Id == updated.DivisionId)?.Name;
 						Departments[index] = updated;
 				});
 		}
@@ -451,6 +452,7 @@ public partial class SettingViewModel : BaseViewModel
 				{
 						int index = Sections.IndexOf(existing);
 						updated.RowIndex = existing.RowIndex;
+						updated.DepartmentName = Departments.FirstOrDefault(i => i.Id == updated.DepartmentId)?.Name;
 						Sections[index] = updated;
 				});
 		}
@@ -479,6 +481,9 @@ public partial class SettingViewModel : BaseViewModel
 				{
 						int index = Chargings.IndexOf(existing);
 						updated.RowIndex = existing.RowIndex;
+						updated.DepartmentName = updated.DepartmentId.HasValue
+								? Departments.FirstOrDefault(i => i.Id == updated.DepartmentId.Value)?.Name
+								: null;
 						Chargings[index] = updated;
 				});
 		}
@@ -682,12 +687,14 @@ public partial class SettingViewModel : BaseViewModel
 				{
 						Name = NewDepartmentName.Trim(),
 						Description = string.IsNullOrWhiteSpace(NewDepartmentDescription) ? null : NewDepartmentDescription.Trim(),
-						DivisionId = SelectedDivisionForDepartment.Id
+						DivisionId = SelectedDivisionForDepartment.Id,
+						DivisionName = SelectedDivisionForDepartment.Name
 				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
 				{
 						created.RowIndex = Departments.Count;
+						created.DivisionName = SelectedDivisionForDepartment?.Name;
 						Departments.Add(created);
 						NewDepartmentName = string.Empty;
 						NewDepartmentDescription = string.Empty;
@@ -702,12 +709,14 @@ public partial class SettingViewModel : BaseViewModel
 				{
 						Name = NewSectionName.Trim(),
 						Description = string.IsNullOrWhiteSpace(NewSectionDescription) ? null : NewSectionDescription.Trim(),
-						DepartmentId = SelectedDepartmentForSection.Id
+						DepartmentId = SelectedDepartmentForSection.Id,
+						DepartmentName = SelectedDepartmentForSection.Name
 				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
 				{
 						created.RowIndex = Sections.Count;
+						created.DepartmentName = SelectedDepartmentForSection?.Name;
 						Sections.Add(created);
 						NewSectionName = string.Empty;
 						NewSectionDescription = string.Empty;
@@ -744,12 +753,14 @@ public partial class SettingViewModel : BaseViewModel
 				{
 						Name = NewChargingName.Trim(),
 						Description = string.IsNullOrWhiteSpace(NewChargingDescription) ? null : NewChargingDescription.Trim(),
-						DepartmentId = SelectedDepartmentForCharging.Id
+						DepartmentId = SelectedDepartmentForCharging.Id,
+						DepartmentName = SelectedDepartmentForCharging.Name
 				}).ConfigureAwait(false);
 				if (created is null) return;
 				await MainThread.InvokeOnMainThreadAsync(() =>
 				{
 						created.RowIndex = Chargings.Count;
+						created.DepartmentName = SelectedDepartmentForCharging?.Name;
 						Chargings.Add(created);
 						NewChargingName = string.Empty;
 						NewChargingDescription = string.Empty;
@@ -1158,7 +1169,8 @@ public partial class SettingViewModel : BaseViewModel
 			{
 				Name = row.Name,
 				Description = row.Description,
-				DivisionId = divisionId.Value
+				DivisionId = divisionId.Value,
+				DivisionName = row.Reference
 			};
 		}
 
@@ -1175,7 +1187,8 @@ public partial class SettingViewModel : BaseViewModel
 			{
 				Name = row.Name,
 				Description = row.Description,
-				DepartmentId = departmentId.Value
+				DepartmentId = departmentId.Value,
+				DepartmentName = row.Reference
 			};
 		}
 
@@ -1202,7 +1215,8 @@ public partial class SettingViewModel : BaseViewModel
 		{
 			Name = row.Name,
 			Description = row.Description,
-			DepartmentId = ResolveOptionalId(row, Departments.Select(i => (i.Id, i.Name)))
+			DepartmentId = ResolveOptionalId(row, Departments.Select(i => (i.Id, i.Name))),
+			DepartmentName = row.Reference
 		};
 
 		private EmployeeTypeSummary CreateEmployeeTypeFromRow(SettingsCsvRow row) => new()
@@ -1290,6 +1304,7 @@ public partial class SettingViewModel : BaseViewModel
 								foreach (DepartmentSummary department in departments)
 								{
 									department.RowIndex = index++;
+									department.DivisionName = Divisions.FirstOrDefault(i => i.Id == department.DivisionId)?.Name;
 									Departments.Add(department);
 								}
 
@@ -1297,6 +1312,7 @@ public partial class SettingViewModel : BaseViewModel
 								foreach (SectionSummary section in sections)
 								{
 									section.RowIndex = index++;
+									section.DepartmentName = Departments.FirstOrDefault(i => i.Id == section.DepartmentId)?.Name;
 									Sections.Add(section);
 								}
 
@@ -1304,6 +1320,9 @@ public partial class SettingViewModel : BaseViewModel
 								foreach (ChargingSummary charging in chargings)
 								{
 									charging.RowIndex = index++;
+									charging.DepartmentName = charging.DepartmentId.HasValue
+										? Departments.FirstOrDefault(i => i.Id == charging.DepartmentId.Value)?.Name
+										: null;
 									Chargings.Add(charging);
 								}
 
