@@ -69,7 +69,7 @@
 							
 							<Label Grid.Row="0"
 								   Grid.Column="1"
-								   Text="{Binding BreakHoursDisplay, StringFormat='{0} hrs'}" 
+								   Text="{Binding BreakMinutesDisplay, StringFormat='{0} mins'}" 
 								   HorizontalTextAlignment="Start"/>
 							<Label Grid.Row="1"
 								   Grid.Column="1"

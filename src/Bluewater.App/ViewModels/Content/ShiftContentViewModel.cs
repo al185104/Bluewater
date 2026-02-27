@@ -145,16 +145,21 @@ public partial class ShiftContentViewModel : BaseViewModel
 										continue;
 								}
 
-								shiftsToImport.Add(new ShiftSummary
+								var shift = new ShiftSummary
 								{
-										Id = Guid.NewGuid(),
 										Name = name,
 										ShiftStartTime = NormalizeTime(Get("ShiftStartTime")),
 										ShiftBreakTime = NormalizeTime(Get("ShiftBreakTime")),
 										ShiftBreakEndTime = NormalizeTime(Get("ShiftBreakEndTime")),
 										ShiftEndTime = NormalizeTime(Get("ShiftEndTime")),
-										BreakHours = ParseDecimal(Get("BreakHours"))
-								});
+										BreakHours = ParseDecimal(Get("BreakHours")),
+								};
+
+								var breakTimeDifference = shift.ShiftBreakEndTimeValue - shift.ShiftBreakTimeValue;
+								var breakHoursFromTimes = (decimal)breakTimeDifference.TotalHours;
+								shift.BreakHours = Math.Max(ParseDecimal(Get("BreakHours")), breakHoursFromTimes);
+
+								shiftsToImport.Add(shift);
 						}
 
 						int successfulImports = 0;
