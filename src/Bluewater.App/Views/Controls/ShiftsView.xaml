@@ -13,16 +13,29 @@
 		<Grid ColumnDefinitions="240,Auto,Auto,*,Auto,Auto"
 			  ColumnSpacing="10">
 			<SearchBar Grid.Column="0"
-					   Placeholder="Search employees" />
+					   Placeholder="Search shifts" />
 			<Button Grid.Column="1"
 					Text="{x:Static helpers:Icon.RefreshCcw}"
 					FontFamily="Icons"
 					Background="Transparent"
 					BorderWidth="0.5"
 					BorderColor="{StaticResource TextSecondaryColor}"
-					Style="{StaticResource SecondaryButtonStyle}" />
+					Style="{StaticResource SecondaryButtonStyle}"
+					Command="{Binding InitializeCommand}" />
 			<Label Grid.Column="2"
-				   Text="{Binding Shifts.Count, StringFormat='{0} employees'}" />
+				   Text="{Binding Shifts.Count, StringFormat='{0} shifts'}" />
+			<Button Grid.Column="4"
+					Text="Upload"
+					FontSize="14"
+					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+					Style="{StaticResource SecondaryButtonStyle}"
+					Command="{Binding ImportShiftsCommand}" />
+			<Button Grid.Column="5"
+					Text="Download"
+					FontSize="14"
+					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+					Style="{StaticResource SecondaryButtonStyle}"
+					Command="{Binding ExportShiftsCommand}" />
 		</Grid>
 		<CollectionView Grid.Row="1"
 						ItemsSource="{Binding Shifts}">
