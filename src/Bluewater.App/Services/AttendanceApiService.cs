@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 
@@ -51,7 +52,8 @@ public class AttendanceApiService(IApiClient apiClient) : IAttendanceApiService
       throw new ArgumentException("Charging must be provided", nameof(charging));
     }
 
-    string requestUri = BuildListAllRequestUri(charging, startDate, endDate, tenant, skip, take);
+    TenantDto selectedTenant = TenantPreferences.GetSelectedTenant();
+    string requestUri = BuildListAllRequestUri(charging, startDate, endDate, selectedTenant, skip, take);
 
     AttendanceListAllResponseDto? response = await apiClient.GetAsync<AttendanceListAllResponseDto>(requestUri, cancellationToken);
 

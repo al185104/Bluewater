@@ -1,4 +1,5 @@
 ﻿using Bluewater.App.Enums;
+using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -22,6 +23,7 @@ public partial class HomeViewModel : BaseViewModel
 		: base(activityTraceService, exceptionHandlingService)
 		{
 				_dashboardApiService = dashboardApiService;
+				TenantPreferences.EnsureSelectedTenant();
 		}
 
 		[RelayCommand]

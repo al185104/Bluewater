@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 
@@ -18,7 +19,8 @@ public class PayrollApiService(IApiClient apiClient) : IPayrollApiService
     TenantDto tenant = TenantDto.Maribago,
     CancellationToken cancellationToken = default)
   {
-    string requestUri = BuildListRequestUri(startDate, endDate, chargingName, tenant, skip, take);
+    TenantDto selectedTenant = TenantPreferences.GetSelectedTenant();
+    string requestUri = BuildListRequestUri(startDate, endDate, chargingName, selectedTenant, skip, take);
 
     PayrollListResponseDto? response = await apiClient.GetAsync<PayrollListResponseDto>(requestUri, cancellationToken);
 
