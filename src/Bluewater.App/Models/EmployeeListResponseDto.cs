@@ -30,6 +30,7 @@ public class EmployeeDto
   public string? Position { get; set; }
   public string? Section { get; set; }
   public string? Department { get; set; }
+  public string? Charging { get; set; }
   public string? Type { get; set; }
   public string? Level { get; set; }
   public string? Image { get; set; }

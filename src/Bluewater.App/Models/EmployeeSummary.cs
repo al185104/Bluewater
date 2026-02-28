@@ -23,6 +23,7 @@ public class EmployeeSummary : IRowIndexed
 		public string? Position { get; init; }
 		public string? Section { get; init; }
 		public string? Department { get; init; }
+		public string? Charging { get; init; }
 		public string? Type { get; init; }
 		public string? Level { get; init; }
 		public string? Image { get; init; }
