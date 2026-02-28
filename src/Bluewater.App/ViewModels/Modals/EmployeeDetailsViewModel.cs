@@ -46,6 +46,18 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 		[ObservableProperty]
 		public partial LevelSummary? Level { get; set; }
 
+		[ObservableProperty]
+		public partial bool ShowPositionValidation { get; set; }
+
+		[ObservableProperty]
+		public partial bool ShowChargingValidation { get; set; }
+
+		[ObservableProperty]
+		public partial bool ShowEmployeeTypeValidation { get; set; }
+
+		[ObservableProperty]
+		public partial bool ShowLevelValidation { get; set; }
+
 		public EmployeeDetailsViewModel(
 				IActivityTraceService activityTraceService, 
 				IExceptionHandlingService exceptionHandlingService, 
@@ -73,6 +85,9 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				try
 				{
 						IsBusy = true;
+						if (!ValidateRequiredPickers())
+								return;
+
 						if(EditableEmployee != null)
 						{
 								var summary = EditableEmployee.ToSummary(_rowIndex);
@@ -95,6 +110,16 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				{
 						IsBusy = false;
 				}
+		}
+
+		private bool ValidateRequiredPickers()
+		{
+				ShowPositionValidation = Position == null;
+				ShowChargingValidation = Charging == null;
+				ShowEmployeeTypeValidation = EmployeeType == null;
+				ShowLevelValidation = Level == null;
+
+				return !(ShowPositionValidation || ShowChargingValidation || ShowEmployeeTypeValidation || ShowLevelValidation);
 		}
 
 		[RelayCommand]
@@ -203,6 +228,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 						return;
 
 				EditableEmployee.ChargingId = value?.Id;
+				ShowChargingValidation = value == null;
 		}
 
 		partial void OnEmployeeTypeChanged(EmployeeTypeSummary? value)
@@ -212,6 +238,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 
 				EditableEmployee.Type = value?.Name;
 				EditableEmployee.TypeId = value?.Id;
+				ShowEmployeeTypeValidation = value == null;
 		}
 
 		partial void OnLevelChanged(LevelSummary? value)
@@ -221,6 +248,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 
 				EditableEmployee.Level = value?.Name;
 				EditableEmployee.LevelId = value?.Id;
+				ShowLevelValidation = value == null;
 		}
 
 		partial void OnPositionChanged(PositionSummary? value)
@@ -230,6 +258,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 
 				EditableEmployee.Position = value?.Name;
 				EditableEmployee.PositionId = value?.Id;
+				ShowPositionValidation = value == null;
 
 				Section = value == null
 						? null
