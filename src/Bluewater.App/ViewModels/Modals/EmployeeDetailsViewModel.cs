@@ -201,7 +201,9 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				EditableEmployee.Level = Level?.Name;
 				EditableEmployee.LevelId ??= Level?.Id;
 
-				Charging = ChargingOptions.FirstOrDefault(i => i.Id == EditableEmployee.ChargingId);
+				Charging = ChargingOptions.FirstOrDefault(i => i.Id == EditableEmployee.ChargingId)
+						?? ChargingOptions.FirstOrDefault(i => i.Name == EditableEmployee.Charging);
+				EditableEmployee.Charging = Charging?.Name;
 				EditableEmployee.ChargingId ??= Charging?.Id;
 
 				Position = PositionOptions.FirstOrDefault(i => i.Id == EditableEmployee.PositionId)
@@ -227,6 +229,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				if (EditableEmployee == null)
 						return;
 
+				EditableEmployee.Charging = value?.Name;
 				EditableEmployee.ChargingId = value?.Id;
 				ShowChargingValidation = value == null;
 		}

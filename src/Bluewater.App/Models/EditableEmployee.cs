@@ -57,6 +57,9 @@ public partial class EditableEmployee : ObservableObject
 		public partial string? Section { get; set; }
 
 		[ObservableProperty]
+		public partial string? Charging { get; set; }
+
+		[ObservableProperty]
 		public partial string? Type { get; set; }
 
 		[ObservableProperty]
@@ -241,6 +244,7 @@ public partial class EditableEmployee : ObservableObject
 						Position = summary.Position,
 						Department = summary.Department,
 						Section = summary.Section,
+						Charging = summary.Charging,
 						Type = summary.Type,
 						Level = summary.Level,
 						Image = summary.Image,
@@ -318,6 +322,7 @@ public partial class EditableEmployee : ObservableObject
 						Position = Position,
 						Department = Department,
 						Section = Section,
+						Charging = Charging,
 						Type = Type,
 						Level = Level,
 						Image = Image,
