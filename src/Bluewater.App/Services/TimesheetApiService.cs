@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 
@@ -25,7 +26,8 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
       throw new ArgumentException("Employee ID must be provided", nameof(employeeId));
     }
 
-    string requestUri = BuildListAllRequestUri(startDate, endDate, tenant, skip, take, charging: null);
+    TenantDto selectedTenant = TenantPreferences.GetSelectedTenant();
+    string requestUri = BuildListAllRequestUri(startDate, endDate, selectedTenant, skip, take, charging: null);
 
     TimesheetListAllResponseDto? response = await apiClient
       .GetAsync<TimesheetListAllResponseDto>(requestUri, cancellationToken)
@@ -67,7 +69,8 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
       throw new ArgumentException("Charging must be provided", nameof(charging));
     }
 
-    string requestUri = BuildListAllRequestUri(startDate, endDate, tenant, skip, take, charging);
+    TenantDto selectedTenant = TenantPreferences.GetSelectedTenant();
+    string requestUri = BuildListAllRequestUri(startDate, endDate, selectedTenant, skip, take, charging);
 
     TimesheetListAllResponseDto? response = await apiClient
       .GetAsync<TimesheetListAllResponseDto>(requestUri, cancellationToken)

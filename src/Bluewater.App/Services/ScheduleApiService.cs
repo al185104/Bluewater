@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 
@@ -23,7 +24,8 @@ public class ScheduleApiService(IApiClient apiClient) : IScheduleApiService
       throw new ArgumentException("Charging name must be provided", nameof(chargingName));
     }
 
-    string requestUri = BuildListRequestUri(chargingName, startDate, endDate, tenant, skip, take);
+    TenantDto selectedTenant = TenantPreferences.GetSelectedTenant();
+    string requestUri = BuildListRequestUri(chargingName, startDate, endDate, selectedTenant, skip, take);
 
     ScheduleListResponseDto? response = await apiClient.GetAsync<ScheduleListResponseDto>(requestUri, cancellationToken);
 

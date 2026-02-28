@@ -1,4 +1,5 @@
-﻿using Bluewater.App.Interfaces;
+﻿using Bluewater.App.Helpers;
+using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 
 namespace Bluewater.App.Services;
@@ -10,7 +11,9 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
 			int? take = null,
 			CancellationToken cancellationToken = default)
 		{
-				string requestUri = BuildRequestUri(skip, take);
+				TenantDto selectedTenant = TenantPreferences.GetSelectedTenant();
+
+				string requestUri = BuildRequestUri(skip, take, selectedTenant);
 
 				EmployeeListResponseDto? response = await apiClient.GetAsync<EmployeeListResponseDto>(requestUri, cancellationToken).ConfigureAwait(false);
 
@@ -194,7 +197,7 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
 				return response?.Pay is not null;
 		}
 
-		private static string BuildRequestUri(int? skip, int? take)
+		private static string BuildRequestUri(int? skip, int? take, TenantDto tenant)
 		{
 				List<string> parameters = [];
 
@@ -208,10 +211,7 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
 						parameters.Add($"take={take.Value}");
 				}
 
-				if (parameters.Count == 0)
-				{
-						return "Employees";
-				}
+				parameters.Add($"tenant={tenant}");
 
 				string query = string.Join('&', parameters);
 				return $"Employees?{query}";
