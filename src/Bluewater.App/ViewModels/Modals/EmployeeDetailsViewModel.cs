@@ -20,31 +20,31 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 
 		public ObservableCollection<ChargingSummary> ChargingOptions { get; set; } = new();
 		[ObservableProperty]
-		public partial ChargingSummary Charging { get; set; } = new();
+		public partial ChargingSummary? Charging { get; set; }
 
 		public ObservableCollection<DivisionSummary> DivisionOptions { get; set; } = new();
 		[ObservableProperty]
-		public partial DivisionSummary Division { get; set; } = new();
+		public partial DivisionSummary? Division { get; set; }
 
 		public ObservableCollection<DepartmentSummary> DepartmentOptions { get; set; } = new();
 		[ObservableProperty]
-		public partial DepartmentSummary Department { get; set; } = new();
+		public partial DepartmentSummary? Department { get; set; }
 
 		public ObservableCollection<SectionSummary> SectionOptions { get; set; } = new();
 		[ObservableProperty]
-		public partial SectionSummary Section { get; set; } = new();
+		public partial SectionSummary? Section { get; set; }
 
 		public ObservableCollection<PositionSummary> PositionOptions { get; set; } = new();
 		[ObservableProperty]
-		public partial PositionSummary Position { get; set; } = new();
+		public partial PositionSummary? Position { get; set; }
 
 		public ObservableCollection<EmployeeTypeSummary> TypeOptions { get; set; } = new();
 		[ObservableProperty]
-		public partial EmployeeTypeSummary EmployeeType { get; set; } = new();
+		public partial EmployeeTypeSummary? EmployeeType { get; set; }
 		
 		public ObservableCollection<LevelSummary> LevelOptions { get; set; } = new();
 		[ObservableProperty]
-		public partial LevelSummary Level { get; set; } = new();
+		public partial LevelSummary? Level { get; set; }
 
 		public EmployeeDetailsViewModel(
 				IActivityTraceService activityTraceService, 
@@ -113,6 +113,14 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 
 		public override Task InitializeAsync()
 		{
+				ChargingOptions.Clear();
+				DivisionOptions.Clear();
+				DepartmentOptions.Clear();
+				SectionOptions.Clear();
+				PositionOptions.Clear();
+				TypeOptions.Clear();
+				LevelOptions.Clear();
+
 				foreach(var charge in _referenceDataService.Chargings)
 						ChargingOptions.Add(charge);
 				
@@ -134,95 +142,76 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				foreach (var level in _referenceDataService.Levels)
 						LevelOptions.Add(level);
 
-				Level = LevelOptions.First();
+				EmployeeType = TypeOptions.FirstOrDefault(i => i.Id == EditableEmployee!.TypeId);
+				EditableEmployee.Type = EmployeeType?.Name;
+				EditableEmployee.TypeId = EmployeeType?.Id;
 
-				if (EditableEmployee!.TypeId == null || EditableEmployee.TypeId == Guid.Empty)
-				{
-						EmployeeType = TypeOptions.First();
-						EditableEmployee.Type = EmployeeType.Name;
-						EditableEmployee.TypeId = EmployeeType.Id;
-				}
-				else
-				{
-						var type = TypeOptions.FirstOrDefault(i => i.Id == EditableEmployee.TypeId);
-						if (type != null)
-						{
-								EmployeeType = type;
-								EditableEmployee.Type = EmployeeType.Name;
-								EditableEmployee.TypeId = EmployeeType.Id;
-						}
-				}
+				Level = LevelOptions.FirstOrDefault(i => i.Id == EditableEmployee.LevelId);
+				EditableEmployee.Level = Level?.Name;
+				EditableEmployee.LevelId = Level?.Id;
 
-				if(EditableEmployee!.LevelId == null || EditableEmployee.LevelId == Guid.Empty)
-				{
-						Level = LevelOptions.First();
-						EditableEmployee.Level = Level.Name;
-						EditableEmployee.LevelId = Level.Id;
-				}
-				else
-				{
-						var level = LevelOptions.FirstOrDefault(i => i.Id == EditableEmployee.LevelId);
-						if (level != null) 
-						{
-								Level = level;
-								EditableEmployee.Level = Level.Name;
-								EditableEmployee.LevelId = Level.Id;
-						}
-				}
+				Charging = ChargingOptions.FirstOrDefault(i => i.Id == EditableEmployee.ChargingId);
+				EditableEmployee.ChargingId = Charging?.Id;
 
-				if (EditableEmployee!.ChargingId == null || EditableEmployee.ChargingId == Guid.Empty)
-				{
-						Charging = ChargingOptions.First();
-						EditableEmployee.ChargingId = Charging.Id;
-				}
-				else
-				{
-						var charging = _referenceDataService.Chargings.FirstOrDefault(i => i.Id == EditableEmployee.ChargingId);
-						if (charging != null)
-						{
-								Charging = charging;
-								EditableEmployee.ChargingId = charging.Id;
-						}
-				}
+				Position = PositionOptions.FirstOrDefault(i => i.Id == EditableEmployee.PositionId);
+				EditableEmployee.Position = Position?.Name;
+				EditableEmployee.PositionId = Position?.Id;
 
-				if(EditableEmployee!.PositionId == null || EditableEmployee.PositionId == Guid.Empty)
-				{
-						Position = PositionOptions.First();
-						EditableEmployee.Position = Position.Name;
-						EditableEmployee.PositionId = Position.Id;
-				}
-				else
-				{
-						var position = _referenceDataService.Positions.FirstOrDefault(i => i.Id == EditableEmployee.PositionId);
-						if (position != null)
-						{
-								Position = position;
-								EditableEmployee.Position = position.Name;
-								EditableEmployee.PositionId = position.Id;
-						}
-				}
-
-				if(Position != null)
-				{
-						var section = _referenceDataService.Sections.FirstOrDefault(i => i.Id == Position.SectionId);
-						if(section != null)
-								Section = section;
-				}
-
-				if(Section != null)
-				{
-						var department = _referenceDataService.Departments.FirstOrDefault(i => i.Id == Section.DepartmentId);
-						if(department != null)
-								Department = department;
-				}
-
-				if(Department != null) 
-				{ 
-						var division = _referenceDataService.Divisions.FirstOrDefault(i => i.Id == Department.DivisionId);
-						if(division != null)
-								Division = division;
-				}
+				Section = Position == null
+						? null
+						: SectionOptions.FirstOrDefault(i => i.Id == Position.SectionId);
+				Department = Section == null
+						? null
+						: DepartmentOptions.FirstOrDefault(i => i.Id == Section.DepartmentId);
+				Division = Department == null
+						? null
+						: DivisionOptions.FirstOrDefault(i => i.Id == Department.DivisionId);
 
 				return base.InitializeAsync();
+		}
+
+		partial void OnChargingChanged(ChargingSummary? value)
+		{
+				if (EditableEmployee == null)
+						return;
+
+				EditableEmployee.ChargingId = value?.Id;
+		}
+
+		partial void OnEmployeeTypeChanged(EmployeeTypeSummary? value)
+		{
+				if (EditableEmployee == null)
+						return;
+
+				EditableEmployee.Type = value?.Name;
+				EditableEmployee.TypeId = value?.Id;
+		}
+
+		partial void OnLevelChanged(LevelSummary? value)
+		{
+				if (EditableEmployee == null)
+						return;
+
+				EditableEmployee.Level = value?.Name;
+				EditableEmployee.LevelId = value?.Id;
+		}
+
+		partial void OnPositionChanged(PositionSummary? value)
+		{
+				if (EditableEmployee == null)
+						return;
+
+				EditableEmployee.Position = value?.Name;
+				EditableEmployee.PositionId = value?.Id;
+
+				Section = value == null
+						? null
+						: SectionOptions.FirstOrDefault(i => i.Id == value.SectionId);
+				Department = Section == null
+						? null
+						: DepartmentOptions.FirstOrDefault(i => i.Id == Section.DepartmentId);
+				Division = Department == null
+						? null
+						: DivisionOptions.FirstOrDefault(i => i.Id == Department.DivisionId);
 		}
 }
