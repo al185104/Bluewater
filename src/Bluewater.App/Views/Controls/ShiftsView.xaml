@@ -81,7 +81,15 @@
 								   Grid.RowSpan="2"
 								   VerticalTextAlignment="Center"
 								   Text="{x:Static helpers:Icon.MoreHorizontal}"
-								   FontFamily="Icons" />
+								   FontFamily="Icons">
+									<FlyoutBase.ContextFlyout>
+										<MenuFlyout>
+											<MenuFlyoutItem Text="Delete"
+														Command="{Binding Source={RelativeSource AncestorType={x:Type vm:ShiftContentViewModel}}, Path=DeleteShiftCommand}"
+														CommandParameter="{Binding .}" />
+										</MenuFlyout>
+									</FlyoutBase.ContextFlyout>
+								</Label>
 						</Grid>
 					</Border>
 				</DataTemplate>

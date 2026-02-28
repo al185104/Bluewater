@@ -197,6 +197,56 @@ public partial class ShiftContentViewModel : BaseViewModel
 				return Task.CompletedTask;
 		}
 
+		[RelayCommand]
+		public async Task DeleteShiftAsync(ShiftSummary shift)
+		{
+				if (shift is null)
+				{
+						return;
+				}
+
+				_initCts?.Cancel();
+				_initCts?.Dispose();
+				_initCts = new CancellationTokenSource();
+
+				try
+				{
+						bool confirmed = await Shell.Current.DisplayAlert(
+								"Delete shift",
+								$"Are you sure you want to delete shift '{shift.Name}'?",
+								"Yes",
+								"No");
+
+						if (!confirmed)
+						{
+								return;
+						}
+
+						IsBusy = true;
+						var deleted = await _shiftApiService.DeleteShiftAsync(shift.Id, _initCts.Token);
+
+						if (!deleted)
+						{
+								await Shell.Current.DisplayAlert("Delete failed", "Unable to delete shift.", "Okay");
+								return;
+						}
+
+						Shifts?.Remove(shift);
+				}
+				catch (OperationCanceledException)
+				{
+						await _activityTraceService.LogCommandAsync("Shift delete was canceled.");
+				}
+				catch (Exception ex)
+				{
+						_exceptionHandlingService.Handle(ex, "Deleting shift failed.");
+				}
+				finally
+				{
+						IsBusy = false;
+				}
+		}
+
 		private static decimal ParseDecimal(string value)
 		{
 				return decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed)
