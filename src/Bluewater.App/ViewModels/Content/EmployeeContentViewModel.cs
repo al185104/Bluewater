@@ -339,6 +339,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						}
 
 						// loop this
+						int successCount = 0;
 						foreach(var employee in employees)
 						{
 								var user = await _userApiService.CreateUserAsync(new UserRecordDto
@@ -367,10 +368,20 @@ public partial class EmployeeContentViewModel : BaseViewModel
 								if(user != null)
 										employeePayload.UserId = user.Id;
 
-								await _employeeApiService.CreateEmployeeAsync(employeePayload, _cts.Token);
-
-								InitializeCommand.Execute(null);
+								var ret = await _employeeApiService.CreateEmployeeAsync(employeePayload, _cts.Token);
+								if (ret)
+										successCount++;
 						}
+
+						MainThread.BeginInvokeOnMainThread(async () => {
+								await Shell.Current.DisplayAlert(
+								"Import result",
+								$"Successfully imported {successCount} out of {employees.Count} records.",
+								"Okay");
+						});
+
+
+						InitializeCommand.Execute(null);
 				}
 				finally
 				{
