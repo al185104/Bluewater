@@ -430,35 +430,68 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				{
 						IsBusy = true;
 
+						bool confirmed = await Shell.Current.DisplayAlert(
+								"Export employees",
+								"Export employee records to your Downloads folder?",
+								"Yes",
+								"No");
+
+						if (!confirmed)
+						{
+								return;
+						}
+
 						var csv = new StringBuilder();
-						csv.AppendLine("FirstName,LastName,MiddleName,Position,Section,Department,Type,Level,DateRegularized,Email");
+						csv.AppendLine("FirstName,LastName,MiddleName,DateOfBirth,Gender,CivilStatus,BloodType,Status,Tenant,Position,Section,Department,Charging,Type,Level,MealCredits,Email,TelNumber,MobileNumber,Address,ProvincialAddress,DateHired,DateRegularized,DateResigned,DateTerminated,TinNo,SssNo,HdmfNo,PhicNo,BankAccount,HasServiceCharge,BasicPay,DailyRate,HourlyRate");
 
 						foreach (var employee in Employees)
 						{
-								csv.AppendLine(string.Join(",", new[]
-								{
-										EscapeCsv(employee.FirstName),
-										EscapeCsv(employee.LastName),
-										EscapeCsv(employee.MiddleName),
-										EscapeCsv(employee.Position),
-										EscapeCsv(employee.Section),
-										EscapeCsv(employee.Department),
-										EscapeCsv(employee.Type),
-										EscapeCsv(employee.Level),
-										EscapeCsv(employee.EmploymentInfo.DateRegularized?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
-										EscapeCsv(employee.ContactInfo.Email)
-								}));
+							csv.AppendLine(string.Join(",", new[]
+							{
+								EscapeCsv(employee.FirstName),
+								EscapeCsv(employee.LastName),
+								EscapeCsv(employee.MiddleName),
+								EscapeCsv(employee.DateOfBirth?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+								EscapeCsv(employee.Gender.ToString()),
+								EscapeCsv(employee.CivilStatus.ToString()),
+								EscapeCsv(employee.BloodType.ToString()),
+								EscapeCsv(employee.Status.ToString()),
+								EscapeCsv(employee.Tenant.ToString()),
+								EscapeCsv(employee.Position),
+								EscapeCsv(employee.Section),
+								EscapeCsv(employee.Department),
+								EscapeCsv(employee.Charging),
+								EscapeCsv(employee.Type),
+								EscapeCsv(employee.Level),
+								EscapeCsv(employee.MealCredits.ToString(CultureInfo.InvariantCulture)),
+								EscapeCsv(employee.ContactInfo.Email),
+								EscapeCsv(employee.ContactInfo.TelNumber),
+								EscapeCsv(employee.ContactInfo.MobileNumber),
+								EscapeCsv(employee.ContactInfo.Address),
+								EscapeCsv(employee.ContactInfo.ProvincialAddress),
+								EscapeCsv(employee.EmploymentInfo.DateHired?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+								EscapeCsv(employee.EmploymentInfo.DateRegularized?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+								EscapeCsv(employee.EmploymentInfo.DateResigned?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+								EscapeCsv(employee.EmploymentInfo.DateTerminated?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+								EscapeCsv(employee.EmploymentInfo.TinNo),
+								EscapeCsv(employee.EmploymentInfo.SssNo),
+								EscapeCsv(employee.EmploymentInfo.HdmfNo),
+								EscapeCsv(employee.EmploymentInfo.PhicNo),
+								EscapeCsv(employee.EmploymentInfo.BankAccount),
+								EscapeCsv(employee.EmploymentInfo.HasServiceCharge.ToString()),
+								EscapeCsv(employee.Pay.BasicPay?.ToString(CultureInfo.InvariantCulture)),
+								EscapeCsv(employee.Pay.DailyRate?.ToString(CultureInfo.InvariantCulture)),
+								EscapeCsv(employee.Pay.HourlyRate?.ToString(CultureInfo.InvariantCulture))
+							}));
 						}
 
 						var fileName = $"employees_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-						var filePath = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+						var downloadsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+						Directory.CreateDirectory(downloadsDirectory);
+						var filePath = Path.Combine(downloadsDirectory, fileName);
 						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8);
 
-						await Share.Default.RequestAsync(new ShareFileRequest
-						{
-								Title = "Export employees",
-								File = new ShareFile(filePath)
-						});
+						await Shell.Current.DisplayAlert("Export", $"Employees exported to {filePath}", "Okay");
 				}
 				finally
 				{

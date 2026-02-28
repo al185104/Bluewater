@@ -209,6 +209,17 @@ public partial class ShiftContentViewModel : BaseViewModel
 				{
 						IsBusy = true;
 
+						bool confirmed = await Shell.Current.DisplayAlert(
+								"Export shifts",
+								"Export shift records to your Downloads folder?",
+								"Yes",
+								"No");
+
+						if (!confirmed)
+						{
+								return;
+						}
+
 						var csv = new StringBuilder();
 						csv.AppendLine("Name,ShiftStartTime,ShiftBreakTime,ShiftBreakEndTime,ShiftEndTime,BreakHours");
 
@@ -226,14 +237,12 @@ public partial class ShiftContentViewModel : BaseViewModel
 						}
 
 						var fileName = $"shifts_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-						var filePath = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+						var downloadsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+						Directory.CreateDirectory(downloadsDirectory);
+						var filePath = Path.Combine(downloadsDirectory, fileName);
 						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8);
 
-						await Share.Default.RequestAsync(new ShareFileRequest
-						{
-								Title = "Export shifts",
-								File = new ShareFile(filePath)
-						});
+						await Shell.Current.DisplayAlert("Export", $"Shifts exported to {filePath}", "Okay");
 				}
 				finally
 				{
