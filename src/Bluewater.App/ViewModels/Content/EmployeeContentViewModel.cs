@@ -415,19 +415,68 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		[RelayCommand]
 		public async Task ExportEmployeesAsync()
 		{
-				CancelAndDispose();
-				_cts = new CancellationTokenSource();
+				if (IsBusy)
+				{
+						return;
+				}
+
+				if (Employees is null || Employees.Count == 0)
+				{
+						await Shell.Current.DisplayAlert("Export", "No employees to export.", "Okay");
+						return;
+				}
 
 				try
 				{
 						IsBusy = true;
+
+						var csv = new StringBuilder();
+						csv.AppendLine("FirstName,LastName,MiddleName,Position,Section,Department,Type,Level,DateRegularized,Email");
+
+						foreach (var employee in Employees)
+						{
+								csv.AppendLine(string.Join(",", new[]
+								{
+										EscapeCsv(employee.FirstName),
+										EscapeCsv(employee.LastName),
+										EscapeCsv(employee.MiddleName),
+										EscapeCsv(employee.Position),
+										EscapeCsv(employee.Section),
+										EscapeCsv(employee.Department),
+										EscapeCsv(employee.Type),
+										EscapeCsv(employee.Level),
+										EscapeCsv(employee.EmploymentInfo.DateRegularized?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+										EscapeCsv(employee.ContactInfo.Email)
+								}));
+						}
+
+						var fileName = $"employees_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+						var filePath = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8);
+
+						await Share.Default.RequestAsync(new ShareFileRequest
+						{
+								Title = "Export employees",
+								File = new ShareFile(filePath)
+						});
 				}
 				finally
 				{
-						_cts?.Cancel();
-						_cts?.Dispose();
 						IsBusy = false;
 				}
+		}
+
+		private static string EscapeCsv(string? value)
+		{
+				if (string.IsNullOrEmpty(value))
+				{
+						return string.Empty;
+				}
+
+				var escaped = value.Replace("\"", "\"\"");
+				return escaped.IndexOfAny([',', '"', '\n', '\r']) >= 0
+						? $"\"{escaped}\""
+						: escaped;
 		}
 
 		public void CancelInitialization()

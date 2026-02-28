@@ -140,7 +140,8 @@
 								Text="Download"
 								FontSize="14"
 								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
-								Style="{StaticResource SecondaryButtonStyle}"/>
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportDivisionsCommand}"/>
 						<CollectionView Grid.Row="1"
 										Grid.ColumnSpan="5"
 										ItemsSource="{Binding Divisions}">
@@ -238,6 +239,7 @@
 								FontSize="14"
 								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportDepartmentsCommand}"
 								/>
 						<CollectionView Grid.Row="2"
 										Grid.ColumnSpan="5"
@@ -348,7 +350,8 @@
 								Text="Download"
 								FontSize="14"
 								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
-								Style="{StaticResource SecondaryButtonStyle}" />
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportSectionsCommand}" />
 						<CollectionView Grid.Row="1"
 										Grid.ColumnSpan="5"
 										ItemsSource="{Binding Sections}">
@@ -457,6 +460,7 @@
 								FontSize="14"
 								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportPositionsCommand}"
 								/>
 						<CollectionView Grid.Row="1"
 										Grid.ColumnSpan="5"
@@ -567,6 +571,7 @@
 								FontSize="14"
 								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportChargingsCommand}"
 								/>
 						<CollectionView Grid.Row="1"
 										Grid.ColumnSpan="5"
@@ -672,6 +677,7 @@
 								FontSize="14"
 								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportEmployeeTypesCommand}"
 								/>
 						<CollectionView Grid.Row="1"
 										Grid.ColumnSpan="5"
@@ -765,6 +771,7 @@
 								FontSize="14"
 								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportEmployeeLevelsCommand}"
 								/>
 						<CollectionView Grid.Row="1"
 										Grid.ColumnSpan="5"
