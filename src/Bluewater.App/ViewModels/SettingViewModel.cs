@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Text;
 using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
@@ -859,6 +860,49 @@ public partial class SettingViewModel : BaseViewModel
 			rows => CreateSettingsAsync(rows, CreateEmployeeLevelFromRow, _levelApiService.CreateLevelAsync),
 			InitializeAsync);
 
+
+		[RelayCommand]
+		private Task ExportDivisionsAsync() => ExportSettingsAsync(
+			"divisions",
+			Divisions,
+			item => [item.Name, item.Description]);
+
+		[RelayCommand]
+		private Task ExportDepartmentsAsync() => ExportSettingsAsync(
+			"departments",
+			Departments,
+			item => [item.Name, item.Description, item.DivisionName]);
+
+		[RelayCommand]
+		private Task ExportSectionsAsync() => ExportSettingsAsync(
+			"sections",
+			Sections,
+			item => [item.Name, item.Description, item.DepartmentName]);
+
+		[RelayCommand]
+		private Task ExportPositionsAsync() => ExportSettingsAsync(
+			"positions",
+			Positions,
+			item => [item.Name, item.Description, item.SectionName]);
+
+		[RelayCommand]
+		private Task ExportChargingsAsync() => ExportSettingsAsync(
+			"chargings",
+			Chargings,
+			item => [item.Name, item.Description, item.DepartmentName]);
+
+		[RelayCommand]
+		private Task ExportEmployeeTypesAsync() => ExportSettingsAsync(
+			"employee_types",
+			EmployeeTypes,
+			item => [item.Name, item.Value, string.Empty]);
+
+		[RelayCommand]
+		private Task ExportEmployeeLevelsAsync() => ExportSettingsAsync(
+			"employee_levels",
+			EmployeeLevels,
+			item => [item.Name, item.Value, string.Empty]);
+
 		[RelayCommand]
 		private async Task RandomizeDataAsync()
 		{
@@ -1106,6 +1150,64 @@ public partial class SettingViewModel : BaseViewModel
 				{
 						await RunOnMainThreadAsync(() => IsBusy = false);
 				}
+		}
+
+
+		private async Task ExportSettingsAsync<TSetting>(
+			string filePrefix,
+			IReadOnlyCollection<TSetting> items,
+			Func<TSetting, string?[]> rowFactory)
+		{
+			if (IsBusy)
+			{
+					return;
+			}
+
+			if (items.Count == 0)
+			{
+					await Shell.Current.DisplayAlert("Export", $"No {filePrefix.Replace('_', ' ')} to export.", "Okay");
+					return;
+			}
+
+			try
+			{
+					IsBusy = true;
+					var csv = new StringBuilder();
+					csv.AppendLine("Name,Description,Parent");
+
+					foreach (var item in items)
+					{
+							var values = rowFactory(item);
+							csv.AppendLine(string.Join(",", values.Select(EscapeCsv)));
+					}
+
+					string fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+					string filePath = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+					await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8).ConfigureAwait(false);
+
+					await Share.Default.RequestAsync(new ShareFileRequest
+					{
+							Title = $"Export {filePrefix.Replace('_', ' ')}",
+							File = new ShareFile(filePath)
+					}).ConfigureAwait(false);
+			}
+			finally
+			{
+					IsBusy = false;
+			}
+		}
+
+		private static string EscapeCsv(string? value)
+		{
+				if (string.IsNullOrEmpty(value))
+				{
+						return string.Empty;
+				}
+
+				string escaped = value.Replace("\"", "\"\"");
+				return escaped.IndexOfAny([',', '"', '\n', '\r']) >= 0
+						? $"\"{escaped}\""
+						: escaped;
 		}
 
 

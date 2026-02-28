@@ -192,9 +192,66 @@ public partial class ShiftContentViewModel : BaseViewModel
 		}
 
 		[RelayCommand]
-		public Task ExportShiftsAsync()
+		public async Task ExportShiftsAsync()
 		{
-				return Task.CompletedTask;
+				if (IsBusy)
+				{
+						return;
+				}
+
+				if (Shifts is null || Shifts.Count == 0)
+				{
+						await Shell.Current.DisplayAlert("Export", "No shifts to export.", "Okay");
+						return;
+				}
+
+				try
+				{
+						IsBusy = true;
+
+						var csv = new StringBuilder();
+						csv.AppendLine("Name,ShiftStartTime,ShiftBreakTime,ShiftBreakEndTime,ShiftEndTime,BreakHours");
+
+						foreach (var shift in Shifts)
+						{
+								csv.AppendLine(string.Join(",", new[]
+								{
+										EscapeCsv(shift.Name),
+										EscapeCsv(shift.ShiftStartTime),
+										EscapeCsv(shift.ShiftBreakTime),
+										EscapeCsv(shift.ShiftBreakEndTime),
+										EscapeCsv(shift.ShiftEndTime),
+										EscapeCsv(shift.BreakHours.ToString(CultureInfo.InvariantCulture))
+								}));
+						}
+
+						var fileName = $"shifts_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+						var filePath = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8);
+
+						await Share.Default.RequestAsync(new ShareFileRequest
+						{
+								Title = "Export shifts",
+								File = new ShareFile(filePath)
+						});
+				}
+				finally
+				{
+						IsBusy = false;
+				}
+		}
+
+		private static string EscapeCsv(string? value)
+		{
+				if (string.IsNullOrEmpty(value))
+				{
+						return string.Empty;
+				}
+
+				var escaped = value.Replace("\"", "\"\"");
+				return escaped.IndexOfAny([',', '"', '\n', '\r']) >= 0
+						? $"\"{escaped}\""
+						: escaped;
 		}
 
 		[RelayCommand]
