@@ -113,6 +113,30 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 
 		public override Task InitializeAsync()
 		{
+				if (EditableEmployee is null)
+						return base.InitializeAsync();
+
+				if (!_referenceDataService.Chargings.Any() ||
+						!_referenceDataService.Positions.Any() ||
+						!_referenceDataService.EmployeeTypes.Any() ||
+						!_referenceDataService.Levels.Any())
+				{
+						return InitializeWithReferenceDataAsync();
+				}
+
+				BindReferenceData();
+				return base.InitializeAsync();
+		}
+
+		private async Task InitializeWithReferenceDataAsync()
+		{
+				await _referenceDataService.InitializeAsync();
+				BindReferenceData();
+				await base.InitializeAsync();
+		}
+
+		private void BindReferenceData()
+		{
 				ChargingOptions.Clear();
 				DivisionOptions.Clear();
 				DepartmentOptions.Clear();
@@ -142,20 +166,23 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				foreach (var level in _referenceDataService.Levels)
 						LevelOptions.Add(level);
 
-				EmployeeType = TypeOptions.FirstOrDefault(i => i.Id == EditableEmployee!.TypeId);
+				EmployeeType = TypeOptions.FirstOrDefault(i => i.Id == EditableEmployee!.TypeId)
+						?? TypeOptions.FirstOrDefault(i => i.Name == EditableEmployee.Type);
 				EditableEmployee.Type = EmployeeType?.Name;
-				EditableEmployee.TypeId = EmployeeType?.Id;
+				EditableEmployee.TypeId ??= EmployeeType?.Id;
 
-				Level = LevelOptions.FirstOrDefault(i => i.Id == EditableEmployee.LevelId);
+				Level = LevelOptions.FirstOrDefault(i => i.Id == EditableEmployee.LevelId)
+						?? LevelOptions.FirstOrDefault(i => i.Name == EditableEmployee.Level);
 				EditableEmployee.Level = Level?.Name;
-				EditableEmployee.LevelId = Level?.Id;
+				EditableEmployee.LevelId ??= Level?.Id;
 
 				Charging = ChargingOptions.FirstOrDefault(i => i.Id == EditableEmployee.ChargingId);
-				EditableEmployee.ChargingId = Charging?.Id;
+				EditableEmployee.ChargingId ??= Charging?.Id;
 
-				Position = PositionOptions.FirstOrDefault(i => i.Id == EditableEmployee.PositionId);
+				Position = PositionOptions.FirstOrDefault(i => i.Id == EditableEmployee.PositionId)
+						?? PositionOptions.FirstOrDefault(i => i.Name == EditableEmployee.Position);
 				EditableEmployee.Position = Position?.Name;
-				EditableEmployee.PositionId = Position?.Id;
+				EditableEmployee.PositionId ??= Position?.Id;
 
 				Section = Position == null
 						? null
@@ -167,8 +194,8 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 						? null
 						: DivisionOptions.FirstOrDefault(i => i.Id == Department.DivisionId);
 
-				return base.InitializeAsync();
 		}
+
 
 		partial void OnChargingChanged(ChargingSummary? value)
 		{
