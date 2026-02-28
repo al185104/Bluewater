@@ -3,9 +3,11 @@ using System.Globalization;
 using System.Text;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
+using Bluewater.App.Services;
 using Bluewater.App.ViewModels.Base;
 using Bluewater.App.Views.Modals;
 using Bluewater.Core.EmployeeAggregate.Enum;
+using Bluewater.Core.ShiftAggregate;
 using Bluewater.Core.UserAggregate.Enum;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -147,7 +149,34 @@ public partial class EmployeeContentViewModel : BaseViewModel
 
 				try
 				{
+						bool confirmed = await Shell.Current.DisplayAlert(
+								"Delete shift",
+								$"Are you sure you want to delete '{employee.FullName}'?",
+								"Yes",
+								"No");
+
+						if (!confirmed)
+						{
+								return;
+						}
+
 						IsBusy = true;
+						var deleted = await _employeeApiService.DeleteEmployeeAsync(employee.Id, _cts.Token);
+						if (!deleted)
+						{
+								await Shell.Current.DisplayAlert("Delete failed", "Unable to delete employee.", "Okay");
+								return;
+						}
+
+						Employees?.Remove(employee);
+				}
+				catch (OperationCanceledException)
+				{
+						await _activityTraceService.LogCommandAsync("Employee delete was canceled.");
+				}
+				catch (Exception ex)
+				{
+						_exceptionHandlingService.Handle(ex, "Deleting employee failed.");
 				}
 				finally
 				{
@@ -339,6 +368,8 @@ public partial class EmployeeContentViewModel : BaseViewModel
 										employeePayload.UserId = user.Id;
 
 								await _employeeApiService.CreateEmployeeAsync(employeePayload, _cts.Token);
+
+								InitializeCommand.Execute(null);
 						}
 				}
 				finally
