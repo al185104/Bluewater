@@ -1,6 +1,7 @@
 ﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.EmployeeAggregate;
+using Bluewater.Core.EmployeeAggregate.Specifications;
 using Bluewater.UseCases.Employees.Create;
 
 namespace Bluewater.UseCases.Contributors.Create;
@@ -8,6 +9,15 @@ public class CreateEmployeeHandler(IRepository<Employee> _repository) : ICommand
 {
   public async Task<Result<Guid>> Handle(CreateEmployeeCommand request, CancellationToken cancellationToken)
   {
+    if (request.UserId.HasValue && request.UserId.Value != Guid.Empty)
+    {
+      var existingEmployee = await _repository.FirstOrDefaultAsync(new EmployeeByUserIdSpec(request.UserId.Value), cancellationToken);
+      if (existingEmployee != null)
+      {
+        return existingEmployee.Id;
+      }
+    }
+
     var newEmployee = new Employee(
         request.FirstName,
         request.LastName,
