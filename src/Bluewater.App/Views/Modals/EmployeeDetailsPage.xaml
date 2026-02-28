@@ -66,23 +66,38 @@
 							Title="Employment status"
 							ItemsSource="{Binding EditableEmployee.StatusOptions}"
 							SelectedItem="{Binding EditableEmployee.Status}" />
-					<Picker Grid.Column="1"
-							Title="Employment type"
-							ItemsSource="{Binding TypeOptions}"
-							ItemDisplayBinding="{Binding Name}"
-							SelectedItem="{Binding EmployeeType}" />
-					<Picker Grid.Column="2"
-							Title="Employment level"
-							ItemsSource="{Binding LevelOptions}"
-							ItemDisplayBinding="{Binding Name}"
-							SelectedItem="{Binding Level, Mode=TwoWay}" />
+					<VerticalStackLayout Grid.Column="1" Spacing="2">
+						<Picker Title="Employment type *"
+								ItemsSource="{Binding TypeOptions}"
+								ItemDisplayBinding="{Binding Name}"
+								SelectedItem="{Binding EmployeeType}" />
+						<Label Text="Required"
+							   TextColor="Red"
+							   FontSize="12"
+							   IsVisible="{Binding ShowEmployeeTypeValidation}" />
+					</VerticalStackLayout>
+					<VerticalStackLayout Grid.Column="2" Spacing="2">
+						<Picker Title="Employment level *"
+								ItemsSource="{Binding LevelOptions}"
+								ItemDisplayBinding="{Binding Name}"
+								SelectedItem="{Binding Level, Mode=TwoWay}" />
+						<Label Text="Required"
+							   TextColor="Red"
+							   FontSize="12"
+							   IsVisible="{Binding ShowLevelValidation}" />
+					</VerticalStackLayout>
 				</Grid>
 				<Grid ColumnDefinitions="*,*,*">
-					<Picker Grid.Column="0"
-							Title="Position"
-							ItemsSource="{Binding PositionOptions}"
-							ItemDisplayBinding="{Binding Name}"
-							SelectedItem="{Binding Position}" />
+					<VerticalStackLayout Grid.Column="0" Spacing="2">
+						<Picker Title="Position *"
+								ItemsSource="{Binding PositionOptions}"
+								ItemDisplayBinding="{Binding Name}"
+								SelectedItem="{Binding Position}" />
+						<Label Text="Required"
+							   TextColor="Red"
+							   FontSize="12"
+							   IsVisible="{Binding ShowPositionValidation}" />
+					</VerticalStackLayout>
 					<Picker Grid.Column="1"
 							Title="Sections"
 							ItemsSource="{Binding SectionOptions}"
@@ -97,11 +112,16 @@
 							SelectedItem="{Binding Department}" />
 				</Grid>
 				<Grid ColumnDefinitions="*,*,*">
-					<Picker Grid.Column="0"
-							Title="Charging"
-							ItemsSource="{Binding ChargingOptions}"
-							ItemDisplayBinding="{Binding Name}"
-							SelectedItem="{Binding Charging}" />
+					<VerticalStackLayout Grid.Column="0" Spacing="2">
+						<Picker Title="Charging *"
+								ItemsSource="{Binding ChargingOptions}"
+								ItemDisplayBinding="{Binding Name}"
+								SelectedItem="{Binding Charging}" />
+						<Label Text="Required"
+							   TextColor="Red"
+							   FontSize="12"
+							   IsVisible="{Binding ShowChargingValidation}" />
+					</VerticalStackLayout>
 					<Picker Grid.Column="1"
 							Title="Project"
 							ItemsSource="{Binding EditableEmployee.TenantOptions}" 
