@@ -66,38 +66,50 @@
 							Title="Employment status"
 							ItemsSource="{Binding EditableEmployee.StatusOptions}"
 							SelectedItem="{Binding EditableEmployee.Status}" />
-					<VerticalStackLayout Grid.Column="1" Spacing="2">
+					<Grid Grid.Column="1">
 						<Picker Title="Employment type *"
 								ItemsSource="{Binding TypeOptions}"
 								ItemDisplayBinding="{Binding Name}"
 								SelectedItem="{Binding EmployeeType}" />
 						<Label Text="Required"
-							   TextColor="Red"
+							   TextColor="Salmon"
 							   FontSize="12"
+							   VerticalTextAlignment="Start"
+							   VerticalOptions="Start"
+							   HorizontalOptions="End"
+							   HorizontalTextAlignment="End"
 							   IsVisible="{Binding ShowEmployeeTypeValidation}" />
-					</VerticalStackLayout>
-					<VerticalStackLayout Grid.Column="2" Spacing="2">
+					</Grid>
+					<Grid Grid.Column="2">
 						<Picker Title="Employment level *"
 								ItemsSource="{Binding LevelOptions}"
 								ItemDisplayBinding="{Binding Name}"
 								SelectedItem="{Binding Level, Mode=TwoWay}" />
 						<Label Text="Required"
-							   TextColor="Red"
+							   TextColor="Salmon"
 							   FontSize="12"
+							   VerticalTextAlignment="Start"
+							   VerticalOptions="Start"
+							   HorizontalOptions="End"
+							   HorizontalTextAlignment="End"
 							   IsVisible="{Binding ShowLevelValidation}" />
-					</VerticalStackLayout>
+					</Grid>
 				</Grid>
 				<Grid ColumnDefinitions="*,*,*">
-					<VerticalStackLayout Grid.Column="0" Spacing="2">
+					<Grid Grid.Column="0">
 						<Picker Title="Position *"
 								ItemsSource="{Binding PositionOptions}"
 								ItemDisplayBinding="{Binding Name}"
 								SelectedItem="{Binding Position}" />
 						<Label Text="Required"
-							   TextColor="Red"
+							   TextColor="Salmon"
 							   FontSize="12"
+							   VerticalTextAlignment="Start"
+							   VerticalOptions="Start"
+							   HorizontalOptions="End"
+							   HorizontalTextAlignment="End"
 							   IsVisible="{Binding ShowPositionValidation}" />
-					</VerticalStackLayout>
+					</Grid>
 					<Picker Grid.Column="1"
 							Title="Sections"
 							ItemsSource="{Binding SectionOptions}"
@@ -112,16 +124,20 @@
 							SelectedItem="{Binding Department}" />
 				</Grid>
 				<Grid ColumnDefinitions="*,*,*">
-					<VerticalStackLayout Grid.Column="0" Spacing="2">
+					<Grid Grid.Column="0">
 						<Picker Title="Charging *"
 								ItemsSource="{Binding ChargingOptions}"
 								ItemDisplayBinding="{Binding Name}"
 								SelectedItem="{Binding Charging}" />
 						<Label Text="Required"
-							   TextColor="Red"
+							   TextColor="Salmon"
 							   FontSize="12"
+							   HorizontalOptions="End"
+							   HorizontalTextAlignment="End"
+							   VerticalOptions="Start"
+							   VerticalTextAlignment="Start"
 							   IsVisible="{Binding ShowChargingValidation}" />
-					</VerticalStackLayout>
+					</Grid>
 					<Picker Grid.Column="1"
 							Title="Project"
 							ItemsSource="{Binding EditableEmployee.TenantOptions}" 
