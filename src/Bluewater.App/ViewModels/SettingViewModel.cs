@@ -1172,6 +1172,19 @@ public partial class SettingViewModel : BaseViewModel
 			try
 			{
 					IsBusy = true;
+
+					string displayName = filePrefix.Replace('_', ' ');
+					bool confirmed = await Shell.Current.DisplayAlert(
+							$"Export {displayName}",
+							$"Export {displayName} records to your Downloads folder?",
+							"Yes",
+							"No");
+
+					if (!confirmed)
+					{
+							return;
+					}
+
 					var csv = new StringBuilder();
 					csv.AppendLine("Name,Description,Parent");
 
@@ -1182,14 +1195,12 @@ public partial class SettingViewModel : BaseViewModel
 					}
 
 					string fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-					string filePath = Path.Combine(FileSystem.Current.CacheDirectory, fileName);
+					string downloadsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+					Directory.CreateDirectory(downloadsDirectory);
+					string filePath = Path.Combine(downloadsDirectory, fileName);
 					await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8).ConfigureAwait(false);
 
-					await Share.Default.RequestAsync(new ShareFileRequest
-					{
-							Title = $"Export {filePrefix.Replace('_', ' ')}",
-							File = new ShareFile(filePath)
-					}).ConfigureAwait(false);
+					await Shell.Current.DisplayAlert("Export", $"{displayName} exported to {filePath}", "Okay").ConfigureAwait(false);
 			}
 			finally
 			{
