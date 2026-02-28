@@ -36,7 +36,12 @@ public static class MauiProgram
 											var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
 											var appWindow = AppWindow.GetFromWindowId(windowId);
 
-											appWindow.SetPresenter(AppWindowPresenterKind.Default);
+											//appWindow.SetPresenter(AppWindowPresenterKind.Default);
+											// ✅ THIS is the correct maximize call
+											if (appWindow.Presenter is OverlappedPresenter presenter)
+											{
+													presenter.Maximize();
+											}
 									});
 							});
 #endif

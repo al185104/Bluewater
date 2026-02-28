@@ -5,6 +5,7 @@
 			 xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
              x:Class="Bluewater.App.Views.Controls.SettingsView"
 			 Loaded="ContentView_Loaded"
+			 Unloaded="ContentView_Unloaded"
              Padding="20"
              BackgroundColor="{StaticResource CollectionBackgroundBrush}">
 	<ContentView.Resources>
