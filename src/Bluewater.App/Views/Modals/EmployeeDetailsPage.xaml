@@ -6,6 +6,8 @@
 			 xmlns:vm="clr-namespace:Bluewater.App.ViewModels.Modals"
 			 xmlns:components="clr-namespace:Bluewater.App.Components"
 			 x:DataType="vm:EmployeeDetailsViewModel"
+			 Shell.NavBarIsVisible="False"
+			 Shell.FlyoutBehavior="Disabled"
              Title="EmployeeDetailsPage">
 	<Grid>
 		<!-- FORM CONTENT -->
@@ -85,11 +87,13 @@
 							Title="Sections"
 							ItemsSource="{Binding SectionOptions}"
 							ItemDisplayBinding="{Binding Name}"
+							IsEnabled="False"
 							SelectedItem="{Binding Section}" />
 					<Picker Grid.Column="2"
 							Title="Department"
 							ItemsSource="{Binding DepartmentOptions}"
 							ItemDisplayBinding="{Binding Name}"
+							IsEnabled="False"
 							SelectedItem="{Binding Department}" />
 				</Grid>
 				<Grid ColumnDefinitions="*,*,*">

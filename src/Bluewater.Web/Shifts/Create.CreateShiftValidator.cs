@@ -1,4 +1,4 @@
-using Bluewater.Infrastructure.Data.Config;
+﻿using Bluewater.Infrastructure.Data.Config;
 using FastEndpoints;
 using FluentValidation;
 
@@ -11,7 +11,7 @@ public class CreateShiftValidator : Validator<CreateShiftRequest>
     RuleFor(x => x.Name)
       .NotEmpty()
       .WithMessage("Name is required.")
-      .MinimumLength(2)
+      .MinimumLength(1)
       .MaximumLength(DataSchemaConstants.DEFAULT_NAME_LENGTH);
 
     RuleFor(x => x.BreakHours)

@@ -16,7 +16,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 		private int _rowIndex;
 
 		[ObservableProperty]
-		public partial EditableEmployee? EditableEmployee { get; set; }
+		public partial EditableEmployee EditableEmployee { get; set; } = new();
 
 		public ObservableCollection<ChargingSummary> ChargingOptions { get; set; } = new();
 		[ObservableProperty]
