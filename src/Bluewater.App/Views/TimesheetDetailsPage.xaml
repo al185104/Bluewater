@@ -72,6 +72,8 @@
 						Grid.Column="2"
 						VerticalOptions="End"
 						Text="Save"
+						Command="{Binding SaveTimesheetsCommand}"
+						IsEnabled="{Binding CanSaveTimesheets}"
 						ImageSource="{FontImage Glyph={x:Static helpers:Icon.Save},FontFamily=Icons, Color={StaticResource ButtonTextColor},Size=18}"
 						Style="{StaticResource PrimaryButtonStyle}"/>
 			</Grid>
