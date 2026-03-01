@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
+using System.Text;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -118,6 +119,98 @@ public partial class ScheduleViewModel : BaseViewModel
 				SetWeek(CurrentWeekStart.AddDays(7));
 				CurrentPage = 1;
 				await LoadSchedulesAsync().ConfigureAwait(false);
+		}
+
+		[RelayCommand]
+		private async Task ExportSchedulesAsync()
+		{
+				if (IsBusy)
+				{
+						return;
+				}
+
+				if (Employees.Count == 0)
+				{
+						await Shell.Current.DisplayAlert("Export", "No schedules to export.", "Okay");
+						return;
+				}
+
+				string chargingName = SelectedCharging?.Name ?? "All";
+				bool confirmed = await Shell.Current.DisplayAlert(
+						"Export schedules",
+						$"Export {chargingName} schedules for {WeekRangeDisplay} to your Downloads folder?",
+						"Yes",
+						"No");
+
+				if (!confirmed)
+				{
+						return;
+				}
+
+				try
+				{
+						IsBusy = true;
+
+						var csv = new StringBuilder();
+						csv.AppendLine(string.Join(",", new[]
+						{
+								"Barcode",
+								"Employee",
+								"Section",
+								"Charging",
+								EscapeCsv(SundayHeader),
+								EscapeCsv(MondayHeader),
+								EscapeCsv(TuesdayHeader),
+								EscapeCsv(WednesdayHeader),
+								EscapeCsv(ThursdayHeader),
+								EscapeCsv(FridayHeader),
+								EscapeCsv(SaturdayHeader)
+						}));
+
+						foreach (var employee in Employees)
+						{
+								csv.AppendLine(string.Join(",", new[]
+								{
+										EscapeCsv(employee.Barcode),
+										EscapeCsv(employee.Name),
+										EscapeCsv(employee.Section),
+										EscapeCsv(employee.Charging),
+										EscapeCsv(employee.Sunday.SelectedShift.Name),
+										EscapeCsv(employee.Monday.SelectedShift.Name),
+										EscapeCsv(employee.Tuesday.SelectedShift.Name),
+										EscapeCsv(employee.Wednesday.SelectedShift.Name),
+										EscapeCsv(employee.Thursday.SelectedShift.Name),
+										EscapeCsv(employee.Friday.SelectedShift.Name),
+										EscapeCsv(employee.Saturday.SelectedShift.Name)
+								}));
+						}
+
+						var fileName = $"schedules_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+						var downloadsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+						Directory.CreateDirectory(downloadsDirectory);
+						var filePath = Path.Combine(downloadsDirectory, fileName);
+						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8).ConfigureAwait(false);
+
+						await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.DisplayAlert("Export", $"Schedules exported to {filePath}", "Okay"));
+
+						await TraceCommandAsync(nameof(ExportSchedulesAsync), new
+						{
+								WeekStart = CurrentWeekStart,
+								WeekEnd = CurrentWeekEnd,
+								Charging = chargingName,
+								Tenant = SelectedTenant.ToString(),
+								RecordCount = Employees.Count,
+								FileName = fileName
+						}).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Exporting schedules");
+				}
+				finally
+				{
+						IsBusy = false;
+				}
 		}
 
 		private bool CanChangeWeek() => !IsBusy;
@@ -627,6 +720,19 @@ public partial class ScheduleViewModel : BaseViewModel
 		}
 
 		private static string FormatTime(TimeOnly? time) => time?.ToString("hh:mm tt", CultureInfo.CurrentCulture) ?? string.Empty;
+
+		private static string EscapeCsv(string? value)
+		{
+				if (string.IsNullOrEmpty(value))
+				{
+						return string.Empty;
+				}
+
+				var escaped = value.Replace("\"", "\"\"");
+				return escaped.IndexOfAny([',', '"', '\n', '\r']) >= 0
+						? $"\"{escaped}\""
+						: escaped;
+		}
 
 		private void UpdatePagination(int totalCount)
 		{

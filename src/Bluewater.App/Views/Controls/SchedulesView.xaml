@@ -43,7 +43,8 @@
 					VerticalOptions="End"
 					FontSize="14"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
-					Style="{StaticResource SecondaryButtonStyle}" />
+					Style="{StaticResource SecondaryButtonStyle}"
+					Command="{Binding ExportSchedulesCommand}" />
 		</Grid>
 		<CollectionView Grid.Row="1"
 						ItemsSource="{Binding Employees}">
