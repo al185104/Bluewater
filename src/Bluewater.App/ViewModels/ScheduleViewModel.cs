@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Globalization;
 using System.Text;
+using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -213,7 +214,216 @@ public partial class ScheduleViewModel : BaseViewModel
 				}
 		}
 
+
+		[RelayCommand]
+		private async Task ImportSchedulesAsync()
+		{
+			if (IsBusy)
+			{
+				return;
+			}
+
+			if (SelectedCharging is null)
+			{
+				await Shell.Current.DisplayAlert("Import", "Please select a charging before importing schedules.", "Okay");
+				return;
+			}
+
+			try
+			{
+				PickOptions options = new()
+				{
+					PickerTitle = "Select schedule CSV file",
+					FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+					{
+						[DevicePlatform.iOS] = new[] { "public.comma-separated-values-text", "public.text" },
+						[DevicePlatform.Android] = new[] { "text/csv", "text/comma-separated-values" },
+						[DevicePlatform.WinUI] = new[] { ".csv" },
+						[DevicePlatform.MacCatalyst] = new[] { "public.comma-separated-values-text", "public.text" }
+					})
+				};
+
+				FileResult? file = await FilePicker.Default.PickAsync(options);
+				if (file is null)
+				{
+					return;
+				}
+
+				await EnsureShiftOptionsAsync().ConfigureAwait(false);
+				var shiftNameLookup = ShiftOptions
+					.Where(s => s.Id.HasValue)
+					.GroupBy(s => s.Name.Trim(), StringComparer.OrdinalIgnoreCase)
+					.ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+				await using Stream stream = await file.OpenReadAsync();
+				IReadOnlyList<ScheduleMatrixCsvRow> rows = await ScheduleMatrixCsvImporter.ParseAsync(stream, CurrentWeekStart).ConfigureAwait(false);
+
+				if (rows.Count == 0)
+				{
+					await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.DisplayAlert("Import", "No schedules were found in the selected file.", "Okay"));
+					return;
+				}
+
+				IsBusy = true;
+
+				IReadOnlyList<EmployeeScheduleSummary> schedules = await LoadAllSchedulesForWeekAsync(SelectedCharging.Name).ConfigureAwait(false);
+				var employeesByBarcode = schedules
+					.GroupBy(e => e.Barcode.Trim(), StringComparer.OrdinalIgnoreCase)
+					.ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
+
+				int successCount = 0;
+				int skippedRows = 0;
+				int failedUpdates = 0;
+
+				foreach (var row in rows)
+				{
+					if (!employeesByBarcode.TryGetValue(row.Barcode.Trim(), out var employee))
+					{
+						skippedRows++;
+						continue;
+					}
+
+					bool rowUpdated = true;
+					foreach (var date in row.ShiftsByDate.Keys.OrderBy(d => d))
+					{
+						string shiftName = row.ShiftsByDate[date].Trim();
+						bool isNoShift = string.IsNullOrWhiteSpace(shiftName) || string.Equals(shiftName, noShiftOption.Name, StringComparison.OrdinalIgnoreCase);
+						ShiftPickerItem? newShift = null;
+
+						if (!isNoShift && !shiftNameLookup.TryGetValue(shiftName, out newShift))
+						{
+							rowUpdated = false;
+							failedUpdates++;
+							break;
+						}
+
+						var existing = employee.Shifts.FirstOrDefault(s => s.ScheduleDate == date);
+						bool updated = await PersistImportedShiftAsync(employee.EmployeeId, date, existing, isNoShift ? null : newShift).ConfigureAwait(false);
+						if (!updated)
+						{
+							rowUpdated = false;
+							failedUpdates++;
+							break;
+						}
+					}
+
+					if (rowUpdated)
+					{
+						successCount++;
+					}
+				}
+
+				await TraceCommandAsync(nameof(ImportSchedulesAsync), new
+				{
+					File = file.FileName,
+					WeekStart = CurrentWeekStart,
+					WeekEnd = CurrentWeekEnd,
+					Charging = SelectedCharging.Name,
+					ImportedRows = successCount,
+					SkippedRows = skippedRows,
+					FailedUpdates = failedUpdates
+				}).ConfigureAwait(false);
+
+				await MainThread.InvokeOnMainThreadAsync(() =>
+					Shell.Current.DisplayAlert(
+						"Import",
+						$"Imported {successCount} row(s). Skipped {skippedRows} row(s). Failed updates: {failedUpdates}.",
+						"Okay"));
+
+				await LoadSchedulesAsync().ConfigureAwait(false);
+			}
+			catch (OperationCanceledException)
+			{
+				// user cancelled file picker
+			}
+			catch (FormatException ex)
+			{
+				ExceptionHandlingService.Handle(ex, "Importing schedules");
+				await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.DisplayAlert("Import error", ex.Message, "Okay"));
+			}
+			catch (Exception ex)
+			{
+				ExceptionHandlingService.Handle(ex, "Importing schedules");
+			}
+			finally
+			{
+				if (IsBusy)
+				{
+					IsBusy = false;
+				}
+			}
+		}
+
 		private bool CanChangeWeek() => !IsBusy;
+
+
+		private async Task<IReadOnlyList<EmployeeScheduleSummary>> LoadAllSchedulesForWeekAsync(string chargingName)
+		{
+			var all = new List<EmployeeScheduleSummary>();
+			int skip = 0;
+
+			while (true)
+			{
+				PagedResult<EmployeeScheduleSummary> page = await scheduleApiService
+					.GetSchedulesAsync(chargingName, CurrentWeekStart, CurrentWeekEnd, skip, PageSize, SelectedTenant)
+					.ConfigureAwait(false);
+
+				if (page.Items.Count == 0)
+				{
+					break;
+				}
+
+				all.AddRange(page.Items);
+				skip += page.Items.Count;
+
+				if (all.Count >= page.TotalCount)
+				{
+					break;
+				}
+			}
+
+			return all;
+		}
+
+		private async Task<bool> PersistImportedShiftAsync(Guid employeeId, DateOnly date, ScheduleShiftInfoSummary? existing, ShiftPickerItem? newShift)
+		{
+			if (newShift?.Id is Guid shiftId)
+			{
+				if (existing?.ScheduleId is Guid scheduleId && scheduleId != Guid.Empty)
+				{
+					var update = new ScheduleSummary
+					{
+						Id = scheduleId,
+						EmployeeId = employeeId,
+						Name = newShift.Name,
+						ShiftId = shiftId,
+						ScheduleDate = date,
+						IsDefault = existing.IsDefault
+					};
+
+					return await scheduleApiService.UpdateScheduleAsync(update).ConfigureAwait(false) is not null;
+				}
+
+				var create = new ScheduleSummary
+				{
+					EmployeeId = employeeId,
+					Name = newShift.Name,
+					ShiftId = shiftId,
+					ScheduleDate = date,
+					IsDefault = false
+				};
+
+				Guid? created = await scheduleApiService.CreateScheduleAsync(create).ConfigureAwait(false);
+				return created is Guid id && id != Guid.Empty;
+			}
+
+			if (existing?.ScheduleId is Guid existingId && existingId != Guid.Empty)
+			{
+				return await scheduleApiService.DeleteScheduleAsync(existingId).ConfigureAwait(false);
+			}
+
+			return true;
+		}
 
 		partial void OnSelectedChargingChanged(ChargingSummary? value)
 		{
