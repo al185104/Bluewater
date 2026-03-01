@@ -7,6 +7,8 @@ using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.UserAggregate;
 using Bluewater.UseCases.Common;
+using Bluewater.UseCases.Attendances;
+using Bluewater.UseCases.Attendances.List;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Employees.List;
 using MediatR;
@@ -61,16 +63,36 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
         {
           EmployeeTimesheetDTO val = timesheetResult.Value;
 
-          var totalWorkHours = 0;
-          var totalBreak = 0;
-          var totalLates = 0;
-          var TotalAbsents = 0;
+          decimal totalWorkHours = 0;
+          decimal totalBreak = 0;
+          decimal totalLates = 0;
+          int totalAbsents = 0;
 
-          results.Add(new AllEmployeeTimesheetDTO(val.EmployeeId, val.Name, val.Department, val.Section, val.Charging, val.Timesheets, totalWorkHours, totalBreak, totalLates, TotalAbsents));
+          Result<IEnumerable<AttendanceDTO>> attendanceResult = await mediator.Send(
+            new ListAttendanceQuery(null, null, employee.Id, request.startDate, request.endDate),
+            cancellationToken);
+
+          if (attendanceResult.IsSuccess)
+          {
+            (totalWorkHours, totalBreak, totalLates, totalAbsents) = ProcessAttendanceSummary(attendanceResult.Value.ToList());
+          }
+
+          results.Add(new AllEmployeeTimesheetDTO(val.EmployeeId, val.Name, val.Department, val.Section, val.Charging, val.Timesheets, totalWorkHours, totalBreak, totalLates, totalAbsents));
         }
       }
     }
 
     return Result<Common.PagedResult<AllEmployeeTimesheetDTO>>.Success(new Common.PagedResult<AllEmployeeTimesheetDTO>(results, totalCount));
+  }
+
+  private static (decimal totalWorkHours, decimal totalBreak, decimal totalLates, int totalAbsents) ProcessAttendanceSummary(List<AttendanceDTO> attendances)
+  {
+    var totalWorkHours = attendances.Sum(i => i.WorkHrs) ?? 0;
+    var totalBreak = attendances.Sum(i => i.OverbreakHrs) ?? 0;
+    var totalLates = attendances.Sum(i => i.LateHrs) ?? 0;
+    var totalAbsents = attendances.Count(i => i.ShiftId != null && i.Shift != null && !i.Shift.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase))
+      - attendances.Count(i => i.WorkHrs > 0);
+
+    return (totalWorkHours, totalBreak, totalLates, totalAbsents);
   }
 }
