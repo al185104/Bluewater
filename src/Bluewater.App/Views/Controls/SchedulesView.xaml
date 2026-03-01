@@ -37,7 +37,8 @@
 					VerticalOptions="End"
 					FontSize="14"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
-					Style="{StaticResource SecondaryButtonStyle}" />
+					Style="{StaticResource SecondaryButtonStyle}"
+					Command="{Binding ImportSchedulesCommand}" />
 			<Button Grid.Column="3"
 					Text="Download"
 					VerticalOptions="End"
