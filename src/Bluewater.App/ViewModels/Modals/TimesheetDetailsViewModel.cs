@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -37,7 +38,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 		public void ApplyQueryAttributes(IDictionary<string, object> query)
 		{
-				EditableTimesheets.Clear();
+				ClearEditableTimesheets();
 
 				if (query.TryGetValue("SelectedEditableTimesheet", out var value) && value is EditableTimesheetEntry editableTimesheet)
 				{
@@ -49,6 +50,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				{
 						foreach (EditableTimesheetEntry timesheet in timesheetList)
 						{
+								timesheet.PropertyChanged += OnEditableTimesheetPropertyChanged;
 								EditableTimesheets.Add(timesheet);
 						}
 				}
@@ -128,5 +130,23 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 		{
 				OnPropertyChanged(nameof(CanSaveTimesheets));
 				SaveTimesheetsCommand.NotifyCanExecuteChanged();
+		}
+
+		private void OnEditableTimesheetPropertyChanged(object? sender, PropertyChangedEventArgs e)
+		{
+				if (e.PropertyName == nameof(EditableTimesheetEntry.HasChanges))
+				{
+						UpdateCanSaveTimesheets();
+				}
+		}
+
+		private void ClearEditableTimesheets()
+		{
+				foreach (EditableTimesheetEntry entry in EditableTimesheets)
+				{
+						entry.PropertyChanged -= OnEditableTimesheetPropertyChanged;
+				}
+
+				EditableTimesheets.Clear();
 		}
 }
