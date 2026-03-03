@@ -181,7 +181,10 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
       TimeIn2 = dto.TimeIn2,
       TimeOut2 = dto.TimeOut2,
       EntryDate = dto.EntryDate,
-      IsEdited = dto.IsEdited
+      IsEdited = dto.IsEdited,
+      ScheduleId = dto.ScheduleId,
+      ShiftId = dto.ShiftId,
+      ShiftName = dto.ShiftName
     };
   }
 
@@ -230,7 +233,10 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
       TimeIn2 = dto.TimeIn2,
       TimeOut2 = dto.TimeOut2,
       EntryDate = dto.EntryDate,
-      IsEdited = dto.IsEdited
+      IsEdited = dto.IsEdited,
+      ScheduleId = dto.ScheduleId,
+      ShiftId = dto.ShiftId,
+      ShiftName = dto.ShiftName
     };
   }
 }

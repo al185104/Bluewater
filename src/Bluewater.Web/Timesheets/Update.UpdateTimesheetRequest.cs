@@ -21,6 +21,9 @@ public class UpdateTimesheetRequest
   public DateTime? TimeOut2 { get; set; }
 
   public DateOnly? EntryDate { get; set; }
+  public Guid? ScheduleId { get; set; }
+
+  public Guid? ShiftId { get; set; }
 
   public bool IsLocked { get; set; }
 }

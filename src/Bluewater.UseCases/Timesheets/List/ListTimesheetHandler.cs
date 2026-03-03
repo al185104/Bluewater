@@ -4,6 +4,8 @@ using Bluewater.Core.TimesheetAggregate;
 using Bluewater.Core.TimesheetAggregate.Specifications;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Employees.Get;
+using Bluewater.UseCases.Schedules;
+using Bluewater.UseCases.Schedules.Get;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -42,13 +44,29 @@ internal class ListTimesheetHandler(IRepository<Timesheet> _repository, IService
     List<TimesheetInfo> results = new();
     for (var date = request.startDate; date <= request.endDate; date = date.AddDays(1))
     {
+        ScheduleDTO? schedule = null;
+        using (var scope = serviceScopeFactory.CreateScope())
+        {
+          var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+          Result<ScheduleDTO> scheduleResult = await mediator.Send(new GetScheduleByEmpIdAndDateQuery(emp.Id, date), cancellationToken);
+          if (scheduleResult.IsSuccess)
+            schedule = scheduleResult.Value;
+
+          if (schedule is null || schedule.Id == Guid.Empty)
+          {
+            Result<ScheduleDTO> defaultScheduleResult = await mediator.Send(new GetDefaultScheduleByEmpIdAndDayQuery(emp.Id, date.DayOfWeek), cancellationToken);
+            if (defaultScheduleResult.IsSuccess)
+              schedule = defaultScheduleResult.Value;
+          }
+        }
+
         var timesheet = timesheets!.FirstOrDefault(s => s.EntryDate == date);
         if(timesheet == null){
-          results.Add(new TimesheetInfo(Guid.Empty, null, null, null, null, date, isEdited: false));
+          results.Add(new TimesheetInfo(Guid.Empty, schedule?.Id, schedule?.ShiftId, schedule?.Shift?.Name, null, null, null, null, date, isEdited: false));
           // results.Add(new TimesheetInfo(Guid.Empty, new DateTime(date.Year, date.Month, date.Day), new DateTime(date.Year, date.Month, date.Day), new DateTime(date.Year, date.Month, date.Day), new DateTime(date.Year, date.Month, date.Day), date, isEdited: false));
         }
         else
-          results.Add(new TimesheetInfo(timesheet.Id, timesheet.TimeIn1, timesheet.TimeOut1, timesheet.TimeIn2, timesheet.TimeOut2, timesheet.EntryDate, isEdited: timesheet.IsEdited));
+          results.Add(new TimesheetInfo(timesheet.Id, schedule?.Id, schedule?.ShiftId, schedule?.Shift?.Name, timesheet.TimeIn1, timesheet.TimeOut1, timesheet.TimeIn2, timesheet.TimeOut2, timesheet.EntryDate, isEdited: timesheet.IsEdited));
     }
 
     IEnumerable<TimesheetInfo> orderedResults = results.OrderByDescending(i => i.EntryDate);

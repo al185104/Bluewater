@@ -11,10 +11,16 @@ public record TimesheetRecord(
   DateTime? TimeIn2,
   DateTime? TimeOut2,
   DateOnly? EntryDate,
-  bool IsEdited);
+  bool IsEdited,
+  Guid? ScheduleId,
+  Guid? ShiftId,
+  string? ShiftName);
 
 public record TimesheetInfoRecord(
   Guid TimesheetId,
+  Guid? ScheduleId,
+  Guid? ShiftId,
+  string? ShiftName,
   DateTime? TimeIn1,
   DateTime? TimeOut1,
   DateTime? TimeIn2,
@@ -49,10 +55,10 @@ public record AllEmployeeTimesheetRecord(
 public static class TimesheetMapper
 {
   public static TimesheetRecord ToRecord(TimesheetDTO dto) =>
-    new(dto.Id, dto.EmployeeId, dto.TimeIn1, dto.TimeOut1, dto.TimeIn2, dto.TimeOut2, dto.EntryDate, dto.IsEdited);
+    new(dto.Id, dto.EmployeeId, dto.TimeIn1, dto.TimeOut1, dto.TimeIn2, dto.TimeOut2, dto.EntryDate, dto.IsEdited, dto.ScheduleId, dto.ShiftId, dto.ShiftName);
 
   public static TimesheetInfoRecord ToRecord(TimesheetInfo dto) =>
-    new(dto.TimesheetId, dto.TimeIn1, dto.TimeOut1, dto.TimeIn2, dto.TimeOut2, dto.EntryDate, dto.IsEdited);
+    new(dto.TimesheetId, dto.ScheduleId, dto.ShiftId, dto.ShiftName, dto.TimeIn1, dto.TimeOut1, dto.TimeIn2, dto.TimeOut2, dto.EntryDate, dto.IsEdited);
 
   public static EmployeeTimesheetRecord ToRecord(EmployeeTimesheetDTO dto) =>
     new(
