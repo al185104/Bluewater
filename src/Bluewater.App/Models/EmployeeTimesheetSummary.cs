@@ -14,5 +14,8 @@ public class EmployeeTimesheetSummary
   public decimal TotalBreak { get; set; }
   public decimal TotalLates { get; set; }
   public int TotalAbsents { get; set; }
+  public decimal TotalUndertimes { get; set; }
+  public decimal TotalOverbreaks { get; set; }
+  public decimal TotalLeaves { get; set; }
   public ObservableCollection<AttendanceTimesheetSummary> Timesheets { get; } = new();
 }

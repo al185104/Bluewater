@@ -1,3 +1,18 @@
 namespace Bluewater.UseCases.Timesheets;
+
 // inherit from EmployeeTimesheetDTO with summary properties.
-public record AllEmployeeTimesheetDTO(Guid EmployeeId, string Name, string Department, string Section, string Charging, List<TimesheetInfo> Timesheets, decimal TotalWorkHours, decimal TotalBreak, decimal TotalLates, int TotalAbsents) : EmployeeTimesheetDTO(EmployeeId, Name, Department, Section, Charging, Timesheets);
+public record AllEmployeeTimesheetDTO(
+  Guid EmployeeId,
+  string Name,
+  string Department,
+  string Section,
+  string Charging,
+  List<TimesheetInfo> Timesheets,
+  decimal TotalWorkHours,
+  decimal TotalBreak,
+  decimal TotalLates,
+  int TotalAbsents,
+  decimal TotalUndertimes,
+  decimal TotalOverbreaks,
+  decimal TotalLeaves)
+  : EmployeeTimesheetDTO(EmployeeId, Name, Department, Section, Charging, Timesheets);

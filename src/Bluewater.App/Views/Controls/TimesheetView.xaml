@@ -54,7 +54,7 @@
 						ItemsUpdatingScrollMode="KeepScrollOffset">
 			<CollectionView.Header>
 				<Grid ColumnSpacing="12"
-					  ColumnDefinitions="2*,*,*,*,Auto,40">
+					  ColumnDefinitions="2*,*,*,*,*,*,*,Auto,40">
 					<Label Grid.Column="0"
 						   Text="Employee"
 						   FontAttributes="Bold" />
@@ -71,6 +71,15 @@
 							Text="Absences"
 							HorizontalOptions="Center"
 							FontAttributes="Bold" />
+					<Label Grid.Column="5"
+							Text="Undertimes"
+							FontAttributes="Bold" />
+					<Label Grid.Column="6"
+							Text="Overbreaks"
+							FontAttributes="Bold" />
+					<Label Grid.Column="7"
+							Text="Leaves"
+							FontAttributes="Bold" />
 					<!--<Label Grid.Column="5"
 							Text="Actions"
 							HorizontalOptions="End"
@@ -86,7 +95,7 @@
 					<Border StrokeShape="RoundRectangle 5 5 5 5">
 						<Grid ColumnSpacing="12"
 							  Padding="10"
-							  ColumnDefinitions="2*,*,*,*,Auto,Auto"
+							  ColumnDefinitions="2*,*,*,*,*,*,*,Auto,Auto"
 							  VerticalOptions="Center">
 							<VerticalStackLayout Grid.Column="0"
 												 Spacing="4">
@@ -129,6 +138,18 @@
 								   HorizontalTextAlignment="Start"
 								   VerticalTextAlignment="Center" />
 							<Label Grid.Column="5"
+								   Text="{Binding TotalUndertimes, StringFormat='{0:0.##}'}"
+								   HorizontalTextAlignment="Start"
+								   VerticalTextAlignment="Center" />
+							<Label Grid.Column="6"
+								   Text="{Binding TotalOverbreaks, StringFormat='{0:0.##}'}"
+								   HorizontalTextAlignment="Start"
+								   VerticalTextAlignment="Center" />
+							<Label Grid.Column="7"
+								   Text="{Binding TotalLeaves, StringFormat='{0:0.##}'}"
+								   HorizontalTextAlignment="Start"
+								   VerticalTextAlignment="Center" />
+							<Label Grid.Column="8"
 								   Grid.RowSpan="2"
 								   VerticalTextAlignment="Center"
 								   Text="{x:Static helpers:Icon.MoreHorizontal}"
