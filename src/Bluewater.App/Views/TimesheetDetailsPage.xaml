@@ -24,13 +24,25 @@
 					   FontSize="16"
 					   FontAttributes="Bold"
 					   Text="{Binding SelectedEmployeeTimesheet.Name}" />
-				<Picker Grid.Row="1"
-						Grid.Column="2"	
-						WidthRequest="180"
-						Title="Shift"
-						ItemsSource="{Binding ShiftOptions}"
-						ItemDisplayBinding="{Binding Name}"
-						SelectedItem="{Binding SelectedShift, Mode=TwoWay}" />
+				<Grid Grid.Row="1"
+					  Grid.Column="2"
+					  ColumnSpacing="10"
+					  ColumnDefinitions="120,Auto">
+					<Picker Title="Shift"
+							ItemsSource="{Binding ShiftOptions}"
+							ItemDisplayBinding="{Binding Name}"
+							SelectedItem="{Binding SelectedShift, Mode=TwoWay}" />
+					<Button Grid.Column="1"
+							Text="{x:Static helpers:Icon.Trash2}"
+							FontFamily="Icons"
+							VerticalOptions="End"
+							HorizontalOptions="Center"
+							TextColor="{StaticResource PrimaryDarkText}"
+							Background="Transparent"
+							BorderWidth="0.8"
+							BorderColor="{StaticResource TextSecondaryColor}"
+							FontSize="16"/>
+				</Grid>
 				<Label Grid.Row="0"
 					   Grid.Column="2"
 					   FontSize="16"

@@ -95,6 +95,11 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				}
 		}
 
+		[RelayCommand]
+		private async Task ClearSelectedShiftAsync() 
+		{ 
+		}
+
 		[RelayCommand(CanExecute = nameof(CanSaveTimesheets))]
 		private async Task SaveTimesheetsAsync()
 		{
