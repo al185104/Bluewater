@@ -14,6 +14,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 {
 		private readonly ITimesheetApiService timesheetApiService;
 		private readonly IShiftApiService shiftApiService;
+		private readonly IScheduleApiService scheduleApiService;
 
 		[ObservableProperty]
 		public partial EditableTimesheetEntry? SelectedEditableTimesheet { get; set; }
@@ -31,12 +32,14 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 		public TimesheetDetailsViewModel(
 				ITimesheetApiService timesheetApiService,
 				IShiftApiService shiftApiService,
+				IScheduleApiService scheduleApiService,
 				IActivityTraceService activityTraceService,
 				IExceptionHandlingService exceptionHandlingService)
 				: base(activityTraceService, exceptionHandlingService)
 		{
 				this.timesheetApiService = timesheetApiService;
 				this.shiftApiService = shiftApiService;
+				this.scheduleApiService = scheduleApiService;
 		}
 
 		public override void IsBusyChanged(bool isBusy)
@@ -97,7 +100,69 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 		[RelayCommand]
 		private async Task ClearSelectedShiftAsync() 
-		{ 
+		{
+				if (IsBusy || SelectedEditableTimesheet is null)
+				{
+						return;
+				}
+
+				EditableTimesheetEntry selectedEntry = SelectedEditableTimesheet;
+
+				if (!selectedEntry.ShiftId.HasValue && !selectedEntry.ScheduleId.HasValue)
+				{
+						SelectedShift = null;
+						return;
+				}
+
+				try
+				{
+						IsBusy = true;
+						Guid? previousScheduleId = selectedEntry.ScheduleId;
+
+						if (selectedEntry.ScheduleId is Guid scheduleId && scheduleId != Guid.Empty)
+						{
+								bool deleted = await scheduleApiService.DeleteScheduleAsync(scheduleId).ConfigureAwait(false);
+								if (!deleted)
+								{
+										throw new InvalidOperationException("Failed to delete schedule.");
+								}
+						}
+
+						selectedEntry.ScheduleId = null;
+						selectedEntry.ShiftId = null;
+						selectedEntry.ShiftName = null;
+
+						AttendanceTimesheetSummary? updated = await timesheetApiService
+								.UpdateTimesheetAsync(selectedEntry.ToUpdateRequest())
+								.ConfigureAwait(false);
+
+						if (updated is not null)
+						{
+								selectedEntry.ApplySummary(updated);
+						}
+
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								SelectedShift = null;
+								UpdateCanSaveTimesheets();
+						});
+
+						await TraceCommandAsync(nameof(ClearSelectedShiftAsync), new
+						{
+								selectedEntry.EmployeeId,
+								selectedEntry.EntryDate,
+								PreviousScheduleId = previousScheduleId
+						}).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Clearing selected shift");
+				}
+				finally
+				{
+						IsBusy = false;
+						MainThread.BeginInvokeOnMainThread(UpdateCanSaveTimesheets);
+				}
 		}
 
 		[RelayCommand(CanExecute = nameof(CanSaveTimesheets))]
