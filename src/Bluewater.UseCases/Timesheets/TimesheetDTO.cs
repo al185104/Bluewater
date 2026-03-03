@@ -8,8 +8,11 @@ public record TimesheetDTO(){
     public DateTime? TimeOut2 { get; set; }
     public DateOnly? EntryDate { get; set; }
     public bool IsEdited { get; set; } = false;
+    public Guid? ScheduleId { get; set; }
+    public Guid? ShiftId { get; set; }
+    public string? ShiftName { get; set; }
 
-    public TimesheetDTO(Guid id, Guid employeeId, DateTime? timeIn1, DateTime? timeOut1, DateTime? timeIn2, DateTime? timeOut2, DateOnly? entryDate, bool isEdited = false) : this()
+    public TimesheetDTO(Guid id, Guid employeeId, DateTime? timeIn1, DateTime? timeOut1, DateTime? timeIn2, DateTime? timeOut2, DateOnly? entryDate, bool isEdited = false, Guid? scheduleId = null, Guid? shiftId = null, string? shiftName = null) : this()
     {
         Id = id;
         EmployeeId = employeeId;
@@ -19,5 +22,8 @@ public record TimesheetDTO(){
         TimeOut2 = timeOut2;
         EntryDate = entryDate;
         IsEdited = isEdited;
+        ScheduleId = scheduleId;
+        ShiftId = shiftId;
+        ShiftName = shiftName;
     }
 }

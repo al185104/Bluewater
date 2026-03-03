@@ -10,6 +10,9 @@ public partial class EditableTimesheetEntry : ObservableObject
 		private DateTime? originalTimeOut2;
 		private DateOnly? originalEntryDate;
 		private bool originalIsLocked;
+		private Guid? originalScheduleId;
+		private Guid? originalShiftId;
+		private string? originalShiftName;
 
 		[ObservableProperty]
 		public partial Guid Id { get; set; }
@@ -37,6 +40,15 @@ public partial class EditableTimesheetEntry : ObservableObject
 
 		[ObservableProperty]
 		public partial bool IsLocked { get; set; }
+
+		[ObservableProperty]
+		public partial Guid? ScheduleId { get; set; }
+
+		[ObservableProperty]
+		public partial Guid? ShiftId { get; set; }
+
+		[ObservableProperty]
+		public partial string? ShiftName { get; set; }
 
 		public DateTime EntryDateDateTime
 		{
@@ -206,7 +218,10 @@ public partial class EditableTimesheetEntry : ObservableObject
 			TimeOut1 != originalTimeOut1 ||
 			TimeIn2 != originalTimeIn2 ||
 			TimeOut2 != originalTimeOut2 ||
-			IsLocked != originalIsLocked;
+			IsLocked != originalIsLocked ||
+			ScheduleId != originalScheduleId ||
+			ShiftId != originalShiftId ||
+			ShiftName != originalShiftName;
 
 		partial void OnEntryDateChanged(DateOnly? value)
 		{
@@ -255,6 +270,21 @@ public partial class EditableTimesheetEntry : ObservableObject
 				OnPropertyChanged(nameof(HasChanges));
 		}
 
+		partial void OnScheduleIdChanged(Guid? value)
+		{
+				OnPropertyChanged(nameof(HasChanges));
+		}
+
+		partial void OnShiftIdChanged(Guid? value)
+		{
+				OnPropertyChanged(nameof(HasChanges));
+		}
+
+		partial void OnShiftNameChanged(string? value)
+		{
+				OnPropertyChanged(nameof(HasChanges));
+		}
+
 		public static EditableTimesheetEntry FromSummary(AttendanceTimesheetSummary summary)
 		{
 				var entry = new EditableTimesheetEntry
@@ -267,7 +297,10 @@ public partial class EditableTimesheetEntry : ObservableObject
 						TimeIn2 = new DateTime(summary.TimeIn2Date.Year, summary.TimeIn2Date.Month, summary.TimeIn2Date.Day, summary.TimeIn2Time.Hours, summary.TimeIn2Time.Minutes, summary.TimeIn2Time.Seconds),
 						TimeOut2 = new DateTime(summary.TimeOut2Date.Year, summary.TimeOut2Date.Month, summary.TimeOut2Date.Day, summary.TimeOut2Time.Hours, summary.TimeOut2Time.Minutes, summary.TimeOut2Time.Seconds),
 						IsEdited = summary.IsEdited,
-						IsLocked = false
+						IsLocked = false,
+						ScheduleId = summary.ScheduleId,
+						ShiftId = summary.ShiftId,
+						ShiftName = summary.ShiftName
 				};
 
 				entry.ResetChangeTracking();
@@ -282,6 +315,9 @@ public partial class EditableTimesheetEntry : ObservableObject
 				TimeIn2 = summary.TimeIn2;
 				TimeOut2 = summary.TimeOut2;
 				IsEdited = summary.IsEdited;
+				ScheduleId = summary.ScheduleId;
+				ShiftId = summary.ShiftId;
+				ShiftName = summary.ShiftName;
 				ResetChangeTracking();
 		}
 
@@ -296,6 +332,8 @@ public partial class EditableTimesheetEntry : ObservableObject
 						TimeIn2 = TimeIn2,
 						TimeOut2 = TimeOut2,
 						EntryDate = EntryDate,
+						ScheduleId = ScheduleId,
+						ShiftId = ShiftId,
 						IsLocked = IsLocked
 				};
 		}
@@ -308,6 +346,9 @@ public partial class EditableTimesheetEntry : ObservableObject
 				originalTimeIn2 = TimeIn2;
 				originalTimeOut2 = TimeOut2;
 				originalIsLocked = IsLocked;
+				originalScheduleId = ScheduleId;
+				originalShiftId = ShiftId;
+				originalShiftName = ShiftName;
 				OnPropertyChanged(nameof(HasChanges));
 		}
 

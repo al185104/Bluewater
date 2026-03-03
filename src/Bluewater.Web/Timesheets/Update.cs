@@ -28,6 +28,8 @@ public class Update(IMediator _mediator) : Endpoint<UpdateTimesheetRequest, Upda
       request.TimeIn2,
       request.TimeOut2,
       request.EntryDate,
+      request.ScheduleId,
+      request.ShiftId,
       request.IsLocked);
 
     Result<TimesheetDTO> result = await _mediator.Send(command, cancellationToken);

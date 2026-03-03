@@ -39,6 +39,9 @@ public class AllEmployeeTimesheetDto : EmployeeTimesheetDto
 public class TimesheetInfoDto
 {
   public Guid TimesheetId { get; set; }
+  public Guid? ScheduleId { get; set; }
+  public Guid? ShiftId { get; set; }
+  public string? ShiftName { get; set; }
   public DateTime? TimeIn1 { get; set; }
   public DateTime? TimeOut1 { get; set; }
   public DateTime? TimeIn2 { get; set; }
@@ -56,6 +59,8 @@ public class UpdateTimesheetRequestDto
   public DateTime? TimeIn2 { get; set; }
   public DateTime? TimeOut2 { get; set; }
   public DateOnly? EntryDate { get; set; }
+  public Guid? ScheduleId { get; set; }
+  public Guid? ShiftId { get; set; }
   public bool IsLocked { get; set; }
 }
 
@@ -74,6 +79,9 @@ public class TimesheetDto
   public DateTime? TimeOut2 { get; set; }
   public DateOnly? EntryDate { get; set; }
   public bool IsEdited { get; set; }
+  public Guid? ScheduleId { get; set; }
+  public Guid? ShiftId { get; set; }
+  public string? ShiftName { get; set; }
 }
 
 public enum TimesheetInputType
