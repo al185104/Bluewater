@@ -67,6 +67,9 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
           decimal totalBreak = 0;
           decimal totalLates = 0;
           int totalAbsents = 0;
+          decimal totalUndertimes = 0;
+          decimal totalOverbreaks = 0;
+          decimal totalLeaves = 0;
 
           Result<IEnumerable<AttendanceDTO>> attendanceResult = await mediator.Send(
             new ListAttendanceQuery(null, null, employee.Id, request.startDate, request.endDate),
@@ -74,10 +77,23 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
 
           if (attendanceResult.IsSuccess)
           {
-            (totalWorkHours, totalBreak, totalLates, totalAbsents) = ProcessAttendanceSummary(attendanceResult.Value.ToList());
+            (totalWorkHours, totalBreak, totalLates, totalAbsents, totalUndertimes, totalOverbreaks, totalLeaves) = ProcessAttendanceSummary(attendanceResult.Value.ToList());
           }
 
-          results.Add(new AllEmployeeTimesheetDTO(val.EmployeeId, val.Name, val.Department, val.Section, val.Charging, val.Timesheets, totalWorkHours, totalBreak, totalLates, totalAbsents));
+          results.Add(new AllEmployeeTimesheetDTO(
+            val.EmployeeId,
+            val.Name,
+            val.Department,
+            val.Section,
+            val.Charging,
+            val.Timesheets,
+            totalWorkHours,
+            totalBreak,
+            totalLates,
+            totalAbsents,
+            totalUndertimes,
+            totalOverbreaks,
+            totalLeaves));
         }
       }
     }
@@ -85,7 +101,7 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
     return Result<Common.PagedResult<AllEmployeeTimesheetDTO>>.Success(new Common.PagedResult<AllEmployeeTimesheetDTO>(results, totalCount));
   }
 
-  private static (decimal totalWorkHours, decimal totalBreak, decimal totalLates, int totalAbsents) ProcessAttendanceSummary(List<AttendanceDTO> attendances)
+  private static (decimal totalWorkHours, decimal totalBreak, decimal totalLates, int totalAbsents, decimal totalUndertimes, decimal totalOverbreaks, decimal totalLeaves) ProcessAttendanceSummary(List<AttendanceDTO> attendances)
   {
     var totalWorkHours = attendances.Sum(i => i.WorkHrs) ?? 0;
     var totalBreak = attendances.Sum(i => i.OverbreakHrs) ?? 0;
@@ -93,6 +109,10 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
     var totalAbsents = attendances.Count(i => i.ShiftId != null && i.Shift != null && !i.Shift.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase))
       - attendances.Count(i => i.WorkHrs > 0);
 
-    return (totalWorkHours, totalBreak, totalLates, totalAbsents);
+    decimal totalUndertimes = attendances.Sum(i => i.UnderHrs) ?? 0;
+    decimal totalOverbreaks = attendances.Sum(i => i.OverbreakHrs) ?? 0;
+    decimal totalLeaves = attendances.Sum(i => i.LeaveId.HasValue ? 1 : 0);
+
+    return (totalWorkHours, totalBreak, totalLates, totalAbsents, totalUndertimes, totalOverbreaks, totalLeaves);
   }
 }

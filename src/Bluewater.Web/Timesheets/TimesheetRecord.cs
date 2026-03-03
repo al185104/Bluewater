@@ -40,7 +40,10 @@ public record AllEmployeeTimesheetRecord(
   decimal TotalWorkHours,
   decimal TotalBreak,
   decimal TotalLates,
-  int TotalAbsents)
+  int TotalAbsents,
+  decimal TotalUndertimes,
+  decimal TotalOverbreaks,
+  decimal TotalLeaves)
   : EmployeeTimesheetRecord(EmployeeId, Name, Department, Section, Charging, Timesheets);
 
 public static class TimesheetMapper
@@ -71,5 +74,8 @@ public static class TimesheetMapper
       dto.TotalWorkHours,
       dto.TotalBreak,
       dto.TotalLates,
-      dto.TotalAbsents);
+      dto.TotalAbsents,
+      dto.TotalUndertimes,
+      dto.TotalOverbreaks,
+      dto.TotalLeaves);
 }
