@@ -10,8 +10,6 @@ using CommunityToolkit.Maui;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using Microsoft.UI.Windowing;
-using Windows.Devices.Usb;
-using static Microsoft.IO.RecyclableMemoryStreamManager;
 
 namespace Bluewater.App;
 

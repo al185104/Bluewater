@@ -99,12 +99,14 @@ public partial class TimesheetsViewModel : BaseViewModel
 				hasInitialized = true;
 				await TraceCommandAsync(nameof(InitializeAsync)).ConfigureAwait(false);
 
-				MainThread.BeginInvokeOnMainThread(LoadChargings);
+				MainThread.BeginInvokeOnMainThread(async () => {
+						LoadChargings();
+						if (SelectedCharging is not null)
+						{
+								await LoadTimesheetsAsync().ConfigureAwait(false);
+						}
+				});
 
-				if (SelectedCharging is not null)
-				{
-						await LoadTimesheetsAsync().ConfigureAwait(false);
-				}
 		}
 
 		[RelayCommand]

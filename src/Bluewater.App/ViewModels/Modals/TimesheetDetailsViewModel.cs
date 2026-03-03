@@ -1,8 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using Bluewater.App.Enums;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -150,6 +152,19 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 				if (anyUpdated)
 				{
+						MainThread.BeginInvokeOnMainThread(async () =>
+						{
+								await Snackbar.Make(
+										"Timesheet has been successfully updated.",
+										duration: TimeSpan.FromSeconds(3)
+								).Show();
+								await Shell.Current.GoToAsync("..",
+										new Dictionary<string, object>
+										{
+												["TargetSection"] = MainSectionEnum.Timesheet
+										});
+						});
+
 						await TraceCommandAsync(nameof(SaveTimesheetsAsync), SelectedEmployeeTimesheet?.EmployeeId).ConfigureAwait(false);
 				}
 		}

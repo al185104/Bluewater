@@ -54,36 +54,45 @@
 						ItemsUpdatingScrollMode="KeepScrollOffset">
 			<CollectionView.Header>
 				<Grid ColumnSpacing="12"
-					  ColumnDefinitions="2*,*,*,*,*,*,*,Auto,40">
+					  ColumnDefinitions="2*,*,*,*,*,*,*,*,40">
 					<Label Grid.Column="0"
 						   Text="Employee"
 						   FontAttributes="Bold" />
 					<Label Grid.Column="1"
-							Text="Work Hours"
-							FontAttributes="Bold" />
+						   Text="Work Hours"
+						   HorizontalTextAlignment="Center"
+						   HorizontalOptions="Center"
+						   FontAttributes="Bold" />
 					<Label Grid.Column="2"
-							Text="Break Hours"
-							FontAttributes="Bold" />
+						   Text="Break Hours"
+						   HorizontalTextAlignment="Center"
+						   HorizontalOptions="Center"
+						   FontAttributes="Bold" />
 					<Label Grid.Column="3"
-							Text="Late Hours"
-							FontAttributes="Bold" />
+						   Text="Late Hours"
+						   HorizontalTextAlignment="Center"
+						   HorizontalOptions="Center"
+						   FontAttributes="Bold" />
 					<Label Grid.Column="4"
-							Text="Absences"
-							HorizontalOptions="Center"
-							FontAttributes="Bold" />
+						   Text="Absences"
+						   HorizontalTextAlignment="Center"
+						   HorizontalOptions="Center"
+						   FontAttributes="Bold" />
 					<Label Grid.Column="5"
-							Text="Undertimes"
-							FontAttributes="Bold" />
+						   Text="Undertimes"
+						   HorizontalTextAlignment="Center"
+						   HorizontalOptions="Center"
+						   FontAttributes="Bold" />
 					<Label Grid.Column="6"
-							Text="Overbreaks"
-							FontAttributes="Bold" />
+						   Text="Overbreaks"
+						   HorizontalTextAlignment="Center"
+						   HorizontalOptions="Center"
+						   FontAttributes="Bold" />
 					<Label Grid.Column="7"
-							Text="Leaves"
-							FontAttributes="Bold" />
-					<!--<Label Grid.Column="5"
-							Text="Actions"
-							HorizontalOptions="End"
-							FontAttributes="Bold" />-->
+						   Text="Leaves"
+						   HorizontalTextAlignment="Center"
+						   HorizontalOptions="Center"
+						   FontAttributes="Bold" />
 				</Grid>
 			</CollectionView.Header>
 			<CollectionView.ItemsLayout>
@@ -95,7 +104,7 @@
 					<Border StrokeShape="RoundRectangle 5 5 5 5">
 						<Grid ColumnSpacing="12"
 							  Padding="10"
-							  ColumnDefinitions="2*,*,*,*,*,*,*,Auto,Auto"
+							  ColumnDefinitions="2*,*,*,*,*,*,*,*,40"
 							  VerticalOptions="Center">
 							<VerticalStackLayout Grid.Column="0"
 												 Spacing="4">
@@ -122,32 +131,33 @@
 							</VerticalStackLayout>
 							<Label Grid.Column="1"
 								   Text="{Binding TotalWorkHours, StringFormat='{0:0.##}'}"
-								   HorizontalTextAlignment="Start"
+								   HorizontalTextAlignment="Center"
 								   VerticalTextAlignment="Center" />
 							<Label Grid.Column="2"
 								   Text="{Binding TotalBreak, StringFormat='{0:0.##}'}"
-								   HorizontalTextAlignment="Start"
+								   HorizontalTextAlignment="Center"
 								   VerticalTextAlignment="Center" />
 							<Label Grid.Column="3"
 								   Text="{Binding TotalLates, StringFormat='{0:0.##}'}"
-								   HorizontalTextAlignment="Start"
+								   HorizontalTextAlignment="Center"
 								   VerticalTextAlignment="Center" />
 							<Label Grid.Column="4"
 								   Text="{Binding TotalAbsents}"
 								   WidthRequest="30"
-								   HorizontalTextAlignment="Start"
+								   HorizontalTextAlignment="Center"
 								   VerticalTextAlignment="Center" />
 							<Label Grid.Column="5"
 								   Text="{Binding TotalUndertimes, StringFormat='{0:0.##}'}"
-								   HorizontalTextAlignment="Start"
+								   HorizontalTextAlignment="Center"
 								   VerticalTextAlignment="Center" />
 							<Label Grid.Column="6"
 								   Text="{Binding TotalOverbreaks, StringFormat='{0:0.##}'}"
-								   HorizontalTextAlignment="Start"
+								   HorizontalTextAlignment="Center"
 								   VerticalTextAlignment="Center" />
 							<Label Grid.Column="7"
 								   Text="{Binding TotalLeaves, StringFormat='{0:0.##}'}"
-								   HorizontalTextAlignment="Start"
+								   HorizontalTextAlignment="Center"
+								   HorizontalOptions="Center"
 								   VerticalTextAlignment="Center" />
 							<Label Grid.Column="8"
 								   Grid.RowSpan="2"

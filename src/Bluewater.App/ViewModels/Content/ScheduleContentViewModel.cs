@@ -1,9 +1,5 @@
-﻿using System.Collections.ObjectModel;
-using System.Globalization;
-using Bluewater.App.Interfaces;
-using Bluewater.App.Models;
+﻿using Bluewater.App.Interfaces;
 using Bluewater.App.ViewModels.Base;
-using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Bluewater.App.ViewModels.Content;
 

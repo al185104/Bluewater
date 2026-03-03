@@ -5,6 +5,7 @@
 			 xmlns:vm="clr-namespace:Bluewater.App.ViewModels.Modals"
 			 xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
 			 xmlns:models="clr-namespace:Bluewater.App.Models"
+			 Shell.FlyoutBehavior="Disabled"
 			 x:DataType="vm:TimesheetDetailsViewModel"
              Title="TimesheetDetailsPage">
 	<Grid Padding="10"
@@ -16,24 +17,20 @@
 				StrokeShape="RoundRectangle 12">
 			<Grid ColumnDefinitions="*,*,Auto"
 				  RowDefinitions="Auto,Auto,Auto"
-				  RowSpacing="5"
+				  RowSpacing="10"
 				  Padding="20,10">
 				<Label Grid.Row="0"
 					   Grid.Column="0"
 					   FontSize="16"
 					   FontAttributes="Bold"
-					   Text="Name here" />
-
-				<HorizontalStackLayout Grid.Row="0"
-							   Grid.Column="1"
-							   HorizontalOptions="Center"
-							   Spacing="12">
-					<Label Text="Shift" VerticalTextAlignment="Center"/>
-					<Picker WidthRequest="180"
-							ItemsSource="{Binding ShiftOptions}"
-							ItemDisplayBinding="{Binding Name}"
-							SelectedItem="{Binding SelectedShift, Mode=TwoWay}" />
-				</HorizontalStackLayout>
+					   Text="{Binding SelectedEmployeeTimesheet.Name}" />
+				<Picker Grid.Row="1"
+						Grid.Column="2"	
+						WidthRequest="180"
+						Title="Shift"
+						ItemsSource="{Binding ShiftOptions}"
+						ItemDisplayBinding="{Binding Name}"
+						SelectedItem="{Binding SelectedShift, Mode=TwoWay}" />
 				<Label Grid.Row="0"
 					   Grid.Column="2"
 					   FontSize="16"

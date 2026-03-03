@@ -1158,54 +1158,58 @@ public partial class SettingViewModel : BaseViewModel
 			IReadOnlyCollection<TSetting> items,
 			Func<TSetting, string?[]> rowFactory)
 		{
-			if (IsBusy)
-			{
-					return;
-			}
+				if (IsBusy)
+				{
+						return;
+				}
 
-			if (items.Count == 0)
-			{
-					await Shell.Current.DisplayAlert("Export", $"No {filePrefix.Replace('_', ' ')} to export.", "Okay");
-					return;
-			}
+				if (items.Count == 0)
+				{
+						await Shell.Current.DisplayAlert("Export", $"No {filePrefix.Replace('_', ' ')} to export.", "Okay");
+						return;
+				}
 
-			try
-			{
-					IsBusy = true;
+				try
+				{
+						IsBusy = true;
 
-					string displayName = filePrefix.Replace('_', ' ');
-					bool confirmed = await Shell.Current.DisplayAlert(
-							$"Export {displayName}",
-							$"Export {displayName} records to your Downloads folder?",
-							"Yes",
-							"No");
+						string displayName = filePrefix.Replace('_', ' ');
+						bool confirmed = await Shell.Current.DisplayAlert(
+								$"Export {displayName}",
+								$"Export {displayName} records to your Downloads folder?",
+								"Yes",
+								"No");
 
-					if (!confirmed)
-					{
-							return;
-					}
+						if (!confirmed)
+						{
+								return;
+						}
 
-					var csv = new StringBuilder();
-					csv.AppendLine("Name,Description,Parent");
+						var csv = new StringBuilder();
+						csv.AppendLine("Name,Description");
 
-					foreach (var item in items)
-					{
-							var values = rowFactory(item);
-							csv.AppendLine(string.Join(",", values.Select(EscapeCsv)));
-					}
+						foreach (var item in items)
+						{
+								var values = rowFactory(item);
+								csv.AppendLine(string.Join(",", values.Select(EscapeCsv)));
+						}
 
-					string fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
-					string downloadsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-					Directory.CreateDirectory(downloadsDirectory);
-					string filePath = Path.Combine(downloadsDirectory, fileName);
-					await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8).ConfigureAwait(false);
+						string fileName = $"{filePrefix}_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+						string downloadsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+						Directory.CreateDirectory(downloadsDirectory);
+						string filePath = Path.Combine(downloadsDirectory, fileName);
+						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8);
 
-					await Shell.Current.DisplayAlert("Export", $"{displayName} exported to {filePath}", "Okay").ConfigureAwait(false);
-			}
-			finally
-			{
-					IsBusy = false;
-			}
+
+						MainThread.BeginInvokeOnMainThread(async () =>
+						{
+								await Shell.Current.DisplayAlert("Export", $"{displayName} exported to {filePath}", "Okay");
+						});
+				}
+				finally
+				{
+						IsBusy = false;
+				}
 		}
 
 		private static string EscapeCsv(string? value)
@@ -1333,7 +1337,8 @@ public partial class SettingViewModel : BaseViewModel
 		{
 				Guid? departmentId = ResolveId(row, Departments.Select(i => (i.Id, i.Name)));
 
-				if (!departmentId.HasValue) {
+				if (!departmentId.HasValue)
+				{
 						return null;
 				}
 
