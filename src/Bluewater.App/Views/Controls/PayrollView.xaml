@@ -175,26 +175,26 @@
             </CollectionView.EmptyView>
         </CollectionView>
 
-        <HorizontalStackLayout Grid.Row="2"
+        <!--<HorizontalStackLayout Grid.Row="2"
                                HorizontalOptions="End"
                                Spacing="8"
                                IsVisible="{Binding HasPagination}">
             <Label Text="Page"
                    VerticalOptions="Center"
                    TextColor="{StaticResource TextSecondaryColor}" />
-            <CollectionView ItemsSource="{Binding PageNumbers}"
+            --><!--<CollectionView ItemsSource="{Binding PageNumbers}"
                             SelectionMode="None"
                             ItemsLayout="HorizontalList">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Button Text="{Binding .}"
+                        <Button Text="Something"
                                 Padding="8,4"
                                 Command="{Binding Source={x:Reference PayrollViewRoot}, Path=BindingContext.GoToPageCommand}"
                                 CommandParameter="{Binding .}" />
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
-            </CollectionView>
-        </HorizontalStackLayout>
+            </CollectionView>--><!--
+        </HorizontalStackLayout>-->
 
         <ActivityIndicator Grid.Row="1"
                            IsRunning="{Binding IsBusy}"
