@@ -1,11 +1,223 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Bluewater.App.Views.Controls.AttendanceView">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
+             xmlns:models="clr-namespace:Bluewater.App.Models"
+             xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+             xmlns:appViews="clr-namespace:Bluewater.App.Views"
+             x:Class="Bluewater.App.Views.Controls.AttendanceView"
+             x:DataType="vm:AttendanceViewModel"
+             x:Name="AttendanceViewRoot"
+             Loaded="ContentView_Loaded"
+             Unloaded="ContentView_Unloaded"
+             Background="{StaticResource CollectionBackgroundBrush}">
+    <Grid Padding="20"
+          RowDefinitions="Auto,*,Auto">
+        <Grid Grid.Row="0"
+              ColumnDefinitions="180,Auto,Auto,*,Auto,Auto"
+              ColumnSpacing="10">
+            <Picker Grid.Column="0"
+                    VerticalOptions="End"
+                    Title="Select charging"
+                    ItemsSource="{Binding Chargings}"
+                    ItemDisplayBinding="{Binding Name}"
+                    SelectedItem="{Binding SelectedCharging}" />
+            <HorizontalStackLayout Grid.Column="1"
+                                   VerticalOptions="End"
+                                   Spacing="20">
+                <Button Text="{x:Static helpers:Icon.ChevronLeft}"
+                        FontFamily="Icons"
+                        Command="{Binding PreviousPeriodCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}" />
+                <Label Text="{Binding PeriodRangeDisplay}" />
+                <Button Text="{x:Static helpers:Icon.ChevronRight}"
+                        FontFamily="Icons"
+                        Command="{Binding NextPeriodCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}" />
+            </HorizontalStackLayout>
+            <Picker Grid.Column="2"
+                    VerticalOptions="End"
+                    Title="Tenant"
+                    WidthRequest="150"
+                    ItemsSource="{Binding TenantOptions}"
+                    SelectedItem="{Binding SelectedTenant}" />
+            <Button Grid.Column="4"
+                    Text="Refresh"
+                    FontSize="14"
+                    VerticalOptions="End"
+                    Command="{Binding RefreshCommand}"
+                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.RefreshCw},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+                    Style="{StaticResource SecondaryButtonStyle}" />
+            <Button Grid.Column="5"
+                    Text="Submit"
+                    FontSize="14"
+                    VerticalOptions="End"
+                    Command="{Binding SubmitCommand}"
+                    Style="{StaticResource SecondaryButtonStyle}" />
+        </Grid>
+
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding EmployeeAttendances}"
+                        SelectionMode="None"
+                        ItemsUpdatingScrollMode="KeepScrollOffset">
+            <CollectionView.Header>
+                <Grid ColumnSpacing="12"
+                      ColumnDefinitions="2*,1.2*,*,*,*,*,*,*,40">
+                    <Label Grid.Column="0"
+                           Text="Employee"
+                           FontAttributes="Bold" />
+                    <Label Grid.Column="1"
+                           Text="Charging"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                    <Label Grid.Column="2"
+                           Text="Work Hrs"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                    <Label Grid.Column="3"
+                           Text="Late Hrs"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                    <Label Grid.Column="4"
+                           Text="Under Hrs"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                    <Label Grid.Column="5"
+                           Text="Overbreak"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                    <Label Grid.Column="6"
+                           Text="Night Hrs"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                    <Label Grid.Column="7"
+                           Text="Absences"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                </Grid>
+            </CollectionView.Header>
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical"
+                                   ItemSpacing="5" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:EmployeeAttendanceSummary">
+                    <Border StrokeShape="RoundRectangle 5 5 5 5">
+                        <Grid ColumnSpacing="12"
+                              Padding="10"
+                              ColumnDefinitions="2*,1.2*,*,*,*,*,*,*,40"
+                              VerticalOptions="Center">
+                            <VerticalStackLayout Grid.Column="0"
+                                                 Spacing="4">
+                                <Label Text="{Binding Name}"
+                                       FontAttributes="Bold"
+                                       FontSize="14"
+                                       LineBreakMode="TailTruncation" />
+                                <Label FontSize="12"
+                                       TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding Department}"
+                                                  FontSize="12"
+                                                  TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                            <Span Text=", "
+                                                  FontSize="12"
+                                                  TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                            <Span Text="{Binding Section}"
+                                                  FontSize="12"
+                                                  TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1"
+                                   Text="{Binding Charging}"
+                                   VerticalTextAlignment="Center"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{Binding TotalWorkHours, StringFormat='{0:0.##}'}"
+                                   VerticalTextAlignment="Center"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Grid.Column="3"
+                                   Text="{Binding TotalLateHours, StringFormat='{0:0.##}'}"
+                                   VerticalTextAlignment="Center"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Grid.Column="4"
+                                   Text="{Binding TotalUnderHours, StringFormat='{0:0.##}'}"
+                                   VerticalTextAlignment="Center"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Grid.Column="5"
+                                   Text="{Binding TotalOverbreakHours, StringFormat='{0:0.##}'}"
+                                   VerticalTextAlignment="Center"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Grid.Column="6"
+                                   Text="{Binding TotalNightShiftHours, StringFormat='{0:0.##}'}"
+                                   VerticalTextAlignment="Center"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Grid.Column="7"
+                                   Text="{Binding TotalAbsences}"
+                                   VerticalTextAlignment="Center"
+                                   HorizontalTextAlignment="Center" />
+                            <Label Grid.Column="8"
+                                   VerticalTextAlignment="Center"
+                                   Text="{x:Static helpers:Icon.MoreHorizontal}"
+                                   FontFamily="Icons">
+                                <FlyoutBase.ContextFlyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="Edit"
+                                                        Command="{Binding Source={x:Reference AttendanceViewRoot}, Path=BindingContext.EditAttendanceCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                    </MenuFlyout>
+                                </FlyoutBase.ContextFlyout>
+                            </Label>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <HorizontalStackLayout Grid.Row="2"
+                               HorizontalOptions="End"
+                               Spacing="8"
+                               IsVisible="{Binding HasPagination}">
+            <Label Text="Page"
+                   VerticalOptions="Center" />
+            <CollectionView ItemsSource="{Binding PageNumbers}"
+                            SelectionMode="None"
+                            ItemsLayout="HorizontalList">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Button Text="{Binding .}"
+                                Padding="8,4"
+                                Command="{Binding Source={x:Reference AttendanceViewRoot}, Path=BindingContext.GoToPageCommand}"
+                                CommandParameter="{Binding .}" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </HorizontalStackLayout>
+
+        <ActivityIndicator Grid.Row="1"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+
+        <appViews:AttendanceDetailView HorizontalOptions="Fill"
+                                       VerticalOptions="Fill"
+                                       IsVisible="{Binding IsDetailsOpen}"
+                                       IsOpen="{Binding IsDetailsOpen}"
+                                       Title="{Binding DetailsTitle}"
+                                       Summary="{Binding SelectedEmployeeAttendance}"
+                                       Attendances="{Binding DisplayAttendances}"
+                                       SelectedAttendance="{Binding SelectedAttendance}"
+                                       ShiftOptions="{Binding ShiftOptions}"
+                                       SelectedShift="{Binding SelectedShift}"
+                                       EditableTimesheet="{Binding EditableTimesheet}"
+                                       UpdateCommand="{Binding SaveAttendanceChangesCommand}"
+                                       UpdateCommandParameter="{Binding SelectedAttendance}"
+                                       UpdateButtonText="{Binding DetailsPrimaryActionText}"
+                                       IsUpdateEnabled="{Binding CanSaveAttendanceChanges}"
+                                       CloseCommand="{Binding CloseAttendanceDetailsCommand}"
+                                       CloseCommandParameter="{Binding SelectedEmployeeAttendance}" />
+    </Grid>
 </ContentView>
