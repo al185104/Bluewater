@@ -196,7 +196,7 @@ public partial class AttendanceViewModel : BaseViewModel
 
   partial void OnSelectedShiftChanged(ShiftSummary? value)
   {
-    if (SelectedAttendance is null || SelectedAttendance.Id == Guid.Empty)
+    if (SelectedAttendance is null)
     {
       UpdateCanSaveAttendanceChanges();
       return;
@@ -353,15 +353,21 @@ public partial class AttendanceViewModel : BaseViewModel
   [RelayCommand]
   private async Task SaveAttendanceChangesAsync()
   {
-    if (IsSavingAttendance || SelectedAttendance is null || SelectedAttendance.Id == Guid.Empty)
+    if (IsSavingAttendance || SelectedAttendance is null)
     {
       return;
     }
 
+    bool isExistingAttendance = SelectedAttendance.Id != Guid.Empty;
     bool shiftChanged = selectedAttendanceOriginalShiftId != (SelectedShift?.Id == Guid.Empty ? null : SelectedShift?.Id);
     bool timesheetChanged = EditableTimesheet?.HasChanges == true;
+    bool canCreateAttendance = !isExistingAttendance
+      && SelectedAttendance.EmployeeId != Guid.Empty
+      && SelectedAttendance.EntryDate is not null
+      && SelectedShift?.Id is Guid shiftId
+      && shiftId != Guid.Empty;
 
-    if (!shiftChanged && !timesheetChanged)
+    if ((!shiftChanged && !timesheetChanged) && !canCreateAttendance)
     {
       return;
     }
@@ -392,7 +398,31 @@ public partial class AttendanceViewModel : BaseViewModel
 
       AttendanceSummary? updatedAttendance = null;
 
-      if (shiftChanged || updatedTimesheet is not null)
+      if (canCreateAttendance)
+      {
+        try
+        {
+          AttendanceSummary createRequest = new()
+          {
+            EmployeeId = SelectedAttendance.EmployeeId,
+            EntryDate = SelectedAttendance.EntryDate,
+            ShiftId = SelectedShift?.Id,
+            TimesheetId = EditableTimesheet?.Id,
+            LeaveId = SelectedAttendance.LeaveId,
+            IsLocked = SelectedAttendance.IsLocked
+          };
+
+          updatedAttendance = await attendanceApiService
+            .CreateAttendanceAsync(createRequest)
+            .ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+          ExceptionHandlingService.Handle(ex, "Creating attendance");
+          return;
+        }
+      }
+      else if (shiftChanged || updatedTimesheet is not null)
       {
         try
         {
@@ -810,6 +840,7 @@ public partial class AttendanceViewModel : BaseViewModel
     }
 
     target.ShiftId = updated.ShiftId;
+    target.Id = updated.Id;
     target.Shift = updated.Shift;
     target.TimesheetId = updated.TimesheetId;
     target.Timesheet = updated.Timesheet;
@@ -842,7 +873,7 @@ public partial class AttendanceViewModel : BaseViewModel
       return;
     }
 
-    if (SelectedAttendance is null || SelectedAttendance.Id == Guid.Empty)
+    if (SelectedAttendance is null)
     {
       CanSaveAttendanceChanges = false;
       return;
@@ -857,8 +888,12 @@ public partial class AttendanceViewModel : BaseViewModel
     Guid? originalShiftId = selectedAttendanceOriginalShiftId;
     bool shiftChanged = originalShiftId != currentShiftId;
     bool timesheetChanged = EditableTimesheet?.HasChanges == true;
+    bool canCreateAttendance = SelectedAttendance.Id == Guid.Empty
+      && SelectedAttendance.EmployeeId != Guid.Empty
+      && SelectedAttendance.EntryDate is not null
+      && currentShiftId is Guid;
 
-    CanSaveAttendanceChanges = shiftChanged || timesheetChanged;
+    CanSaveAttendanceChanges = shiftChanged || timesheetChanged || canCreateAttendance;
   }
 
   private static AttendanceShiftSummary? MapToAttendanceShiftSummary(ShiftSummary? shift)
