@@ -1,11 +1,205 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Bluewater.App.Views.Controls.PayrollView">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:Class="Bluewater.App.Views.Controls.PayrollView"
+             xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
+             xmlns:models="clr-namespace:Bluewater.App.Models"
+             xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+             x:DataType="vm:PayrollViewModel"
+             Loaded="ContentView_Loaded"
+             Unloaded="ContentView_Unloaded"
+             x:Name="PayrollViewRoot"
+             Background="{StaticResource CollectionBackgroundBrush}">
+    <Grid RowDefinitions="Auto,*,Auto"
+          Padding="20">
+        <Grid Grid.Row="0"
+              ColumnDefinitions="260,Auto,*,Auto"
+              ColumnSpacing="10">
+            <Entry Grid.Column="0"
+                   VerticalOptions="End"
+                   Placeholder="Filter by charging"
+                   ClearButtonVisibility="WhileEditing"
+                   Text="{Binding ChargingFilter}" />
+            <HorizontalStackLayout Grid.Column="1"
+                                   VerticalOptions="End"
+                                   Spacing="20">
+                <Button Text="{x:Static helpers:Icon.ChevronLeft}"
+                        FontFamily="Icons"
+                        Command="{Binding PreviousPeriodCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}" />
+                <Label Text="{Binding PeriodRangeDisplay}" />
+                <Button Text="{x:Static helpers:Icon.ChevronRight}"
+                        FontFamily="Icons"
+                        Command="{Binding NextPeriodCommand}"
+                        Style="{StaticResource SecondaryButtonStyle}" />
+            </HorizontalStackLayout>
+            <Button Grid.Column="3"
+                    Text="Refresh"
+                    FontSize="14"
+                    VerticalOptions="End"
+                    Command="{Binding RefreshCommand}"
+                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.RefreshCw},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+                    Style="{StaticResource SecondaryButtonStyle}" />
+        </Grid>
+
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding Payrolls}"
+                        ItemsUpdatingScrollMode="KeepScrollOffset">
+            <CollectionView.Header>
+                <Grid ColumnSpacing="12"
+                      ColumnDefinitions="2*,*,*,*,*,*,*,40">
+                    <Label Grid.Column="0"
+                           Text="Employee"
+                           FontAttributes="Bold" />
+                    <Label Grid.Column="1"
+                           Text="Charging"
+                           HorizontalTextAlignment="Center"
+                           HorizontalOptions="Center"
+                           FontAttributes="Bold" />
+                    <Label Grid.Column="2"
+                           Text="Gross Pay"
+                           HorizontalTextAlignment="Center"
+                           HorizontalOptions="Center"
+                           FontAttributes="Bold" />
+                    <Label Grid.Column="3"
+                           Text="Net Pay"
+                           HorizontalTextAlignment="Center"
+                           HorizontalOptions="Center"
+                           FontAttributes="Bold" />
+                    <Label Grid.Column="4"
+                           Text="Tax"
+                           HorizontalTextAlignment="Center"
+                           HorizontalOptions="Center"
+                           FontAttributes="Bold" />
+                    <Label Grid.Column="5"
+                           Text="Deductions"
+                           HorizontalTextAlignment="Center"
+                           HorizontalOptions="Center"
+                           FontAttributes="Bold" />
+                    <Label Grid.Column="6"
+                           Text="Date"
+                           HorizontalTextAlignment="Center"
+                           HorizontalOptions="Center"
+                           FontAttributes="Bold" />
+                </Grid>
+            </CollectionView.Header>
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical"
+                                   ItemSpacing="5" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:PayrollSummary">
+                    <Border StrokeShape="RoundRectangle 5 5 5 5">
+                        <Grid ColumnSpacing="12"
+                              Padding="10"
+                              ColumnDefinitions="2*,*,*,*,*,*,*,40"
+                              VerticalOptions="Center">
+                            <VerticalStackLayout Grid.Column="0"
+                                                 Spacing="4">
+                                <Label Text="{Binding Name}"
+                                       FontAttributes="Bold"
+                                       FontSize="14"
+                                       LineBreakMode="TailTruncation" />
+                                <Label FontSize="12"
+                                       TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding Department}"
+                                                  FontSize="12"
+                                                  TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                            <Span Text=", "
+                                                  FontSize="12"
+                                                  TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                            <Span Text="{Binding Section}"
+                                                  FontSize="12"
+                                                  TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                            </VerticalStackLayout>
+                            <Label Grid.Column="1"
+                                   Text="{Binding Charging}"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{Binding GrossPayAmount, StringFormat='₱{0:N2}'}"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
+                            <Label Grid.Column="3"
+                                   Text="{Binding NetAmount, StringFormat='₱{0:N2}'}"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
+                            <Label Grid.Column="4"
+                                   Text="{Binding TaxDeductions, StringFormat='₱{0:N2}'}"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
+                            <Label Grid.Column="5"
+                                   Text="{Binding TotalDeductions, StringFormat='₱{0:N2}'}"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
+                            <Label Grid.Column="6"
+                                   Text="{Binding Date, StringFormat='{0:MMM dd, yyyy}'}"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalTextAlignment="Center" />
+                            <Label Grid.Column="7"
+                                   VerticalTextAlignment="Center"
+                                   Text="{x:Static helpers:Icon.MoreHorizontal}"
+                                   FontFamily="Icons">
+                                <FlyoutBase.ContextFlyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="Edit"
+                                                        Command="{Binding Source={x:Reference PayrollViewRoot}, Path=BindingContext.BeginEditPayrollCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                        <MenuFlyoutItem Text="Delete"
+                                                        Command="{Binding Source={x:Reference PayrollViewRoot}, Path=BindingContext.DeletePayrollCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                    </MenuFlyout>
+                                </FlyoutBase.ContextFlyout>
+                            </Label>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="24"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center"
+                                     Spacing="8">
+                    <Label Text="No payroll records"
+                           FontAttributes="Bold"
+                           HorizontalTextAlignment="Center" />
+                    <Label Text="Adjust period/filter and refresh to load payroll data."
+                           HorizontalTextAlignment="Center"
+                           FontSize="12" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+        </CollectionView>
+
+        <HorizontalStackLayout Grid.Row="2"
+                               HorizontalOptions="End"
+                               Spacing="8"
+                               IsVisible="{Binding HasPagination}">
+            <Label Text="Page"
+                   VerticalOptions="Center"
+                   TextColor="{StaticResource TextSecondaryColor}" />
+            <CollectionView ItemsSource="{Binding PageNumbers}"
+                            SelectionMode="None"
+                            ItemsLayout="HorizontalList">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Button Text="{Binding .}"
+                                Padding="8,4"
+                                Command="{Binding Source={x:Reference PayrollViewRoot}, Path=BindingContext.GoToPageCommand}"
+                                CommandParameter="{Binding .}" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </HorizontalStackLayout>
+
+        <ActivityIndicator Grid.Row="1"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+    </Grid>
 </ContentView>
