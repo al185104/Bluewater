@@ -37,6 +37,7 @@
 					Text="Download"
 					FontSize="14"
 					VerticalOptions="End"
+					IsEnabled="{Binding CanDownloadPayrollPeriod}"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 					Style="{StaticResource SecondaryButtonStyle}" />
 			<Button Grid.Column="4"
@@ -44,6 +45,7 @@
 					FontSize="14"
 					VerticalOptions="End"
 					Command="{Binding SavePayrollCommand}"
+					IsEnabled="{Binding CanSavePayrollPeriod}"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Save},FontFamily=Icons, Color={StaticResource ButtonTextColor},Size=18}"
 					Style="{StaticResource PrimaryButtonStyle}" />
 		</Grid>
@@ -102,10 +104,18 @@
                               VerticalOptions="Center">
                             <VerticalStackLayout Grid.Column="0"
                                                  Spacing="4">
-                                <Label Text="{Binding Name}"
-                                       FontAttributes="Bold"
-                                       FontSize="14"
-                                       LineBreakMode="TailTruncation" />
+                                <HorizontalStackLayout Spacing="6">
+                                    <Label Text="{Binding Name}"
+                                           FontAttributes="Bold"
+                                           FontSize="14"
+                                           LineBreakMode="TailTruncation" />
+                                    <Label Text="{x:Static helpers:Icon.CheckCircle}"
+                                           FontFamily="Icons"
+                                           FontSize="12"
+                                           TextColor="Green"
+                                           IsVisible="{Binding IsSaved}"
+                                           VerticalTextAlignment="Center" />
+                                </HorizontalStackLayout>
                                 <Label FontSize="12"
                                        TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}">
                                     <Label.FormattedText>

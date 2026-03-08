@@ -239,6 +239,7 @@ public class UpdatePayrollResponseDto
 public class PayrollSummary : IRowIndexed
 {
   public Guid Id { get; set; }
+  public bool IsSaved => Id != Guid.Empty;
   public Guid? EmployeeId { get; set; }
   public string? Name { get; set; }
   public string? Barcode { get; set; }

@@ -45,6 +45,10 @@ public partial class PayrollViewModel : BaseViewModel
 
 		public bool HasPagination => TotalPages > 0;
 
+		public bool CanSavePayrollPeriod => !IsBusy && Payrolls.Any(payroll => !payroll.IsSaved);
+
+		public bool CanDownloadPayrollPeriod => !IsBusy && Payrolls.Count > 0 && Payrolls.All(payroll => payroll.IsSaved);
+
 		[ObservableProperty]
 		public partial DateOnly StartDate { get; set; }
 
@@ -162,69 +166,55 @@ public partial class PayrollViewModel : BaseViewModel
 						});
 		}
 
-		[RelayCommand]
+		[RelayCommand(CanExecute = nameof(CanSavePayrollPeriod))]
 		private async Task SavePayrollAsync()
 		{
-				bool isNew = EditablePayroll.Id == Guid.Empty;
+				IReadOnlyList<(PayrollSummary payroll, int index)> pendingPayrolls = Payrolls
+						.Select((payroll, index) => (payroll, index))
+						.Where(item => !item.payroll.IsSaved && item.payroll.EmployeeId.HasValue && item.payroll.EmployeeId.Value != Guid.Empty)
+						.ToList();
+
+				if (pendingPayrolls.Count == 0)
+				{
+						return;
+				}
 
 				try
 				{
 						IsBusy = true;
 
-						if (isNew)
+						foreach ((PayrollSummary payroll, int index) pendingPayroll in pendingPayrolls)
 						{
-								Guid? newId = await payrollApiService.CreatePayrollAsync(EditablePayroll);
-
-								if (newId.HasValue)
+								Guid? newId = await payrollApiService.CreatePayrollAsync(pendingPayroll.payroll);
+								if (!newId.HasValue)
 								{
-										EditablePayroll.Id = newId.Value;
-										PayrollSummary? created = await payrollApiService.GetPayrollByIdAsync(newId.Value);
-										PayrollSummary payroll = created ?? EditablePayroll;
-										payroll.RowIndex = Payrolls.Count;
-										Payrolls.Add(payroll);
-										EditablePayroll = payroll;
-								}
-								else
-								{
-										EditablePayroll.RowIndex = Payrolls.Count;
-										Payrolls.Add(EditablePayroll);
-								}
-						}
-						else
-						{
-								PayrollSummary? updated = await payrollApiService.UpdatePayrollAsync(EditablePayroll);
-								PayrollSummary result = updated ?? EditablePayroll;
-								int index = FindPayrollIndex(result.Id);
-								if (index >= 0)
-								{
-										result.RowIndex = index;
-										Payrolls[index] = result;
-								}
-								else
-								{
-										result.RowIndex = Payrolls.Count;
-										Payrolls.Add(result);
+										continue;
 								}
 
-								EditablePayroll = result;
+								PayrollSummary result = await payrollApiService.GetPayrollByIdAsync(newId.Value) ?? pendingPayroll.payroll;
+								result.RowIndex = pendingPayroll.index;
+								Payrolls[pendingPayroll.index] = result;
 						}
 
 						UpdatePayrollRowIndexes();
+						EditablePayroll = CreateNewPayroll();
+						UpdatePayrollCommandStates();
 
 						await Snackbar.Make(
-								"Payrolls has been successfully updated.",
+								$"Saved {pendingPayrolls.Count} payroll record(s) for {PeriodRangeDisplay}.",
 								duration: TimeSpan.FromSeconds(3)
 						).Show();
 
-						await TraceCommandAsync(nameof(SavePayrollAsync), EditablePayroll.Id);
+						await TraceCommandAsync(nameof(SavePayrollAsync));
 				}
 				catch (Exception ex)
 				{
-						ExceptionHandlingService.Handle(ex, isNew ? "Creating payroll" : "Updating payroll");
+						ExceptionHandlingService.Handle(ex, "Saving payroll period");
 				}
 				finally
 				{
 						IsBusy = false;
+						UpdatePayrollCommandStates();
 				}
 		}
 
@@ -263,6 +253,7 @@ public partial class PayrollViewModel : BaseViewModel
 		{
 				base.IsBusyChanged(isBusy);
 				RaiseNavigationState();
+				UpdatePayrollCommandStates();
 		}
 
 		private async Task LoadPayrollsAsync()
@@ -365,18 +356,6 @@ public partial class PayrollViewModel : BaseViewModel
 				return (new DateOnly(previousMonth.Year, previousMonth.Month, 26), new DateOnly(date.Year, date.Month, 10));
 		}
 
-		private int FindPayrollIndex(Guid payrollId)
-		{
-				for (int i = 0; i < Payrolls.Count; i++)
-				{
-						if (Payrolls[i].Id == payrollId)
-						{
-								return i;
-						}
-				}
-
-				return -1;
-		}
 
 		private void UpdatePayrollRowIndexes()
 		{
@@ -402,6 +381,13 @@ public partial class PayrollViewModel : BaseViewModel
 		partial void OnEndDateChanged(DateOnly value)
 		{
 				OnPropertyChanged(nameof(PeriodRangeDisplay));
+		}
+
+		private void UpdatePayrollCommandStates()
+		{
+				OnPropertyChanged(nameof(CanSavePayrollPeriod));
+				OnPropertyChanged(nameof(CanDownloadPayrollPeriod));
+				SavePayrollCommand.NotifyCanExecuteChanged();
 		}
 
 		private void RaiseNavigationState()
