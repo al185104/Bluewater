@@ -144,6 +144,7 @@ public static class MauiProgram
 				// modals
 				builder.Services.AddTransient<EmployeeDetailsViewModel>();
 				builder.Services.AddTransient<TimesheetDetailsViewModel>();
+				builder.Services.AddTransient<PayrollDetailsViewModel>();
 
 				MauiApp app = builder.Build();
 

@@ -3,6 +3,7 @@ using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
+using Bluewater.App.Views.Modals;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -120,7 +121,7 @@ public partial class PayrollViewModel : BaseViewModel
 		}
 
 		[RelayCommand]
-		private void BeginEditPayroll(PayrollSummary? payroll)
+		private async Task BeginEditPayrollAsync(PayrollSummary? payroll)
 		{
 				if (payroll is null)
 				{
@@ -129,6 +130,13 @@ public partial class PayrollViewModel : BaseViewModel
 
 				SelectedPayroll = payroll;
 				EditablePayroll = payroll;
+
+				await Shell.Current.GoToAsync(
+						nameof(PayrollDetailsPage),
+						new Dictionary<string, object>
+						{
+								["Payroll"] = payroll
+						});
 		}
 
 		[RelayCommand]

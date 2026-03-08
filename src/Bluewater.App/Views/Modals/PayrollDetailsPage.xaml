@@ -1,12 +1,69 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Bluewater.App.ViewModels.Modals"
              x:Class="Bluewater.App.Views.Modals.PayrollDetailsPage"
-             Title="PayrollDetailsPage">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+             x:DataType="vm:PayrollDetailsViewModel"
+             Shell.FlyoutBehavior="Disabled"
+             Title="Payroll Breakdown">
+    <ScrollView>
+        <VerticalStackLayout Padding="20"
+                             Spacing="14">
+            <Label Text="Payroll Computation"
+                   Style="{StaticResource HeadingTextStyle}" />
+
+            <Border StrokeShape="RoundRectangle 12"
+                    Padding="14"
+                    BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding EmployeeName}"
+                           FontSize="16"
+                           FontAttributes="Bold" />
+                    <Label Text="{Binding PositionDisplay}"
+                           TextColor="{StaticResource TextSecondaryColor}" />
+                    <Label Text="{Binding OrganizationDisplay}"
+                           FontSize="12"
+                           TextColor="{StaticResource TextSecondaryColor}" />
+                    <HorizontalStackLayout Spacing="10">
+                        <Label Text="{Binding PayrollDateDisplay}" FontAttributes="Bold" />
+                        <Label Text="•" />
+                        <Label Text="{Binding ChargingDisplay}" />
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border StrokeShape="RoundRectangle 12" Padding="14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Earnings" FontAttributes="Bold" />
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Basic Pay" /><Label Grid.Column="1" Text="{Binding Payroll.BasicPayAmount, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Premiums / OT / Holiday" /><Label Grid.Column="1" Text="{Binding TotalPremiumsAmount, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Allowances / Service Charge / Refunds" /><Label Grid.Column="1" Text="{Binding TotalAllowancesAmount, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Gross Pay" FontAttributes="Bold" /><Label Grid.Column="1" FontAttributes="Bold" Text="{Binding Payroll.GrossPayAmount, StringFormat='₱{0:N2}'}" /></Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border StrokeShape="RoundRectangle 12" Padding="14">
+                <VerticalStackLayout Spacing="8">
+                    <Label Text="Deductions" FontAttributes="Bold" />
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="SSS" /><Label Grid.Column="1" Text="{Binding Payroll.SssAmount, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Pag-IBIG" /><Label Grid.Column="1" Text="{Binding Payroll.PagibigAmount, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="PhilHealth" /><Label Grid.Column="1" Text="{Binding Payroll.PhilhealthAmount, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Gov't Contributions" /><Label Grid.Column="1" Text="{Binding TotalGovernmentDeductionsAmount, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Tax" /><Label Grid.Column="1" Text="{Binding Payroll.TaxDeductions, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Union Dues" /><Label Grid.Column="1" Text="{Binding Payroll.UnionDues, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Absence/Leave/Lates/Undertime/Overbreak" /><Label Grid.Column="1" Text="{Binding TotalTimeBasedDeductionsAmount, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Total Constant Deductions" /><Label Grid.Column="1" Text="{Binding Payroll.TotalConstantDeductions, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Total Loan Deductions" /><Label Grid.Column="1" Text="{Binding Payroll.TotalLoanDeductions, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Total Deductions" FontAttributes="Bold" /><Label Grid.Column="1" FontAttributes="Bold" Text="{Binding Payroll.TotalDeductions, StringFormat='₱{0:N2}'}" /></Grid>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border StrokeShape="RoundRectangle 12" Padding="14">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Net Pay" FontAttributes="Bold" FontSize="16" />
+                    <Label Grid.Column="1" Text="{Binding Payroll.NetAmount, StringFormat='₱{0:N2}'}" FontAttributes="Bold" FontSize="16" />
+                </Grid>
+            </Border>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>
