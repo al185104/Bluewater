@@ -6,6 +6,7 @@ using Bluewater.App.ViewModels.Base;
 using Bluewater.App.Views;
 using Bluewater.App.Views.Modals;
 using Bluewater.Core.EmployeeAggregate;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -282,6 +283,11 @@ public partial class TimesheetsViewModel : BaseViewModel
 										}
 								}
 						}
+
+						await Snackbar.Make(
+								"Timesheet and attendance have been successfully updated.",
+								duration: TimeSpan.FromSeconds(3)
+						).Show();
 
 						await TraceCommandAsync(nameof(SubmitAsync), new
 						{
