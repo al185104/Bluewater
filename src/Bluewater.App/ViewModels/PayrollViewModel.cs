@@ -121,10 +121,8 @@ public partial class PayrollViewModel : BaseViewModel
 
 		private async Task LoadChargingOptionsAsync()
 		{
-				await referenceDataService.EnsureLoadedAsync();
-
 				ChargingOptions.Clear();
-				ChargingOptions.Add(string.Empty);
+				//ChargingOptions.Add(string.Empty);
 
 				foreach (ChargingSummary charging in referenceDataService.Chargings.OrderBy(c => c.Name))
 				{
@@ -133,6 +131,8 @@ public partial class PayrollViewModel : BaseViewModel
 								ChargingOptions.Add(charging.Name);
 						}
 				}
+				if (ChargingOptions.Count > 1)
+						ChargingFilter = ChargingOptions.FirstOrDefault();
 		}
 
 		[RelayCommand]
@@ -272,12 +272,15 @@ public partial class PayrollViewModel : BaseViewModel
 
 						UpdatePagination(page.TotalCount);
 
-						Payrolls.Clear();
-						foreach (PayrollSummary payroll in page.Items)
-						{
-								payroll.RowIndex = Payrolls.Count;
-								Payrolls.Add(payroll);
-						}
+						MainThread.BeginInvokeOnMainThread(() =>
+						{ 
+								Payrolls.Clear();
+								foreach (PayrollSummary payroll in page.Items)
+								{
+										payroll.RowIndex = Payrolls.Count;
+										Payrolls.Add(payroll);
+								}
+						});
 				}
 				catch (Exception ex)
 				{
