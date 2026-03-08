@@ -14,7 +14,7 @@
 		  Padding="20">
 		<!--header-->
 		<Grid Grid.Row="0"
-			  ColumnDefinitions="240,Auto,*,Auto,Auto"
+			  ColumnDefinitions="240,Auto,*,Auto,Auto,Auto"
 			  ColumnSpacing="10">
 			<Picker Grid.Column="0"
 					VerticalOptions="End"
@@ -47,6 +47,12 @@
 					VerticalOptions="End"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 					Style="{StaticResource SecondaryButtonStyle}" />
+			<Button Grid.Column="5"
+					Text="Submit"
+					FontSize="14"
+					VerticalOptions="End"
+					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Send},FontFamily=Icons, Color={StaticResource ButtonTextColor},Size=18}"
+					Style="{StaticResource PrimaryButtonStyle}" />
 		</Grid>
 		<!--body-->
 		<CollectionView Grid.Row="1"

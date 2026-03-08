@@ -93,7 +93,7 @@
                     BackgroundColor="Transparent"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Timesheet}" />
-            <Button x:Name="btnAttendance" 
+            <!--<Button x:Name="btnAttendance" 
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.Users}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Attendance"
                     HorizontalOptions="Start"
@@ -101,7 +101,7 @@
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
                     Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Attendance}" />
+                    CommandParameter="{x:Static enum:MainSectionEnum.Attendance}" />-->
             <Button x:Name="btnPayroll" 
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.CreditCard}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Payroll"

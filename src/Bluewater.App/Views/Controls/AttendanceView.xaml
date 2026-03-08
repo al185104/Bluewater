@@ -176,7 +176,7 @@
             </CollectionView.ItemTemplate>
         </CollectionView>
 
-        <HorizontalStackLayout Grid.Row="2"
+        <!--<HorizontalStackLayout Grid.Row="2"
                                HorizontalOptions="End"
                                Spacing="8"
                                IsVisible="{Binding HasPagination}">
@@ -194,7 +194,7 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
-        </HorizontalStackLayout>
+        </HorizontalStackLayout>-->
 
         <ActivityIndicator Grid.Row="1"
                            IsRunning="{Binding IsBusy}"
