@@ -17,18 +17,21 @@ public partial class TimesheetsViewModel : BaseViewModel
 		private const int PageSize = 24;
 
 		private readonly ITimesheetApiService timesheetApiService;
+		private readonly IAttendanceApiService attendanceApiService;
 		private readonly IReferenceDataService referenceDataService;
 		private bool hasInitialized;
 		private bool suppressSelectedChargingChanged;
 
 		public TimesheetsViewModel(
 			ITimesheetApiService timesheetApiService,
+			IAttendanceApiService attendanceApiService,
 			IReferenceDataService referenceDataService,
 			IActivityTraceService activityTraceService,
 			IExceptionHandlingService exceptionHandlingService)
 			: base(activityTraceService, exceptionHandlingService)
 		{
 				this.timesheetApiService = timesheetApiService;
+				this.attendanceApiService = attendanceApiService;
 				this.referenceDataService = referenceDataService;
 
 				SetCurrentPayslipPeriod();
@@ -250,6 +253,88 @@ public partial class TimesheetsViewModel : BaseViewModel
 
 				CurrentPage = 1;
 				_ = LoadTimesheetsAsync();
+		}
+
+
+		[RelayCommand]
+		private async Task SubmitAsync()
+		{
+				if (IsBusy || Timesheets.Count == 0)
+				{
+						return;
+				}
+
+				try
+				{
+						IsBusy = true;
+
+						foreach (EmployeeTimesheetSummary summary in Timesheets)
+						{
+								foreach (AttendanceTimesheetSummary timesheet in summary.Timesheets.Where(item => item.EntryDate.HasValue))
+								{
+										try
+										{
+												await UpsertAttendanceAsync(summary.EmployeeId, timesheet).ConfigureAwait(false);
+										}
+										catch (Exception ex)
+										{
+												ExceptionHandlingService.Handle(ex, $"Submitting attendance for {summary.Name}");
+										}
+								}
+						}
+
+						await TraceCommandAsync(nameof(SubmitAsync), new
+						{
+								StartDate,
+								EndDate,
+								TimesheetCount = Timesheets.Count
+						}).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Submitting attendance records");
+				}
+				finally
+				{
+						IsBusy = false;
+				}
+		}
+
+		private async Task UpsertAttendanceAsync(Guid employeeId, AttendanceTimesheetSummary timesheet)
+		{
+				if (!timesheet.EntryDate.HasValue)
+				{
+						return;
+				}
+
+				DateOnly entryDate = timesheet.EntryDate.Value;
+				IReadOnlyList<AttendanceSummary> attendances = await attendanceApiService
+						.GetAttendancesAsync(employeeId, entryDate, entryDate)
+						.ConfigureAwait(false);
+
+				AttendanceSummary attendanceRequest = new()
+				{
+						EmployeeId = employeeId,
+						ShiftId = timesheet.ShiftId,
+						TimesheetId = timesheet.Id,
+						EntryDate = entryDate,
+						IsLocked = false
+				};
+
+				AttendanceSummary? existingAttendance = attendances
+						.FirstOrDefault(attendance => attendance.EntryDate == entryDate);
+
+				if (existingAttendance is null)
+				{
+						await attendanceApiService.CreateAttendanceAsync(attendanceRequest).ConfigureAwait(false);
+						return;
+				}
+
+				attendanceRequest.Id = existingAttendance.Id;
+				attendanceRequest.LeaveId = existingAttendance.LeaveId;
+				attendanceRequest.IsLocked = existingAttendance.IsLocked;
+
+				await attendanceApiService.UpdateAttendanceAsync(attendanceRequest).ConfigureAwait(false);
 		}
 
 		[RelayCommand]
