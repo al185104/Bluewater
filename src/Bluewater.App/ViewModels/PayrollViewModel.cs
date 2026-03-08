@@ -5,6 +5,7 @@ using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using Bluewater.App.Views.Modals;
+using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -209,6 +210,11 @@ public partial class PayrollViewModel : BaseViewModel
 						}
 
 						UpdatePayrollRowIndexes();
+
+						await Snackbar.Make(
+								"Payrolls has been successfully updated.",
+								duration: TimeSpan.FromSeconds(3)
+						).Show();
 
 						await TraceCommandAsync(nameof(SavePayrollAsync), EditablePayroll.Id);
 				}

@@ -13,34 +13,40 @@
     <Grid RowDefinitions="Auto,*,Auto"
           Padding="20">
         <Grid Grid.Row="0"
-              ColumnDefinitions="260,Auto,*,Auto"
+              ColumnDefinitions="260,Auto,*,Auto,Auto"
               ColumnSpacing="10">
             <Picker Grid.Column="0"
                     VerticalOptions="End"
                     Title="Filter by charging"
                     ItemsSource="{Binding ChargingOptions}"
                     SelectedItem="{Binding ChargingFilter}" />
-            <HorizontalStackLayout Grid.Column="1"
-                                   VerticalOptions="End"
-                                   Spacing="20">
-                <Button Text="{x:Static helpers:Icon.ChevronLeft}"
-                        FontFamily="Icons"
-                        Command="{Binding PreviousPeriodCommand}"
-                        Style="{StaticResource SecondaryButtonStyle}" />
-                <Label Text="{Binding PeriodRangeDisplay}" />
-                <Button Text="{x:Static helpers:Icon.ChevronRight}"
-                        FontFamily="Icons"
-                        Command="{Binding NextPeriodCommand}"
-                        Style="{StaticResource SecondaryButtonStyle}" />
-            </HorizontalStackLayout>
-            <Button Grid.Column="3"
-                    Text="Refresh"
-                    FontSize="14"
-                    VerticalOptions="End"
-                    Command="{Binding RefreshCommand}"
-                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.RefreshCw},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
-                    Style="{StaticResource SecondaryButtonStyle}" />
-        </Grid>
+			<HorizontalStackLayout Grid.Column="1"
+								   VerticalOptions="End"
+								   Spacing="20">
+				<Button Text="{x:Static helpers:Icon.ChevronLeft}"
+						FontFamily="Icons"
+						Command="{Binding PreviousPeriodCommand}"
+						Style="{StaticResource SecondaryButtonStyle}" />
+				<Label Text="{Binding PeriodRangeDisplay}" />
+				<Button Text="{x:Static helpers:Icon.ChevronRight}"
+						FontFamily="Icons"
+						Command="{Binding NextPeriodCommand}"
+						Style="{StaticResource SecondaryButtonStyle}" />
+			</HorizontalStackLayout>
+			<Button Grid.Column="3"
+					Text="Download"
+					FontSize="14"
+					VerticalOptions="End"
+					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+					Style="{StaticResource SecondaryButtonStyle}" />
+			<Button Grid.Column="4"
+					Text="Save"
+					FontSize="14"
+					VerticalOptions="End"
+					Command="{Binding SavePayrollCommand}"
+					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Save},FontFamily=Icons, Color={StaticResource ButtonTextColor},Size=18}"
+					Style="{StaticResource PrimaryButtonStyle}" />
+		</Grid>
 
         <CollectionView Grid.Row="1"
                         ItemsSource="{Binding Payrolls}"
@@ -150,9 +156,9 @@
                                         <MenuFlyoutItem Text="Edit"
                                                         Command="{Binding Source={x:Reference PayrollViewRoot}, Path=BindingContext.BeginEditPayrollCommand}"
                                                         CommandParameter="{Binding .}" />
-                                        <MenuFlyoutItem Text="Delete"
+                                        <!--<MenuFlyoutItem Text="Delete"
                                                         Command="{Binding Source={x:Reference PayrollViewRoot}, Path=BindingContext.DeletePayrollCommand}"
-                                                        CommandParameter="{Binding .}" />
+                                                        CommandParameter="{Binding .}" />-->
                                     </MenuFlyout>
                                 </FlyoutBase.ContextFlyout>
                             </Label>
