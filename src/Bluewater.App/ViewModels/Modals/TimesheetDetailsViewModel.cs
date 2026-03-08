@@ -13,7 +13,6 @@ namespace Bluewater.App.ViewModels.Modals;
 public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributable
 {
 		private readonly ITimesheetApiService timesheetApiService;
-		private readonly IAttendanceApiService attendanceApiService;
 		private readonly IShiftApiService shiftApiService;
 		private readonly IScheduleApiService scheduleApiService;
 
@@ -32,7 +31,6 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 		public TimesheetDetailsViewModel(
 				ITimesheetApiService timesheetApiService,
-				IAttendanceApiService attendanceApiService,
 				IShiftApiService shiftApiService,
 				IScheduleApiService scheduleApiService,
 				IActivityTraceService activityTraceService,
@@ -40,7 +38,6 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				: base(activityTraceService, exceptionHandlingService)
 		{
 				this.timesheetApiService = timesheetApiService;
-				this.attendanceApiService = attendanceApiService;
 				this.shiftApiService = shiftApiService;
 				this.scheduleApiService = scheduleApiService;
 		}
@@ -204,7 +201,6 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 										continue;
 								}
 
-								await UpsertAttendanceAsync(entry, updated).ConfigureAwait(false);
 								entry.ApplySummary(updated);
 								anyUpdated = true;
 						}
@@ -241,43 +237,6 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 						await TraceCommandAsync(nameof(SaveTimesheetsAsync), SelectedEmployeeTimesheet?.EmployeeId).ConfigureAwait(false);
 				}
-		}
-
-		private async Task UpsertAttendanceAsync(EditableTimesheetEntry entry, AttendanceTimesheetSummary updated)
-		{
-				if (!updated.EntryDate.HasValue)
-				{
-						return;
-				}
-
-				DateOnly entryDate = updated.EntryDate.Value;
-				IReadOnlyList<AttendanceSummary> attendances = await attendanceApiService
-						.GetAttendancesAsync(entry.EmployeeId, entryDate, entryDate)
-						.ConfigureAwait(false);
-
-				AttendanceSummary attendanceRequest = new()
-				{
-						EmployeeId = entry.EmployeeId,
-						ShiftId = entry.ShiftId,
-						TimesheetId = updated.Id,
-						EntryDate = entryDate,
-						IsLocked = false
-				};
-
-				AttendanceSummary? existingAttendance = attendances
-						.FirstOrDefault(attendance => attendance.EntryDate == entryDate);
-
-				if (existingAttendance is null)
-				{
-						await attendanceApiService.CreateAttendanceAsync(attendanceRequest).ConfigureAwait(false);
-						return;
-				}
-
-				attendanceRequest.Id = existingAttendance.Id;
-				attendanceRequest.LeaveId = existingAttendance.LeaveId;
-				attendanceRequest.IsLocked = existingAttendance.IsLocked;
-
-				await attendanceApiService.UpdateAttendanceAsync(attendanceRequest).ConfigureAwait(false);
 		}
 
 		partial void OnSelectedEditableTimesheetChanged(EditableTimesheetEntry? value)

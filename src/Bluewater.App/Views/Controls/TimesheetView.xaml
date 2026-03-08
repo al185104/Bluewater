@@ -52,7 +52,8 @@
 					FontSize="14"
 					VerticalOptions="End"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Send},FontFamily=Icons, Color={StaticResource ButtonTextColor},Size=18}"
-					Style="{StaticResource PrimaryButtonStyle}" />
+					Style="{StaticResource PrimaryButtonStyle}"
+					Command="{Binding SubmitCommand}" />
 		</Grid>
 		<!--body-->
 		<CollectionView Grid.Row="1"
