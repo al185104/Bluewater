@@ -134,7 +134,7 @@ public static class MauiProgram
 				// modals
 				builder.Services.AddTransient<EmployeeDetailsPage>();
 				builder.Services.AddTransient<TimesheetDetailsPage>();
-
+				builder.Services.AddTransient<PayrollDetailsPage>();
 
 				// control viewmodels
 				builder.Services.AddTransient<DashboardContentViewModel>();

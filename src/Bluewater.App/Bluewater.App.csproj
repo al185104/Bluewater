@@ -149,6 +149,9 @@
 	  <MauiXaml Update="Views\Modals\EmployeeDetailsPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="Views\Modals\PayrollDetailsPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Views\PayrollPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
