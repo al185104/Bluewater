@@ -1,4 +1,5 @@
 ﻿using System.Collections.ObjectModel;
+using System.Linq;
 using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
@@ -13,21 +14,25 @@ public partial class PayrollViewModel : BaseViewModel
 {
 		private const int PageSize = 24;
 		private readonly IPayrollApiService payrollApiService;
+		private readonly IReferenceDataService referenceDataService;
 		private bool hasInitialized;
 
 		public PayrollViewModel(
 			IPayrollApiService payrollApiService,
+			IReferenceDataService referenceDataService,
 			IActivityTraceService activityTraceService,
 			IExceptionHandlingService exceptionHandlingService)
 			: base(activityTraceService, exceptionHandlingService)
 		{
 				this.payrollApiService = payrollApiService;
+				this.referenceDataService = referenceDataService;
 				SetCurrentPayslipPeriod();
 				EditablePayroll = CreateNewPayroll();
 		}
 
 		public ObservableCollection<PayrollSummary> Payrolls { get; } = new();
 		public ObservableCollection<int> PageNumbers { get; } = new();
+		public ObservableCollection<string> ChargingOptions { get; } = new();
 
 		[ObservableProperty]
 		public partial int CurrentPage { get; set; } = 1;
@@ -65,6 +70,7 @@ public partial class PayrollViewModel : BaseViewModel
 
 				hasInitialized = true;
 				await TraceCommandAsync(nameof(InitializeAsync));
+				await LoadChargingOptionsAsync();
 				await LoadPayrollsAsync();
 		}
 
@@ -112,6 +118,22 @@ public partial class PayrollViewModel : BaseViewModel
 		}
 
 		private bool CanChangePeriod() => !IsBusy;
+
+		private async Task LoadChargingOptionsAsync()
+		{
+				await referenceDataService.EnsureLoadedAsync();
+
+				ChargingOptions.Clear();
+				ChargingOptions.Add(string.Empty);
+
+				foreach (ChargingSummary charging in referenceDataService.Chargings.OrderBy(c => c.Name))
+				{
+						if (!string.IsNullOrWhiteSpace(charging.Name))
+						{
+								ChargingOptions.Add(charging.Name);
+						}
+				}
+		}
 
 		[RelayCommand]
 		private void BeginCreatePayroll()
@@ -350,6 +372,17 @@ public partial class PayrollViewModel : BaseViewModel
 		private void UpdatePayrollRowIndexes()
 		{
 				Payrolls.UpdateRowIndexes();
+		}
+
+		partial void OnChargingFilterChanged(string? value)
+		{
+				if (!hasInitialized)
+				{
+						return;
+				}
+
+				CurrentPage = 1;
+				_ = LoadPayrollsAsync();
 		}
 
 		partial void OnStartDateChanged(DateOnly value)
