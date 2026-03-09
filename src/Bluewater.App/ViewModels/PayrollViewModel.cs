@@ -17,6 +17,8 @@ public partial class PayrollViewModel : BaseViewModel
 		private readonly IPayrollApiService payrollApiService;
 		private readonly IReferenceDataService referenceDataService;
 		private bool hasInitialized;
+		private bool hasPendingPayrollsInPeriod;
+		private int payrollCountInPeriod;
 
 		public PayrollViewModel(
 			IPayrollApiService payrollApiService,
@@ -45,9 +47,9 @@ public partial class PayrollViewModel : BaseViewModel
 
 		public bool HasPagination => TotalPages > 0;
 
-		public bool CanSavePayrollPeriod => !IsBusy && Payrolls.Any(payroll => !payroll.IsSaved);
+		public bool CanSavePayrollPeriod => !IsBusy && hasPendingPayrollsInPeriod;
 
-		public bool CanDownloadPayrollPeriod => !IsBusy && Payrolls.Count > 0 && Payrolls.All(payroll => payroll.IsSaved);
+		public bool CanDownloadPayrollPeriod => !IsBusy && payrollCountInPeriod > 0 && !hasPendingPayrollsInPeriod;
 
 		[ObservableProperty]
 		public partial DateOnly StartDate { get; set; }
@@ -278,6 +280,8 @@ public partial class PayrollViewModel : BaseViewModel
 										Payrolls.Add(payroll);
 								}
 						});
+
+						await RefreshPayrollPeriodCompletionStateAsync();
 				}
 				catch (Exception ex)
 				{
@@ -388,6 +392,15 @@ public partial class PayrollViewModel : BaseViewModel
 				OnPropertyChanged(nameof(CanSavePayrollPeriod));
 				OnPropertyChanged(nameof(CanDownloadPayrollPeriod));
 				SavePayrollCommand.NotifyCanExecuteChanged();
+		}
+
+		private async Task RefreshPayrollPeriodCompletionStateAsync()
+		{
+				PagedResult<PayrollSummary> payrollPeriodState = await payrollApiService.GetPayrollsAsync(StartDate, EndDate)
+						.ConfigureAwait(false);
+
+				payrollCountInPeriod = payrollPeriodState.TotalCount;
+				hasPendingPayrollsInPeriod = payrollPeriodState.Items.Any(payroll => !payroll.IsSaved);
 		}
 
 		private void RaiseNavigationState()
