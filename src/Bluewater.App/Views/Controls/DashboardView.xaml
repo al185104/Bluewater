@@ -317,6 +317,18 @@
 										   VerticalOptions="Center"
 										   VerticalTextAlignment="Center" />
 								</CollectionView.EmptyView>
+								<CollectionView.ItemTemplate>
+									<DataTemplate x:DataType="vm:ChargingPayrollGenerationSummary">
+										<Grid ColumnDefinitions="*,60,40">
+											<Label Grid.Column="0"
+												   Text="{Binding Charging}" />
+											<Label Grid.Column="1"
+												   Text="{Binding PendingCount}" HorizontalTextAlignment="Center"/>
+											<Label Grid.Column="2"
+												   Text="{Binding GeneratedCount}" HorizontalTextAlignment="End"/>
+										</Grid>
+									</DataTemplate>
+								</CollectionView.ItemTemplate>
 							</CollectionView>
 						</Grid>
 					</Border>
