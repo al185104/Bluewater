@@ -17,6 +17,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 		private readonly ILeaveApiService leaveApiService;
 		private readonly IHolidayApiService holidayApiService;
 		private readonly IDepartmentApiService departmentApiService;
+		private readonly IChargingApiService chargingApiService;
 		private bool hasInitialized;
 
 		public DashboardContentViewModel(
@@ -25,6 +26,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 			ILeaveApiService leaveApiService,
 			IHolidayApiService holidayApiService,
 			IDepartmentApiService departmentApiService,
+			IChargingApiService chargingApiService,
 			IActivityTraceService activityTraceService,
 			IExceptionHandlingService exceptionHandlingService)
 			: base(activityTraceService, exceptionHandlingService)
@@ -34,12 +36,15 @@ public partial class DashboardContentViewModel : BaseViewModel
 				this.leaveApiService = leaveApiService;
 				this.holidayApiService = holidayApiService;
 				this.departmentApiService = departmentApiService;
+				this.chargingApiService = chargingApiService;
 
 				SelectedTenant = TenantPreferences.GetSelectedTenant();
 				SetCurrentPayslipPeriod();
 		}
 
 		public ObservableCollection<DepartmentSummary> DepartmentOptions { get; } = new();
+
+		public ObservableCollection<ChargingSummary> ChargingOptions { get; } = new();
 
 		public ObservableCollection<DepartmentPayrollCostSummary> PayrollCostByDepartment { get; } = new();
 
@@ -52,6 +57,9 @@ public partial class DashboardContentViewModel : BaseViewModel
 
 		[ObservableProperty]
 		public partial DepartmentSummary? SelectedDepartment { get; set; }
+
+		[ObservableProperty]
+		public partial ChargingSummary? SelectedCharging { get; set; }
 
 		[ObservableProperty]
 		public partial DateOnly PayrollPeriodStart { get; set; }
@@ -110,6 +118,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 				hasInitialized = true;
 				await TraceCommandAsync(nameof(InitializeAsync));
 				await LoadDepartmentOptionsAsync().ConfigureAwait(false);
+				await LoadChargingOptionsAsync().ConfigureAwait(false);
 				await LoadDashboardAsync().ConfigureAwait(false);
 		}
 
@@ -171,6 +180,39 @@ public partial class DashboardContentViewModel : BaseViewModel
 				}
 		}
 
+		private async Task LoadChargingOptionsAsync(CancellationToken cancellationToken = default)
+		{
+				try
+				{
+						IReadOnlyList<ChargingSummary> chargings = await chargingApiService
+							.GetChargingsAsync(cancellationToken: cancellationToken)
+							.ConfigureAwait(false);
+
+						MainThread.BeginInvokeOnMainThread(() =>
+						{
+								ChargingOptions.Clear();
+								ChargingOptions.Add(new ChargingSummary
+								{
+										Id = Guid.Empty,
+										Name = "All Charging",
+										Description = string.Empty,
+										DepartmentId = Guid.Empty
+								});
+
+								foreach (ChargingSummary charging in chargings.OrderBy(c => c.Name))
+								{
+										ChargingOptions.Add(charging);
+								}
+
+								SelectedCharging ??= ChargingOptions.FirstOrDefault();
+						});
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Loading dashboard charging options");
+				}
+		}
+
 		private async Task LoadDashboardAsync(CancellationToken cancellationToken = default)
 		{
 				if (IsBusy)
@@ -185,9 +227,10 @@ public partial class DashboardContentViewModel : BaseViewModel
 
 						DateOnly todayDate = DateOnly.FromDateTime(Today);
 						string? selectedDepartmentName = NormalizeDepartmentName(SelectedDepartment?.Name);
+						string? selectedChargingName = NormalizeChargingName(SelectedCharging?.Name);
 
 						Task<IReadOnlyList<EmployeeSummary>> employeesTask = LoadAllEmployeesAsync(cancellationToken);
-						Task<IReadOnlyList<PayrollSummary>> payrollTask = LoadAllPayrollsInPeriodAsync(cancellationToken);
+						Task<IReadOnlyList<PayrollSummary>> payrollTask = LoadAllPayrollsInPeriodAsync(selectedChargingName, cancellationToken);
 						Task<IReadOnlyList<LeaveSummary>> leaveTask = leaveApiService.GetLeavesAsync(tenant: SelectedTenant, cancellationToken: cancellationToken);
 						Task<IReadOnlyList<HolidaySummary>> holidayTask = holidayApiService.GetHolidaysAsync(cancellationToken: cancellationToken);
 
@@ -242,7 +285,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 				return employees;
 		}
 
-		private async Task<IReadOnlyList<PayrollSummary>> LoadAllPayrollsInPeriodAsync(CancellationToken cancellationToken)
+		private async Task<IReadOnlyList<PayrollSummary>> LoadAllPayrollsInPeriodAsync(string? chargingName, CancellationToken cancellationToken)
 		{
 				List<PayrollSummary> payrolls = [];
 				int skip = 0;
@@ -250,7 +293,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 				while (true)
 				{
 						PagedResult<PayrollSummary> page = await payrollApiService
-							.GetPayrollsAsync(PayrollPeriodStart, PayrollPeriodEnd, skip: skip, take: BatchSize, tenant: SelectedTenant, cancellationToken: cancellationToken)
+							.GetPayrollsAsync(PayrollPeriodStart, PayrollPeriodEnd, chargingName: chargingName, skip: skip, take: BatchSize, tenant: SelectedTenant, cancellationToken: cancellationToken)
 							.ConfigureAwait(false);
 
 						if (page.Items.Count == 0)
@@ -441,6 +484,16 @@ public partial class DashboardContentViewModel : BaseViewModel
 				return leaveTypeName.Contains(token, StringComparison.OrdinalIgnoreCase);
 		}
 
+		private static string? NormalizeChargingName(string? chargingName)
+		{
+				if (string.IsNullOrWhiteSpace(chargingName) || string.Equals(chargingName, "All Charging", StringComparison.OrdinalIgnoreCase))
+				{
+						return null;
+				}
+
+				return chargingName;
+		}
+
 		private static string? NormalizeDepartmentName(string? departmentName)
 		{
 				if (string.IsNullOrWhiteSpace(departmentName) || string.Equals(departmentName, "All Departments", StringComparison.OrdinalIgnoreCase))
@@ -493,6 +546,16 @@ public partial class DashboardContentViewModel : BaseViewModel
 		}
 
 		partial void OnSelectedDepartmentChanged(DepartmentSummary? value)
+		{
+				if (!hasInitialized)
+				{
+						return;
+				}
+
+				_ = LoadDashboardAsync();
+		}
+
+		partial void OnSelectedChargingChanged(ChargingSummary? value)
 		{
 				if (!hasInitialized)
 				{
