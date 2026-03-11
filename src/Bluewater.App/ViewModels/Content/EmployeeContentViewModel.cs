@@ -18,6 +18,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 {
 		private int skip = 0;
 		private int take = 50;
+		private readonly List<EmployeeSummary> _allEmployees = [];
 
 		// cancellation token
 		private CancellationTokenSource? _cts;
@@ -33,6 +34,9 @@ public partial class EmployeeContentViewModel : BaseViewModel
 
 		[ObservableProperty]
 		public partial bool IsLoadingMore { get; set; }
+
+		[ObservableProperty]
+		public partial string SearchText { get; set; } = string.Empty;
 		public bool IsEditingEmployee { get; set; }
 
 		public EmployeeContentViewModel(
@@ -65,9 +69,9 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						var employees = await _employeeApiService.GetEmployeesAsync(skip, take, _cts.Token);
 						if(employees != null && employees.Items.Count > 0)
 						{
-								Employees!.Clear();
-								foreach(var employee in employees.Items)
-										Employees.Add(employee);
+								_allEmployees.Clear();
+								_allEmployees.AddRange(employees.Items);
+								ApplyEmployeeFilter();
 								skip += employees.Items.Count;
 						}
 				}
@@ -105,9 +109,9 @@ public partial class EmployeeContentViewModel : BaseViewModel
 
 						if (employees.Items.Count == 0)
 								return; // no more data
-						
-						foreach (var employee in employees.Items)
-								Employees!.Add(employee);
+
+						_allEmployees.AddRange(employees.Items);
+						ApplyEmployeeFilter();
 
 						skip += employees.Items.Count;
 				}
@@ -168,7 +172,8 @@ public partial class EmployeeContentViewModel : BaseViewModel
 								return;
 						}
 
-						Employees?.Remove(employee);
+						_allEmployees.RemoveAll(e => e.Id == employee.Id);
+						ApplyEmployeeFilter();
 				}
 				catch (OperationCanceledException)
 				{
@@ -512,6 +517,43 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						: escaped;
 		}
 
+		partial void OnSearchTextChanged(string value)
+		{
+				ApplyEmployeeFilter();
+		}
+
+		private void ApplyEmployeeFilter()
+		{
+				if (Employees is null)
+				{
+						return;
+				}
+
+				IEnumerable<EmployeeSummary> filteredEmployees = _allEmployees;
+				if (!string.IsNullOrWhiteSpace(SearchText))
+				{
+						filteredEmployees = _allEmployees.Where(EmployeeMatchesSearch);
+				}
+
+				Employees.Clear();
+				foreach (var employee in filteredEmployees)
+				{
+						Employees.Add(employee);
+				}
+		}
+
+		private bool EmployeeMatchesSearch(EmployeeSummary employee)
+		{
+				var search = SearchText.Trim();
+				return employee.FullName.Contains(search, StringComparison.OrdinalIgnoreCase)
+						|| (employee.Position?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+						|| (employee.Department?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+						|| (employee.Section?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+						|| (employee.Type?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+						|| (employee.Level?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+						|| (employee.Email?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false);
+		}
+
 		public void CancelInitialization()
 		{
 				_cts?.Cancel();
@@ -521,6 +563,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		{
 				CancelAndDispose();
 				CancelAndDisposeLoadMore();
+				_allEmployees.Clear();
 				Employees!.Clear();
 				Employees = null;
 		}
