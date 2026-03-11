@@ -137,9 +137,10 @@
                     HorizontalOptions="Start"
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
-                    BackgroundColor="Transparent"
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Employees}" />
+					Clicked="btnFeedback_Clicked"
+                    BackgroundColor="Transparent"/>
+                    <!--Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Static enum:MainSectionEnum.Employees}" />-->
             <Button x:Name="btnSettings" 
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.Settings}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Settings"

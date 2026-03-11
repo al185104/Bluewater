@@ -50,4 +50,9 @@ public sealed partial class HomePage : ContentPage
 				}
 		}
 
+		private void btnFeedback_Clicked(object sender, EventArgs e)
+		{
+				// test of exception
+				throw new Exception("Something went wrong when clicking the feedback button!");
+    }
 }
