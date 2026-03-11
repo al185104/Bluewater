@@ -1,11 +1,346 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Bluewater.App.Views.Controls.DashboardView">
-    <VerticalStackLayout>
-        <Label 
-            Text="Dashboard!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+			 Loaded="ContentView_Loaded"
+			 Unloaded="ContentView_Unloaded"
+			 xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+             x:Class="Bluewater.App.Views.Controls.DashboardView"
+			 xmlns:vm="clr-namespace:Bluewater.App.ViewModels.Content"
+			 xmlns:models="clr-namespace:Bluewater.App.Models"
+			 x:DataType="vm:DashboardContentViewModel"
+			 Background="{StaticResource CollectionBackgroundBrush}">
+    <Grid Padding="100,20">
+		<ScrollView>
+			<VerticalStackLayout Spacing="10">
+				<Grid ColumnDefinitions="*,*"
+					  ColumnSpacing="10">
+					<HorizontalStackLayout Grid.Column="0"
+										   VerticalOptions="End"
+										   Spacing="20">
+						<Button Text="{x:Static helpers:Icon.ChevronLeft}"
+								FontFamily="Icons"
+								Command="{Binding PreviousPayrollPeriodCommand}"
+								Style="{StaticResource SecondaryButtonStyle}" />
+						<Label Text="{Binding PayrollPeriodDisplay}" />
+						<Button Text="{x:Static helpers:Icon.ChevronRight}"
+								FontFamily="Icons"
+								Command="{Binding NextPayrollPeriodCommand}"
+								Style="{StaticResource SecondaryButtonStyle}" />
+					</HorizontalStackLayout>
+					<Picker WidthRequest="250"
+							Grid.Column="1"
+							ItemsSource="{Binding DepartmentOptions}"
+							SelectedItem="{Binding SelectedDepartment}"
+							ItemDisplayBinding="{Binding Name}"
+							Title="Department"
+							HorizontalOptions="End"
+							VerticalOptions="End" />
+				</Grid>
+				<!--one-->
+				<Grid ColumnDefinitions="*,*" 
+					  ColumnSpacing="10">
+					<Border StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20"
+							  ColumnDefinitions="Auto,*,Auto">
+							<Label Grid.Column="0"
+								   Text="{x:Static helpers:Icon.Clock}"
+								   FontFamily="Icons"
+								   VerticalTextAlignment="Center"
+								   FontSize="Medium" />
+							<Label Grid.Column="1"
+								   Text="Total work hours logged" />
+							<Label Grid.Column="2"
+								   Text="{Binding TotalWorkHoursLogged}"
+								   HorizontalOptions="End" />
+						</Grid>
+					</Border>
+					<Border Grid.Column="1" StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20"
+							  ColumnDefinitions="Auto,*,Auto">
+							<Label Grid.Column="0"
+								   Text="{x:Static helpers:Icon.UserPlus}"
+								   FontFamily="Icons"
+								   VerticalTextAlignment="Center"
+								   FontSize="Medium" />
+							<Label Grid.Column="1"
+								   Text="Total active employees" />
+							<Label Grid.Column="2"
+								   Text="{Binding TotalActiveEmployees}"
+								   HorizontalOptions="End" />
+						</Grid>
+					</Border>
+				</Grid>
+				<!--two-->
+				<Grid ColumnDefinitions="*,*"
+					  ColumnSpacing="10">
+					<Border StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20"
+							  ColumnDefinitions="Auto,*,Auto">
+							<Label Grid.Column="0"
+								   Text="{x:Static helpers:Icon.AlertTriangle}"
+								   FontFamily="Icons"
+								   VerticalTextAlignment="Center"
+								   FontSize="Medium" />
+							<Label Grid.Column="1"
+								   Text="Total absences" />
+							<Label Grid.Column="2"
+								   Text="{Binding TotalAbsences}"
+								   HorizontalOptions="End" />
+						</Grid>
+					</Border>
+					<Border Grid.Column="1"
+							StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20"
+							  ColumnDefinitions="Auto,*,Auto">
+							<Label Grid.Column="0"
+								   Text="{x:Static helpers:Icon.UserMinus}"
+								   FontFamily="Icons"
+								   VerticalTextAlignment="Center"
+								   FontSize="Medium" />
+							<Label Grid.Column="1"
+								   Text="Total terminated employees" />
+							<Label Grid.Column="2"
+								   Text="{Binding EmployeesTerminatedInPeriod}"
+								   HorizontalOptions="End" />
+						</Grid>
+					</Border>
+				</Grid>
+				<!--three-->
+				<Grid ColumnDefinitions="*,*"
+					  ColumnSpacing="10">
+					<Border StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20"
+							  ColumnDefinitions="Auto,*,Auto">
+							<Label Grid.Column="0"
+								   Text="{x:Static helpers:Icon.Sunrise}"
+								   FontFamily="Icons"
+								   VerticalTextAlignment="Center"
+								   FontSize="Medium" />
+							<Label Grid.Column="1"
+								   Text="Total overtime" />
+							<Label Grid.Column="2"
+								   Text="{Binding TotalOvertimeHours}"
+								   HorizontalOptions="End" />
+						</Grid>
+					</Border>
+					<Border Grid.Column="1"
+							StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20"
+							  ColumnDefinitions="Auto,*,Auto">
+							<Label Grid.Column="0"
+								   Text="{x:Static helpers:Icon.Sunset}"
+								   FontFamily="Icons"
+								   VerticalTextAlignment="Center"
+								   FontSize="Medium" />
+							<Label Grid.Column="1"
+								   Text="Total undertime" />
+							<Label Grid.Column="2"
+								   Text="{Binding TotalUndertime}"
+								   HorizontalOptions="End" />
+						</Grid>
+					</Border>
+				</Grid>		
+				<!--four-->
+				<Grid ColumnDefinitions="*,*,*,*" 
+					  ColumnSpacing="10">
+					<Border Grid.Column="0"
+							StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20"
+							  RowSpacing="80"
+							  ColumnSpacing="0"
+							  ColumnDefinitions="*,Auto"
+							  RowDefinitions="*,*">
+							<Label Grid.Column="0"
+								   Grid.Row="0"
+								   Text="{x:Static helpers:Icon.Map}"
+								   FontFamily="Icons"
+								   VerticalTextAlignment="Center"
+								   FontSize="Medium" />
+							<Label Grid.Column="0"
+								   Grid.Row="1"
+								   Text="Total leaves taken" />
+							<Label Grid.Column="1"
+								   Grid.Row="1"
+								   Text="{Binding TotalLeaveDaysTaken}"
+								   HorizontalOptions="End" />
+						</Grid>
+					</Border>
+					<Border Grid.Column="1"
+							StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20"
+							  RowSpacing="80"
+							  ColumnDefinitions="*,Auto"
+							  RowDefinitions="*,*"
+							  ColumnSpacing="0">
+							<Label Grid.Column="0"
+								   Grid.Row="0"
+								   Text="{x:Static helpers:Icon.Frown}"
+								   FontFamily="Icons"
+								   VerticalTextAlignment="Center"
+								   FontSize="Medium" />
+							<Label Grid.Column="0"
+								   Grid.Row="1"
+								   Text="Sick leaves taken" />
+							<Label Grid.Column="1"
+								   Grid.Row="1"
+								   Text="{Binding SickLeaveDays}"
+								   HorizontalOptions="End" />
+						</Grid>
+					</Border>
+					<Border Grid.Column="2"
+							StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20"
+							  RowSpacing="80"
+							  ColumnDefinitions="*,Auto"
+							  RowDefinitions="*,*"
+							  ColumnSpacing="0">
+							<Label Grid.Column="0"
+								   Grid.Row="0"
+								   Text="{x:Static helpers:Icon.Sun}"
+								   FontFamily="Icons"
+								   VerticalTextAlignment="Center"
+								   FontSize="Medium" />
+							<Label Grid.Column="0"
+								   Grid.Row="1"
+								   Text="Vacation leaves taken" />
+							<Label Grid.Column="1"
+								   Grid.Row="1"
+								   Text="{Binding VacationLeaveDays}"
+								   HorizontalOptions="End" />
+						</Grid>
+					</Border>
+					<Border Grid.Column="3"
+							StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20"
+							  RowSpacing="80"
+							  ColumnDefinitions="*,Auto"
+							  RowDefinitions="*,*"
+							  ColumnSpacing="0">
+							<Label Grid.Column="0"
+								   Grid.Row="0"
+								   Text="{x:Static helpers:Icon.Coffee}"
+								   FontFamily="Icons"
+								   VerticalTextAlignment="Center"
+								   FontSize="Medium" />
+							<Label Grid.Column="0"
+								   Grid.Row="1"
+								   Text="Other leaves taken" />
+							<Label Grid.Column="1"
+								   Grid.Row="1"
+								   Text="{Binding OtherLeaveTypesDays}"
+								   HorizontalOptions="End" />
+						</Grid>
+					</Border>					
+				</Grid>
+				<!--five-->
+				<Grid ColumnDefinitions="*,*,*,*"
+					  ColumnSpacing="10">
+					<Border Grid.Column="0"
+							StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20"
+							  RowSpacing="80"
+							  ColumnSpacing="0"
+							  ColumnDefinitions="*,Auto"
+							  RowDefinitions="*,*">
+							<Label Grid.Column="0"
+								   Grid.Row="0"
+								   Text="{x:Static helpers:Icon.Sunset}"
+								   FontFamily="Icons"
+								   VerticalTextAlignment="Center"
+								   FontSize="Medium" />
+							<Label Grid.Column="0"
+								   Grid.Row="1"
+								   Text="Total leaves taken" />
+							<Label Grid.Column="1"
+								   Grid.Row="1"
+								   Text="{Binding TotalLeaveDaysTaken}"
+								   HorizontalOptions="End" />
+						</Grid>
+					</Border>
+					<Border Grid.Column="1"
+							StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20">
+							<CollectionView ItemsSource="{Binding PayrollCostByDepartment}">
+								<CollectionView.Header>
+									<Grid ColumnDefinitions="*,60">
+										<Label Grid.Column="0"
+											   Text="Department" />
+										<Label Grid.Column="1"
+											   HorizontalTextAlignment="End"
+											   Text="Count" />
+									</Grid>
+								</CollectionView.Header>
+								<CollectionView.EmptyView>
+									<Label Text="No department records to show."
+										   HorizontalOptions="Center"
+										   HorizontalTextAlignment="Center"
+										   VerticalOptions="Center"
+										   VerticalTextAlignment="Center" />
+								</CollectionView.EmptyView>
+								<CollectionView.ItemTemplate>
+									<DataTemplate x:DataType="vm:DepartmentPayrollCostSummary">
+										<Grid ColumnDefinitions="*,60">
+											<Label Grid.Column="0" Text="{Binding Department}" />
+											<Label Grid.Column="1" Text="{Binding EmployeeCount}" />
+										</Grid>
+									</DataTemplate>
+								</CollectionView.ItemTemplate>
+							</CollectionView>
+						</Grid>
+					</Border>
+					<Border Grid.Column="2"
+							StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20">
+							<CollectionView ItemsSource="{Binding PayrollGeneratedStatusByCharging}">
+								<CollectionView.Header>
+									<Grid ColumnDefinitions="*,60,40">
+										<Label Grid.Column="0"
+											   Text="Charging" />
+										<Label Grid.Column="1"
+											   Text="Pending" />
+										<Label Grid.Column="2"
+											   HorizontalTextAlignment="End"
+											   Text="Done" />
+									</Grid>
+								</CollectionView.Header>
+								<CollectionView.EmptyView>
+									<Label Text="No charing records to show this period."
+										   HorizontalOptions="Center"
+										   HorizontalTextAlignment="Center"
+										   VerticalOptions="Center"
+										   VerticalTextAlignment="Center" />
+								</CollectionView.EmptyView>
+							</CollectionView>
+						</Grid>
+					</Border>
+					<Border Grid.Column="3"
+							StrokeShape="RoundRectangle 5 5 5 5">
+						<Grid Padding="20">
+							<CollectionView ItemsSource="{Binding UpcomingHolidays}">
+								<CollectionView.ItemTemplate>
+									<DataTemplate x:DataType="models:HolidaySummary">
+										<Grid ColumnDefinitions="*,Auto">
+											<Label Grid.Column="0" Text="{Binding Name}" />
+											<Label Grid.Column="1"
+												   Text="{Binding Date, StringFormat='{}{0:MMM dd yyyy (ddd)}'}" />
+										</Grid>
+									</DataTemplate>
+								</CollectionView.ItemTemplate>
+								<CollectionView.Header>
+									<Label Text="Upcoming holidays" />
+								</CollectionView.Header>								
+								<CollectionView.EmptyView>
+									<Label Text="No holidays to show this period."
+										   HorizontalOptions="Center"
+										   HorizontalTextAlignment="Center"
+										   VerticalOptions="Center"
+										   VerticalTextAlignment="Center" />
+								</CollectionView.EmptyView>
+							</CollectionView>
+						</Grid>
+					</Border>
+				</Grid>
+			</VerticalStackLayout>
+		</ScrollView>
+	</Grid>
 </ContentView>

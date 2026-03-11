@@ -200,8 +200,9 @@ public partial class PayrollViewModel : BaseViewModel
 
 						UpdatePayrollRowIndexes();
 						EditablePayroll = CreateNewPayroll();
-						UpdatePayrollCommandStates();
 
+						await LoadPayrollsAsync();
+						//UpdatePayrollCommandStates();
 						await Snackbar.Make(
 								$"Saved {pendingPayrolls.Count} payroll record(s) for {PeriodRangeDisplay}.",
 								duration: TimeSpan.FromSeconds(3)
@@ -279,9 +280,12 @@ public partial class PayrollViewModel : BaseViewModel
 										payroll.RowIndex = Payrolls.Count;
 										Payrolls.Add(payroll);
 								}
+
+								payrollCountInPeriod = page.TotalCount;
+								hasPendingPayrollsInPeriod = Payrolls.Any(payroll => !payroll.IsSaved);
 						});
 
-						await RefreshPayrollPeriodCompletionStateAsync();
+						//await RefreshPayrollPeriodCompletionStateAsync();
 				}
 				catch (Exception ex)
 				{
@@ -391,7 +395,7 @@ public partial class PayrollViewModel : BaseViewModel
 		{
 				OnPropertyChanged(nameof(CanSavePayrollPeriod));
 				OnPropertyChanged(nameof(CanDownloadPayrollPeriod));
-				SavePayrollCommand.NotifyCanExecuteChanged();
+				//SavePayrollCommand.NotifyCanExecuteChanged();
 		}
 
 		private async Task RefreshPayrollPeriodCompletionStateAsync()
