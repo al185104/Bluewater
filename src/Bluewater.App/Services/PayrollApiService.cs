@@ -19,8 +19,7 @@ public class PayrollApiService(IApiClient apiClient) : IPayrollApiService
     TenantDto tenant = TenantDto.Maribago,
     CancellationToken cancellationToken = default)
   {
-    TenantDto selectedTenant = TenantPreferences.GetSelectedTenant();
-    string requestUri = BuildListRequestUri(startDate, endDate, chargingName, selectedTenant, skip, take);
+    string requestUri = BuildListRequestUri(startDate, endDate, chargingName, tenant, skip, take);
 
     PayrollListResponseDto? response = await apiClient.GetAsync<PayrollListResponseDto>(requestUri, cancellationToken);
 

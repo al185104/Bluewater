@@ -27,14 +27,21 @@
 								Command="{Binding NextPayrollPeriodCommand}"
 								Style="{StaticResource SecondaryButtonStyle}" />
 					</HorizontalStackLayout>
-					<Picker WidthRequest="250"
-							Grid.Column="1"
-							ItemsSource="{Binding DepartmentOptions}"
-							SelectedItem="{Binding SelectedDepartment}"
-							ItemDisplayBinding="{Binding Name}"
-							Title="Department"
-							HorizontalOptions="End"
-							VerticalOptions="End" />
+					<HorizontalStackLayout Grid.Column="1"
+									 Spacing="10"
+									 HorizontalOptions="End"
+									 VerticalOptions="End">
+							<Picker WidthRequest="220"
+									ItemsSource="{Binding ChargingOptions}"
+									SelectedItem="{Binding SelectedCharging}"
+									ItemDisplayBinding="{Binding Name}"
+									Title="Charging" />
+							<Picker WidthRequest="220"
+									ItemsSource="{Binding DepartmentOptions}"
+									SelectedItem="{Binding SelectedDepartment}"
+									ItemDisplayBinding="{Binding Name}"
+									Title="Department" />
+					</HorizontalStackLayout>
 				</Grid>
 				<!--one-->
 				<Grid ColumnDefinitions="*,*" 
