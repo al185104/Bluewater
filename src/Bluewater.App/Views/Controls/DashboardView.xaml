@@ -244,16 +244,16 @@
 							  RowDefinitions="*,*">
 							<Label Grid.Column="0"
 								   Grid.Row="0"
-								   Text="{x:Static helpers:Icon.Sunset}"
+								   Text="{x:Static helpers:Icon.Star}"
 								   FontFamily="Icons"
 								   VerticalTextAlignment="Center"
 								   FontSize="Medium" />
 							<Label Grid.Column="0"
 								   Grid.Row="1"
-								   Text="Total leaves taken" />
+								   Text="New hires in this period" />
 							<Label Grid.Column="1"
 								   Grid.Row="1"
-								   Text="{Binding TotalLeaveDaysTaken}"
+								   Text="{Binding NewHiresInPeriod}"
 								   HorizontalOptions="End" />
 						</Grid>
 					</Border>
@@ -281,7 +281,7 @@
 									<DataTemplate x:DataType="vm:DepartmentPayrollCostSummary">
 										<Grid ColumnDefinitions="*,60">
 											<Label Grid.Column="0" Text="{Binding Department}" />
-											<Label Grid.Column="1" Text="{Binding EmployeeCount}" />
+											<Label Grid.Column="1" Text="{Binding EmployeeCount}" HorizontalOptions="End" />
 										</Grid>
 									</DataTemplate>
 								</CollectionView.ItemTemplate>
