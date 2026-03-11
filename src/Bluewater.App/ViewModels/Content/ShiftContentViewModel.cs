@@ -4,6 +4,7 @@ using System.Text;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
 namespace Bluewater.App.ViewModels.Content;
@@ -11,11 +12,15 @@ namespace Bluewater.App.ViewModels.Content;
 public partial class ShiftContentViewModel : BaseViewModel
 {
 		private CancellationTokenSource? _initCts;
+		private readonly List<ShiftSummary> _allShifts = [];
 		private readonly IShiftApiService _shiftApiService;
 		private readonly IActivityTraceService _activityTraceService;
 		private readonly IExceptionHandlingService _exceptionHandlingService;
 
 		public ObservableCollection<ShiftSummary>? Shifts { get; set; } = new();
+
+		[ObservableProperty]
+		public partial string SearchText { get; set; } = string.Empty;
 
 		public ShiftContentViewModel(
 				IShiftApiService shiftApiService,
@@ -41,11 +46,9 @@ public partial class ShiftContentViewModel : BaseViewModel
 						var shifts = await _shiftApiService.GetShiftsAsync(ct);
 						if (shifts != null && shifts.Count > 0) 
 						{
-								Shifts!.Clear();
-								foreach (var shift in shifts) 
-								{
-										Shifts.Add(shift);
-								}
+								_allShifts.Clear();
+								_allShifts.AddRange(shifts);
+								ApplyShiftFilter();
 						}
 				}
 				catch (OperationCanceledException)
@@ -71,6 +74,7 @@ public partial class ShiftContentViewModel : BaseViewModel
 						_initCts = null;
 				}
 
+				_allShifts.Clear();
 				Shifts!.Clear();
 				Shifts = null;
 		}
@@ -297,7 +301,8 @@ public partial class ShiftContentViewModel : BaseViewModel
 								return;
 						}
 
-						Shifts?.Remove(shift);
+						_allShifts.RemoveAll(s => s.Id == shift.Id);
+						ApplyShiftFilter();
 				}
 				catch (OperationCanceledException)
 				{
@@ -338,5 +343,36 @@ public partial class ShiftContentViewModel : BaseViewModel
 				}
 
 				return value;
+		}
+
+		partial void OnSearchTextChanged(string value)
+		{
+				ApplyShiftFilter();
+		}
+
+		private void ApplyShiftFilter()
+		{
+				if (Shifts is null)
+				{
+						return;
+				}
+
+				IEnumerable<ShiftSummary> filteredShifts = _allShifts;
+				if (!string.IsNullOrWhiteSpace(SearchText))
+				{
+						var search = SearchText.Trim();
+						filteredShifts = _allShifts.Where(shift =>
+								shift.Name.Contains(search, StringComparison.OrdinalIgnoreCase)
+								|| (shift.ShiftStartTime?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+								|| (shift.ShiftBreakTime?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+								|| (shift.ShiftBreakEndTime?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+								|| (shift.ShiftEndTime?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false));
+				}
+
+				Shifts.Clear();
+				foreach (var shift in filteredShifts)
+				{
+						Shifts.Add(shift);
+				}
 		}
 }
