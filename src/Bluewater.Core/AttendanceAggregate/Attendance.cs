@@ -55,163 +55,138 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
   {
     try
     {
-      // Check required objects.
-      if (this.Timesheet == null || this.Shift == null)
+      if (Timesheet == null || Shift == null || !Timesheet.TimeIn1.HasValue || !Shift.ShiftStartTime.HasValue || !Shift.ShiftEndTime.HasValue)
+      {
         return (-1, 0, 0, 0, 0);
-
-      var ts = this.Timesheet;
-      var sh = this.Shift;
-
-      // Ensure scheduled shift start and end are provided.
-      if (!sh.ShiftStartTime.HasValue || !sh.ShiftEndTime.HasValue)
-        return (-1, 0, 0, 0, 0);
-
-      // Build scheduled start DateTime based on TimeIn1's date.
-      DateTime scheduledStart = new DateTime(
-          ts.TimeIn1!.Value.Year,
-          ts.TimeIn1.Value.Month,
-          ts.TimeIn1.Value.Day,
-          sh.ShiftStartTime.Value.Hour,
-          sh.ShiftStartTime.Value.Minute,
-          sh.ShiftStartTime.Value.Second);
-
-      // Determine scheduledEnd (account for overnight shifts)
-      DateTime scheduledEnd = (sh.ShiftEndTime.Value.ToTimeSpan() >= sh.ShiftStartTime.Value.ToTimeSpan())
-          ? new DateTime(
-              ts.TimeIn1.Value.Year,
-              ts.TimeIn1.Value.Month,
-              ts.TimeIn1.Value.Day,
-              sh.ShiftEndTime.Value.Hour,
-              sh.ShiftEndTime.Value.Minute,
-              sh.ShiftEndTime.Value.Second)
-          : new DateTime(
-              ts.TimeIn1.Value.Year,
-              ts.TimeIn1.Value.Month,
-              ts.TimeIn1.Value.Day,
-              sh.ShiftEndTime.Value.Hour,
-              sh.ShiftEndTime.Value.Minute,
-              sh.ShiftEndTime.Value.Second).AddDays(1);
-
-      decimal scheduledWorkHours = (decimal)(scheduledEnd - scheduledStart).TotalHours;
-
-      // Determine if we have a full (two-session) record.
-      // A full record exists when TimeOut1, TimeIn2, and TimeOut2 all have values.
-      bool hasTwoSessions = ts.TimeOut1.HasValue && ts.TimeIn2.HasValue && ts.TimeOut2.HasValue;
-
-      decimal penaltyLate = 0m, penaltyEarly = 0m, penaltyBreak = 0m;
-      decimal netWorkHours = 0m;
-      decimal nightShiftHrs = 0m;
-
-      // Compute lateness penalty (common for both record types)
-      {
-        double lateMinutes = (ts.TimeIn1.Value - scheduledStart).TotalMinutes;
-        if (lateMinutes >= LatenessThresholdMinutes)
-          penaltyLate = (decimal)(Math.Floor((lateMinutes - 1) / 60) + 1);
       }
 
-      if (!hasTwoSessions)
+      Timesheet ts = Timesheet;
+      Shift sh = Shift;
+
+      DateTime scheduledStart = BuildShiftDateTime(ts.TimeIn1.Value, sh.ShiftStartTime.Value);
+      DateTime scheduledEnd = BuildShiftDateTime(ts.TimeIn1.Value, sh.ShiftEndTime.Value);
+      if (scheduledEnd <= scheduledStart)
       {
-        // SINGLE SESSION RECORD:
-        // Use whichever clock-out is available (prefer TimeOut1 over TimeOut2)
-        DateTime actualEnd = ts.TimeOut1.HasValue
-            ? ts.TimeOut1.Value
-            : ts.TimeOut2.HasValue
-                ? ts.TimeOut2.Value
-                : throw new InvalidOperationException("No clock-out time provided in single-session record.");
-
-        // Compute early-exit penalty if actual end is before scheduled end.
-        if (actualEnd < scheduledEnd)
-        {
-          double earlyMinutes = (scheduledEnd - actualEnd).TotalMinutes;
-          penaltyEarly = (decimal)(Math.Floor((earlyMinutes - 1) / 60) + 1);
-        }
-
-        netWorkHours = scheduledWorkHours - (penaltyLate + penaltyEarly);
-        netWorkHours = Math.Max(0, Math.Min(netWorkHours, scheduledWorkHours));
-
-        // Compute night shift hours for single session if shift qualifies.
-        if (sh.ShiftStartTime.Value.ToTimeSpan().Hours >= 22 || sh.ShiftEndTime.Value.ToTimeSpan().Hours <= 6)
-          nightShiftHrs = netWorkHours;
-      }
-      else
-      {
-        // TWO-SESSION (FULL) RECORD:
-        // Use TimeOut2 as the actual end for early exit penalty.
-        DateTime actualEnd = ts.TimeOut2!.Value;
-        if (actualEnd < scheduledEnd)
-        {
-          double earlyMinutes = (scheduledEnd - actualEnd).TotalMinutes;
-          penaltyEarly = (decimal)(Math.Floor((earlyMinutes - 1) / 60) + 1);
-        }
-
-        // Overbreak penalty calculation:
-        // Calculate scheduled break period.
-        DateTime scheduledBreakStart, scheduledBreakEnd;
-        if (sh.ShiftBreakTime.HasValue && sh.ShiftBreakEndTime.HasValue)
-        {
-          scheduledBreakStart = new DateTime(
-              ts.TimeIn1.Value.Year,
-              ts.TimeIn1.Value.Month,
-              ts.TimeIn1.Value.Day,
-              sh.ShiftBreakTime.Value.Hour,
-              sh.ShiftBreakTime.Value.Minute,
-              sh.ShiftBreakTime.Value.Second);
-
-          scheduledBreakEnd = (sh.ShiftBreakEndTime.Value.ToTimeSpan() >= sh.ShiftBreakTime.Value.ToTimeSpan())
-              ? new DateTime(
-                  ts.TimeIn1.Value.Year,
-                  ts.TimeIn1.Value.Month,
-                  ts.TimeIn1.Value.Day,
-                  sh.ShiftBreakEndTime.Value.Hour,
-                  sh.ShiftBreakEndTime.Value.Minute,
-                  sh.ShiftBreakEndTime.Value.Second)
-              : new DateTime(
-                  ts.TimeIn1.Value.Year,
-                  ts.TimeIn1.Value.Month,
-                  ts.TimeIn1.Value.Day,
-                  sh.ShiftBreakEndTime.Value.Hour,
-                  sh.ShiftBreakEndTime.Value.Minute,
-                  sh.ShiftBreakEndTime.Value.Second).AddDays(1);
-        }
-        else
-        {
-          // Fallback: use BreakHours to calculate a default break period centered in the shift.
-          double breakMinutes = (double)sh.BreakHours * 60;
-          scheduledBreakStart = scheduledStart.AddHours((double)scheduledWorkHours / 2);
-          scheduledBreakEnd = scheduledBreakStart.AddMinutes(breakMinutes);
-        }
-
-        double scheduledBreakMins = (scheduledBreakEnd - scheduledBreakStart).TotalMinutes;
-        // Use the later of scheduledBreakStart or TimeOut1 as the effective break start.
-        DateTime effectiveBreakStart = ts.TimeOut1!.Value < scheduledBreakStart ? scheduledBreakStart : ts.TimeOut1.Value;
-        double actualBreakMins = (ts.TimeIn2!.Value - effectiveBreakStart).TotalMinutes;
-        double excessBreak = actualBreakMins - scheduledBreakMins;
-        if (excessBreak > BreakToleranceMinutes)
-          penaltyBreak = (decimal)(Math.Floor((excessBreak - BreakToleranceMinutes - 1) / 60) + 1);
-
-        netWorkHours = scheduledWorkHours - (penaltyLate + penaltyEarly + penaltyBreak);
-        netWorkHours = Math.Max(0, Math.Min(netWorkHours, scheduledWorkHours));
-
-        // Compute night shift hours for full record.
-        if (sh.ShiftStartTime.Value.ToTimeSpan().Hours >= 22 || sh.ShiftEndTime.Value.ToTimeSpan().Hours <= 6)
-          nightShiftHrs = netWorkHours;
+        scheduledEnd = scheduledEnd.AddDays(1);
       }
 
-      // Round final values.
+      DateTime? firstClockOut = ts.TimeOut1 ?? ts.TimeOut2;
+      if (!firstClockOut.HasValue)
+      {
+        WorkHrs = 0;
+        LateHrs = 0;
+        UnderHrs = 0;
+        OverbreakHrs = 0;
+        NightShiftHours = 0;
+        return (0, 0, 0, 0, 0);
+      }
+
+      decimal workWithinSchedule = 0m;
+      workWithinSchedule += CalculateOverlapHours(ts.TimeIn1.Value, firstClockOut.Value, scheduledStart, scheduledEnd);
+
+      bool hasSecondSession = ts.TimeIn2.HasValue && ts.TimeOut2.HasValue;
+      if (hasSecondSession)
+      {
+        workWithinSchedule += CalculateOverlapHours(ts.TimeIn2!.Value, ts.TimeOut2!.Value, scheduledStart, scheduledEnd);
+      }
+
+      decimal penaltyLate = CalculateRoundedHourPenalty((ts.TimeIn1.Value - scheduledStart).TotalMinutes, LatenessThresholdMinutes);
+
+      DateTime attendanceEnd = hasSecondSession ? ts.TimeOut2!.Value : firstClockOut.Value;
+      decimal penaltyEarly = 0m;
+      if (attendanceEnd < scheduledEnd)
+      {
+        penaltyEarly = CalculateRoundedHourPenalty((scheduledEnd - attendanceEnd).TotalMinutes, 0);
+      }
+
+      decimal penaltyBreak = 0m;
+      if (hasSecondSession && ts.TimeOut1.HasValue)
+      {
+        (DateTime breakStart, DateTime breakEnd) = GetScheduledBreakWindow(scheduledStart, scheduledEnd, sh, ts.TimeIn1.Value);
+
+        double scheduledBreakMinutes = Math.Max(0, (breakEnd - breakStart).TotalMinutes);
+        DateTime effectiveBreakStart = ts.TimeOut1.Value < breakStart ? breakStart : ts.TimeOut1.Value;
+        double actualBreakMinutes = (ts.TimeIn2!.Value - effectiveBreakStart).TotalMinutes;
+        double excessBreakMinutes = actualBreakMinutes - scheduledBreakMinutes;
+
+        penaltyBreak = CalculateRoundedHourPenalty(excessBreakMinutes, BreakToleranceMinutes);
+      }
+
+      decimal netWorkHours = Math.Max(0, workWithinSchedule);
+      decimal nightShiftHours = IsNightShift(sh) ? netWorkHours : 0m;
+
       WorkHrs = Math.Round(netWorkHours, 2);
       LateHrs = Math.Round(penaltyLate, 2);
       UnderHrs = Math.Round(penaltyEarly, 2);
       OverbreakHrs = Math.Round(penaltyBreak, 2);
-      NightShiftHours = Math.Round(nightShiftHrs, 2);
+      NightShiftHours = Math.Round(nightShiftHours, 2);
 
       return (WorkHrs ?? 0, LateHrs ?? 0, UnderHrs ?? 0, OverbreakHrs ?? 0, NightShiftHours ?? 0);
     }
     catch (Exception ex)
     {
-      // Optionally log the exception using your preferred logging framework.
       System.Diagnostics.Debug.WriteLine($"Error in CalculateWorkHours: {ex}");
       return (-1, 0, 0, 0, 0);
     }
+  }
+
+  private static DateTime BuildShiftDateTime(DateTime referenceDate, TimeOnly shiftTime)
+  {
+    return new DateTime(referenceDate.Year, referenceDate.Month, referenceDate.Day, shiftTime.Hour, shiftTime.Minute, shiftTime.Second);
+  }
+
+  private static decimal CalculateOverlapHours(DateTime intervalStart, DateTime intervalEnd, DateTime rangeStart, DateTime rangeEnd)
+  {
+    if (intervalEnd <= intervalStart)
+    {
+      return 0m;
+    }
+
+    DateTime overlapStart = intervalStart > rangeStart ? intervalStart : rangeStart;
+    DateTime overlapEnd = intervalEnd < rangeEnd ? intervalEnd : rangeEnd;
+
+    return overlapEnd > overlapStart
+      ? (decimal)(overlapEnd - overlapStart).TotalHours
+      : 0m;
+  }
+
+  private static decimal CalculateRoundedHourPenalty(double minutes, double thresholdMinutes)
+  {
+    if (minutes <= thresholdMinutes)
+    {
+      return 0m;
+    }
+
+    return (decimal)(Math.Floor((minutes - thresholdMinutes - 1) / 60) + 1);
+  }
+
+  private static (DateTime breakStart, DateTime breakEnd) GetScheduledBreakWindow(DateTime scheduledStart, DateTime scheduledEnd, Shift shift, DateTime referenceDate)
+  {
+    if (shift.ShiftBreakTime.HasValue && shift.ShiftBreakEndTime.HasValue)
+    {
+      DateTime breakStart = BuildShiftDateTime(referenceDate, shift.ShiftBreakTime.Value);
+      DateTime breakEnd = BuildShiftDateTime(referenceDate, shift.ShiftBreakEndTime.Value);
+      if (breakEnd <= breakStart)
+      {
+        breakEnd = breakEnd.AddDays(1);
+      }
+
+      return (breakStart, breakEnd);
+    }
+
+    DateTime defaultBreakStart = scheduledStart.AddHours((scheduledEnd - scheduledStart).TotalHours / 2d);
+    DateTime defaultBreakEnd = defaultBreakStart.AddHours((double)shift.BreakHours);
+    return (defaultBreakStart, defaultBreakEnd);
+  }
+
+  private static bool IsNightShift(Shift shift)
+  {
+    if (!shift.ShiftStartTime.HasValue || !shift.ShiftEndTime.HasValue)
+    {
+      return false;
+    }
+
+    return shift.ShiftStartTime.Value.Hour >= 22 || shift.ShiftEndTime.Value.Hour <= 6;
   }
 
 
