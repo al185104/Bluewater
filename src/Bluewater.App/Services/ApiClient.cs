@@ -2,6 +2,7 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
 using System.Text;
 using System.Text.Json;
 using Bluewater.App.Interfaces;
@@ -10,6 +11,10 @@ namespace Bluewater.App.Services;
 
 public class ApiClient(HttpClient httpClient) : IApiClient
 {
+  private static readonly Regex GuidRegex = new(
+    "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
+    RegexOptions.Compiled);
+
   private static readonly JsonSerializerOptions JsonOptions = new()
   {
     PropertyNameCaseInsensitive = true
@@ -63,7 +68,8 @@ public class ApiClient(HttpClient httpClient) : IApiClient
 
   public async Task<bool> DeleteAsync(string requestUri, CancellationToken cancellationToken = default)
   {
-    using var message = new HttpRequestMessage(HttpMethod.Delete, requestUri);
+    string normalizedRequestUri = NormalizeGuidCasing(requestUri);
+    using var message = new HttpRequestMessage(HttpMethod.Delete, normalizedRequestUri);
     using HttpResponseMessage response = await httpClient
       .SendAsync(message, cancellationToken)
       .ConfigureAwait(false);
@@ -75,6 +81,11 @@ public class ApiClient(HttpClient httpClient) : IApiClient
 
     response.EnsureSuccessStatusCode();
     return true;
+  }
+
+  private static string NormalizeGuidCasing(string requestUri)
+  {
+    return GuidRegex.Replace(requestUri, match => match.Value.ToUpperInvariant());
   }
 
   private async Task<T?> SendAsync<T>(HttpRequestMessage message, CancellationToken cancellationToken)
