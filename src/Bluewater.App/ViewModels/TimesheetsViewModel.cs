@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
+using System.Text;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
@@ -256,6 +258,172 @@ public partial class TimesheetsViewModel : BaseViewModel
 				_ = LoadTimesheetsAsync();
 		}
 
+
+
+		[RelayCommand]
+		private async Task DownloadTimesheetsAsync()
+		{
+				if (IsBusy)
+				{
+						return;
+				}
+
+				if (Timesheets.Count == 0)
+				{
+						await Shell.Current.DisplayAlert("Download", "No timesheets to download.", "Okay");
+						return;
+				}
+
+				string chargingName = SelectedCharging?.Name ?? "All";
+				bool confirmed = await Shell.Current.DisplayAlert(
+						"Download timesheets",
+						$"Download {chargingName} timesheets for {PeriodRangeDisplay} to your Downloads folder?",
+						"Yes",
+						"No");
+
+				if (!confirmed)
+				{
+						return;
+				}
+
+				try
+				{
+						IsBusy = true;
+
+						StringBuilder csv = new();
+						csv.AppendLine(string.Join(",", new[]
+						{
+								"Employee",
+								"Department",
+								"Section",
+								"Charging",
+								"Date",
+								"Time In 1",
+								"Time Out 1",
+								"Time In 2",
+								"Time Out 2",
+								"Shift",
+								"Work Hours",
+								"Break Hours",
+								"Late Hours",
+								"Undertime Hours",
+								"Overbreak Hours",
+								"Is Absent",
+								"Is Leave"
+						}));
+
+						foreach (EmployeeTimesheetSummary summary in Timesheets)
+						{
+								foreach (AttendanceTimesheetSummary timesheet in summary.Timesheets.OrderBy(item => item.EntryDate))
+								{
+										csv.AppendLine(string.Join(",", new[]
+										{
+												EscapeCsv(summary.Name),
+												EscapeCsv(summary.Department),
+												EscapeCsv(summary.Section),
+												EscapeCsv(summary.Charging),
+												EscapeCsv(timesheet.EntryDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+												EscapeCsv(FormatDateTime(timesheet.TimeIn1)),
+												EscapeCsv(FormatDateTime(timesheet.TimeOut1)),
+												EscapeCsv(FormatDateTime(timesheet.TimeIn2)),
+												EscapeCsv(FormatDateTime(timesheet.TimeOut2)),
+												EscapeCsv(timesheet.ShiftName),
+												EscapeCsv(CalculateWorkHours(timesheet).ToString("0.##", CultureInfo.InvariantCulture)),
+												EscapeCsv(CalculateBreakHours(timesheet).ToString("0.##", CultureInfo.InvariantCulture)),
+												EscapeCsv(string.Empty),
+												EscapeCsv(string.Empty),
+												EscapeCsv(string.Empty),
+												EscapeCsv(string.Empty),
+												EscapeCsv(string.Empty)
+										}));
+								}
+						}
+
+						string fileName = $"timesheets_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+						string downloadsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+						Directory.CreateDirectory(downloadsDirectory);
+						string filePath = Path.Combine(downloadsDirectory, fileName);
+						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8).ConfigureAwait(false);
+
+						await MainThread.InvokeOnMainThreadAsync(() =>
+								Shell.Current.DisplayAlert("Download", $"Timesheets downloaded to {filePath}", "Okay"));
+
+						await TraceCommandAsync(nameof(DownloadTimesheetsAsync), new
+						{
+								StartDate,
+								EndDate,
+								Charging = chargingName,
+								Tenant = SelectedTenant.ToString(),
+								EmployeeCount = Timesheets.Count,
+								FileName = fileName
+						}).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Downloading timesheets");
+				}
+				finally
+				{
+						IsBusy = false;
+				}
+		}
+
+
+		private static decimal CalculateWorkHours(AttendanceTimesheetSummary timesheet)
+		{
+				if (timesheet.TimeIn1 is null || timesheet.TimeOut2 is null)
+				{
+						return 0m;
+				}
+
+				TimeSpan workDuration = timesheet.TimeOut2.Value - timesheet.TimeIn1.Value;
+				if (workDuration <= TimeSpan.Zero)
+				{
+						return 0m;
+				}
+
+				return (decimal)workDuration.TotalHours - CalculateBreakHours(timesheet);
+		}
+
+		private static decimal CalculateBreakHours(AttendanceTimesheetSummary timesheet)
+		{
+				if (timesheet.TimeOut1 is null || timesheet.TimeIn2 is null)
+				{
+						return 0m;
+				}
+
+				TimeSpan breakDuration = timesheet.TimeIn2.Value - timesheet.TimeOut1.Value;
+				if (breakDuration <= TimeSpan.Zero)
+				{
+						return 0m;
+				}
+
+				return (decimal)breakDuration.TotalHours;
+		}
+
+
+		private static string FormatDateTime(DateTime? value)
+				=> value?.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture) ?? string.Empty;
+
+		private static string EscapeCsv(string? value)
+		{
+				if (string.IsNullOrEmpty(value))
+				{
+						return string.Empty;
+				}
+
+				if (value.Contains('"'))
+				{
+						value = value.Replace("\"", "\"\"");
+				}
+
+				if (value.Contains(',') || value.Contains("\n") || value.Contains("\r"))
+				{
+						return $"\"{value}\"";
+				}
+
+				return value;
+		}
 
 		[RelayCommand]
 		private async Task SubmitAsync()
