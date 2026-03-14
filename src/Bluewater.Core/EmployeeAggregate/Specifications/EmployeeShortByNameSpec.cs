@@ -10,6 +10,7 @@ public class EmployeeShortByNameSpec : Specification<Employee>
         EF.Functions.Like(employee.LastName + ", " + employee.FirstName, $"%{name}%") ||
         EF.Functions.Like(employee.FirstName + " " + employee.LastName, $"%{name}%")
     )
+    .Where(employee => !employee.IsDeleted)
     .Include(i => i.User);
   }
 }

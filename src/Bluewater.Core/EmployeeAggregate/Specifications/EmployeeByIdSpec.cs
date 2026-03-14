@@ -6,7 +6,7 @@ public class EmployeeByIdSpec : Specification<Employee>
   public EmployeeByIdSpec(Guid EmployeeId)
   {
     Query
-        .Where(Employee => Employee.Id == EmployeeId)
+        .Where(Employee => Employee.Id == EmployeeId && !Employee.IsDeleted)
         .Include(Employee => Employee.User);
   }
 }

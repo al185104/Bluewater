@@ -10,7 +10,7 @@ public class EmployeeListSpec :  Specification<Employee>
     {
         Query
             .AsNoTracking()
-            .Where(i => i.Tenant == tenant)
+            .Where(i => i.Tenant == tenant && !i.IsDeleted)
             .OrderBy(e => e.LastName);
 
         if (skip.HasValue)
