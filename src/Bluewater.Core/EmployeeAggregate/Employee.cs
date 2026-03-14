@@ -106,6 +106,19 @@ public class Employee(string firstName, string lastName, string? middleName, Dat
     ChargingId = chargingId;
   }
 
+
+  public void MarkAsDeleted()
+  {
+    IsDeleted = true;
+    UpdatedDate = DateTime.Now;
+  }
+
+  public void Restore()
+  {
+    IsDeleted = false;
+    UpdatedDate = DateTime.Now;
+  }
+
   public void UpdateEmployee(string firstName, string lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, int mealCredits, Tenant tenant)
   {
     FirstName = Guard.Against.NullOrEmpty(firstName, nameof(firstName));

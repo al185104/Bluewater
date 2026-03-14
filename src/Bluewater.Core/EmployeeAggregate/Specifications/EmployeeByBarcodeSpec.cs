@@ -7,6 +7,6 @@ public class EmployeeByBarcodeSpec : Specification<Employee>
   {
     Query
         .Include(Employee => Employee.User)
-        .Where(i => i.User != null && i.User.Username.ToLower() == barcode.ToLower());
+        .Where(i => i.User != null && i.User.Username.ToLower() == barcode.ToLower() && !i.IsDeleted);
   }
 }

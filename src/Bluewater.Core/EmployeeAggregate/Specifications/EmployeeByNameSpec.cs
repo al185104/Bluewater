@@ -9,6 +9,7 @@ public class EmployeeByNameSpec : Specification<Employee>
     Query.Where(employee => 
         EF.Functions.Like(employee.LastName + ", " + employee.FirstName, $"%{name}%") ||
         EF.Functions.Like(employee.FirstName + " " + employee.LastName, $"%{name}%"))
+        .Where(employee => !employee.IsDeleted)
         .Include(employee => employee.ContactInfo)
         .Include(employee => employee.User);
   }

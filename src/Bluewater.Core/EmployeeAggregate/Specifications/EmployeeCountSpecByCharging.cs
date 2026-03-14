@@ -11,6 +11,6 @@ public class EmployeeCountSpecByCharging : Specification<Employee>
     Query
       .AsNoTracking()
       .Include(employee => employee.Charging)
-      .Where(employee => employee.Charging != null && employee.Charging.Name == chargingName && employee.Tenant == tenant);
+      .Where(employee => employee.Charging != null && employee.Charging.Name == chargingName && employee.Tenant == tenant && !employee.IsDeleted);
   }
 }

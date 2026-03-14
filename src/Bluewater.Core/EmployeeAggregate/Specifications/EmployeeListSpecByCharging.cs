@@ -11,7 +11,7 @@ public class EmployeeListSpecByCharging : Specification<Employee>
     Query
         .AsNoTracking()
         .Include(e => e.Charging)
-        .Where(e => e.Charging != null && e.Charging.Name == chargingName && e.Tenant == tenant)
+        .Where(e => e.Charging != null && e.Charging.Name == chargingName && e.Tenant == tenant && !e.IsDeleted)
         .OrderBy(e => e.LastName);
 
     if (skip.HasValue)

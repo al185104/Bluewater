@@ -10,6 +10,6 @@ public class EmployeeCountSpec : Specification<Employee>
   {
     Query
       .AsNoTracking()
-      .Where(employee => employee.Tenant == tenant);
+      .Where(employee => employee.Tenant == tenant && !employee.IsDeleted);
   }
 }
