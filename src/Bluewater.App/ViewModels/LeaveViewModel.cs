@@ -14,7 +14,6 @@ public partial class LeaveViewModel : BaseViewModel
 		private readonly IEmployeeApiService employeeApiService;
 		private readonly IReferenceDataService referenceDataService;
 		private readonly List<LeaveSummary> allLeaves = [];
-		private readonly List<EmployeeSummary> allEmployees = [];
 		private bool hasInitialized;
 
 		public LeaveViewModel(
@@ -29,14 +28,11 @@ public partial class LeaveViewModel : BaseViewModel
 				this.employeeApiService = employeeApiService;
 				this.referenceDataService = referenceDataService;
 				EditableLeave = CreateNewLeave();
-				AvailableStatuses = Enum.GetValues<ApplicationStatusDto>();
 		}
 
 		public ObservableCollection<LeaveSummary> Leaves { get; } = new();
 		public ObservableCollection<EmployeeSummary> Employees { get; } = new();
 		public ObservableCollection<LeaveCreditSummary> LeaveCredits { get; } = new();
-
-		public IReadOnlyList<ApplicationStatusDto> AvailableStatuses { get; }
 
 		[ObservableProperty]
 		public partial LeaveSummary? SelectedLeave { get; set; }
@@ -56,9 +52,6 @@ public partial class LeaveViewModel : BaseViewModel
 		[ObservableProperty]
 		public partial LeaveCreditSummary? SelectedLeaveCredit { get; set; }
 
-		[ObservableProperty]
-		public partial ApplicationStatusDto SelectedStatus { get; set; } = ApplicationStatusDto.Pending;
-
 		public override async Task InitializeAsync()
 		{
 				if (hasInitialized)
@@ -69,7 +62,6 @@ public partial class LeaveViewModel : BaseViewModel
 				hasInitialized = true;
 				await TraceCommandAsync(nameof(InitializeAsync));
 				await LoadReferenceDataAsync();
-				await LoadEmployeesAsync();
 				await LoadLeavesAsync();
 		}
 
@@ -78,7 +70,6 @@ public partial class LeaveViewModel : BaseViewModel
 		{
 				await TraceCommandAsync(nameof(RefreshAsync));
 				await LoadReferenceDataAsync();
-				await LoadEmployeesAsync();
 				await LoadLeavesAsync();
 		}
 
@@ -88,27 +79,12 @@ public partial class LeaveViewModel : BaseViewModel
 				EditableLeave = CreateNewLeave();
 				SelectedLeave = null;
 				SelectedLeaveCredit = null;
-				SelectedStatus = ApplicationStatusDto.Pending;
 
 				if (SelectedEmployee is not null)
 				{
 						EditableLeave.EmployeeId = SelectedEmployee.Id;
 						EditableLeave.EmployeeName = SelectedEmployee.FullName;
 				}
-		}
-
-		[RelayCommand]
-		private void BeginEditLeave(LeaveSummary? leave)
-		{
-				if (leave is null)
-				{
-						return;
-				}
-
-				SelectedLeave = leave;
-				EditableLeave = CloneLeave(leave);
-				SelectedLeaveCredit = LeaveCredits.FirstOrDefault(credit => credit.Id == leave.LeaveCreditId);
-				SelectedStatus = leave.Status;
 		}
 
 		[RelayCommand]
@@ -126,7 +102,7 @@ public partial class LeaveViewModel : BaseViewModel
 
 				EditableLeave.LeaveCreditId = SelectedLeaveCredit.Id;
 				EditableLeave.LeaveCreditName = SelectedLeaveCredit.Description;
-				EditableLeave.Status = SelectedStatus;
+				EditableLeave.Status = ApplicationStatusDto.Pending;
 
 				bool isNew = EditableLeave.Id == Guid.Empty;
 
@@ -165,6 +141,18 @@ public partial class LeaveViewModel : BaseViewModel
 		}
 
 		[RelayCommand]
+		private Task AcceptLeaveAsync(LeaveSummary? leave)
+		{
+				return UpdateLeaveStatusAsync(leave, ApplicationStatusDto.Approved);
+		}
+
+		[RelayCommand]
+		private Task RejectLeaveAsync(LeaveSummary? leave)
+		{
+				return UpdateLeaveStatusAsync(leave, ApplicationStatusDto.Rejected);
+		}
+
+		[RelayCommand]
 		private async Task DeleteLeaveAsync(LeaveSummary? leave)
 		{
 				if (leave is null)
@@ -197,7 +185,7 @@ public partial class LeaveViewModel : BaseViewModel
 
 		partial void OnSearchTextChanged(string value)
 		{
-				ApplyEmployeeFilter();
+				_ = LoadSearchedEmployeeAsync(value);
 				ApplyLeaveFilter();
 		}
 
@@ -221,11 +209,6 @@ public partial class LeaveViewModel : BaseViewModel
 
 				EditableLeave.LeaveCreditId = value.Id;
 				EditableLeave.LeaveCreditName = value.Description;
-		}
-
-		partial void OnSelectedStatusChanged(ApplicationStatusDto value)
-		{
-				EditableLeave.Status = value;
 		}
 
 		private async Task LoadLeavesAsync()
@@ -252,15 +235,23 @@ public partial class LeaveViewModel : BaseViewModel
 				}
 		}
 
-		private async Task LoadEmployeesAsync()
+		private async Task LoadSearchedEmployeeAsync(string searchText)
 		{
+				if (string.IsNullOrWhiteSpace(searchText))
+				{
+						Employees.Clear();
+						SelectedEmployee = null;
+						return;
+				}
+
 				try
 				{
 						const int pageSize = 100;
 						int skip = 0;
-						allEmployees.Clear();
+						string search = searchText.Trim();
+						EmployeeSummary? matchedEmployee = null;
 
-						while (true)
+						while (matchedEmployee is null)
 						{
 								PagedResult<EmployeeSummary> page = await employeeApiService.GetEmployeesAsync(skip: skip, take: pageSize);
 								if (page.Items.Count == 0)
@@ -268,20 +259,69 @@ public partial class LeaveViewModel : BaseViewModel
 										break;
 								}
 
-								allEmployees.AddRange(page.Items);
-								skip += page.Items.Count;
+								matchedEmployee = page.Items.FirstOrDefault(employee =>
+									employee.FullName.Contains(search, StringComparison.OrdinalIgnoreCase)
+									|| (employee.Position?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+									|| (employee.Department?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+									|| (employee.Section?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false));
 
+								skip += page.Items.Count;
 								if (page.Items.Count < pageSize)
 								{
 										break;
 								}
 						}
 
-						ApplyEmployeeFilter();
+						Employees.Clear();
+						if (matchedEmployee is not null)
+						{
+								Employees.Add(matchedEmployee);
+						}
+
+						SelectedEmployee = matchedEmployee;
+						ApplyLeaveFilter();
 				}
 				catch (Exception ex)
 				{
-						ExceptionHandlingService.Handle(ex, "Loading employees");
+						ExceptionHandlingService.Handle(ex, "Searching employee");
+				}
+		}
+
+		private async Task UpdateLeaveStatusAsync(LeaveSummary? leave, ApplicationStatusDto status)
+		{
+				if (leave is null)
+				{
+						return;
+				}
+
+				try
+				{
+						IsBusy = true;
+						LeaveSummary request = CloneLeave(leave);
+						request.Status = status;
+
+						LeaveSummary? updated = await leaveApiService.UpdateLeaveAsync(request);
+						if (updated is null)
+						{
+								return;
+						}
+
+						int existingIndex = allLeaves.FindIndex(item => item.Id == updated.Id);
+						if (existingIndex >= 0)
+						{
+								allLeaves[existingIndex] = updated;
+						}
+
+						ApplyLeaveFilter();
+						await TraceCommandAsync(nameof(UpdateLeaveStatusAsync), updated.Id);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Updating leave status");
+				}
+				finally
+				{
+						IsBusy = false;
 				}
 		}
 
@@ -299,31 +339,6 @@ public partial class LeaveViewModel : BaseViewModel
 				catch (Exception ex)
 				{
 						ExceptionHandlingService.Handle(ex, "Loading leave credits");
-				}
-		}
-
-		private void ApplyEmployeeFilter()
-		{
-				IEnumerable<EmployeeSummary> filteredEmployees = allEmployees;
-				if (!string.IsNullOrWhiteSpace(SearchText))
-				{
-						string search = SearchText.Trim();
-						filteredEmployees = allEmployees.Where(employee =>
-							employee.FullName.Contains(search, StringComparison.OrdinalIgnoreCase)
-							|| (employee.Position?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
-							|| (employee.Department?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
-							|| (employee.Section?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false));
-				}
-
-				Employees.Clear();
-				foreach (EmployeeSummary employee in filteredEmployees)
-				{
-						Employees.Add(employee);
-				}
-
-				if (SelectedEmployee is not null && !Employees.Any(employee => employee.Id == SelectedEmployee.Id))
-				{
-						SelectedEmployee = null;
 				}
 		}
 

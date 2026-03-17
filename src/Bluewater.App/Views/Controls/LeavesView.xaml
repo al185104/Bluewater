@@ -58,7 +58,7 @@
             <Border StrokeShape="RoundRectangle 5 5 5 5"
                     Padding="12">
                 <Grid RowDefinitions="Auto,Auto"
-                      ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto"
+                      ColumnDefinitions="Auto,Auto,*,Auto,Auto"
                       ColumnSpacing="10"
                       RowSpacing="8">
                     <DatePicker Grid.Column="0"
@@ -73,21 +73,11 @@
                             <Binding Path="Description" />
                         </Picker.ItemDisplayBinding>
                     </Picker>
-                    <Picker Grid.Column="3"
-                            Title="Status"
-                            WidthRequest="140"
-                            ItemsSource="{Binding AvailableStatuses}"
-                            SelectedItem="{Binding SelectedStatus}" />
-                    <CheckBox Grid.Column="4"
+                    <CheckBox Grid.Column="3"
                               IsChecked="{Binding EditableLeave.IsHalfDay}" />
-                    <HorizontalStackLayout Grid.Column="5"
-                                           Spacing="8">
-                        <Button Text="New"
-                                Style="{StaticResource SecondaryButtonStyle}"
-                                Command="{Binding BeginCreateLeaveCommand}" />
-                        <Button Text="Save"
-                                Command="{Binding SaveLeaveCommand}" />
-                    </HorizontalStackLayout>
+                    <Button Grid.Column="4"
+                            Text="Save"
+                            Command="{Binding SaveLeaveCommand}" />
                 </Grid>
             </Border>
 
@@ -122,14 +112,14 @@
                                 <Label Grid.Column="1"
                                        Text="{Binding Status}" />
                                 <Button Grid.Column="2"
-                                        Text="Edit"
+                                        Text="Accept"
                                         Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LeaveViewModel}}, Path=BeginEditLeaveCommand}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LeaveViewModel}}, Path=AcceptLeaveCommand}"
                                         CommandParameter="{Binding .}" />
                                 <Button Grid.Column="3"
-                                        Text="Delete"
+                                        Text="Reject"
                                         Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LeaveViewModel}}, Path=DeleteLeaveCommand}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LeaveViewModel}}, Path=RejectLeaveCommand}"
                                         CommandParameter="{Binding .}" />
                             </Grid>
                         </Border>
