@@ -1,13 +1,147 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
+             xmlns:models="clr-namespace:Bluewater.App.Models"
+             xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
              x:Class="Bluewater.App.Views.Controls.LeavesView"
+             x:DataType="vm:LeaveViewModel"
 			 Loaded="ContentView_Loaded"
-			 Unloaded="ContentView_Unloaded">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+			 Unloaded="ContentView_Unloaded"
+             Background="{StaticResource CollectionBackgroundBrush}">
+    <Grid RowDefinitions="Auto,Auto,*,Auto"
+          Padding="20"
+          RowSpacing="12">
+        <Grid Grid.Row="0"
+              ColumnDefinitions="320,Auto,Auto,*"
+              ColumnSpacing="10">
+            <SearchBar Grid.Column="0"
+                       Placeholder="Search employees"
+                       Text="{Binding SearchText}" />
+            <Button Grid.Column="1"
+                    Text="{x:Static helpers:Icon.RefreshCcw}"
+                    FontFamily="Icons"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Command="{Binding RefreshCommand}" />
+            <Label Grid.Column="2"
+                   VerticalTextAlignment="Center"
+                   Text="{Binding Leaves.Count, StringFormat='{}{0} leave applications'}" />
+        </Grid>
+
+        <CollectionView Grid.Row="1"
+                        HeightRequest="140"
+                        SelectionMode="Single"
+                        SelectedItem="{Binding SelectedEmployee}"
+                        ItemsSource="{Binding Employees}">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical"
+                                   ItemSpacing="5" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="models:EmployeeSummary">
+                    <Border StrokeShape="RoundRectangle 5 5 5 5"
+                            Padding="10,8">
+                        <Grid RowDefinitions="Auto,Auto">
+                            <Label Text="{Binding FullName}" />
+                            <Label Grid.Row="1"
+                                   FontSize="12"
+                                   Text="{Binding PositionDisplay}" />
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <Grid Grid.Row="2"
+              RowDefinitions="Auto,*"
+              RowSpacing="10">
+            <Border StrokeShape="RoundRectangle 5 5 5 5"
+                    Padding="12">
+                <Grid RowDefinitions="Auto,Auto"
+                      ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto"
+                      ColumnSpacing="10"
+                      RowSpacing="8">
+                    <DatePicker Grid.Column="0"
+                                Date="{Binding EditableLeave.StartDate}" />
+                    <DatePicker Grid.Column="1"
+                                Date="{Binding EditableLeave.EndDate}" />
+                    <Picker Grid.Column="2"
+                            Title="Leave credit"
+                            ItemsSource="{Binding LeaveCredits}"
+                            SelectedItem="{Binding SelectedLeaveCredit}">
+                        <Picker.ItemDisplayBinding>
+                            <Binding Path="Description" />
+                        </Picker.ItemDisplayBinding>
+                    </Picker>
+                    <Picker Grid.Column="3"
+                            Title="Status"
+                            WidthRequest="140"
+                            ItemsSource="{Binding AvailableStatuses}"
+                            SelectedItem="{Binding SelectedStatus}" />
+                    <CheckBox Grid.Column="4"
+                              IsChecked="{Binding EditableLeave.IsHalfDay}" />
+                    <HorizontalStackLayout Grid.Column="5"
+                                           Spacing="8">
+                        <Button Text="New"
+                                Style="{StaticResource SecondaryButtonStyle}"
+                                Command="{Binding BeginCreateLeaveCommand}" />
+                        <Button Text="Save"
+                                Command="{Binding SaveLeaveCommand}" />
+                    </HorizontalStackLayout>
+                </Grid>
+            </Border>
+
+            <CollectionView Grid.Row="1"
+                            SelectionMode="Single"
+                            SelectedItem="{Binding SelectedLeave}"
+                            ItemsSource="{Binding Leaves}">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical"
+                                       ItemSpacing="5" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="models:LeaveSummary">
+                        <Border StrokeShape="RoundRectangle 5 5 5 5">
+                            <Grid Padding="10"
+                                  ColumnDefinitions="*,Auto,Auto,Auto"
+                                  ColumnSpacing="12">
+                                <Label Grid.Column="0">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{Binding EmployeeName}" />
+                                            <Span Text=" • " />
+                                            <Span Text="{Binding LeaveCreditName}" />
+                                            <Span Text=" (" />
+                                            <Span Text="{Binding StartDate, StringFormat='{}{0:MMM dd, yyyy}'}" />
+                                            <Span Text=" - " />
+                                            <Span Text="{Binding EndDate, StringFormat='{}{0:MMM dd, yyyy}'}" />
+                                            <Span Text=")" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Label Grid.Column="1"
+                                       Text="{Binding Status}" />
+                                <Button Grid.Column="2"
+                                        Text="Edit"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LeaveViewModel}}, Path=BeginEditLeaveCommand}"
+                                        CommandParameter="{Binding .}" />
+                                <Button Grid.Column="3"
+                                        Text="Delete"
+                                        Style="{StaticResource SecondaryButtonStyle}"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LeaveViewModel}}, Path=DeleteLeaveCommand}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+
+        <ActivityIndicator Grid.RowSpan="4"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+    </Grid>
 </ContentView>

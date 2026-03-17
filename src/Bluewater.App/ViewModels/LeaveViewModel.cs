@@ -11,19 +11,32 @@ namespace Bluewater.App.ViewModels;
 public partial class LeaveViewModel : BaseViewModel
 {
 		private readonly ILeaveApiService leaveApiService;
+		private readonly IEmployeeApiService employeeApiService;
+		private readonly IReferenceDataService referenceDataService;
+		private readonly List<LeaveSummary> allLeaves = [];
+		private readonly List<EmployeeSummary> allEmployees = [];
 		private bool hasInitialized;
 
 		public LeaveViewModel(
 			ILeaveApiService leaveApiService,
+			IEmployeeApiService employeeApiService,
+			IReferenceDataService referenceDataService,
 			IActivityTraceService activityTraceService,
 			IExceptionHandlingService exceptionHandlingService)
 			: base(activityTraceService, exceptionHandlingService)
 		{
 				this.leaveApiService = leaveApiService;
+				this.employeeApiService = employeeApiService;
+				this.referenceDataService = referenceDataService;
 				EditableLeave = CreateNewLeave();
+				AvailableStatuses = Enum.GetValues<ApplicationStatusDto>();
 		}
 
 		public ObservableCollection<LeaveSummary> Leaves { get; } = new();
+		public ObservableCollection<EmployeeSummary> Employees { get; } = new();
+		public ObservableCollection<LeaveCreditSummary> LeaveCredits { get; } = new();
+
+		public IReadOnlyList<ApplicationStatusDto> AvailableStatuses { get; }
 
 		[ObservableProperty]
 		public partial LeaveSummary? SelectedLeave { get; set; }
@@ -34,6 +47,18 @@ public partial class LeaveViewModel : BaseViewModel
 		[ObservableProperty]
 		public partial TenantDto TenantFilter { get; set; } = TenantDto.Maribago;
 
+		[ObservableProperty]
+		public partial string SearchText { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial EmployeeSummary? SelectedEmployee { get; set; }
+
+		[ObservableProperty]
+		public partial LeaveCreditSummary? SelectedLeaveCredit { get; set; }
+
+		[ObservableProperty]
+		public partial ApplicationStatusDto SelectedStatus { get; set; } = ApplicationStatusDto.Pending;
+
 		public override async Task InitializeAsync()
 		{
 				if (hasInitialized)
@@ -43,6 +68,8 @@ public partial class LeaveViewModel : BaseViewModel
 
 				hasInitialized = true;
 				await TraceCommandAsync(nameof(InitializeAsync));
+				await LoadReferenceDataAsync();
+				await LoadEmployeesAsync();
 				await LoadLeavesAsync();
 		}
 
@@ -50,6 +77,8 @@ public partial class LeaveViewModel : BaseViewModel
 		private async Task RefreshAsync()
 		{
 				await TraceCommandAsync(nameof(RefreshAsync));
+				await LoadReferenceDataAsync();
+				await LoadEmployeesAsync();
 				await LoadLeavesAsync();
 		}
 
@@ -58,6 +87,14 @@ public partial class LeaveViewModel : BaseViewModel
 		{
 				EditableLeave = CreateNewLeave();
 				SelectedLeave = null;
+				SelectedLeaveCredit = null;
+				SelectedStatus = ApplicationStatusDto.Pending;
+
+				if (SelectedEmployee is not null)
+				{
+						EditableLeave.EmployeeId = SelectedEmployee.Id;
+						EditableLeave.EmployeeName = SelectedEmployee.FullName;
+				}
 		}
 
 		[RelayCommand]
@@ -70,6 +107,8 @@ public partial class LeaveViewModel : BaseViewModel
 
 				SelectedLeave = leave;
 				EditableLeave = CloneLeave(leave);
+				SelectedLeaveCredit = LeaveCredits.FirstOrDefault(credit => credit.Id == leave.LeaveCreditId);
+				SelectedStatus = leave.Status;
 		}
 
 		[RelayCommand]
@@ -79,6 +118,15 @@ public partial class LeaveViewModel : BaseViewModel
 				{
 						return;
 				}
+
+				if (SelectedLeaveCredit is null)
+				{
+						return;
+				}
+
+				EditableLeave.LeaveCreditId = SelectedLeaveCredit.Id;
+				EditableLeave.LeaveCreditName = SelectedLeaveCredit.Description;
+				EditableLeave.Status = SelectedStatus;
 
 				bool isNew = EditableLeave.Id == Guid.Empty;
 
@@ -91,29 +139,19 @@ public partial class LeaveViewModel : BaseViewModel
 							: await leaveApiService.UpdateLeaveAsync(EditableLeave);
 
 						LeaveSummary result = saved ?? EditableLeave;
-
-						if (isNew)
+						int existingIndex = allLeaves.FindIndex(item => item.Id == result.Id);
+						if (existingIndex >= 0)
 						{
-								result.RowIndex = Leaves.Count;
-								Leaves.Add(result);
+								allLeaves[existingIndex] = result;
 						}
 						else
 						{
-								int index = FindLeaveIndex(result.Id);
-								if (index >= 0)
-								{
-										result.RowIndex = index;
-										Leaves[index] = result;
-								}
-								else
-								{
-										result.RowIndex = Leaves.Count;
-										Leaves.Add(result);
-								}
+								allLeaves.Add(result);
 						}
 
-						UpdateLeaveRowIndexes();
+						ApplyLeaveFilter();
 						EditableLeave = CloneLeave(result);
+						SelectedLeave = result;
 						await TraceCommandAsync(nameof(SaveLeaveAsync), result.Id);
 				}
 				catch (Exception ex)
@@ -142,8 +180,8 @@ public partial class LeaveViewModel : BaseViewModel
 
 						if (deleted)
 						{
-								Leaves.Remove(leave);
-								UpdateLeaveRowIndexes();
+								allLeaves.RemoveAll(item => item.Id == leave.Id);
+								ApplyLeaveFilter();
 								await TraceCommandAsync(nameof(DeleteLeaveAsync), leave.Id);
 						}
 				}
@@ -157,6 +195,39 @@ public partial class LeaveViewModel : BaseViewModel
 				}
 		}
 
+		partial void OnSearchTextChanged(string value)
+		{
+				ApplyEmployeeFilter();
+				ApplyLeaveFilter();
+		}
+
+		partial void OnSelectedEmployeeChanged(EmployeeSummary? value)
+		{
+				if (value is not null)
+				{
+						EditableLeave.EmployeeId = value.Id;
+						EditableLeave.EmployeeName = value.FullName;
+				}
+
+				ApplyLeaveFilter();
+		}
+
+		partial void OnSelectedLeaveCreditChanged(LeaveCreditSummary? value)
+		{
+				if (value is null)
+				{
+						return;
+				}
+
+				EditableLeave.LeaveCreditId = value.Id;
+				EditableLeave.LeaveCreditName = value.Description;
+		}
+
+		partial void OnSelectedStatusChanged(ApplicationStatusDto value)
+		{
+				EditableLeave.Status = value;
+		}
+
 		private async Task LoadLeavesAsync()
 		{
 				try
@@ -167,12 +238,9 @@ public partial class LeaveViewModel : BaseViewModel
 							.GetLeavesAsync(tenant: TenantFilter)
 							.ConfigureAwait(false);
 
-						Leaves.Clear();
-						foreach (LeaveSummary leave in leaves)
-						{
-								leave.RowIndex = Leaves.Count;
-								Leaves.Add(leave);
-						}
+						allLeaves.Clear();
+						allLeaves.AddRange(leaves);
+						ApplyLeaveFilter();
 				}
 				catch (Exception ex)
 				{
@@ -184,6 +252,104 @@ public partial class LeaveViewModel : BaseViewModel
 				}
 		}
 
+		private async Task LoadEmployeesAsync()
+		{
+				try
+				{
+						const int pageSize = 100;
+						int skip = 0;
+						allEmployees.Clear();
+
+						while (true)
+						{
+								PagedResult<EmployeeSummary> page = await employeeApiService.GetEmployeesAsync(skip: skip, take: pageSize);
+								if (page.Items.Count == 0)
+								{
+										break;
+								}
+
+								allEmployees.AddRange(page.Items);
+								skip += page.Items.Count;
+
+								if (page.Items.Count < pageSize)
+								{
+										break;
+								}
+						}
+
+						ApplyEmployeeFilter();
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Loading employees");
+				}
+		}
+
+		private async Task LoadReferenceDataAsync()
+		{
+				try
+				{
+						await referenceDataService.InitializeAsync();
+						LeaveCredits.Clear();
+						foreach (LeaveCreditSummary leaveCredit in referenceDataService.LeaveCredits)
+						{
+								LeaveCredits.Add(leaveCredit);
+						}
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Loading leave credits");
+				}
+		}
+
+		private void ApplyEmployeeFilter()
+		{
+				IEnumerable<EmployeeSummary> filteredEmployees = allEmployees;
+				if (!string.IsNullOrWhiteSpace(SearchText))
+				{
+						string search = SearchText.Trim();
+						filteredEmployees = allEmployees.Where(employee =>
+							employee.FullName.Contains(search, StringComparison.OrdinalIgnoreCase)
+							|| (employee.Position?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+							|| (employee.Department?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
+							|| (employee.Section?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false));
+				}
+
+				Employees.Clear();
+				foreach (EmployeeSummary employee in filteredEmployees)
+				{
+						Employees.Add(employee);
+				}
+
+				if (SelectedEmployee is not null && !Employees.Any(employee => employee.Id == SelectedEmployee.Id))
+				{
+						SelectedEmployee = null;
+				}
+		}
+
+		private void ApplyLeaveFilter()
+		{
+				IEnumerable<LeaveSummary> filteredLeaves = allLeaves;
+				if (SelectedEmployee is not null)
+				{
+						filteredLeaves = filteredLeaves.Where(leave => leave.EmployeeId == SelectedEmployee.Id);
+				}
+				else if (!string.IsNullOrWhiteSpace(SearchText))
+				{
+						string search = SearchText.Trim();
+						filteredLeaves = filteredLeaves.Where(leave =>
+							leave.EmployeeName.Contains(search, StringComparison.OrdinalIgnoreCase));
+				}
+
+				Leaves.Clear();
+				foreach (LeaveSummary leave in filteredLeaves.OrderByDescending(item => item.StartDate))
+				{
+						Leaves.Add(leave);
+				}
+
+				UpdateLeaveRowIndexes();
+		}
+
 		private static LeaveSummary CreateNewLeave()
 		{
 				return new LeaveSummary
@@ -191,6 +357,7 @@ public partial class LeaveViewModel : BaseViewModel
 						Id = Guid.Empty,
 						StartDate = DateTime.Today,
 						EndDate = DateTime.Today,
+						Status = ApplicationStatusDto.Pending,
 						RowIndex = 0
 				};
 		}
@@ -210,19 +377,6 @@ public partial class LeaveViewModel : BaseViewModel
 						LeaveCreditName = leave.LeaveCreditName,
 						RowIndex = leave.RowIndex
 				};
-		}
-
-		private int FindLeaveIndex(Guid leaveId)
-		{
-				for (int i = 0; i < Leaves.Count; i++)
-				{
-						if (Leaves[i].Id == leaveId)
-						{
-								return i;
-						}
-				}
-
-				return -1;
 		}
 
 		private void UpdateLeaveRowIndexes()
