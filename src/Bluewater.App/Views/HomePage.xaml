@@ -80,10 +80,8 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
-                    Margin="5, 0"
                     Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Leaves}" 
-					IsVisible="False"/>
+                    CommandParameter="{x:Static enum:MainSectionEnum.Leaves}" />
             <Button x:Name="btnTimesheet" 
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.Calendar}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Timesheet"
@@ -119,7 +117,7 @@
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
                     Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Users}" />
+                    CommandParameter="{x:Static enum:MainSectionEnum.Forms}" />
         </VerticalStackLayout>
         
         <VerticalStackLayout x:Name="vslSubmenu" Grid.Row="1" WidthRequest="140">

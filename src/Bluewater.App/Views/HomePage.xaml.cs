@@ -32,7 +32,7 @@ public sealed partial class HomePage : ContentPage
 						MainSectionEnum.Timesheet => _services.GetRequiredService<TimesheetView>(),
 						MainSectionEnum.Attendance => _services.GetRequiredService<AttendanceView>(),
 						MainSectionEnum.Payroll => _services.GetRequiredService<PayrollView>(),
-						MainSectionEnum.Users => _services.GetRequiredService<UsersView>(),
+						MainSectionEnum.Forms => _services.GetRequiredService<FormsView>(),
 						MainSectionEnum.Settings => _services.GetRequiredService<SettingsView>(),
 						_ => _services.GetRequiredService<DashboardView>()
 				};

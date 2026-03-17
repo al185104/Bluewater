@@ -131,6 +131,7 @@ public static class MauiProgram
 				builder.Services.AddTransient<AttendanceView>();
 				builder.Services.AddTransient<UsersView>();
 				builder.Services.AddTransient<SettingsView>();
+				builder.Services.AddTransient<FormsView>();
 				// modals
 				builder.Services.AddTransient<EmployeeDetailsPage>();
 				builder.Services.AddTransient<TimesheetDetailsPage>();

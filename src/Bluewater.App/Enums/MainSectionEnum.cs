@@ -12,5 +12,6 @@ public enum MainSectionEnum
 		Attendance,
 		Payroll,
 		Users,
+		Forms,
 		Settings
 }

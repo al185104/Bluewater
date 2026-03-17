@@ -101,6 +101,9 @@
           <MauiXaml Update="Views\Controls\EmployeesView.xaml">
             <Generator>MSBuild:Compile</Generator>
           </MauiXaml>
+          <MauiXaml Update="Views\Controls\FormsView.xaml">
+            <Generator>MSBuild:Compile</Generator>
+          </MauiXaml>
           <MauiXaml Update="Views\Controls\LeavesView.xaml">
             <Generator>MSBuild:Compile</Generator>
           </MauiXaml>
