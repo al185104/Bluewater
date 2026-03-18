@@ -82,6 +82,16 @@ internal static class EmployeeMapper
       dto.Type,
       dto.Level,
       dto.MealCredits,
+      dto.UserId,
+      dto.PositionId,
+      dto.PayId,
+      dto.TypeId,
+      dto.LevelId,
+      dto.ChargingId,
+      dto.CreatedDate,
+      dto.CreateBy,
+      dto.UpdatedDate,
+      dto.UpdateBy,
       dto.Tenant);
   }
 }

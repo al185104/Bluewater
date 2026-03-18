@@ -32,9 +32,19 @@ public record EmployeeDTO()
     public string? Type { get; set; }
     public string? Level { get; set; }
     public int MealCredits { get; set; }
+    public Guid? UserId { get; set; }
+    public Guid? PositionId { get; set; }
+    public Guid? PayId { get; set; }
+    public Guid? TypeId { get; set; }
+    public Guid? LevelId { get; set; }
+    public Guid? ChargingId { get; set; }
+    public DateTime CreatedDate { get; set; }
+    public Guid CreateBy { get; set; }
+    public DateTime UpdatedDate { get; set; }
+    public Guid UpdateBy { get; set; }
     public Tenant Tenant { get; set; } = Tenant.Maribago;
 
-    public EmployeeDTO(Guid id, string firstName, string lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, ContactInfoDTO? contactInfo, EducationInfoDTO? educationInfo, EmploymentInfoDTO? employmentInfo, UserDTO? user, string? position, string? section, string? department, string? division, string? charging, PayDTO? pay, string? type, string? level, int? mealCredit = 0, Tenant? tenant = Tenant.Maribago) : this()
+    public EmployeeDTO(Guid id, string firstName, string lastName, string? middleName, DateTime? dateOfBirth, Gender gender, CivilStatus civilStatus, BloodType bloodType, Status status, decimal? height, decimal? weight, byte[]? imageUrl, string? remarks, ContactInfoDTO? contactInfo, EducationInfoDTO? educationInfo, EmploymentInfoDTO? employmentInfo, UserDTO? user, string? position, string? section, string? department, string? division, string? charging, PayDTO? pay, string? type, string? level, int? mealCredit = 0, Guid? userId = null, Guid? positionId = null, Guid? payId = null, Guid? typeId = null, Guid? levelId = null, Guid? chargingId = null, DateTime? createdDate = null, Guid? createBy = null, DateTime? updatedDate = null, Guid? updateBy = null, Tenant? tenant = Tenant.Maribago) : this()
     {
         Id = id;
         FirstName = firstName;
@@ -62,6 +72,16 @@ public record EmployeeDTO()
         Type = type;
         Level = level;
         MealCredits = mealCredit ?? 0;
+        UserId = userId;
+        PositionId = positionId;
+        PayId = payId;
+        TypeId = typeId;
+        LevelId = levelId;
+        ChargingId = chargingId;
+        CreatedDate = createdDate ?? default;
+        CreateBy = createBy ?? Guid.Empty;
+        UpdatedDate = updatedDate ?? default;
+        UpdateBy = updateBy ?? Guid.Empty;
         Tenant = tenant ?? Tenant.Maribago;
   }
 }

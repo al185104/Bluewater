@@ -203,6 +203,16 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
                 type?.Name,
                 level?.Name,
                 entity.MealCredits,
+                entity.UserId,
+                entity.PositionId,
+                entity.PayId,
+                entity.TypeId,
+                entity.LevelId,
+                entity.ChargingId,
+                entity.CreatedDate,
+                entity.CreateBy,
+                entity.UpdatedDate,
+                entity.UpdateBy,
                 entity.Tenant
             ));
         }

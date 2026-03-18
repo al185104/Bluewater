@@ -30,6 +30,16 @@ public record EmployeeRecord(
   string? Type,
   string? Level,
   int MealCredits,
+  Guid? UserId,
+  Guid? PositionId,
+  Guid? PayId,
+  Guid? TypeId,
+  Guid? LevelId,
+  Guid? ChargingId,
+  DateTime CreatedDate,
+  Guid CreateBy,
+  DateTime UpdatedDate,
+  Guid UpdateBy,
   Tenant Tenant
 );
 
