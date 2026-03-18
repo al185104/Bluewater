@@ -1,32 +1,13 @@
 ﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.EmployeeAggregate;
-using Bluewater.UseCases.Chargings;
-using Bluewater.UseCases.Chargings.Get;
-using Bluewater.UseCases.Departments;
-using Bluewater.UseCases.Departments.Get;
-using Bluewater.UseCases.Divisions;
-using Bluewater.UseCases.Divisions.Get;
-using Bluewater.UseCases.EmployeeTypes;
-using Bluewater.UseCases.EmployeeTypes.Get;
-using Bluewater.UseCases.Levels;
-using Bluewater.UseCases.Levels.Get;
-using Bluewater.UseCases.Positions;
-using Bluewater.UseCases.Positions.Get;
-using Bluewater.UseCases.Sections;
-using Bluewater.UseCases.Sections.Get;
 using Bluewater.UseCases.Pays;
-using Bluewater.UseCases.Pays.Get;
 using Bluewater.UseCases.Users;
-using Bluewater.UseCases.Users.Get;
-
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Bluewater.Core.EmployeeAggregate.Specifications;
 
 namespace Bluewater.UseCases.Employees.List;
 
-internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceScopeFactory _serviceScopeFactory) : IQueryHandler<ListEmployeeQuery, Result<Common.PagedResult<EmployeeDTO>>>
+internal class ListEmployeeHandler(IRepository<Employee> _repository) : IQueryHandler<ListEmployeeQuery, Result<Common.PagedResult<EmployeeDTO>>>
 {
   public async Task<Result<Common.PagedResult<EmployeeDTO>>> Handle(ListEmployeeQuery request, CancellationToken cancellationToken)
   {
@@ -77,104 +58,26 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
                 entity.EmploymentInfo?.HasServiceCharge ?? false
             );
 
-            UserDTO? user = null;
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new GetUserQuery(entity.UserId), cancellationToken);
-                if (result.IsSuccess)
-                    user = new UserDTO(result.Value.Id, result.Value.Username, result.Value.PasswordHash, result.Value.Credential, result.Value.SupervisedGroup, result.Value.IsGlobalSupervisor);
-                else
-                    user = new UserDTO(Guid.Empty, string.Empty, string.Empty, Core.UserAggregate.Enum.Credential.None, Guid.Empty, isGlobalSupervisor: false);
-            }
+            UserDTO? user = entity.User is null
+                ? null
+                : new UserDTO(
+                    entity.User.Id,
+                    entity.User.Username,
+                    entity.User.PasswordHash,
+                    entity.User.Credential,
+                    entity.User.SupervisedGroup,
+                    entity.User.IsGlobalSupervisor);
 
-            PositionDTO? position = null;
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new GetPositionQuery(entity.PositionId), cancellationToken);
-                if (result.IsSuccess)
-                    position = new PositionDTO(result.Value.Id, result.Value.Name, result.Value.Description ?? string.Empty, result.Value.SectionId);
-                else
-                    position = new PositionDTO(Guid.Empty, string.Empty, string.Empty, Guid.Empty);
-            }
-
-            SectionDTO? section = null;
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new GetSectionQuery(position!.SectionId), cancellationToken);
-                if (result.IsSuccess)
-                    section = new SectionDTO(result.Value.Id, result.Value.Name, result.Value.Description ?? string.Empty, result.Value.Approved1Id, result.Value.Approved2Id, result.Value.Approved3Id, result.Value.DepartmentId);
-                else
-                    section = new SectionDTO(Guid.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, Guid.Empty);
-            }
-
-            DepartmentDTO? department = null;
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new GetDepartmentQuery(section!.DepartmentId), cancellationToken);
-                if (result.IsSuccess)
-                    department = new DepartmentDTO(result.Value.Id, result.Value.Name, result.Value.Description ?? string.Empty, result.Value.DivisionId);
-                else    
-                    department = new DepartmentDTO(Guid.Empty, string.Empty, string.Empty, Guid.Empty);
-            }
-
-            DivisionDTO? division = null;
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new GetDivisionQuery(department!.DivisionId), cancellationToken);
-                if (result.IsSuccess)
-                    division = new DivisionDTO(result.Value.Id, result.Value.Name, result.Value.Description ?? string.Empty);
-                else
-                    division = new DivisionDTO(Guid.Empty, string.Empty, string.Empty);
-            }
-
-            ChargingDTO? charging = null;
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new GetChargingQuery(entity.ChargingId), cancellationToken);
-                if (result.IsSuccess)
-                    charging = new ChargingDTO(result.Value.Id, result.Value.Name, result.Value.Description ?? string.Empty, result.Value.DepartmentId);
-                else
-                    charging = new ChargingDTO(Guid.Empty, string.Empty, string.Empty, null);
-            }
-
-            PayDTO? pay = null;
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new GetPayQuery(entity.PayId), cancellationToken);
-                if (result.IsSuccess)
-                    pay = new PayDTO(result.Value.Id, result.Value.BasicPay, result.Value.DailyRate, result.Value.HourlyRate, result.Value.HDMF_Con, result.Value.HDMF_Er, result.Value.Cola);
-                else
-                    pay = new PayDTO(Guid.Empty, null, null, null, null, null, null);
-            }
-
-            EmployeeTypeDTO? type = null;
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new GetEmployeeTypeQuery(entity.TypeId), cancellationToken);
-                if (result.IsSuccess)
-                    type = new EmployeeTypeDTO(result.Value.Id, result.Value.Name, result.Value.Value ?? string.Empty, result.Value.IsActive);
-                else
-                    type = new EmployeeTypeDTO(Guid.Empty, string.Empty, string.Empty);
-            }
-
-            LevelDTO? level = null;
-            using (var scope = _serviceScopeFactory.CreateScope())
-            {
-                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                var result = await mediator.Send(new GetLevelQuery(entity.LevelId), cancellationToken);
-                if (result.IsSuccess)
-                    level = new LevelDTO(result.Value.Id, result.Value.Name, result.Value.Value ?? string.Empty, result.Value.IsActive);
-                else
-                    level = new LevelDTO(Guid.Empty, string.Empty, string.Empty);
-            }
+            PayDTO? pay = entity.Pay is null
+                ? null
+                : new PayDTO(
+                    entity.Pay.Id,
+                    entity.Pay.BasicPay,
+                    entity.Pay.DailyRate,
+                    entity.Pay.HourlyRate,
+                    entity.Pay.HDMF_Con,
+                    entity.Pay.HDMF_Er,
+                    entity.Pay.Cola);
 
             _employees.Add(new EmployeeDTO(
                 entity.Id,
@@ -194,14 +97,14 @@ internal class ListEmployeeHandler(IRepository<Employee> _repository, IServiceSc
                 educationInfo,
                 employeeInfo,
                 user,
-                position?.Name,
-                section?.Name,
-                department?.Name,
-                division?.Name,
-                charging?.Name,
+                entity.Position?.Name,
+                entity.Position?.Section?.Name,
+                entity.Position?.Section?.Department?.Name,
+                entity.Position?.Section?.Department?.Division?.Name,
+                entity.Charging?.Name,
                 pay,
-                type?.Name,
-                level?.Name,
+                entity.Type?.Name,
+                entity.Level?.Name,
                 entity.MealCredits,
                 entity.UserId,
                 entity.PositionId,

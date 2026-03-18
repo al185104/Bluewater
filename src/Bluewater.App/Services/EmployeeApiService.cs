@@ -236,6 +236,7 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
 						MealCredits = dto.MealCredits,
 						Tenant = dto.Tenant,
 						Department = dto.Department,
+						Division = dto.Division,
 						Section = dto.Section,
 						Position = dto.Position,
 						Charging = dto.Charging,
@@ -310,8 +311,8 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
 								BasicPay = dto.Pay.BasicPay,
 								DailyRate = dto.Pay.DailyRate,
 								HourlyRate = dto.Pay.HourlyRate,
-								HdmfCon = dto.Pay.HdmfCon,
-								HdmfEr = dto.Pay.HdmfEr
+								HdmfCon = dto.Pay.HdmfEmployeeContribution,
+								HdmfEr = dto.Pay.HdmfEmployerContribution
 						}
 				};
 		}
