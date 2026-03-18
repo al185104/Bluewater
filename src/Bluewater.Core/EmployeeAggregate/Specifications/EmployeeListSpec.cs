@@ -10,6 +10,16 @@ public class EmployeeListSpec :  Specification<Employee>
     {
         Query
             .AsNoTracking()
+            .Include(employee => employee.User)
+            .Include(employee => employee.Pay)
+            .Include(employee => employee.Type)
+            .Include(employee => employee.Level)
+            .Include(employee => employee.Charging)
+                .ThenInclude(charging => charging!.Department)
+            .Include(employee => employee.Position)
+                .ThenInclude(position => position!.Section)
+                    .ThenInclude(section => section!.Department)
+                        .ThenInclude(department => department!.Division)
             .Where(i => i.Tenant == tenant && !i.IsDeleted)
             .OrderBy(e => e.LastName);
 
