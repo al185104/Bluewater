@@ -1,7 +1,8 @@
-using Ardalis.Specification.EntityFrameworkCore;
 using Bluewater.Core.Serialization;
 using Bluewater.Core.UserAggregate;
+using Bluewater.Core.UserAggregate.Enum;
 using Bluewater.Infrastructure.Data;
+using Bluewater.UseCases.Users.Update;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,7 @@ public class GuidStorageNormalizationTests
 
     await using (var queryContext = new AppDbContext(options, null))
     {
-      var repository = new RepositoryBase<AppUser>(queryContext);
+      var repository = new EfRepository<AppUser>(queryContext);
       AppUser? existingUser = await repository.GetByIdAsync(userId);
 
       existingUser.Should().NotBeNull();
@@ -65,6 +66,49 @@ public class GuidStorageNormalizationTests
         .ToListAsync())
         .Single();
       storedId.Should().Be(newUserId.ToString("D").ToUpperInvariant());
+    }
+  }
+
+  [Fact]
+  public async Task UpdateHandlerFindsExistingUserWhenPayloadGuidUsesDifferentLetterCase()
+  {
+    await using var connection = new SqliteConnection("Data Source=:memory:");
+    await connection.OpenAsync();
+
+    DbContextOptions<AppDbContext> options = new DbContextOptionsBuilder<AppDbContext>()
+      .UseSqlite(connection)
+      .Options;
+
+    Guid userId = Guid.Parse("f8c603c4-71a9-4f96-a44e-f4cc04c90e8b");
+
+    await using (var seedContext = new AppDbContext(options, null))
+    {
+      await seedContext.Database.EnsureCreatedAsync();
+      await seedContext.Database.ExecuteSqlRawAsync(
+        "INSERT INTO AppUsers (Id, Username, PasswordHash, Credential, SupervisedGroup, IsGlobalSupervisor, CreatedDate, CreateBy, UpdatedDate, UpdateBy) VALUES ({0}, {1}, {2}, {3}, NULL, {4}, {5}, {6}, {7}, {8})",
+        userId.ToString("D").ToLowerInvariant(),
+        "mixedcase.user",
+        "hash",
+        1,
+        false,
+        DateTime.UtcNow,
+        Guid.Empty.ToString("D").ToLowerInvariant(),
+        DateTime.UtcNow,
+        Guid.Empty.ToString("D").ToLowerInvariant());
+    }
+
+    await using (var updateContext = new AppDbContext(options, null))
+    {
+      EfRepository<AppUser> repository = new(updateContext);
+      UpdateUserHandler handler = new(repository);
+
+      var result = await handler.Handle(
+        new UpdateUserCommand(userId, "updated.user", "newhash", Credential.Admin, null, true),
+        CancellationToken.None);
+
+      result.IsSuccess.Should().BeTrue();
+      result.Value.Username.Should().Be("updated.user");
+      result.Value.Id.Should().Be(userId);
     }
   }
 
