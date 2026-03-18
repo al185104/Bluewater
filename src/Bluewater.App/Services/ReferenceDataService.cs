@@ -118,29 +118,45 @@ public class ReferenceDataService : IReferenceDataService
 				_sections = ApplyRowIndex(sectionTask.Result.OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase));
 				_positions = ApplyRowIndex(positionTask.Result.OrderBy(p => p.Name, StringComparer.OrdinalIgnoreCase));
 
+				Dictionary<Guid, DivisionSummary> divisionsById = _divisions.ToDictionary(item => item.Id);
+				Dictionary<Guid, DepartmentSummary> departmentsById = _departments.ToDictionary(item => item.Id);
+				Dictionary<Guid, SectionSummary> sectionsById = _sections.ToDictionary(item => item.Id);
+
 				// resolve reference names
 				foreach (var department in _departments)
 				{
-						department.DivisionName = _divisions.FirstOrDefault(d => d.Id == department.DivisionId)?.Name;
-						department.DivisionDescription = _divisions.FirstOrDefault(d => d.Id == department.DivisionId)?.Description;
+						if (divisionsById.TryGetValue(department.DivisionId, out DivisionSummary? division))
+						{
+								department.DivisionName = division.Name;
+								department.DivisionDescription = division.Description;
+						}
 				}
 
 				foreach (var section in _sections)
 				{
-						section.DepartmentName = _departments.FirstOrDefault(d => d.Id == section.DepartmentId)?.Name;
-						section.DepartmentDescription = _departments.FirstOrDefault(d => d.Id == section.DepartmentId)?.Description;
+						if (departmentsById.TryGetValue(section.DepartmentId, out DepartmentSummary? department))
+						{
+								section.DepartmentName = department.Name;
+								section.DepartmentDescription = department.Description;
+						}
 				}
 
 				foreach (var charging in _chargings)
 				{
-						charging.DepartmentName = _departments.FirstOrDefault(s => s.Id == charging.DepartmentId)?.Name;
-						charging.DepartmentDescription = _departments.FirstOrDefault(s => s.Id == charging.DepartmentId)?.Description;
+						if (charging.DepartmentId.HasValue && departmentsById.TryGetValue(charging.DepartmentId.Value, out DepartmentSummary? department))
+						{
+								charging.DepartmentName = department.Name;
+								charging.DepartmentDescription = department.Description;
+						}
 				}
 
 				foreach (var position in _positions)
 				{
-						position.SectionName = _sections.FirstOrDefault(s => s.Id == position.SectionId)?.Name;
-						position.SectionDescription = _sections.FirstOrDefault(s => s.Id == position.SectionId)?.Description;
+						if (sectionsById.TryGetValue(position.SectionId, out SectionSummary? section))
+						{
+								position.SectionName = section.Name;
+								position.SectionDescription = section.Description;
+						}
 				}
 
 				_holidays = holidayTask.Result.OrderBy(h => h.Date).ToList();
