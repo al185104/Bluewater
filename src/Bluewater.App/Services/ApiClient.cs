@@ -22,8 +22,10 @@ public class ApiClient(HttpClient httpClient) : IApiClient
 
   public async Task<T?> GetAsync<T>(string requestUri, CancellationToken cancellationToken = default)
   {
+    string normalizedRequestUri = NormalizeGuidCasing(requestUri);
+
     using HttpResponseMessage response = await httpClient
-      .GetAsync(requestUri, cancellationToken)
+      .GetAsync(normalizedRequestUri, cancellationToken)
       .ConfigureAwait(false);
 
     if (response.StatusCode == HttpStatusCode.NotFound)
@@ -51,8 +53,9 @@ public class ApiClient(HttpClient httpClient) : IApiClient
     TRequest request,
     CancellationToken cancellationToken = default)
   {
+    string normalizedRequestUri = NormalizeGuidCasing(requestUri);
     using HttpContent content = CreateJsonContent(request);
-    using var message = new HttpRequestMessage(HttpMethod.Post, requestUri) { Content = content };
+    using var message = new HttpRequestMessage(HttpMethod.Post, normalizedRequestUri) { Content = content };
     return await SendAsync<TResponse>(message, cancellationToken).ConfigureAwait(false);
   }
 
@@ -61,8 +64,9 @@ public class ApiClient(HttpClient httpClient) : IApiClient
     TRequest request,
     CancellationToken cancellationToken = default)
   {
+    string normalizedRequestUri = NormalizeGuidCasing(requestUri);
     using HttpContent content = CreateJsonContent(request);
-    using var message = new HttpRequestMessage(HttpMethod.Put, requestUri) { Content = content };
+    using var message = new HttpRequestMessage(HttpMethod.Put, normalizedRequestUri) { Content = content };
     return await SendAsync<TResponse>(message, cancellationToken).ConfigureAwait(false);
   }
 
