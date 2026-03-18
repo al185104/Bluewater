@@ -16,17 +16,21 @@ public partial class DashboardContentViewModel : BaseViewModel
 		private readonly IPayrollApiService payrollApiService;
 		private readonly ILeaveApiService leaveApiService;
 		private readonly IHolidayApiService holidayApiService;
-		private readonly IDepartmentApiService departmentApiService;
-		private readonly IChargingApiService chargingApiService;
+		private readonly IReferenceDataService referenceDataService;
+		private readonly SemaphoreSlim dashboardLoadSemaphore = new(1, 1);
+		private readonly Dictionary<DashboardPayrollCacheKey, IReadOnlyList<PayrollSummary>> payrollCache = [];
+		private CancellationTokenSource? dashboardLoadCancellationTokenSource;
+		private IReadOnlyList<EmployeeSummary> cachedEmployees = Array.Empty<EmployeeSummary>();
+		private TenantDto? cachedEmployeesTenant;
 		private bool hasInitialized;
+		private bool suppressSelectionChanged;
 
 		public DashboardContentViewModel(
 			IEmployeeApiService employeeApiService,
 			IPayrollApiService payrollApiService,
 			ILeaveApiService leaveApiService,
 			IHolidayApiService holidayApiService,
-			IDepartmentApiService departmentApiService,
-			IChargingApiService chargingApiService,
+			IReferenceDataService referenceDataService,
 			IActivityTraceService activityTraceService,
 			IExceptionHandlingService exceptionHandlingService)
 			: base(activityTraceService, exceptionHandlingService)
@@ -35,8 +39,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 				this.payrollApiService = payrollApiService;
 				this.leaveApiService = leaveApiService;
 				this.holidayApiService = holidayApiService;
-				this.departmentApiService = departmentApiService;
-				this.chargingApiService = chargingApiService;
+				this.referenceDataService = referenceDataService;
 
 				SelectedTenant = TenantPreferences.GetSelectedTenant();
 				SetCurrentPayslipPeriod();
@@ -115,10 +118,9 @@ public partial class DashboardContentViewModel : BaseViewModel
 						return;
 				}
 
-				hasInitialized = true;
 				await TraceCommandAsync(nameof(InitializeAsync));
-				await LoadDepartmentOptionsAsync().ConfigureAwait(false);
-				await LoadChargingOptionsAsync().ConfigureAwait(false);
+				await EnsureFilterOptionsAsync().ConfigureAwait(false);
+				hasInitialized = true;
 				await LoadDashboardAsync().ConfigureAwait(false);
 		}
 
@@ -126,6 +128,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 		private async Task RefreshAsync()
 		{
 				await TraceCommandAsync(nameof(RefreshAsync));
+				ResetCachedData();
 				await LoadDashboardAsync().ConfigureAwait(false);
 		}
 
@@ -133,6 +136,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 		private async Task PreviousPayrollPeriodAsync()
 		{
 				SetCurrentPayslipPeriod(PayrollPeriodStart.AddDays(-1));
+				ClearPayrollCache();
 				await TraceCommandAsync(nameof(PreviousPayrollPeriodAsync));
 				await LoadDashboardAsync().ConfigureAwait(false);
 		}
@@ -141,110 +145,113 @@ public partial class DashboardContentViewModel : BaseViewModel
 		private async Task NextPayrollPeriodAsync()
 		{
 				SetCurrentPayslipPeriod(PayrollPeriodEnd.AddDays(1));
+				ClearPayrollCache();
 				await TraceCommandAsync(nameof(NextPayrollPeriodAsync));
 				await LoadDashboardAsync().ConfigureAwait(false);
 		}
 
 		private bool CanChangePeriod() => !IsBusy;
 
-		private async Task LoadDepartmentOptionsAsync(CancellationToken cancellationToken = default)
+		private async Task EnsureFilterOptionsAsync(CancellationToken cancellationToken = default)
 		{
 				try
 				{
-						IReadOnlyList<DepartmentSummary> departments = await departmentApiService
-							.GetDepartmentsAsync(cancellationToken: cancellationToken)
-							.ConfigureAwait(false);
+						await referenceDataService.InitializeAsync(cancellationToken).ConfigureAwait(false);
 
-						MainThread.BeginInvokeOnMainThread(() =>
+						await MainThread.InvokeOnMainThreadAsync(() =>
 						{
-								DepartmentOptions.Clear();
-								DepartmentOptions.Add(new DepartmentSummary
+								suppressSelectionChanged = true;
+								try
 								{
-										Id = Guid.Empty,
-										Name = "All Departments",
-										Description = string.Empty,
-										DivisionId = Guid.Empty
-								});
+										Guid? selectedDepartmentId = SelectedDepartment?.Id;
+										Guid? selectedChargingId = SelectedCharging?.Id;
 
-								foreach (DepartmentSummary department in departments.OrderBy(d => d.Name))
-								{
-										DepartmentOptions.Add(department);
+										DepartmentOptions.Clear();
+										DepartmentOptions.Add(new DepartmentSummary
+										{
+												Id = Guid.Empty,
+												Name = "All Departments",
+												Description = string.Empty,
+												DivisionId = Guid.Empty
+										});
+
+										foreach (DepartmentSummary department in referenceDataService.Departments)
+										{
+												DepartmentOptions.Add(department);
+										}
+
+										ChargingOptions.Clear();
+										ChargingOptions.Add(new ChargingSummary
+										{
+												Id = Guid.Empty,
+												Name = "All Charging",
+												Description = string.Empty,
+												DepartmentId = Guid.Empty
+										});
+
+										foreach (ChargingSummary charging in referenceDataService.Chargings)
+										{
+												ChargingOptions.Add(charging);
+										}
+
+										SelectedDepartment = selectedDepartmentId.HasValue
+												? DepartmentOptions.FirstOrDefault(option => option.Id == selectedDepartmentId.Value) ?? DepartmentOptions.FirstOrDefault()
+												: DepartmentOptions.FirstOrDefault();
+										SelectedCharging = selectedChargingId.HasValue
+												? ChargingOptions.FirstOrDefault(option => option.Id == selectedChargingId.Value) ?? ChargingOptions.FirstOrDefault()
+												: ChargingOptions.FirstOrDefault();
 								}
-
-								SelectedDepartment ??= DepartmentOptions.FirstOrDefault();
+								finally
+								{
+										suppressSelectionChanged = false;
+								}
 						});
 				}
 				catch (Exception ex)
 				{
-						ExceptionHandlingService.Handle(ex, "Loading dashboard department options");
-				}
-		}
-
-		private async Task LoadChargingOptionsAsync(CancellationToken cancellationToken = default)
-		{
-				try
-				{
-						IReadOnlyList<ChargingSummary> chargings = await chargingApiService
-							.GetChargingsAsync(cancellationToken: cancellationToken)
-							.ConfigureAwait(false);
-
-						MainThread.BeginInvokeOnMainThread(() =>
-						{
-								ChargingOptions.Clear();
-								ChargingOptions.Add(new ChargingSummary
-								{
-										Id = Guid.Empty,
-										Name = "All Charging",
-										Description = string.Empty,
-										DepartmentId = Guid.Empty
-								});
-
-								foreach (ChargingSummary charging in chargings.OrderBy(c => c.Name))
-								{
-										ChargingOptions.Add(charging);
-								}
-
-								SelectedCharging ??= ChargingOptions.FirstOrDefault();
-						});
-				}
-				catch (Exception ex)
-				{
-						ExceptionHandlingService.Handle(ex, "Loading dashboard charging options");
+						ExceptionHandlingService.Handle(ex, "Loading dashboard filter options");
 				}
 		}
 
 		private async Task LoadDashboardAsync(CancellationToken cancellationToken = default)
 		{
-				if (IsBusy)
-				{
-						return;
-				}
+				CancelPendingDashboardLoad();
+				using CancellationTokenSource linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+				dashboardLoadCancellationTokenSource = linkedCancellationTokenSource;
+				bool lockAcquired = false;
 
 				try
 				{
-						IsBusy = true;
-						Today = DateTime.Today;
+						await dashboardLoadSemaphore.WaitAsync(linkedCancellationTokenSource.Token).ConfigureAwait(false);
+						lockAcquired = true;
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								IsBusy = true;
+								Today = DateTime.Today;
+						});
 
 						DateOnly todayDate = DateOnly.FromDateTime(Today);
 						string? selectedDepartmentName = NormalizeDepartmentName(SelectedDepartment?.Name);
 						string? selectedChargingName = NormalizeChargingName(SelectedCharging?.Name);
 
-						Task<IReadOnlyList<EmployeeSummary>> employeesTask = LoadAllEmployeesAsync(cancellationToken);
-						Task<IReadOnlyList<PayrollSummary>> payrollTask = LoadAllPayrollsInPeriodAsync(selectedChargingName, cancellationToken);
-						Task<IReadOnlyList<LeaveSummary>> leaveTask = leaveApiService.GetLeavesAsync(tenant: SelectedTenant, cancellationToken: cancellationToken);
-						Task<IReadOnlyList<HolidaySummary>> holidayTask = holidayApiService.GetHolidaysAsync(cancellationToken: cancellationToken);
+						Task<IReadOnlyList<EmployeeSummary>> employeesTask = LoadEmployeesForTenantAsync(SelectedTenant, linkedCancellationTokenSource.Token);
+						Task<IReadOnlyList<PayrollSummary>> payrollTask = LoadPayrollsInPeriodAsync(selectedChargingName, linkedCancellationTokenSource.Token);
+						Task<IReadOnlyList<LeaveSummary>> leaveTask = leaveApiService.GetLeavesAsync(tenant: SelectedTenant, cancellationToken: linkedCancellationTokenSource.Token);
+						Task<IReadOnlyList<HolidaySummary>> holidayTask = holidayApiService.GetHolidaysAsync(cancellationToken: linkedCancellationTokenSource.Token);
 
 						await Task.WhenAll(employeesTask, payrollTask, leaveTask, holidayTask).ConfigureAwait(false);
+						linkedCancellationTokenSource.Token.ThrowIfCancellationRequested();
 
 						IReadOnlyList<EmployeeSummary> scopedEmployees = FilterByDepartment(employeesTask.Result, selectedDepartmentName);
 						IReadOnlyList<PayrollSummary> scopedPayrolls = FilterByDepartment(payrollTask.Result, selectedDepartmentName);
 						IReadOnlyList<LeaveSummary> scopedLeaves = FilterLeavesByEmployees(leaveTask.Result, scopedEmployees);
 
-						ComputeEmployeeHeadcountMetrics(scopedEmployees, todayDate);
-						ComputePayrollMetrics(scopedPayrolls);
-						ComputeLeaveMetrics(scopedLeaves);
-						ComputeDepartmentAndChargingBreakdowns(scopedPayrolls);
-						ComputeUpcomingHolidays(holidayTask.Result);
+						DashboardComputationResult result = ComputeDashboard(scopedEmployees, scopedPayrolls, scopedLeaves, holidayTask.Result, todayDate);
+						await ApplyDashboardResultAsync(result).ConfigureAwait(false);
+				}
+				catch (OperationCanceledException)
+				{
+						// A newer filter selection superseded this load.
 				}
 				catch (Exception ex)
 				{
@@ -252,13 +259,31 @@ public partial class DashboardContentViewModel : BaseViewModel
 				}
 				finally
 				{
-						IsBusy = false;
-						RaisePeriodNavigationState();
+						if (ReferenceEquals(dashboardLoadCancellationTokenSource, linkedCancellationTokenSource))
+						{
+								dashboardLoadCancellationTokenSource = null;
+						}
+
+						if (lockAcquired)
+						{
+								dashboardLoadSemaphore.Release();
+						}
+
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								IsBusy = false;
+								RaisePeriodNavigationState();
+						});
 				}
 		}
 
-		private async Task<IReadOnlyList<EmployeeSummary>> LoadAllEmployeesAsync(CancellationToken cancellationToken)
+		private async Task<IReadOnlyList<EmployeeSummary>> LoadEmployeesForTenantAsync(TenantDto tenant, CancellationToken cancellationToken)
 		{
+				if (cachedEmployeesTenant == tenant && cachedEmployees.Count > 0)
+				{
+						return cachedEmployees;
+				}
+
 				List<EmployeeSummary> employees = [];
 				int skip = 0;
 
@@ -282,11 +307,19 @@ public partial class DashboardContentViewModel : BaseViewModel
 						}
 				}
 
-				return employees;
+				cachedEmployees = employees;
+				cachedEmployeesTenant = tenant;
+				return cachedEmployees;
 		}
 
-		private async Task<IReadOnlyList<PayrollSummary>> LoadAllPayrollsInPeriodAsync(string? chargingName, CancellationToken cancellationToken)
+		private async Task<IReadOnlyList<PayrollSummary>> LoadPayrollsInPeriodAsync(string? chargingName, CancellationToken cancellationToken)
 		{
+				DashboardPayrollCacheKey cacheKey = new(SelectedTenant, PayrollPeriodStart, PayrollPeriodEnd, chargingName);
+				if (payrollCache.TryGetValue(cacheKey, out IReadOnlyList<PayrollSummary>? cachedPayrolls))
+				{
+						return cachedPayrolls;
+				}
+
 				List<PayrollSummary> payrolls = [];
 				int skip = 0;
 
@@ -310,6 +343,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 						}
 				}
 
+				payrollCache[cacheKey] = payrolls;
 				return payrolls;
 		}
 
@@ -348,107 +382,76 @@ public partial class DashboardContentViewModel : BaseViewModel
 					.ToList();
 		}
 
-		private void ComputeEmployeeHeadcountMetrics(IReadOnlyList<EmployeeSummary> employees, DateOnly todayDate)
+		private DashboardComputationResult ComputeDashboard(
+			IReadOnlyList<EmployeeSummary> employees,
+			IReadOnlyList<PayrollSummary> payrolls,
+			IReadOnlyList<LeaveSummary> leaves,
+			IReadOnlyList<HolidaySummary> holidays,
+			DateOnly todayDate)
 		{
-				TotalActiveEmployees = employees.Count(employee => employee.Status == Status.Active);
+				List<HolidaySummary> upcomingHolidays = BuildUpcomingHolidays(holidays, todayDate);
 
-				NewHiresInPeriod = employees.Count(employee =>
+				return new DashboardComputationResult
 				{
-						DateTime? dateHired = employee.EmploymentInfo.DateHired;
-						return dateHired.HasValue && IsWithinPeriod(DateOnly.FromDateTime(dateHired.Value));
-				});
-
-				EmployeesTerminatedInPeriod = employees.Count(employee =>
-				{
-						DateTime? dateTerminated = employee.EmploymentInfo.DateTerminated;
-						return dateTerminated.HasValue && IsWithinPeriod(DateOnly.FromDateTime(dateTerminated.Value));
-				});
-
-				_ = todayDate;
+						TotalActiveEmployees = employees.Count(employee => employee.Status == Status.Active),
+						NewHiresInPeriod = employees.Count(employee =>
+						{
+								DateTime? dateHired = employee.EmploymentInfo.DateHired;
+								return dateHired.HasValue && IsWithinPeriod(DateOnly.FromDateTime(dateHired.Value));
+						}),
+						EmployeesTerminatedInPeriod = employees.Count(employee =>
+						{
+								DateTime? dateTerminated = employee.EmploymentInfo.DateTerminated;
+								return dateTerminated.HasValue && IsWithinPeriod(DateOnly.FromDateTime(dateTerminated.Value));
+						}),
+						TotalWorkHoursLogged = payrolls.Sum(payroll => payroll.LaborHrs),
+						TotalOvertimeHours = payrolls.Sum(payroll =>
+							payroll.OvertimeHrs
+							+ payroll.OvertimeRestDayHrs
+							+ payroll.OvertimeRegularHolidayHrs
+							+ payroll.OvertimeSpecialHolidayHrs
+							+ payroll.NightDiffOvertimeHrs),
+						TotalAbsences = payrolls.Sum(payroll => payroll.Absences),
+						TotalLateInstances = payrolls.Sum(payroll => payroll.Lates),
+						TotalUndertime = payrolls.Sum(payroll => payroll.Undertime),
+						LeaveMetrics = ComputeLeaveMetrics(leaves),
+						PayrollCostByDepartment = BuildDepartmentPayrollCostBreakdown(payrolls),
+						PayrollGeneratedStatusByCharging = BuildChargingPayrollGenerationBreakdown(payrolls),
+						UpcomingHolidays = upcomingHolidays
+				};
 		}
 
-		private void ComputePayrollMetrics(IReadOnlyList<PayrollSummary> payrolls)
+		private async Task ApplyDashboardResultAsync(DashboardComputationResult result)
 		{
-				TotalWorkHoursLogged = payrolls.Sum(payroll => payroll.LaborHrs);
-
-				TotalOvertimeHours = payrolls.Sum(payroll =>
-					payroll.OvertimeHrs
-					+ payroll.OvertimeRestDayHrs
-					+ payroll.OvertimeRegularHolidayHrs
-					+ payroll.OvertimeSpecialHolidayHrs
-					+ payroll.NightDiffOvertimeHrs);
-
-				TotalAbsences = payrolls.Sum(payroll => payroll.Absences);
-				TotalLateInstances = payrolls.Sum(payroll => payroll.Lates);
-				TotalUndertime = payrolls.Sum(payroll => payroll.Undertime);
-		}
-
-		private void ComputeLeaveMetrics(IReadOnlyList<LeaveSummary> leaves)
-		{
-				IReadOnlyList<LeaveSummary> approvedLeaves = leaves
-					.Where(leave => leave.Status == ApplicationStatusDto.Approved)
-					.ToList();
-
-				TotalLeaveDaysTaken = approvedLeaves.Sum(CalculateLeaveDays);
-				SickLeaveDays = approvedLeaves
-					.Where(leave => IsMatchingLeaveType(leave.LeaveCreditName, "sick"))
-					.Sum(CalculateLeaveDays);
-
-				VacationLeaveDays = approvedLeaves
-					.Where(leave => IsMatchingLeaveType(leave.LeaveCreditName, "vacation"))
-					.Sum(CalculateLeaveDays);
-
-				OtherLeaveTypesDays = TotalLeaveDaysTaken - SickLeaveDays - VacationLeaveDays;
-		}
-
-		private void ComputeDepartmentAndChargingBreakdowns(IReadOnlyList<PayrollSummary> payrolls)
-		{
-				MainThread.BeginInvokeOnMainThread(() =>
+				await MainThread.InvokeOnMainThreadAsync(() =>
 				{
+						TotalActiveEmployees = result.TotalActiveEmployees;
+						NewHiresInPeriod = result.NewHiresInPeriod;
+						EmployeesTerminatedInPeriod = result.EmployeesTerminatedInPeriod;
+						TotalWorkHoursLogged = result.TotalWorkHoursLogged;
+						TotalOvertimeHours = result.TotalOvertimeHours;
+						TotalAbsences = result.TotalAbsences;
+						TotalLateInstances = result.TotalLateInstances;
+						TotalUndertime = result.TotalUndertime;
+						TotalLeaveDaysTaken = result.LeaveMetrics.TotalLeaveDaysTaken;
+						SickLeaveDays = result.LeaveMetrics.SickLeaveDays;
+						VacationLeaveDays = result.LeaveMetrics.VacationLeaveDays;
+						OtherLeaveTypesDays = result.LeaveMetrics.OtherLeaveTypesDays;
+
 						PayrollCostByDepartment.Clear();
-						foreach (var item in payrolls
-									 .GroupBy(payroll => payroll.Department ?? "Unassigned")
-									 .OrderBy(group => group.Key)
-									 .Select(group => new DepartmentPayrollCostSummary
-										 {
-												 Department = group.Key,
-												 TotalPayrollCost = group.Sum(payroll => payroll.NetAmount),
-												 EmployeeCount = group.Select(payroll => payroll.EmployeeId).Where(id => id.HasValue).Distinct().Count()
-										 }))
+						foreach (DepartmentPayrollCostSummary item in result.PayrollCostByDepartment)
 						{
 								PayrollCostByDepartment.Add(item);
 						}
 
 						PayrollGeneratedStatusByCharging.Clear();
-						foreach (var item in payrolls
-									 .GroupBy(payroll => payroll.Charging ?? "Unassigned")
-									 .OrderBy(group => group.Key)
-									 .Select(group => new ChargingPayrollGenerationSummary
-										 {
-												 Charging = group.Key,
-												 GeneratedCount = group.Count(payroll => payroll.IsSaved),
-												 PendingCount = group.Count(payroll => !payroll.IsSaved)
-										 }))
+						foreach (ChargingPayrollGenerationSummary item in result.PayrollGeneratedStatusByCharging)
 						{
 								PayrollGeneratedStatusByCharging.Add(item);
 						}
-				});
-		}
 
-		private void ComputeUpcomingHolidays(IReadOnlyList<HolidaySummary> holidays)
-		{
-				DateTime periodStart = PayrollPeriodStart.ToDateTime(TimeOnly.MinValue);
-				DateTime periodEnd = PayrollPeriodEnd.ToDateTime(TimeOnly.MaxValue);
-
-				IReadOnlyList<HolidaySummary> scoped = holidays
-					.Where(holiday => holiday.Date >= periodStart && holiday.Date <= periodEnd)
-					.OrderBy(holiday => holiday.Date)
-					.ToList();
-
-				MainThread.BeginInvokeOnMainThread(() =>
-				{
 						UpcomingHolidays.Clear();
-						foreach (HolidaySummary holiday in scoped)
+						foreach (HolidaySummary holiday in result.UpcomingHolidays)
 						{
 								UpcomingHolidays.Add(holiday);
 						}
@@ -458,6 +461,69 @@ public partial class DashboardContentViewModel : BaseViewModel
 		private bool IsWithinPeriod(DateOnly date)
 		{
 				return date >= PayrollPeriodStart && date <= PayrollPeriodEnd;
+		}
+
+		private static DashboardLeaveMetrics ComputeLeaveMetrics(IReadOnlyList<LeaveSummary> leaves)
+		{
+				IReadOnlyList<LeaveSummary> approvedLeaves = leaves
+					.Where(leave => leave.Status == ApplicationStatusDto.Approved)
+					.ToList();
+
+				decimal totalLeaveDaysTaken = approvedLeaves.Sum(CalculateLeaveDays);
+				decimal sickLeaveDays = approvedLeaves
+					.Where(leave => IsMatchingLeaveType(leave.LeaveCreditName, "sick"))
+					.Sum(CalculateLeaveDays);
+
+				decimal vacationLeaveDays = approvedLeaves
+					.Where(leave => IsMatchingLeaveType(leave.LeaveCreditName, "vacation"))
+					.Sum(CalculateLeaveDays);
+
+				return new DashboardLeaveMetrics
+				{
+						TotalLeaveDaysTaken = totalLeaveDaysTaken,
+						SickLeaveDays = sickLeaveDays,
+						VacationLeaveDays = vacationLeaveDays,
+						OtherLeaveTypesDays = totalLeaveDaysTaken - sickLeaveDays - vacationLeaveDays
+				};
+		}
+
+		private static List<DepartmentPayrollCostSummary> BuildDepartmentPayrollCostBreakdown(IReadOnlyList<PayrollSummary> payrolls)
+		{
+				return payrolls
+					.GroupBy(payroll => payroll.Department ?? "Unassigned")
+					.OrderBy(group => group.Key)
+					.Select(group => new DepartmentPayrollCostSummary
+					{
+							Department = group.Key,
+							TotalPayrollCost = group.Sum(payroll => payroll.NetAmount),
+							EmployeeCount = group.Select(payroll => payroll.EmployeeId).Where(id => id.HasValue).Distinct().Count()
+					})
+					.ToList();
+		}
+
+		private static List<ChargingPayrollGenerationSummary> BuildChargingPayrollGenerationBreakdown(IReadOnlyList<PayrollSummary> payrolls)
+		{
+				return payrolls
+					.GroupBy(payroll => payroll.Charging ?? "Unassigned")
+					.OrderBy(group => group.Key)
+					.Select(group => new ChargingPayrollGenerationSummary
+					{
+							Charging = group.Key,
+							GeneratedCount = group.Count(payroll => payroll.IsSaved),
+							PendingCount = group.Count(payroll => !payroll.IsSaved)
+					})
+					.ToList();
+		}
+
+		private List<HolidaySummary> BuildUpcomingHolidays(IReadOnlyList<HolidaySummary> holidays, DateOnly _todayDate)
+		{
+				DateTime periodStart = PayrollPeriodStart.ToDateTime(TimeOnly.MinValue);
+				DateTime periodEnd = PayrollPeriodEnd.ToDateTime(TimeOnly.MaxValue);
+
+				return holidays
+					.Where(holiday => holiday.Date >= periodStart && holiday.Date <= periodEnd)
+					.OrderBy(holiday => holiday.Date)
+					.ToList();
 		}
 
 		private static decimal CalculateLeaveDays(LeaveSummary leave)
@@ -547,7 +613,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 
 		partial void OnSelectedDepartmentChanged(DepartmentSummary? value)
 		{
-				if (!hasInitialized)
+				if (!hasInitialized || suppressSelectionChanged)
 				{
 						return;
 				}
@@ -557,7 +623,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 
 		partial void OnSelectedChargingChanged(ChargingSummary? value)
 		{
-				if (!hasInitialized)
+				if (!hasInitialized || suppressSelectionChanged)
 				{
 						return;
 				}
@@ -572,7 +638,31 @@ public partial class DashboardContentViewModel : BaseViewModel
 						return;
 				}
 				Preferences.Set(nameof(SelectedTenant), value.ToString());
+				ResetCachedData();
 				_ = LoadDashboardAsync();
+		}
+
+		private void CancelPendingDashboardLoad()
+		{
+				try
+				{
+						dashboardLoadCancellationTokenSource?.Cancel();
+				}
+				catch (ObjectDisposedException)
+				{
+				}
+		}
+
+		private void ResetCachedData()
+		{
+				cachedEmployees = Array.Empty<EmployeeSummary>();
+				cachedEmployeesTenant = null;
+				ClearPayrollCache();
+		}
+
+		private void ClearPayrollCache()
+		{
+				payrollCache.Clear();
 		}
 
 		private void RaisePeriodNavigationState()
@@ -609,4 +699,48 @@ public class ChargingPayrollGenerationSummary
 		public int GeneratedCount { get; set; }
 
 		public int PendingCount { get; set; }
+}
+
+internal sealed record DashboardPayrollCacheKey(
+	TenantDto Tenant,
+	DateOnly PayrollPeriodStart,
+	DateOnly PayrollPeriodEnd,
+	string? ChargingName);
+
+internal sealed class DashboardComputationResult
+{
+		public int TotalActiveEmployees { get; init; }
+
+		public int NewHiresInPeriod { get; init; }
+
+		public int EmployeesTerminatedInPeriod { get; init; }
+
+		public decimal TotalWorkHoursLogged { get; init; }
+
+		public decimal TotalOvertimeHours { get; init; }
+
+		public int TotalAbsences { get; init; }
+
+		public decimal TotalLateInstances { get; init; }
+
+		public decimal TotalUndertime { get; init; }
+
+		public DashboardLeaveMetrics LeaveMetrics { get; init; } = new();
+
+		public IReadOnlyList<DepartmentPayrollCostSummary> PayrollCostByDepartment { get; init; } = Array.Empty<DepartmentPayrollCostSummary>();
+
+		public IReadOnlyList<ChargingPayrollGenerationSummary> PayrollGeneratedStatusByCharging { get; init; } = Array.Empty<ChargingPayrollGenerationSummary>();
+
+		public IReadOnlyList<HolidaySummary> UpcomingHolidays { get; init; } = Array.Empty<HolidaySummary>();
+}
+
+internal sealed class DashboardLeaveMetrics
+{
+		public decimal TotalLeaveDaysTaken { get; init; }
+
+		public decimal SickLeaveDays { get; init; }
+
+		public decimal VacationLeaveDays { get; init; }
+
+		public decimal OtherLeaveTypesDays { get; init; }
 }
