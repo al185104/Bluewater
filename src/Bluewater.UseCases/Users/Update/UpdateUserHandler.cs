@@ -1,13 +1,15 @@
 ﻿using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.UserAggregate;
+using Bluewater.Core.UserAggregate.Specifications;
 
 namespace Bluewater.UseCases.Users.Update;
 public class UpdateUserHandler(IRepository<AppUser> _repository) : ICommandHandler<UpdateUserCommand, Result<UserDTO>>
 {
   public async Task<Result<UserDTO>> Handle(UpdateUserCommand request, CancellationToken cancellationToken)
   {
-    var existingUser = await _repository.GetByIdAsync(request.UserId, cancellationToken);
+    var spec = new UserByIdSpec(request.UserId);
+    var existingUser = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
     if (existingUser == null)
     {
       return Result.NotFound();
