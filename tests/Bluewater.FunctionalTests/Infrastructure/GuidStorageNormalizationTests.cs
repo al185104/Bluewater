@@ -184,6 +184,72 @@ public class GuidStorageNormalizationTests
   }
 
   [Fact]
+  public async Task UpdateHandlerRecoversFromLegacyLowerCaseGuidRowsWithoutExplicitNormalization()
+  {
+    await using var connection = new SqliteConnection("Data Source=:memory:");
+    await connection.OpenAsync();
+
+    DbContextOptions<AppDbContext> options = new DbContextOptionsBuilder<AppDbContext>()
+      .UseSqlite(connection)
+      .Options;
+
+    Guid userId = Guid.Parse("0bc73064-b436-466e-b59d-b630f4e2f625");
+
+    await using (var setupContext = new AppDbContext(options, null))
+    {
+      await setupContext.Database.ExecuteSqlRawAsync("""
+        CREATE TABLE AppUsers (
+          Id TEXT NOT NULL CONSTRAINT PK_AppUsers PRIMARY KEY,
+          Username TEXT NOT NULL,
+          PasswordHash TEXT NOT NULL,
+          Credential INTEGER NOT NULL,
+          SupervisedGroup TEXT NULL,
+          IsGlobalSupervisor INTEGER NOT NULL,
+          CreatedDate TEXT NOT NULL,
+          CreateBy TEXT NOT NULL,
+          UpdatedDate TEXT NOT NULL,
+          UpdateBy TEXT NOT NULL
+        );
+        """);
+
+      await setupContext.Database.ExecuteSqlRawAsync(
+        "INSERT INTO AppUsers (Id, Username, PasswordHash, Credential, SupervisedGroup, IsGlobalSupervisor, CreatedDate, CreateBy, UpdatedDate, UpdateBy) VALUES ({0}, {1}, {2}, {3}, NULL, {4}, {5}, {6}, {7}, {8})",
+        userId.ToString("D").ToLowerInvariant(),
+        "retry.user",
+        "hash",
+        1,
+        false,
+        DateTime.UtcNow,
+        Guid.Empty.ToString("D").ToLowerInvariant(),
+        DateTime.UtcNow,
+        Guid.Empty.ToString("D").ToLowerInvariant());
+    }
+
+    await using (var updateContext = new AppDbContext(options, null))
+    {
+      EfRepository<AppUser> repository = new(updateContext);
+      UpdateUserHandler handler = new(repository);
+
+      var result = await handler.Handle(
+        new UpdateUserCommand(userId, "retry.user.updated", "newhash", Credential.Admin, null, true),
+        CancellationToken.None);
+
+      result.IsSuccess.Should().BeTrue();
+      result.Value.Username.Should().Be("retry.user.updated");
+    }
+
+    await using (var verifyContext = new AppDbContext(options, null))
+    {
+      string storedId = (await verifyContext.Database
+        .SqlQueryRaw<string>("SELECT Id FROM AppUsers WHERE Username = {0}", "retry.user.updated")
+        .ToListAsync())
+        .Single();
+
+      storedId.Should().Be(userId.ToString("D").ToUpperInvariant());
+    }
+  }
+
+  [Fact]
   public void SerializesGuidValuesAsUpperCaseWhileAcceptingMixedCaseInput()
   {
     JsonSerializerOptions options = new JsonSerializerOptions().UseUpperCaseGuids();
