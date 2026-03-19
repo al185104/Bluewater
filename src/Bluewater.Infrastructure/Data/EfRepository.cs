@@ -27,6 +27,19 @@ public class EfRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepositor
     return await base.GetByIdAsync(id, cancellationToken);
   }
 
+  public override async Task<T> UpdateAsync(T entity, CancellationToken cancellationToken = default)
+  {
+    try
+    {
+      return await base.UpdateAsync(entity, cancellationToken);
+    }
+    catch (DbUpdateConcurrencyException) when (TryGetGuidPrimaryKey(out _, out _))
+    {
+      await _dbContext.NormalizeGuidTextAsync(cancellationToken);
+      return await base.UpdateAsync(entity, cancellationToken);
+    }
+  }
+
   private bool TryGetGuidPrimaryKey(out IEntityType? entityType, out IProperty? keyProperty)
   {
     entityType = _dbContext.Model.FindEntityType(typeof(T));
