@@ -72,14 +72,48 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 		public void ApplyQueryAttributes(IDictionary<string, object> query)
 		{
 				if (query.TryGetValue("Employee", out var value) && value is EmployeeSummary passedEmployee)
-				{
-						_rowIndex = passedEmployee.RowIndex;
-						EditableEmployee = EditableEmployee.FromSummary(passedEmployee);
-						InitializeCommand.Execute(this);
-				}
-		}
+    {
+      SetupOptions();
 
-		[RelayCommand]
+      _rowIndex = passedEmployee.RowIndex;
+      EditableEmployee = EditableEmployee.FromSummary(passedEmployee);
+      InitializeCommand.Execute(this);
+    }
+  }
+
+  private void SetupOptions()
+  {
+    ChargingOptions.Clear();
+    DivisionOptions.Clear();
+    DepartmentOptions.Clear();
+    SectionOptions.Clear();
+    PositionOptions.Clear();
+    TypeOptions.Clear();
+    LevelOptions.Clear();
+
+    foreach (var charge in _referenceDataService.Chargings)
+      ChargingOptions.Add(charge);
+
+    foreach (var division in _referenceDataService.Divisions)
+      DivisionOptions.Add(division);
+
+    foreach (var department in _referenceDataService.Departments)
+      DepartmentOptions.Add(department);
+
+    foreach (var section in _referenceDataService.Sections)
+      SectionOptions.Add(section);
+
+    foreach (var position in _referenceDataService.Positions)
+      PositionOptions.Add(position);
+
+    foreach (var type in _referenceDataService.EmployeeTypes)
+      TypeOptions.Add(type);
+
+    foreach (var level in _referenceDataService.Levels)
+      LevelOptions.Add(level);
+  }
+
+  [RelayCommand]
 		public async Task UpdateEmployeeAsync()
 		{
 				try
@@ -178,35 +212,6 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 
 		private void BindReferenceData()
 		{
-				ChargingOptions.Clear();
-				DivisionOptions.Clear();
-				DepartmentOptions.Clear();
-				SectionOptions.Clear();
-				PositionOptions.Clear();
-				TypeOptions.Clear();
-				LevelOptions.Clear();
-
-				foreach(var charge in _referenceDataService.Chargings)
-						ChargingOptions.Add(charge);
-				
-				foreach(var division in _referenceDataService.Divisions)
-						DivisionOptions.Add(division);
-
-				foreach(var department in _referenceDataService.Departments)
-						DepartmentOptions.Add(department);
-
-				foreach(var section in _referenceDataService.Sections)
-						SectionOptions.Add(section);
-
-				foreach(var position in _referenceDataService.Positions)
-						PositionOptions.Add(position);
-
-				foreach (var type in _referenceDataService.EmployeeTypes)
-						TypeOptions.Add(type);
-
-				foreach (var level in _referenceDataService.Levels)
-						LevelOptions.Add(level);
-
 				EmployeeType = TypeOptions.FirstOrDefault(i => i.Id == EditableEmployee!.TypeId)
 						?? TypeOptions.FirstOrDefault(i => i.Name == EditableEmployee.Type);
 				EditableEmployee.Type = EmployeeType?.Name;

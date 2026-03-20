@@ -19,324 +19,326 @@ namespace Bluewater.App.Services;
 
 public sealed class ExceptionHandlingService : IExceptionHandlingService, IDisposable
 {
-		private readonly IActivityTraceService activityTraceService;
-		private readonly ILogger<ExceptionHandlingService>? logger;
-		private Popup? activePopup;
-		private bool fatalErrorDisplayed;
-		private bool isInitialized;
+  private readonly IActivityTraceService activityTraceService;
+  private readonly ILogger<ExceptionHandlingService>? logger;
+  private Popup? activePopup;
+  private bool fatalErrorDisplayed;
+  private bool isInitialized;
 
-		public ExceptionHandlingService(
-			IActivityTraceService activityTraceService,
-			ILogger<ExceptionHandlingService>? logger = null)
-		{
-				this.activityTraceService = activityTraceService ?? throw new ArgumentNullException(nameof(activityTraceService));
-				this.logger = logger;
-		}
+  public ExceptionHandlingService(
+    IActivityTraceService activityTraceService,
+    ILogger<ExceptionHandlingService>? logger = null)
+  {
+    this.activityTraceService = activityTraceService ?? throw new ArgumentNullException(nameof(activityTraceService));
+    this.logger = logger;
+  }
 
-		public void Initialize()
-		{
-				if (isInitialized)
-				{
-						return;
-				}
+  public void Initialize()
+  {
+    if (isInitialized)
+    {
+      return;
+    }
 
-				AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
-				TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
-
-#if WINDOWS
-				if (Microsoft.UI.Xaml.Application.Current is not null)
-				{
-						Microsoft.UI.Xaml.Application.Current.UnhandledException += OnApplicationUnhandledException;
-				}
-#endif
-
-				isInitialized = true;
-		}
-
-		public void Handle(Exception exception, string context)
-		{
-				if (exception is null)
-				{
-						throw new ArgumentNullException(nameof(exception));
-				}
-
-				ProcessException("Handled", exception, context);
-		}
-
-		private void OnUnhandledException(object? sender, UnhandledExceptionEventArgs e)
-		{
-				if (e.ExceptionObject is Exception exception)
-				{
-						ProcessException("AppDomain", exception, context: null, e.IsTerminating);
-				}
-				else
-				{
-						LogMessage("AppDomain", $"Non-exception object encountered: {e.ExceptionObject}");
-				}
-		}
-
-		private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
-		{
-				ProcessException("TaskScheduler", e.Exception, context: null);
-				e.SetObserved();
-		}
+    AppDomain.CurrentDomain.UnhandledException += OnUnhandledException;
+    TaskScheduler.UnobservedTaskException += OnUnobservedTaskException;
 
 #if WINDOWS
-		private void OnApplicationUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
-		{
-				ProcessException("Application", e.Exception, context: null);
-				e.Handled = true;
-		}
+    if (Microsoft.UI.Xaml.Application.Current is not null)
+    {
+      Microsoft.UI.Xaml.Application.Current.UnhandledException += OnApplicationUnhandledException;
+    }
 #endif
 
-		private void ProcessException(string source, Exception exception, string? context, bool isTerminating = false)
-		{
-				if (TryGetPresentationException(exception, out PresentationException? presentationException))
-				{
-						ShowPresentationPopup(presentationException);
-						return;
-				}
+    isInitialized = true;
+  }
 
-				LogException(source, exception, context, isTerminating);
-				_ = CopyLatestLogToDesktopAsync();
-				ShowFatalErrorPage(new PresentationException(exception));
-		}
+  public void Handle(Exception exception, string context)
+  {
+    if (exception is null)
+    {
+      throw new ArgumentNullException(nameof(exception));
+    }
 
-		private static bool TryGetPresentationException(Exception exception, out PresentationException? presentationException)
-		{
-				if (exception is PresentationException directPresentationException)
-				{
-						presentationException = directPresentationException;
-						return true;
-				}
+    ProcessException("Handled", exception, context);
+  }
 
-				if (exception.InnerException is PresentationException innerPresentation)
-				{
-						presentationException = innerPresentation;
-						return true;
-				}
+  private void OnUnhandledException(object? sender, UnhandledExceptionEventArgs e)
+  {
+    if (e.ExceptionObject is Exception exception)
+    {
+      ProcessException("AppDomain", exception, context: null, e.IsTerminating);
+    }
+    else
+    {
+      LogMessage("AppDomain", $"Non-exception object encountered: {e.ExceptionObject}");
+    }
+  }
 
-				presentationException = null;
-				return false;
-		}
-
-		private void LogException(string source, Exception exception, string? context, bool isTerminating = false)
-		{
-				logger?.LogError(exception, "Exception captured from {Source} (Context: {Context})", source, context);
-
-				var metadata = new Dictionary<string, object?>
-				{
-						["source"] = source,
-						["context"] = context,
-						["exceptionType"] = exception.GetType().FullName,
-						["message"] = exception.Message,
-						["stackTrace"] = exception.StackTrace,
-						["isTerminating"] = isTerminating,
-				};
-
-				if (exception.InnerException is not null)
-				{
-						metadata["innerException"] = exception.InnerException.ToString();
-				}
-
-				_ = WriteTraceAsync("Exception", metadata);
-		}
-
-		private void ShowPresentationPopup(PresentationException presentationException)
-		{
-				ArgumentNullException.ThrowIfNull(presentationException);
-
-				IDispatcher? dispatcher = Application.Current?.Dispatcher;
-
-				if (dispatcher is null)
-				{
-						logger?.LogWarning("Unable to display error popup because the dispatcher is unavailable.");
-						return;
-				}
-
-				void DisplayPopup()
-				{
-						if (Application.Current?.Windows[0].Page is not Page mainPage)
-						{
-								logger?.LogWarning("Unable to display error popup because the main page is unavailable.");
-								return;
-						}
-
-						if (activePopup is not null)
-						{
-								return;
-						}
-
-						var popup = new OutOfSyncPopup(presentationException);
-						popup.Closed += OnPopupClosed;
-
-						activePopup = popup;
-						mainPage.ShowPopup(popup);
-				}
-
-				if (dispatcher.IsDispatchRequired)
-				{
-						dispatcher.Dispatch(DisplayPopup);
-				}
-				else
-				{
-						DisplayPopup();
-				}
-		}
-
-		private void ShowFatalErrorPage(PresentationException presentationException)
-		{
-				ArgumentNullException.ThrowIfNull(presentationException);
-
-				IDispatcher? dispatcher = Application.Current?.Dispatcher;
-
-				if (dispatcher is null)
-				{
-						logger?.LogWarning("Unable to display fatal error page because the dispatcher is unavailable.");
-						return;
-				}
-
-				void DisplayFatalError()
-				{
-						if (fatalErrorDisplayed)
-						{
-								return;
-						}
-
-						Window? window = Application.Current?.Windows.FirstOrDefault();
-						if (window is null)
-						{
-								logger?.LogWarning("Unable to display fatal error page because the application window is unavailable.");
-								return;
-						}
-
-						fatalErrorDisplayed = true;
-						activePopup = null;
-						window.Page = new FatalErrorPage(presentationException);
-				}
-
-				if (dispatcher.IsDispatchRequired)
-				{
-						dispatcher.Dispatch(DisplayFatalError);
-				}
-				else
-				{
-						DisplayFatalError();
-				}
-		}
-
-		private void OnPopupClosed(object? sender, EventArgs e)
-		{
-				if (sender is Popup popup)
-				{
-						popup.Closed -= OnPopupClosed;
-				}
-				activePopup = null;
-		}
-
-		private void LogMessage(string source, string message)
-		{
-				logger?.LogError("Unhandled exception notification from {Source}: {Message}", source, message);
-
-				var metadata = new Dictionary<string, object?>
-				{
-						["source"] = source,
-						["message"] = message
-				};
-
-				_ = WriteTraceAsync("Exception", metadata);
-		}
-
-		private Task WriteTraceAsync(string eventName, object metadata)
-		{
-				return Task.Run(async () =>
-				{
-						try
-						{
-								await activityTraceService.LogCommandAsync(eventName, metadata).ConfigureAwait(false);
-						}
-						catch (Exception loggingException)
-						{
-								logger?.LogError(loggingException, "Failed to write exception trace for {EventName}", eventName);
-						}
-				});
-		}
-
-		private Task CopyLatestLogToDesktopAsync()
-		{
-				return Task.Run(() =>
-				{
-						try
-						{
-								if (!OperatingSystem.IsWindows())
-								{
-										logger?.LogDebug("Skipping log archive because Desktop export is only enabled on Windows.");
-										return;
-								}
-
-								string appDataDirectory = FileSystem.AppDataDirectory;
-
-								if (!Directory.Exists(appDataDirectory))
-								{
-										logger?.LogWarning("App data directory '{AppDataDirectory}' does not exist; skipping log archive.", appDataDirectory);
-										return;
-								}
-
-								FileInfo? latestLog = Directory
-							.EnumerateFiles(appDataDirectory, "activity-trace-*.log")
-							.Select(path => new FileInfo(path))
-							.OrderByDescending(file => file.LastWriteTimeUtc)
-							.ThenByDescending(file => file.CreationTimeUtc)
-							.FirstOrDefault(file => file.Exists);
-
-								if (latestLog is null)
-								{
-										logger?.LogWarning("No activity trace logs found to archive.");
-										return;
-								}
-								var downloadsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-								//string downloadsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-
-								if (string.IsNullOrWhiteSpace(downloadsDirectory))
-								{
-										logger?.LogWarning("Desktop directory could not be resolved; skipping log archive.");
-										return;
-								}
-
-								Directory.CreateDirectory(downloadsDirectory);
-
-								string zipFileName = $"{Path.GetFileNameWithoutExtension(latestLog.Name)}-{DateTimeOffset.Now:yyyyMMddHHmmss}.zip";
-								string destinationPath = Path.Combine(downloadsDirectory, zipFileName);
-
-								if (File.Exists(destinationPath))
-								{
-										File.Delete(destinationPath);
-								}
-
-								using (ZipArchive archive = ZipFile.Open(destinationPath, ZipArchiveMode.Create))
-								{
-										archive.CreateEntryFromFile(latestLog.FullName, latestLog.Name);
-								}
-
-								logger?.LogInformation("Copied latest activity log '{LogFile}' to Desktop as '{ArchivePath}'.", latestLog.FullName, destinationPath);
-						}
-						catch (Exception archiveException)
-						{
-								logger?.LogError(archiveException, "Failed to archive the latest activity log to the Desktop.");
-						}
-				});
-		}
-
-		public void Dispose()
-		{
-				AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
-				TaskScheduler.UnobservedTaskException -= OnUnobservedTaskException;
+  private void OnUnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+  {
+    ProcessException("TaskScheduler", e.Exception, context: null);
+    e.SetObserved();
+  }
 
 #if WINDOWS
-				if (Microsoft.UI.Xaml.Application.Current is not null)
-				{
-						Microsoft.UI.Xaml.Application.Current.UnhandledException -= OnApplicationUnhandledException;
-				}
+  private void OnApplicationUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+  {
+    ProcessException("Application", e.Exception, context: null);
+    e.Handled = true;
+  }
 #endif
-		}
+
+  private void ProcessException(string source, Exception exception, string? context, bool isTerminating = false)
+  {
+    if (TryGetPresentationException(exception, out PresentationException? presentationException))
+    {
+      if (presentationException == null)
+        return;
+      ShowPresentationPopup(presentationException);
+      return;
+    }
+
+    LogException(source, exception, context, isTerminating);
+    _ = CopyLatestLogToDesktopAsync();
+    ShowFatalErrorPage(new PresentationException(exception));
+  }
+
+  private static bool TryGetPresentationException(Exception exception, out PresentationException? presentationException)
+  {
+    if (exception is PresentationException directPresentationException)
+    {
+      presentationException = directPresentationException;
+      return true;
+    }
+
+    if (exception.InnerException is PresentationException innerPresentation)
+    {
+      presentationException = innerPresentation;
+      return true;
+    }
+
+    presentationException = null;
+    return false;
+  }
+
+  private void LogException(string source, Exception exception, string? context, bool isTerminating = false)
+  {
+    logger?.LogError(exception, "Exception captured from {Source} (Context: {Context})", source, context);
+
+    var metadata = new Dictionary<string, object?>
+    {
+      ["source"] = source,
+      ["context"] = context,
+      ["exceptionType"] = exception.GetType().FullName,
+      ["message"] = exception.Message,
+      ["stackTrace"] = exception.StackTrace,
+      ["isTerminating"] = isTerminating,
+    };
+
+    if (exception.InnerException is not null)
+    {
+      metadata["innerException"] = exception.InnerException.ToString();
+    }
+
+    _ = WriteTraceAsync("Exception", metadata);
+  }
+
+  private void ShowPresentationPopup(PresentationException presentationException)
+  {
+    ArgumentNullException.ThrowIfNull(presentationException);
+
+    IDispatcher? dispatcher = Application.Current?.Dispatcher;
+
+    if (dispatcher is null)
+    {
+      logger?.LogWarning("Unable to display error popup because the dispatcher is unavailable.");
+      return;
+    }
+
+    void DisplayPopup()
+    {
+      if (Application.Current?.Windows[0].Page is not Page mainPage)
+      {
+        logger?.LogWarning("Unable to display error popup because the main page is unavailable.");
+        return;
+      }
+
+      if (activePopup is not null)
+      {
+        return;
+      }
+
+      var popup = new OutOfSyncPopup(presentationException);
+      popup.Closed += OnPopupClosed;
+
+      activePopup = popup;
+      mainPage.ShowPopup(popup);
+    }
+
+    if (dispatcher.IsDispatchRequired)
+    {
+      dispatcher.Dispatch(DisplayPopup);
+    }
+    else
+    {
+      DisplayPopup();
+    }
+  }
+
+  private void ShowFatalErrorPage(PresentationException presentationException)
+  {
+    ArgumentNullException.ThrowIfNull(presentationException);
+
+    IDispatcher? dispatcher = Application.Current?.Dispatcher;
+
+    if (dispatcher is null)
+    {
+      logger?.LogWarning("Unable to display fatal error page because the dispatcher is unavailable.");
+      return;
+    }
+
+    void DisplayFatalError()
+    {
+      if (fatalErrorDisplayed)
+      {
+        return;
+      }
+
+      Window? window = Application.Current?.Windows.FirstOrDefault();
+      if (window is null)
+      {
+        logger?.LogWarning("Unable to display fatal error page because the application window is unavailable.");
+        return;
+      }
+
+      fatalErrorDisplayed = true;
+      activePopup = null;
+      window.Page = new FatalErrorPage(presentationException);
+    }
+
+    if (dispatcher.IsDispatchRequired)
+    {
+      dispatcher.Dispatch(DisplayFatalError);
+    }
+    else
+    {
+      DisplayFatalError();
+    }
+  }
+
+  private void OnPopupClosed(object? sender, EventArgs e)
+  {
+    if (sender is Popup popup)
+    {
+      popup.Closed -= OnPopupClosed;
+    }
+    activePopup = null;
+  }
+
+  private void LogMessage(string source, string message)
+  {
+    logger?.LogError("Unhandled exception notification from {Source}: {Message}", source, message);
+
+    var metadata = new Dictionary<string, object?>
+    {
+      ["source"] = source,
+      ["message"] = message
+    };
+
+    _ = WriteTraceAsync("Exception", metadata);
+  }
+
+  private Task WriteTraceAsync(string eventName, object metadata)
+  {
+    return Task.Run(async () =>
+    {
+      try
+      {
+        await activityTraceService.LogCommandAsync(eventName, metadata).ConfigureAwait(false);
+      }
+      catch (Exception loggingException)
+      {
+        logger?.LogError(loggingException, "Failed to write exception trace for {EventName}", eventName);
+      }
+    });
+  }
+
+  private Task CopyLatestLogToDesktopAsync()
+  {
+    return Task.Run(() =>
+    {
+      try
+      {
+        if (!OperatingSystem.IsWindows())
+        {
+          logger?.LogDebug("Skipping log archive because Desktop export is only enabled on Windows.");
+          return;
+        }
+
+        string appDataDirectory = FileSystem.AppDataDirectory;
+
+        if (!Directory.Exists(appDataDirectory))
+        {
+          logger?.LogWarning("App data directory '{AppDataDirectory}' does not exist; skipping log archive.", appDataDirectory);
+          return;
+        }
+
+        FileInfo? latestLog = Directory
+          .EnumerateFiles(appDataDirectory, "activity-trace-*.log")
+          .Select(path => new FileInfo(path))
+          .OrderByDescending(file => file.LastWriteTimeUtc)
+          .ThenByDescending(file => file.CreationTimeUtc)
+          .FirstOrDefault(file => file.Exists);
+
+        if (latestLog is null)
+        {
+          logger?.LogWarning("No activity trace logs found to archive.");
+          return;
+        }
+        var downloadsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+        //string downloadsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+
+        if (string.IsNullOrWhiteSpace(downloadsDirectory))
+        {
+          logger?.LogWarning("Desktop directory could not be resolved; skipping log archive.");
+          return;
+        }
+
+        Directory.CreateDirectory(downloadsDirectory);
+
+        string zipFileName = $"{Path.GetFileNameWithoutExtension(latestLog.Name)}-{DateTimeOffset.Now:yyyyMMddHHmmss}.zip";
+        string destinationPath = Path.Combine(downloadsDirectory, zipFileName);
+
+        if (File.Exists(destinationPath))
+        {
+          File.Delete(destinationPath);
+        }
+
+        using (ZipArchive archive = ZipFile.Open(destinationPath, ZipArchiveMode.Create))
+        {
+          archive.CreateEntryFromFile(latestLog.FullName, latestLog.Name);
+        }
+
+        logger?.LogInformation("Copied latest activity log '{LogFile}' to Desktop as '{ArchivePath}'.", latestLog.FullName, destinationPath);
+      }
+      catch (Exception archiveException)
+      {
+        logger?.LogError(archiveException, "Failed to archive the latest activity log to the Desktop.");
+      }
+    });
+  }
+
+  public void Dispose()
+  {
+    AppDomain.CurrentDomain.UnhandledException -= OnUnhandledException;
+    TaskScheduler.UnobservedTaskException -= OnUnobservedTaskException;
+
+#if WINDOWS
+    if (Microsoft.UI.Xaml.Application.Current is not null)
+    {
+      Microsoft.UI.Xaml.Application.Current.UnhandledException -= OnApplicationUnhandledException;
+    }
+#endif
+  }
 }
