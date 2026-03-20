@@ -106,6 +106,10 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 								}
 						}
 				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Updating employee");
+				}
 				finally
 				{
 						IsBusy = false;
@@ -155,9 +159,21 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 
 		private async Task InitializeWithReferenceDataAsync()
 		{
-				await _referenceDataService.InitializeAsync();
-				BindReferenceData();
-				await base.InitializeAsync();
+				try
+				{
+						IsBusy = true;
+						await _referenceDataService.InitializeAsync();
+						BindReferenceData();
+						await base.InitializeAsync();
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Initializing employee details");
+				}
+				finally
+				{
+						IsBusy = false;
+				}
 		}
 
 		private void BindReferenceData()
