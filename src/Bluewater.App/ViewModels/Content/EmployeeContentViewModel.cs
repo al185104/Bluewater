@@ -16,6 +16,7 @@ namespace Bluewater.App.ViewModels.Content;
 
 public partial class EmployeeContentViewModel : BaseViewModel
 {
+		private const string AllChargingName = "All Charging";
 		private int skip = 0;
 		private int take = 50;
 		private readonly List<EmployeeSummary> _allEmployees = [];
@@ -30,6 +31,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		private readonly IExceptionHandlingService _exceptionHandlingService;
 		private readonly IUserApiService _userApiService;
 
+		public ObservableCollection<ChargingSummary> Chargings { get; } = new();
 		public ObservableCollection<EmployeeSummary>? Employees { get; set; } = new();
 
 		[ObservableProperty]
@@ -37,6 +39,9 @@ public partial class EmployeeContentViewModel : BaseViewModel
 
 		[ObservableProperty]
 		public partial string SearchText { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial ChargingSummary? SelectedCharging { get; set; }
 		public bool IsEditingEmployee { get; set; }
 
 		public EmployeeContentViewModel(
@@ -56,10 +61,11 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				_userApiService = userApiService;
 		}
 
-    public override async Task InitializeAsync()
-    {
+		public override async Task InitializeAsync()
+		{
 				CancelAndDispose();
 				_cts = new CancellationTokenSource();
+				LoadChargings();
 
 				try
 				{
@@ -67,9 +73,11 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						skip = 0; 
 						take = 50;
 						var employees = await _employeeApiService.GetEmployeesAsync(skip, take, _cts.Token);
+						_allEmployees.Clear();
+						ResetEmployees([]);
+
 						if(employees != null && employees.Items.Count > 0)
 						{
-								_allEmployees.Clear();
 								_allEmployees.AddRange(employees.Items);
 								ApplyEmployeeFilter();
 								skip += employees.Items.Count;
@@ -111,7 +119,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 								return; // no more data
 
 						_allEmployees.AddRange(employees.Items);
-						ApplyEmployeeFilter();
+						AppendVisibleEmployees(employees.Items);
 
 						skip += employees.Items.Count;
 				}
@@ -173,7 +181,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						}
 
 						_allEmployees.RemoveAll(e => e.Id == employee.Id);
-						ApplyEmployeeFilter();
+						RemoveVisibleEmployee(employee.Id);
 				}
 				catch (OperationCanceledException)
 				{
@@ -522,17 +530,24 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				ApplyEmployeeFilter();
 		}
 
+		partial void OnSelectedChargingChanged(ChargingSummary? value)
+		{
+				ApplyEmployeeFilter();
+		}
+
 		private void ApplyEmployeeFilter()
+		{
+				IEnumerable<EmployeeSummary> filteredEmployees = _allEmployees;
+				filteredEmployees = filteredEmployees.Where(EmployeeMatchesFilter);
+
+				ResetEmployees(filteredEmployees);
+		}
+
+		private void ResetEmployees(IEnumerable<EmployeeSummary> filteredEmployees)
 		{
 				if (Employees is null)
 				{
 						return;
-				}
-
-				IEnumerable<EmployeeSummary> filteredEmployees = _allEmployees;
-				if (!string.IsNullOrWhiteSpace(SearchText))
-				{
-						filteredEmployees = _allEmployees.Where(EmployeeMatchesSearch);
 				}
 
 				Employees.Clear();
@@ -540,6 +555,79 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				{
 						Employees.Add(employee);
 				}
+		}
+
+		private void AppendVisibleEmployees(IEnumerable<EmployeeSummary> newEmployees)
+		{
+				if (Employees is null)
+				{
+						return;
+				}
+
+				IEnumerable<EmployeeSummary> employeesToAdd = newEmployees;
+				employeesToAdd = newEmployees.Where(EmployeeMatchesFilter);
+
+				foreach (var employee in employeesToAdd)
+				{
+						Employees.Add(employee);
+				}
+		}
+
+		private void RemoveVisibleEmployee(Guid employeeId)
+		{
+				if (Employees is null)
+				{
+						return;
+				}
+
+				var visibleEmployee = Employees.FirstOrDefault(e => e.Id == employeeId);
+				if (visibleEmployee is not null)
+				{
+						Employees.Remove(visibleEmployee);
+				}
+		}
+
+		private void LoadChargings()
+		{
+				Guid? previousChargingId = SelectedCharging?.Id;
+
+				Chargings.Clear();
+				Chargings.Add(new ChargingSummary
+				{
+						Id = Guid.Empty,
+						Name = AllChargingName
+				});
+
+				foreach (var charging in _referenceDataService.Chargings.OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase))
+				{
+						Chargings.Add(charging);
+				}
+
+				SelectedCharging = previousChargingId.HasValue
+						? Chargings.FirstOrDefault(charging => charging.Id == previousChargingId.Value) ?? Chargings.FirstOrDefault()
+						: Chargings.FirstOrDefault();
+		}
+
+		private bool EmployeeMatchesFilter(EmployeeSummary employee)
+		{
+				if (!EmployeeMatchesCharging(employee))
+				{
+						return false;
+				}
+
+				return string.IsNullOrWhiteSpace(SearchText) || EmployeeMatchesSearch(employee);
+		}
+
+		private bool EmployeeMatchesCharging(EmployeeSummary employee)
+		{
+				if (SelectedCharging is null
+						|| SelectedCharging.Id == Guid.Empty
+						|| string.Equals(SelectedCharging.Name, AllChargingName, StringComparison.OrdinalIgnoreCase))
+				{
+						return true;
+				}
+
+				return string.Equals(employee.Charging, SelectedCharging.Name, StringComparison.OrdinalIgnoreCase);
 		}
 
 		private bool EmployeeMatchesSearch(EmployeeSummary employee)
