@@ -342,34 +342,41 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				switch (EditableSetting.Type)
+				try
 				{
-						case SettingItemType.Division:
-								await UpdateDivisionAsync().ConfigureAwait(false);
-								break;
-						case SettingItemType.Department:
-								await UpdateDepartmentAsync().ConfigureAwait(false);
-								break;
-						case SettingItemType.Section:
-								await UpdateSectionAsync().ConfigureAwait(false);
-								break;
-						case SettingItemType.Charging:
-								await UpdateChargingAsync().ConfigureAwait(false);
-								break;
-						case SettingItemType.Position:
-								await UpdatePositionAsync().ConfigureAwait(false);
-								break;
-						case SettingItemType.EmployeeType:
-								await UpdateEmployeeTypeAsync().ConfigureAwait(false);
-								break;
-						case SettingItemType.EmployeeLevel:
-								await UpdateEmployeeLevelAsync().ConfigureAwait(false);
-								break;
-				}
+						switch (EditableSetting.Type)
+						{
+								case SettingItemType.Division:
+										await UpdateDivisionAsync().ConfigureAwait(false);
+										break;
+								case SettingItemType.Department:
+										await UpdateDepartmentAsync().ConfigureAwait(false);
+										break;
+								case SettingItemType.Section:
+										await UpdateSectionAsync().ConfigureAwait(false);
+										break;
+								case SettingItemType.Charging:
+										await UpdateChargingAsync().ConfigureAwait(false);
+										break;
+								case SettingItemType.Position:
+										await UpdatePositionAsync().ConfigureAwait(false);
+										break;
+								case SettingItemType.EmployeeType:
+										await UpdateEmployeeTypeAsync().ConfigureAwait(false);
+										break;
+								case SettingItemType.EmployeeLevel:
+										await UpdateEmployeeLevelAsync().ConfigureAwait(false);
+										break;
+						}
 
-				IsEditorOpen = false;
-				EditorTitle = string.Empty;
-				EditableSetting = null;
+						IsEditorOpen = false;
+						EditorTitle = string.Empty;
+						EditableSetting = null;
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Updating setting");
+				}
 		}
 
 		private async Task UpdateDivisionAsync()
@@ -618,14 +625,21 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				bool deleted = await _employeeTypeApiService.DeleteEmployeeTypeAsync(employeeType.Id).ConfigureAwait(false);
-				if (!deleted)
+				try
 				{
-						return;
-				}
+						bool deleted = await _employeeTypeApiService.DeleteEmployeeTypeAsync(employeeType.Id).ConfigureAwait(false);
+						if (!deleted)
+						{
+								return;
+						}
 
-				await MainThread.InvokeOnMainThreadAsync(() => EmployeeTypes.Remove(employeeType));
-				await TraceCommandAsync(nameof(DeleteEmployeeTypeAsync), employeeType.Id).ConfigureAwait(false);
+						await MainThread.InvokeOnMainThreadAsync(() => EmployeeTypes.Remove(employeeType));
+						await TraceCommandAsync(nameof(DeleteEmployeeTypeAsync), employeeType.Id).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Deleting employee type");
+				}
 		}
 
 		[RelayCommand]
@@ -651,162 +665,218 @@ public partial class SettingViewModel : BaseViewModel
 						return;
 				}
 
-				bool deleted = await _levelApiService.DeleteLevelAsync(level.Id).ConfigureAwait(false);
-				if (!deleted)
+				try
 				{
-						return;
-				}
+						bool deleted = await _levelApiService.DeleteLevelAsync(level.Id).ConfigureAwait(false);
+						if (!deleted)
+						{
+								return;
+						}
 
-				await MainThread.InvokeOnMainThreadAsync(() => EmployeeLevels.Remove(level));
-				await TraceCommandAsync(nameof(DeleteEmployeeLevelAsync), level.Id).ConfigureAwait(false);
+						await MainThread.InvokeOnMainThreadAsync(() => EmployeeLevels.Remove(level));
+						await TraceCommandAsync(nameof(DeleteEmployeeLevelAsync), level.Id).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Deleting employee level");
+				}
 		}
 
 		[RelayCommand]
 		private async Task AddDivisionAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewDivisionName)) return;
-				DivisionSummary? created = await _divisionApiService.CreateDivisionAsync(new DivisionSummary
+				try
 				{
-						Name = NewDivisionName.Trim(),
-						Description = string.IsNullOrWhiteSpace(NewDivisionDescription) ? null : NewDivisionDescription.Trim()
-				}).ConfigureAwait(false);
-				if (created is null) return;
-				await MainThread.InvokeOnMainThreadAsync(() =>
+						DivisionSummary? created = await _divisionApiService.CreateDivisionAsync(new DivisionSummary
+						{
+								Name = NewDivisionName.Trim(),
+								Description = string.IsNullOrWhiteSpace(NewDivisionDescription) ? null : NewDivisionDescription.Trim()
+						}).ConfigureAwait(false);
+						if (created is null) return;
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								created.RowIndex = Divisions.Count;
+								Divisions.Add(created);
+								NewDivisionName = string.Empty;
+								NewDivisionDescription = string.Empty;
+						});
+				}
+				catch (Exception ex)
 				{
-						created.RowIndex = Divisions.Count;
-						Divisions.Add(created);
-						NewDivisionName = string.Empty;
-						NewDivisionDescription = string.Empty;
-				});
+						ExceptionHandlingService.Handle(ex, "Adding division");
+				}
 		}
 
 		[RelayCommand]
 		private async Task AddDepartmentAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewDepartmentName) || SelectedDivisionForDepartment is null) return;
-				DepartmentSummary? created = await _departmentApiService.CreateDepartmentAsync(new DepartmentSummary
+				try
 				{
-						Name = NewDepartmentName.Trim(),
-						Description = string.IsNullOrWhiteSpace(NewDepartmentDescription) ? null : NewDepartmentDescription.Trim(),
-						DivisionId = SelectedDivisionForDepartment.Id,
-						DivisionName = SelectedDivisionForDepartment.Name,
-						DivisionDescription = SelectedDivisionForDepartment.Description
-				}).ConfigureAwait(false);
-				if (created is null) return;
-				await MainThread.InvokeOnMainThreadAsync(() =>
+						DepartmentSummary? created = await _departmentApiService.CreateDepartmentAsync(new DepartmentSummary
+						{
+								Name = NewDepartmentName.Trim(),
+								Description = string.IsNullOrWhiteSpace(NewDepartmentDescription) ? null : NewDepartmentDescription.Trim(),
+								DivisionId = SelectedDivisionForDepartment.Id,
+								DivisionName = SelectedDivisionForDepartment.Name,
+								DivisionDescription = SelectedDivisionForDepartment.Description
+						}).ConfigureAwait(false);
+						if (created is null) return;
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								created.RowIndex = Departments.Count;
+								created.DivisionName = SelectedDivisionForDepartment?.Name;
+								Departments.Add(created);
+								NewDepartmentName = string.Empty;
+								NewDepartmentDescription = string.Empty;
+						});
+				}
+				catch (Exception ex)
 				{
-						created.RowIndex = Departments.Count;
-						created.DivisionName = SelectedDivisionForDepartment?.Name;
-						Departments.Add(created);
-						NewDepartmentName = string.Empty;
-						NewDepartmentDescription = string.Empty;
-				});
+						ExceptionHandlingService.Handle(ex, "Adding department");
+				}
 		}
 
 		[RelayCommand]
 		private async Task AddSectionAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewSectionName) || SelectedDepartmentForSection is null) return;
-				SectionSummary? created = await _sectionApiService.CreateSectionAsync(new SectionSummary
+				try
 				{
-						Name = NewSectionName.Trim(),
-						Description = string.IsNullOrWhiteSpace(NewSectionDescription) ? null : NewSectionDescription.Trim(),
-						DepartmentId = SelectedDepartmentForSection.Id,
-						DepartmentName = SelectedDepartmentForSection.Name,
-						DepartmentDescription = SelectedDepartmentForSection.Description
-				}).ConfigureAwait(false);
-				if (created is null) return;
-				await MainThread.InvokeOnMainThreadAsync(() =>
+						SectionSummary? created = await _sectionApiService.CreateSectionAsync(new SectionSummary
+						{
+								Name = NewSectionName.Trim(),
+								Description = string.IsNullOrWhiteSpace(NewSectionDescription) ? null : NewSectionDescription.Trim(),
+								DepartmentId = SelectedDepartmentForSection.Id,
+								DepartmentName = SelectedDepartmentForSection.Name,
+								DepartmentDescription = SelectedDepartmentForSection.Description
+						}).ConfigureAwait(false);
+						if (created is null) return;
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								created.RowIndex = Sections.Count;
+								created.DepartmentName = SelectedDepartmentForSection?.Name;
+								Sections.Add(created);
+								NewSectionName = string.Empty;
+								NewSectionDescription = string.Empty;
+						});
+				}
+				catch (Exception ex)
 				{
-						created.RowIndex = Sections.Count;
-						created.DepartmentName = SelectedDepartmentForSection?.Name;
-						Sections.Add(created);
-						NewSectionName = string.Empty;
-						NewSectionDescription = string.Empty;
-				});
+						ExceptionHandlingService.Handle(ex, "Adding section");
+				}
 		}
 
 		[RelayCommand]
 		private async Task AddPositionAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewPositionName) || SelectedSectionForPosition is null) return;
-				PositionSummary? created = await _positionApiService.CreatePositionAsync(new PositionSummary
+				try
 				{
-						Name = NewPositionName.Trim(),
-						Description = string.IsNullOrWhiteSpace(NewPositionDescription) ? null : NewPositionDescription.Trim(),
-						SectionId = SelectedSectionForPosition.Id,
-						SectionName = SelectedSectionForPosition.Name,
-						SectionDescription = SelectedSectionForPosition.Description
-				}).ConfigureAwait(false);
-				if (created is null) return;
-				await MainThread.InvokeOnMainThreadAsync(() =>
+						PositionSummary? created = await _positionApiService.CreatePositionAsync(new PositionSummary
+						{
+								Name = NewPositionName.Trim(),
+								Description = string.IsNullOrWhiteSpace(NewPositionDescription) ? null : NewPositionDescription.Trim(),
+								SectionId = SelectedSectionForPosition.Id,
+								SectionName = SelectedSectionForPosition.Name,
+								SectionDescription = SelectedSectionForPosition.Description
+						}).ConfigureAwait(false);
+						if (created is null) return;
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								created.RowIndex = Positions.Count;
+								Positions.Add(created);
+								NewPositionName = string.Empty;
+								NewPositionDescription = string.Empty;
+						});
+				}
+				catch (Exception ex)
 				{
-						created.RowIndex = Positions.Count;
-						Positions.Add(created);
-						NewPositionName = string.Empty;
-						NewPositionDescription = string.Empty;
-				});
+						ExceptionHandlingService.Handle(ex, "Adding position");
+				}
 		}
 
 		[RelayCommand]
 		private async Task AddChargingAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewChargingName) || SelectedDepartmentForCharging is null) return;
-				ChargingSummary? created = await _chargingApiService.CreateChargingAsync(new ChargingSummary
+				try
 				{
-						Name = NewChargingName.Trim(),
-						Description = string.IsNullOrWhiteSpace(NewChargingDescription) ? null : NewChargingDescription.Trim(),
-						DepartmentId = SelectedDepartmentForCharging.Id,
-						DepartmentName = SelectedDepartmentForCharging.Name,
-						DepartmentDescription = SelectedDepartmentForCharging.Description
-				}).ConfigureAwait(false);
-				if (created is null) return;
-				await MainThread.InvokeOnMainThreadAsync(() =>
+						ChargingSummary? created = await _chargingApiService.CreateChargingAsync(new ChargingSummary
+						{
+								Name = NewChargingName.Trim(),
+								Description = string.IsNullOrWhiteSpace(NewChargingDescription) ? null : NewChargingDescription.Trim(),
+								DepartmentId = SelectedDepartmentForCharging.Id,
+								DepartmentName = SelectedDepartmentForCharging.Name,
+								DepartmentDescription = SelectedDepartmentForCharging.Description
+						}).ConfigureAwait(false);
+						if (created is null) return;
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								created.RowIndex = Chargings.Count;
+								created.DepartmentName = SelectedDepartmentForCharging?.Name;
+								Chargings.Add(created);
+								NewChargingName = string.Empty;
+								NewChargingDescription = string.Empty;
+						});
+				}
+				catch (Exception ex)
 				{
-						created.RowIndex = Chargings.Count;
-						created.DepartmentName = SelectedDepartmentForCharging?.Name;
-						Chargings.Add(created);
-						NewChargingName = string.Empty;
-						NewChargingDescription = string.Empty;
-				});
+						ExceptionHandlingService.Handle(ex, "Adding charging");
+				}
 		}
 
 		[RelayCommand]
 		private async Task AddEmployeeTypeAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewEmployeeTypeName)) return;
-				EmployeeTypeSummary? created = await _employeeTypeApiService.CreateEmployeeTypeAsync(new EmployeeTypeSummary
+				try
 				{
-						Name = NewEmployeeTypeName.Trim(),
-						Value = string.IsNullOrWhiteSpace(NewEmployeeTypeValue) ? NewEmployeeTypeName.Trim() : NewEmployeeTypeValue.Trim(),
-						IsActive = true
-				}).ConfigureAwait(false);
-				if (created is null) return;
-				await MainThread.InvokeOnMainThreadAsync(() =>
+						EmployeeTypeSummary? created = await _employeeTypeApiService.CreateEmployeeTypeAsync(new EmployeeTypeSummary
+						{
+								Name = NewEmployeeTypeName.Trim(),
+								Value = string.IsNullOrWhiteSpace(NewEmployeeTypeValue) ? NewEmployeeTypeName.Trim() : NewEmployeeTypeValue.Trim(),
+								IsActive = true
+						}).ConfigureAwait(false);
+						if (created is null) return;
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								EmployeeTypes.Add(created);
+								NewEmployeeTypeName = string.Empty;
+								NewEmployeeTypeValue = string.Empty;
+						});
+				}
+				catch (Exception ex)
 				{
-						EmployeeTypes.Add(created);
-						NewEmployeeTypeName = string.Empty;
-						NewEmployeeTypeValue = string.Empty;
-				});
+						ExceptionHandlingService.Handle(ex, "Adding employee type");
+				}
 		}
 
 		[RelayCommand]
 		private async Task AddEmployeeLevelAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewEmployeeLevelName)) return;
-				LevelSummary? created = await _levelApiService.CreateLevelAsync(new LevelSummary
+				try
 				{
-						Name = NewEmployeeLevelName.Trim(),
-						Value = string.IsNullOrWhiteSpace(NewEmployeeLevelValue) ? NewEmployeeLevelName.Trim() : NewEmployeeLevelValue.Trim(),
-						IsActive = true
-				}).ConfigureAwait(false);
-				if (created is null) return;
-				await MainThread.InvokeOnMainThreadAsync(() =>
+						LevelSummary? created = await _levelApiService.CreateLevelAsync(new LevelSummary
+						{
+								Name = NewEmployeeLevelName.Trim(),
+								Value = string.IsNullOrWhiteSpace(NewEmployeeLevelValue) ? NewEmployeeLevelName.Trim() : NewEmployeeLevelValue.Trim(),
+								IsActive = true
+						}).ConfigureAwait(false);
+						if (created is null) return;
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								EmployeeLevels.Add(created);
+								NewEmployeeLevelName = string.Empty;
+								NewEmployeeLevelValue = string.Empty;
+						});
+				}
+				catch (Exception ex)
 				{
-						EmployeeLevels.Add(created);
-						NewEmployeeLevelName = string.Empty;
-						NewEmployeeLevelValue = string.Empty;
-				});
+						ExceptionHandlingService.Handle(ex, "Adding employee level");
+				}
 		}
 
 

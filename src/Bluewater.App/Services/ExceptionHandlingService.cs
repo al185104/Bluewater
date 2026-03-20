@@ -22,6 +22,7 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
 		private readonly IActivityTraceService activityTraceService;
 		private readonly ILogger<ExceptionHandlingService>? logger;
 		private Popup? activePopup;
+		private bool fatalErrorDisplayed;
 		private bool isInitialized;
 
 		public ExceptionHandlingService(
@@ -90,23 +91,33 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
 
 		private void ProcessException(string source, Exception exception, string? context, bool isTerminating = false)
 		{
-				LogException(source, exception, context, isTerminating);
-
-				PresentationException presentationException = ConvertToPresentationException(exception);
-				_ = CopyLatestLogToDesktopAsync();
-				ShowOutOfSyncPopup(presentationException);
-		}
-
-		private static PresentationException ConvertToPresentationException(Exception exception)
-		{
-				if (exception is PresentationException presentationException)
+				if (TryGetPresentationException(exception, out PresentationException? presentationException))
 				{
-						return presentationException;
+						ShowPresentationPopup(presentationException);
+						return;
 				}
 
-				return exception.InnerException is PresentationException innerPresentation
-					? innerPresentation
-					: new PresentationException(exception);
+				LogException(source, exception, context, isTerminating);
+				_ = CopyLatestLogToDesktopAsync();
+				ShowFatalErrorPage(new PresentationException(exception));
+		}
+
+		private static bool TryGetPresentationException(Exception exception, out PresentationException? presentationException)
+		{
+				if (exception is PresentationException directPresentationException)
+				{
+						presentationException = directPresentationException;
+						return true;
+				}
+
+				if (exception.InnerException is PresentationException innerPresentation)
+				{
+						presentationException = innerPresentation;
+						return true;
+				}
+
+				presentationException = null;
+				return false;
 		}
 
 		private void LogException(string source, Exception exception, string? context, bool isTerminating = false)
@@ -131,7 +142,7 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
 				_ = WriteTraceAsync("Exception", metadata);
 		}
 
-		private void ShowOutOfSyncPopup(PresentationException presentationException)
+		private void ShowPresentationPopup(PresentationException presentationException)
 		{
 				ArgumentNullException.ThrowIfNull(presentationException);
 
@@ -170,6 +181,47 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
 				else
 				{
 						DisplayPopup();
+				}
+		}
+
+		private void ShowFatalErrorPage(PresentationException presentationException)
+		{
+				ArgumentNullException.ThrowIfNull(presentationException);
+
+				IDispatcher? dispatcher = Application.Current?.Dispatcher;
+
+				if (dispatcher is null)
+				{
+						logger?.LogWarning("Unable to display fatal error page because the dispatcher is unavailable.");
+						return;
+				}
+
+				void DisplayFatalError()
+				{
+						if (fatalErrorDisplayed)
+						{
+								return;
+						}
+
+						Window? window = Application.Current?.Windows.FirstOrDefault();
+						if (window is null)
+						{
+								logger?.LogWarning("Unable to display fatal error page because the application window is unavailable.");
+								return;
+						}
+
+						fatalErrorDisplayed = true;
+						activePopup = null;
+						window.Page = new FatalErrorPage(presentationException);
+				}
+
+				if (dispatcher.IsDispatchRequired)
+				{
+						dispatcher.Dispatch(DisplayFatalError);
+				}
+				else
+				{
+						DisplayFatalError();
 				}
 		}
 
