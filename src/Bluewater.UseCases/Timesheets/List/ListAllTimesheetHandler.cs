@@ -106,12 +106,11 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
     var totalWorkHours = attendances.Sum(i => i.WorkHrs) ?? 0;
     var totalBreak = attendances.Sum(i => i.OverbreakHrs) ?? 0;
     var totalLates = attendances.Sum(i => i.LateHrs) ?? 0;
-    var totalAbsents = attendances.Count(i => i.ShiftId != null && i.Shift != null && !i.Shift.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase))
-      - attendances.Count(i => i.WorkHrs > 0);
+    var totalAbsents = AttendanceSummaryCalculator.CountAbsencesExcludingApprovedLeaves(attendances);
 
     decimal totalUndertimes = attendances.Sum(i => i.UnderHrs) ?? 0;
     decimal totalOverbreaks = attendances.Sum(i => i.OverbreakHrs) ?? 0;
-    decimal totalLeaves = attendances.Sum(i => i.LeaveId.HasValue ? 1 : 0);
+    decimal totalLeaves = AttendanceSummaryCalculator.CountApprovedLeaves(attendances);
 
     return (totalWorkHours, totalBreak, totalLates, totalAbsents, totalUndertimes, totalOverbreaks, totalLeaves);
   }

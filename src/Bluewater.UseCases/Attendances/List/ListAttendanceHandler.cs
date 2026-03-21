@@ -2,8 +2,10 @@
 using Ardalis.SharedKernel;
 using Bluewater.Core.AttendanceAggregate;
 using Bluewater.Core.AttendanceAggregate.Specifications;
+using Bluewater.Core.Forms.LeaveAggregate;
 using Bluewater.Core.ShiftAggregate;
 using Bluewater.Core.TimesheetAggregate;
+using Bluewater.UserCases.Forms.Enum;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Schedules;
 using Bluewater.UseCases.Schedules.Get;
@@ -15,7 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bluewater.UseCases.Attendances.List;
 
-internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAttendanceQuery, Result<IEnumerable<AttendanceDTO>>>
+internal class ListAttendanceHandler(IRepository<Attendance> _repository, IRepository<Leave> _leaveRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAttendanceQuery, Result<IEnumerable<AttendanceDTO>>>
 {
   public async Task<Result<IEnumerable<AttendanceDTO>>> Handle(ListAttendanceQuery request, CancellationToken cancellationToken)
   {
@@ -31,6 +33,21 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
         var ret = await mediator.Send(new GetEmployeeQuery(request.empId));
         if (ret.IsSuccess)
             emp = ret.Value;
+    }
+
+    Dictionary<Guid, ApplicationStatusDTO> leaveStatuses = new();
+    IEnumerable<Guid> leaveIds = attendances
+      .Where(attendance => attendance.LeaveId.HasValue && attendance.LeaveId != Guid.Empty)
+      .Select(attendance => attendance.LeaveId!.Value)
+      .Distinct();
+
+    foreach (Guid leaveId in leaveIds)
+    {
+      Leave? leave = await _leaveRepository.GetByIdAsync(leaveId, cancellationToken);
+      if (leave is not null)
+      {
+        leaveStatuses[leaveId] = (ApplicationStatusDTO)leave.Status;
+      }
     }
 
     List<AttendanceDTO> results = new();
@@ -78,7 +95,7 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
         //attendance.CalculateWorkHours();
         attendance.CalculateWorkHours();
 
-        results.Add(new AttendanceDTO(Guid.Empty, emp.Id, schedule?.ShiftId, timesheet?.Id, null, date, attendance.WorkHrs, attendance.LateHrs, attendance.UnderHrs, attendance.OverbreakHrs, attendance.NightShiftHours, isLocked: false, schedule?.Shift, timesheet));
+        results.Add(new AttendanceDTO(Guid.Empty, emp.Id, schedule?.ShiftId, timesheet?.Id, null, date, attendance.WorkHrs, attendance.LateHrs, attendance.UnderHrs, attendance.OverbreakHrs, attendance.NightShiftHours, leaveStatus: null, isLocked: false, schedule?.Shift, timesheet));
       }
       else{
         //attendance.CalculateWorkHours();
@@ -91,7 +108,9 @@ internal class ListAttendanceHandler(IRepository<Attendance> _repository, IServi
           continue;
         }
 
-        results.Add(new AttendanceDTO(attendance.Id, emp.Id, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, attendance.WorkHrs, attendance.LateHrs, attendance.UnderHrs, attendance.OverbreakHrs, attendance.NightShiftHours, attendance.IsLocked, 
+        leaveStatuses.TryGetValue(attendance.LeaveId ?? Guid.Empty, out ApplicationStatusDTO? leaveStatus);
+
+        results.Add(new AttendanceDTO(attendance.Id, emp.Id, attendance.ShiftId, attendance.TimesheetId, attendance.LeaveId, attendance.EntryDate, attendance.WorkHrs, attendance.LateHrs, attendance.UnderHrs, attendance.OverbreakHrs, attendance.NightShiftHours, leaveStatus, attendance.IsLocked, 
         new ShiftDTO(attendance.Shift.Id, attendance.Shift.Name, attendance.Shift.ShiftStartTime, attendance.Shift.ShiftBreakTime, attendance.Shift.ShiftBreakEndTime, attendance.Shift.ShiftEndTime, attendance.Shift.BreakHours), 
         new TimesheetDTO(attendance.Timesheet?.Id ?? Guid.Empty, emp.Id, attendance.Timesheet?.TimeIn1, attendance.Timesheet?.TimeOut1, attendance.Timesheet?.TimeIn2, attendance.Timesheet?.TimeOut2, attendance.Timesheet?.EntryDate, attendance.Timesheet?.IsEdited ?? false)));
       }

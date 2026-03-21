@@ -1,5 +1,6 @@
 using Bluewater.UseCases.Shifts;
 using Bluewater.UseCases.Timesheets;
+using Bluewater.UserCases.Forms.Enum;
 
 namespace Bluewater.UseCases.Attendances;
 public record AttendanceDTO()
@@ -10,6 +11,7 @@ public record AttendanceDTO()
     public Guid? TimesheetId { get; set; }
     public Guid? LeaveId { get; set; }
     public DateOnly? EntryDate { get; set; }
+    public ApplicationStatusDTO? LeaveStatus { get; set; }
     public decimal? WorkHrs { get; set; }
     public decimal? LateHrs { get; set; }
     public decimal? UnderHrs { get; set; }
@@ -19,7 +21,7 @@ public record AttendanceDTO()
     public ShiftDTO? Shift { get; set; } = null;
     public TimesheetDTO? Timesheet { get; set; } = null;
 
-    public AttendanceDTO(Guid id, Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid? leaveId, DateOnly? entryDate, decimal? workHrs, decimal? lateHrs, decimal? underHrs, decimal? overbreakHrs, decimal? nightShiftHrs, bool isLocked = false, ShiftDTO? shift = null, TimesheetDTO? timesheet = null) : this()
+    public AttendanceDTO(Guid id, Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid? leaveId, DateOnly? entryDate, decimal? workHrs, decimal? lateHrs, decimal? underHrs, decimal? overbreakHrs, decimal? nightShiftHrs, ApplicationStatusDTO? leaveStatus = null, bool isLocked = false, ShiftDTO? shift = null, TimesheetDTO? timesheet = null) : this()
     {
         Id = id;
         EmployeeId = employeeId;
@@ -27,6 +29,7 @@ public record AttendanceDTO()
         TimesheetId = timesheetId;
         LeaveId = leaveId;
         EntryDate = entryDate;
+        LeaveStatus = leaveStatus;
         WorkHrs = workHrs;
         LateHrs = lateHrs;
         UnderHrs = underHrs;

@@ -170,7 +170,12 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
           .Sum(o => o.ApprovedHours);
 
       // absences is counted when the attendance has ShiftId but no TimesheetId, and the Shift.Name is not "Rest Day"
-      var absences = attendance.Attendances.Where(s => s.Shift != null && s.ShiftId.HasValue && !s.TimesheetId.HasValue && !s.Shift!.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase)).Count();
+      var absences = attendance.Attendances.Count(s =>
+        s.Shift != null
+        && s.ShiftId.HasValue
+        && !s.TimesheetId.HasValue
+        && !s.Shift!.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase)
+        && !AttendanceSummaryCalculator.HasApprovedLeave(s));
 
       // service charge by username
       var svcCharge = serviceCharges.FirstOrDefault(i => i.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
