@@ -57,13 +57,13 @@ internal class ListAllAttendanceHandler(IServiceScopeFactory serviceScopeFactory
   {
     //sum of all work hours
     var _totalWorkHours = val.Sum(i => i.WorkHrs);
-    var _totalAbsences = val.Count(i => i.ShiftId != null && i.Shift != null && !i.Shift.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase)) - val.Count(i => i.WorkHrs > 0);
+    var _totalAbsences = AttendanceSummaryCalculator.CountAbsencesExcludingApprovedLeaves(val);
     var _totalLateHours = val.Sum(i => i.LateHrs);
     var _totalUnderHours = val.Sum(i => i.UnderHrs);
     var _totalOverbreakHrs = val.Sum(i => i.OverbreakHrs);
     var _totalNightShiftHours = val.Sum(i => i.NightShiftHours);
 
-    var _totalLeaves = val.Count(i => i.LeaveId != null && i.LeaveId != Guid.Empty);
+    var _totalLeaves = AttendanceSummaryCalculator.CountApprovedLeaves(val);
 
     return (_totalWorkHours ?? 0, _totalAbsences, _totalLateHours ?? 0, _totalUnderHours ?? 0, _totalOverbreakHrs ?? 0, _totalNightShiftHours ?? 0, _totalLeaves);
   }
