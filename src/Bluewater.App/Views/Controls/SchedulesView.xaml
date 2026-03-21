@@ -19,7 +19,7 @@
 					VerticalOptions="End" 
 					Title="Select charging"
 					ItemsSource="{Binding Chargings}"
-					ItemDisplayBinding="{Binding Name}"
+					ItemDisplayBinding="{Binding Description}"
 					SelectedItem="{Binding SelectedCharging}"/>
 			<HorizontalStackLayout Grid.Column="1" VerticalOptions="End" Spacing="20">
 				<Button Text="{x:Static helpers:Icon.ChevronLeft}"

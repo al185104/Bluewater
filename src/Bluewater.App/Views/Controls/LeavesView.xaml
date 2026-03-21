@@ -9,7 +9,7 @@
 			 Loaded="ContentView_Loaded"
 			 Unloaded="ContentView_Unloaded"
              Background="{StaticResource CollectionBackgroundBrush}">
-    <Grid RowDefinitions="Auto,Auto,*,Auto"
+    <Grid RowDefinitions="Auto,*,Auto"
           Padding="20"
           RowSpacing="12">
         <Grid Grid.Row="0"
@@ -28,7 +28,7 @@
                    Text="{Binding Leaves.Count, StringFormat='{}{0} leave applications'}" />
         </Grid>
 
-        <CollectionView Grid.Row="1"
+        <!--<CollectionView Grid.Row="1"
                         HeightRequest="140"
                         SelectionMode="Single"
                         SelectedItem="{Binding SelectedEmployee}"
@@ -50,32 +50,48 @@
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
-        </CollectionView>
+        </CollectionView>-->
 
-        <Grid Grid.Row="2"
+        <Grid Grid.Row="1"
               RowDefinitions="Auto,*"
               RowSpacing="10">
             <Border StrokeShape="RoundRectangle 5 5 5 5"
                     Padding="12">
-                <Grid RowDefinitions="Auto,Auto"
-                      ColumnDefinitions="Auto,Auto,*,Auto,Auto"
-                      ColumnSpacing="10"
+                <Grid ColumnDefinitions="*,*,Auto,Auto,Auto,Auto"
+                      ColumnSpacing="20"
                       RowSpacing="8">
-                    <DatePicker Grid.Column="0"
-                                Date="{Binding EditableLeave.StartDate}" />
-                    <DatePicker Grid.Column="1"
-                                Date="{Binding EditableLeave.EndDate}" />
-                    <Picker Grid.Column="2"
-                            Title="Leave credit"
-                            ItemsSource="{Binding LeaveCredits}"
-                            SelectedItem="{Binding SelectedLeaveCredit}">
-                        <Picker.ItemDisplayBinding>
-                            <Binding Path="Description" />
-                        </Picker.ItemDisplayBinding>
-                    </Picker>
-                    <CheckBox Grid.Column="3"
-                              IsChecked="{Binding EditableLeave.IsHalfDay}" />
-                    <Button Grid.Column="4"
+					<Border Grid.Column="0" 
+							StrokeShape="RoundRectangle 5 5 5 5"
+							Padding="10,8">
+						<Grid RowDefinitions="Auto,Auto" RowSpacing="0" VerticalOptions="Center">
+							<Label Text="{Binding SelectedEmployee.FullName}" />
+							<Label Grid.Row="1"
+								   FontSize="12"
+								   Text="{Binding SelectedEmployee.PositionDisplay}" />
+						</Grid>
+					</Border>
+					<Picker Grid.Column="1"
+							Title="Leave credit"
+							ItemsSource="{Binding LeaveCredits}"
+							SelectedItem="{Binding SelectedLeaveCredit}">
+						<Picker.ItemDisplayBinding>
+							<Binding Path="Description" />
+						</Picker.ItemDisplayBinding>
+					</Picker>
+					<VerticalStackLayout Grid.Column="2" Spacing="10">
+						<Label Text="Start date" />
+						<DatePicker Date="{Binding EditableLeave.StartDate}" />
+					</VerticalStackLayout>
+					<VerticalStackLayout Grid.Column="3" Spacing="10">
+						<Label Text="End date" />
+						<DatePicker Date="{Binding EditableLeave.EndDate}" />
+					</VerticalStackLayout>
+					<VerticalStackLayout Grid.Column="4" Spacing="10">
+						<Label Text="Half day?" />
+						<CheckBox IsChecked="{Binding EditableLeave.IsHalfDay}" />
+					</VerticalStackLayout>
+					<Button Grid.Column="5"
+							VerticalOptions="End"
                             Text="Save"
                             Command="{Binding SaveLeaveCommand}" />
                 </Grid>
