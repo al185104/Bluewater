@@ -93,6 +93,7 @@
 					<Button Grid.Column="5"
 							VerticalOptions="End"
                             Text="Save"
+							Style="{StaticResource PrimaryButtonStyle}"
                             Command="{Binding SaveLeaveCommand}" />
                 </Grid>
             </Border>
@@ -127,17 +128,45 @@
                                 </Label>
                                 <Label Grid.Column="1"
                                        Text="{Binding Status}" />
-                                <Button Grid.Column="2"
-                                        Text="Accept"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LeaveViewModel}}, Path=AcceptLeaveCommand}"
-                                        CommandParameter="{Binding .}" />
-                                <Button Grid.Column="3"
-                                        Text="Reject"
-                                        Style="{StaticResource SecondaryButtonStyle}"
-                                        Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LeaveViewModel}}, Path=RejectLeaveCommand}"
-                                        CommandParameter="{Binding .}" />
-                            </Grid>
+								<Button Grid.Column="2"
+										Text="Accept"
+										IsEnabled="False"
+										Style="{StaticResource SecondaryButtonStyle}"
+										Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LeaveViewModel}}, Path=AcceptLeaveCommand}"
+										CommandParameter="{Binding .}">
+									<Button.Triggers>
+										<DataTrigger TargetType="Button" Binding="{Binding Status}" Value="{x:Static models:ApplicationStatusDto.Pending}">
+											<Setter Property="IsEnabled" Value="True"/>
+										</DataTrigger>
+										<DataTrigger TargetType="Button"
+													 Binding="{Binding Status}"
+													 Value="{x:Static models:ApplicationStatusDto.NotSet}">
+											<Setter Property="IsEnabled" Value="True" />
+										</DataTrigger>
+									</Button.Triggers>
+								</Button>
+								<Button Grid.Column="3"
+										Text="Reject"
+										IsEnabled="False"
+										Style="{StaticResource SecondaryButtonStyle}"
+										Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LeaveViewModel}}, Path=RejectLeaveCommand}"
+										CommandParameter="{Binding .}">
+									<Button.Triggers>
+										<DataTrigger TargetType="Button"
+													 Binding="{Binding Status}"
+													 Value="{x:Static models:ApplicationStatusDto.Pending}">
+											<Setter Property="IsEnabled"
+													Value="True" />
+										</DataTrigger>
+										<DataTrigger TargetType="Button"
+													 Binding="{Binding Status}"
+													 Value="{x:Static models:ApplicationStatusDto.NotSet}">
+											<Setter Property="IsEnabled"
+													Value="True" />
+										</DataTrigger>
+									</Button.Triggers>
+								</Button>
+							</Grid>
                         </Border>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>

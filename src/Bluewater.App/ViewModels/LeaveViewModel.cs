@@ -104,9 +104,6 @@ public partial class LeaveViewModel : BaseViewModel
 				EditableLeave.LeaveCreditName = SelectedLeaveCredit.Description;
         EditableLeave.Status = ApplicationStatusDto.Pending;
 
-        if (string.IsNullOrEmpty(EditableLeave.EmployeeName))
-          EditableLeave.EmployeeName = SelectedEmployee!.FullName;
-
 				bool isNew = EditableLeave.Id == Guid.Empty;
 
 				try
@@ -118,7 +115,11 @@ public partial class LeaveViewModel : BaseViewModel
 							: await leaveApiService.UpdateLeaveAsync(EditableLeave);
 
 						LeaveSummary result = saved ?? EditableLeave;
-						int existingIndex = allLeaves.FindIndex(item => item.Id == result.Id);
+
+            if (string.IsNullOrEmpty(result.EmployeeName))
+              result.EmployeeName = SelectedEmployee!.FullName;
+
+            int existingIndex = allLeaves.FindIndex(item => item.Id == result.Id);
 						if (existingIndex >= 0)
 						{
 								allLeaves[existingIndex] = result;
