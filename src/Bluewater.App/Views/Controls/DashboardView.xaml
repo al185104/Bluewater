@@ -267,7 +267,7 @@
 					<Border Grid.Column="1"
 							StrokeShape="RoundRectangle 5 5 5 5">
 						<Grid Padding="20">
-							<CollectionView ItemsSource="{Binding PayrollCostByDepartment}">
+							<CollectionView ItemsSource="{Binding PayrollCostByDepartment}" HeightRequest="120">
 								<CollectionView.Header>
 									<Grid ColumnDefinitions="*,60">
 										<Label Grid.Column="0"
@@ -298,7 +298,8 @@
 					<Border Grid.Column="2"
 							StrokeShape="RoundRectangle 5 5 5 5">
 						<Grid Padding="20">
-							<CollectionView ItemsSource="{Binding PayrollGeneratedStatusByCharging}">
+							<CollectionView ItemsSource="{Binding PayrollGeneratedStatusByCharging}"
+											HeightRequest="120">
 								<CollectionView.Header>
 									<Grid ColumnDefinitions="*,60,40">
 										<Label Grid.Column="0"
@@ -361,5 +362,7 @@
 				</Grid>
 			</VerticalStackLayout>
 		</ScrollView>
+		<ActivityIndicator IsVisible="{Binding IsBusy}"
+						   IsRunning="{Binding IsBusy}" />
 	</Grid>
 </ContentView>
