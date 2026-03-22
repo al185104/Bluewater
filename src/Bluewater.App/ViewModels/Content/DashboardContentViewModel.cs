@@ -12,8 +12,6 @@ namespace Bluewater.App.ViewModels.Content;
 public partial class DashboardContentViewModel : BaseViewModel
 {
 		private const int BatchSize = 250;
-		private const string AllDepartmentsOptionName = "All Departments";
-		private const string AllChargingOptionName = "All Charging";
 		private readonly IEmployeeApiService employeeApiService;
 		private readonly IPayrollApiService payrollApiService;
 		private readonly ITimesheetApiService timesheetApiService;
@@ -171,41 +169,22 @@ public partial class DashboardContentViewModel : BaseViewModel
 								{
 										Guid? selectedDepartmentId = SelectedDepartment?.Id;
 										Guid? selectedChargingId = SelectedCharging?.Id;
+										HashSet<Guid> validDepartmentIds = referenceDataService.Chargings
+											.Where(charging => charging.DepartmentId.HasValue)
+											.Select(charging => charging.DepartmentId!.Value)
+											.ToHashSet();
 
 										DepartmentOptions.Clear();
-										DepartmentOptions.Add(new DepartmentSummary
-										{
-												Id = Guid.Empty,
-												Name = AllDepartmentsOptionName,
-												Description = string.Empty,
-												DivisionId = Guid.Empty
-										});
-
-										foreach (DepartmentSummary department in referenceDataService.Departments)
+										foreach (DepartmentSummary department in referenceDataService.Departments
+											.Where(department => validDepartmentIds.Contains(department.Id)))
 										{
 												DepartmentOptions.Add(department);
-										}
-
-										ChargingOptions.Clear();
-										ChargingOptions.Add(new ChargingSummary
-										{
-												Id = Guid.Empty,
-												Name = AllChargingOptionName,
-												Description = string.Empty,
-												DepartmentId = Guid.Empty
-										});
-
-										foreach (ChargingSummary charging in referenceDataService.Chargings)
-										{
-												ChargingOptions.Add(charging);
 										}
 
 										SelectedDepartment = selectedDepartmentId.HasValue
 												? DepartmentOptions.FirstOrDefault(option => option.Id == selectedDepartmentId.Value) ?? DepartmentOptions.FirstOrDefault()
 												: DepartmentOptions.FirstOrDefault();
-										SelectedCharging = selectedChargingId.HasValue
-												? ChargingOptions.FirstOrDefault(option => option.Id == selectedChargingId.Value) ?? ChargingOptions.FirstOrDefault()
-												: ChargingOptions.FirstOrDefault();
+										RefreshChargingOptions(selectedChargingId);
 								}
 								finally
 								{
@@ -241,8 +220,8 @@ public partial class DashboardContentViewModel : BaseViewModel
 						string? selectedChargingName = NormalizeChargingName(SelectedCharging?.Name);
 
 						Task<IReadOnlyList<EmployeeSummary>> employeesTask = LoadEmployeesForTenantAsync(SelectedTenant, linkedCancellationTokenSource.Token);
-					Task<IReadOnlyList<PayrollSummary>> payrollTask = LoadPayrollsInPeriodAsync(linkedCancellationTokenSource.Token);
-					Task<IReadOnlyList<EmployeeTimesheetSummary>> timesheetTask = LoadTimesheetsInPeriodAsync(linkedCancellationTokenSource.Token);
+					Task<IReadOnlyList<PayrollSummary>> payrollTask = LoadPayrollsInPeriodAsync(selectedChargingName, linkedCancellationTokenSource.Token);
+					Task<IReadOnlyList<EmployeeTimesheetSummary>> timesheetTask = LoadTimesheetsInPeriodAsync(selectedChargingName, linkedCancellationTokenSource.Token);
 					Task<IReadOnlyList<LeaveSummary>> leaveTask = leaveApiService.GetLeavesAsync(tenant: SelectedTenant, cancellationToken: linkedCancellationTokenSource.Token);
 					Task<IReadOnlyList<HolidaySummary>> holidayTask = holidayApiService.GetHolidaysAsync(cancellationToken: linkedCancellationTokenSource.Token);
 
@@ -298,7 +277,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 				while (true)
 				{
 						PagedResult<EmployeeSummary> page = await employeeApiService
-							.GetEmployeesAsync(skip, BatchSize, cancellationToken)
+							.GetEmployeesAsync(skip, BatchSize, cancellationToken, tenant)
 							.ConfigureAwait(false);
 
 						if (page.Items.Count == 0)
@@ -320,9 +299,9 @@ public partial class DashboardContentViewModel : BaseViewModel
 				return cachedEmployees;
 		}
 
-		private async Task<IReadOnlyList<PayrollSummary>> LoadPayrollsInPeriodAsync(CancellationToken cancellationToken)
+		private async Task<IReadOnlyList<PayrollSummary>> LoadPayrollsInPeriodAsync(string? chargingName, CancellationToken cancellationToken)
 		{
-				DashboardPayrollCacheKey cacheKey = new(SelectedTenant, PayrollPeriodStart, PayrollPeriodEnd);
+				DashboardPayrollCacheKey cacheKey = new(SelectedTenant, PayrollPeriodStart, PayrollPeriodEnd, chargingName);
 				if (payrollCache.TryGetValue(cacheKey, out IReadOnlyList<PayrollSummary>? cachedPayrolls))
 				{
 						return cachedPayrolls;
@@ -334,7 +313,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 				while (true)
 				{
 						PagedResult<PayrollSummary> page = await payrollApiService
-							.GetPayrollsAsync(PayrollPeriodStart, PayrollPeriodEnd, skip: skip, take: BatchSize, tenant: SelectedTenant, cancellationToken: cancellationToken)
+							.GetPayrollsAsync(PayrollPeriodStart, PayrollPeriodEnd, chargingName, skip: skip, take: BatchSize, tenant: SelectedTenant, cancellationToken: cancellationToken)
 							.ConfigureAwait(false);
 
 						if (page.Items.Count == 0)
@@ -356,9 +335,9 @@ public partial class DashboardContentViewModel : BaseViewModel
 		}
 
 
-		private async Task<IReadOnlyList<EmployeeTimesheetSummary>> LoadTimesheetsInPeriodAsync(CancellationToken cancellationToken)
+		private async Task<IReadOnlyList<EmployeeTimesheetSummary>> LoadTimesheetsInPeriodAsync(string? chargingName, CancellationToken cancellationToken)
 		{
-				DashboardTimesheetCacheKey cacheKey = new(SelectedTenant, PayrollPeriodStart, PayrollPeriodEnd);
+				DashboardTimesheetCacheKey cacheKey = new(SelectedTenant, PayrollPeriodStart, PayrollPeriodEnd, chargingName);
 				if (timesheetCache.TryGetValue(cacheKey, out IReadOnlyList<EmployeeTimesheetSummary>? cachedTimesheets))
 				{
 						return cachedTimesheets;
@@ -370,7 +349,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 				while (true)
 				{
 						PagedResult<EmployeeTimesheetSummary> page = await timesheetApiService
-							.GetTimesheetSummariesAsync(null, PayrollPeriodStart, PayrollPeriodEnd, SelectedTenant, skip: skip, take: BatchSize, cancellationToken: cancellationToken)
+							.GetTimesheetSummariesAsync(chargingName, PayrollPeriodStart, PayrollPeriodEnd, SelectedTenant, skip: skip, take: BatchSize, cancellationToken: cancellationToken)
 							.ConfigureAwait(false);
 
 						if (page.Items.Count == 0)
@@ -649,25 +628,9 @@ public partial class DashboardContentViewModel : BaseViewModel
 				return leaveTypeName.Contains(token, StringComparison.OrdinalIgnoreCase);
 		}
 
-		private static string? NormalizeChargingName(string? chargingName)
-		{
-				if (string.IsNullOrWhiteSpace(chargingName) || string.Equals(chargingName, AllChargingOptionName, StringComparison.OrdinalIgnoreCase))
-				{
-						return null;
-				}
+		private static string? NormalizeChargingName(string? chargingName) => string.IsNullOrWhiteSpace(chargingName) ? null : chargingName;
 
-				return chargingName;
-		}
-
-		private static string? NormalizeDepartmentName(string? departmentName)
-		{
-				if (string.IsNullOrWhiteSpace(departmentName) || string.Equals(departmentName, AllDepartmentsOptionName, StringComparison.OrdinalIgnoreCase))
-				{
-						return null;
-				}
-
-				return departmentName;
-		}
+		private static string? NormalizeDepartmentName(string? departmentName) => string.IsNullOrWhiteSpace(departmentName) ? null : departmentName;
 
 		private void SetCurrentPayslipPeriod(DateOnly? referenceDate = null)
 		{
@@ -715,6 +678,16 @@ public partial class DashboardContentViewModel : BaseViewModel
 				if (!hasInitialized || suppressSelectionChanged)
 				{
 						return;
+				}
+
+				suppressSelectionChanged = true;
+				try
+				{
+						RefreshChargingOptions(SelectedCharging?.Id);
+				}
+				finally
+				{
+						suppressSelectionChanged = false;
 				}
 
 				_ = LoadDashboardAsync();
@@ -781,6 +754,32 @@ public partial class DashboardContentViewModel : BaseViewModel
 
 				MainThread.BeginInvokeOnMainThread(UpdateCommands);
 		}
+
+		private void RefreshChargingOptions(Guid? preferredChargingId = null)
+		{
+				IEnumerable<ChargingSummary> availableChargings = referenceDataService.Chargings;
+
+				if (SelectedDepartment is not null)
+				{
+						availableChargings = availableChargings.Where(charging => charging.DepartmentId == SelectedDepartment.Id);
+				}
+
+				List<ChargingSummary> filteredChargings = availableChargings.ToList();
+				if (filteredChargings.Count == 0)
+				{
+						filteredChargings = referenceDataService.Chargings.ToList();
+				}
+
+				ChargingOptions.Clear();
+				foreach (ChargingSummary charging in filteredChargings)
+				{
+						ChargingOptions.Add(charging);
+				}
+
+				SelectedCharging = preferredChargingId.HasValue
+						? ChargingOptions.FirstOrDefault(option => option.Id == preferredChargingId.Value) ?? ChargingOptions.FirstOrDefault()
+						: ChargingOptions.FirstOrDefault();
+		}
 }
 
 public class DepartmentPayrollCostSummary
@@ -804,12 +803,14 @@ public class ChargingPayrollGenerationSummary
 internal sealed record DashboardPayrollCacheKey(
 	TenantDto Tenant,
 	DateOnly PayrollPeriodStart,
-	DateOnly PayrollPeriodEnd);
+	DateOnly PayrollPeriodEnd,
+	string? ChargingName);
 
 internal sealed record DashboardTimesheetCacheKey(
 	TenantDto Tenant,
 	DateOnly PayrollPeriodStart,
-	DateOnly PayrollPeriodEnd);
+	DateOnly PayrollPeriodEnd,
+	string? ChargingName);
 
 internal sealed class DashboardComputationResult
 {
