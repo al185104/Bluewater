@@ -12,6 +12,8 @@ namespace Bluewater.App.ViewModels.Content;
 public partial class DashboardContentViewModel : BaseViewModel
 {
 		private const int BatchSize = 250;
+		private const string AllDepartmentsOptionName = "All Departments";
+		private const string AllChargingOptionName = "All Charging";
 		private readonly IEmployeeApiService employeeApiService;
 		private readonly IPayrollApiService payrollApiService;
 		private readonly ILeaveApiService leaveApiService;
@@ -170,7 +172,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 										DepartmentOptions.Add(new DepartmentSummary
 										{
 												Id = Guid.Empty,
-												Name = "All Departments",
+												Name = AllDepartmentsOptionName,
 												Description = string.Empty,
 												DivisionId = Guid.Empty
 										});
@@ -184,7 +186,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 										ChargingOptions.Add(new ChargingSummary
 										{
 												Id = Guid.Empty,
-												Name = "All Charging",
+												Name = AllChargingOptionName,
 												Description = string.Empty,
 												DepartmentId = Guid.Empty
 										});
@@ -235,16 +237,16 @@ public partial class DashboardContentViewModel : BaseViewModel
 						string? selectedChargingName = NormalizeChargingName(SelectedCharging?.Name);
 
 						Task<IReadOnlyList<EmployeeSummary>> employeesTask = LoadEmployeesForTenantAsync(SelectedTenant, linkedCancellationTokenSource.Token);
-						Task<IReadOnlyList<PayrollSummary>> payrollTask = LoadPayrollsInPeriodAsync(selectedChargingName, linkedCancellationTokenSource.Token);
+						Task<IReadOnlyList<PayrollSummary>> payrollTask = LoadPayrollsInPeriodAsync(linkedCancellationTokenSource.Token);
 						Task<IReadOnlyList<LeaveSummary>> leaveTask = leaveApiService.GetLeavesAsync(tenant: SelectedTenant, cancellationToken: linkedCancellationTokenSource.Token);
 						Task<IReadOnlyList<HolidaySummary>> holidayTask = holidayApiService.GetHolidaysAsync(cancellationToken: linkedCancellationTokenSource.Token);
 
 						await Task.WhenAll(employeesTask, payrollTask, leaveTask, holidayTask).ConfigureAwait(false);
 						linkedCancellationTokenSource.Token.ThrowIfCancellationRequested();
 
-						IReadOnlyList<EmployeeSummary> scopedEmployees = FilterByDepartment(employeesTask.Result, selectedDepartmentName);
-						IReadOnlyList<PayrollSummary> scopedPayrolls = FilterByDepartment(payrollTask.Result, selectedDepartmentName);
-						IReadOnlyList<LeaveSummary> scopedLeaves = FilterLeavesByEmployees(leaveTask.Result, scopedEmployees);
+						IReadOnlyList<EmployeeSummary> scopedEmployees = FilterEmployees(employeesTask.Result, selectedDepartmentName, selectedChargingName);
+						IReadOnlyList<PayrollSummary> scopedPayrolls = FilterPayrolls(payrollTask.Result, selectedDepartmentName, selectedChargingName);
+						IReadOnlyList<LeaveSummary> scopedLeaves = FilterLeaves(leaveTask.Result, scopedEmployees);
 
 						DashboardComputationResult result = ComputeDashboard(scopedEmployees, scopedPayrolls, scopedLeaves, holidayTask.Result, todayDate);
 						await ApplyDashboardResultAsync(result).ConfigureAwait(false);
@@ -312,9 +314,9 @@ public partial class DashboardContentViewModel : BaseViewModel
 				return cachedEmployees;
 		}
 
-		private async Task<IReadOnlyList<PayrollSummary>> LoadPayrollsInPeriodAsync(string? chargingName, CancellationToken cancellationToken)
+		private async Task<IReadOnlyList<PayrollSummary>> LoadPayrollsInPeriodAsync(CancellationToken cancellationToken)
 		{
-				DashboardPayrollCacheKey cacheKey = new(SelectedTenant, PayrollPeriodStart, PayrollPeriodEnd, chargingName);
+				DashboardPayrollCacheKey cacheKey = new(SelectedTenant, PayrollPeriodStart, PayrollPeriodEnd);
 				if (payrollCache.TryGetValue(cacheKey, out IReadOnlyList<PayrollSummary>? cachedPayrolls))
 				{
 						return cachedPayrolls;
@@ -326,7 +328,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 				while (true)
 				{
 						PagedResult<PayrollSummary> page = await payrollApiService
-							.GetPayrollsAsync(PayrollPeriodStart, PayrollPeriodEnd, chargingName: chargingName, skip: skip, take: BatchSize, tenant: SelectedTenant, cancellationToken: cancellationToken)
+							.GetPayrollsAsync(PayrollPeriodStart, PayrollPeriodEnd, skip: skip, take: BatchSize, tenant: SelectedTenant, cancellationToken: cancellationToken)
 							.ConfigureAwait(false);
 
 						if (page.Items.Count == 0)
@@ -347,39 +349,73 @@ public partial class DashboardContentViewModel : BaseViewModel
 				return payrolls;
 		}
 
-		private IReadOnlyList<EmployeeSummary> FilterByDepartment(IReadOnlyList<EmployeeSummary> source, string? department)
+		private static IReadOnlyList<EmployeeSummary> FilterEmployees(IReadOnlyList<EmployeeSummary> source, string? department, string? charging)
 		{
-				if (string.IsNullOrWhiteSpace(department))
+				if (string.IsNullOrWhiteSpace(department) && string.IsNullOrWhiteSpace(charging))
 				{
 						return source;
 				}
 
 				return source
-					.Where(employee => string.Equals(employee.Department, department, StringComparison.OrdinalIgnoreCase))
+					.Where(employee => MatchesDepartment(employee.Department, department)
+						&& MatchesCharging(employee.Charging, charging))
 					.ToList();
 		}
 
-		private IReadOnlyList<PayrollSummary> FilterByDepartment(IReadOnlyList<PayrollSummary> source, string? department)
+		private static IReadOnlyList<PayrollSummary> FilterPayrolls(IReadOnlyList<PayrollSummary> source, string? department, string? charging)
 		{
-				if (string.IsNullOrWhiteSpace(department))
+				if (string.IsNullOrWhiteSpace(department) && string.IsNullOrWhiteSpace(charging))
 				{
 						return source;
 				}
 
 				return source
-					.Where(payroll => string.Equals(payroll.Department, department, StringComparison.OrdinalIgnoreCase))
+					.Where(payroll => MatchesDepartment(payroll.Department, department)
+						&& MatchesCharging(payroll.Charging, charging))
 					.ToList();
 		}
 
-		private static IReadOnlyList<LeaveSummary> FilterLeavesByEmployees(IReadOnlyList<LeaveSummary> leaves, IReadOnlyList<EmployeeSummary> scopedEmployees)
+		private IReadOnlyList<LeaveSummary> FilterLeaves(IReadOnlyList<LeaveSummary> leaves, IReadOnlyList<EmployeeSummary> scopedEmployees)
 		{
 				HashSet<Guid> employeeIds = scopedEmployees
 					.Select(employee => employee.Id)
 					.ToHashSet();
 
 				return leaves
-					.Where(leave => leave.EmployeeId.HasValue && employeeIds.Contains(leave.EmployeeId.Value))
+					.Where(leave => leave.EmployeeId.HasValue
+						&& employeeIds.Contains(leave.EmployeeId.Value)
+						&& IsWithinSelectedPeriod(leave))
 					.ToList();
+		}
+
+		private bool IsWithinSelectedPeriod(LeaveSummary leave)
+		{
+				if (!leave.StartDate.HasValue || !leave.EndDate.HasValue)
+				{
+						return false;
+				}
+
+				DateOnly start = DateOnly.FromDateTime(leave.StartDate.Value);
+				DateOnly end = DateOnly.FromDateTime(leave.EndDate.Value);
+
+				if (end < start)
+				{
+						(start, end) = (end, start);
+				}
+
+				return start <= PayrollPeriodEnd && end >= PayrollPeriodStart;
+		}
+
+		private static bool MatchesDepartment(string? value, string? selectedDepartment)
+		{
+				return string.IsNullOrWhiteSpace(selectedDepartment)
+					|| string.Equals(value, selectedDepartment, StringComparison.OrdinalIgnoreCase);
+		}
+
+		private static bool MatchesCharging(string? value, string? selectedCharging)
+		{
+				return string.IsNullOrWhiteSpace(selectedCharging)
+					|| string.Equals(value, selectedCharging, StringComparison.OrdinalIgnoreCase);
 		}
 
 		private DashboardComputationResult ComputeDashboard(
@@ -414,7 +450,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 						TotalAbsences = payrolls.Sum(payroll => payroll.Absences),
 						TotalLateInstances = payrolls.Sum(payroll => payroll.Lates),
 						TotalUndertime = payrolls.Sum(payroll => payroll.Undertime),
-						LeaveMetrics = ComputeLeaveMetrics(leaves),
+						LeaveMetrics = ComputeLeaveMetrics(leaves, PayrollPeriodStart, PayrollPeriodEnd),
 						PayrollCostByDepartment = BuildDepartmentPayrollCostBreakdown(payrolls),
 						PayrollGeneratedStatusByCharging = BuildChargingPayrollGenerationBreakdown(payrolls),
 						UpcomingHolidays = upcomingHolidays
@@ -463,20 +499,20 @@ public partial class DashboardContentViewModel : BaseViewModel
 				return date >= PayrollPeriodStart && date <= PayrollPeriodEnd;
 		}
 
-		private static DashboardLeaveMetrics ComputeLeaveMetrics(IReadOnlyList<LeaveSummary> leaves)
+		private static DashboardLeaveMetrics ComputeLeaveMetrics(IReadOnlyList<LeaveSummary> leaves, DateOnly periodStart, DateOnly periodEnd)
 		{
 				IReadOnlyList<LeaveSummary> approvedLeaves = leaves
 					.Where(leave => leave.Status == ApplicationStatusDto.Approved)
 					.ToList();
 
-				decimal totalLeaveDaysTaken = approvedLeaves.Sum(CalculateLeaveDays);
+				decimal totalLeaveDaysTaken = approvedLeaves.Sum(leave => CalculateLeaveDaysWithinPeriod(leave, periodStart, periodEnd));
 				decimal sickLeaveDays = approvedLeaves
 					.Where(leave => IsMatchingLeaveType(leave.LeaveCreditName, "sick"))
-					.Sum(CalculateLeaveDays);
+					.Sum(leave => CalculateLeaveDaysWithinPeriod(leave, periodStart, periodEnd));
 
 				decimal vacationLeaveDays = approvedLeaves
 					.Where(leave => IsMatchingLeaveType(leave.LeaveCreditName, "vacation"))
-					.Sum(CalculateLeaveDays);
+					.Sum(leave => CalculateLeaveDaysWithinPeriod(leave, periodStart, periodEnd));
 
 				return new DashboardLeaveMetrics
 				{
@@ -526,22 +562,29 @@ public partial class DashboardContentViewModel : BaseViewModel
 					.ToList();
 		}
 
-		private static decimal CalculateLeaveDays(LeaveSummary leave)
+		private static decimal CalculateLeaveDaysWithinPeriod(LeaveSummary leave, DateOnly periodStart, DateOnly periodEnd)
 		{
 				if (!leave.StartDate.HasValue || !leave.EndDate.HasValue)
 				{
 						return 0m;
 				}
 
-				DateTime start = leave.StartDate.Value.Date;
-				DateTime end = leave.EndDate.Value.Date;
+				DateOnly start = DateOnly.FromDateTime(leave.StartDate.Value.Date);
+				DateOnly end = DateOnly.FromDateTime(leave.EndDate.Value.Date);
 
 				if (end < start)
 				{
 						(start, end) = (end, start);
 				}
 
-				decimal daySpan = (decimal)(end - start).TotalDays + 1m;
+				DateOnly clampedStart = start > periodStart ? start : periodStart;
+				DateOnly clampedEnd = end < periodEnd ? end : periodEnd;
+				if (clampedEnd < clampedStart)
+				{
+						return 0m;
+				}
+
+				decimal daySpan = clampedEnd.DayNumber - clampedStart.DayNumber + 1m;
 				return leave.IsHalfDay ? 0.5m : daySpan;
 		}
 
@@ -552,7 +595,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 
 		private static string? NormalizeChargingName(string? chargingName)
 		{
-				if (string.IsNullOrWhiteSpace(chargingName) || string.Equals(chargingName, "All Charging", StringComparison.OrdinalIgnoreCase))
+				if (string.IsNullOrWhiteSpace(chargingName) || string.Equals(chargingName, AllChargingOptionName, StringComparison.OrdinalIgnoreCase))
 				{
 						return null;
 				}
@@ -562,7 +605,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 
 		private static string? NormalizeDepartmentName(string? departmentName)
 		{
-				if (string.IsNullOrWhiteSpace(departmentName) || string.Equals(departmentName, "All Departments", StringComparison.OrdinalIgnoreCase))
+				if (string.IsNullOrWhiteSpace(departmentName) || string.Equals(departmentName, AllDepartmentsOptionName, StringComparison.OrdinalIgnoreCase))
 				{
 						return null;
 				}
@@ -704,8 +747,7 @@ public class ChargingPayrollGenerationSummary
 internal sealed record DashboardPayrollCacheKey(
 	TenantDto Tenant,
 	DateOnly PayrollPeriodStart,
-	DateOnly PayrollPeriodEnd,
-	string? ChargingName);
+	DateOnly PayrollPeriodEnd);
 
 internal sealed class DashboardComputationResult
 {
