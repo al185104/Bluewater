@@ -102,7 +102,10 @@ public partial class LeaveViewModel : BaseViewModel
 
 				EditableLeave.LeaveCreditId = SelectedLeaveCredit.Id;
 				EditableLeave.LeaveCreditName = SelectedLeaveCredit.Description;
-				EditableLeave.Status = ApplicationStatusDto.Pending;
+        EditableLeave.Status = ApplicationStatusDto.Pending;
+
+        if (string.IsNullOrEmpty(EditableLeave.EmployeeName))
+          EditableLeave.EmployeeName = SelectedEmployee!.FullName;
 
 				bool isNew = EditableLeave.Id == Guid.Empty;
 

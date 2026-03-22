@@ -595,8 +595,9 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				Chargings.Add(new ChargingSummary
 				{
 						Id = Guid.Empty,
-						Name = AllChargingName
-				});
+						Name = AllChargingName,
+            Description = AllChargingName
+        });
 
 				foreach (var charging in _referenceDataService.Chargings.OrderBy(c => c.Name, StringComparer.OrdinalIgnoreCase))
 				{
