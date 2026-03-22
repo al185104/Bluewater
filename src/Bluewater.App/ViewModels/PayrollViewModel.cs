@@ -1,5 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using Bluewater.App.Extensions;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
@@ -171,10 +173,7 @@ public partial class PayrollViewModel : BaseViewModel
 		[RelayCommand(CanExecute = nameof(CanSavePayrollPeriod))]
 		private async Task SavePayrollAsync()
 		{
-				IReadOnlyList<(PayrollSummary payroll, int index)> pendingPayrolls = Payrolls
-						.Select((payroll, index) => (payroll, index))
-						.Where(item => !item.payroll.IsSaved && item.payroll.EmployeeId.HasValue && item.payroll.EmployeeId.Value != Guid.Empty)
-						.ToList();
+				IReadOnlyList<(PayrollSummary payroll, int index)> pendingPayrolls = GetPendingPayrolls(Payrolls);
 
 				if (pendingPayrolls.Count == 0)
 				{
@@ -185,30 +184,23 @@ public partial class PayrollViewModel : BaseViewModel
 				{
 						IsBusy = true;
 
-						foreach ((PayrollSummary payroll, int index) pendingPayroll in pendingPayrolls)
-						{
-								Guid? newId = await payrollApiService.CreatePayrollAsync(pendingPayroll.payroll);
-								if (!newId.HasValue)
-								{
-										continue;
-								}
+						int savedCount = await SavePayrollEntriesAsync(pendingPayrolls).ConfigureAwait(false);
 
-								PayrollSummary result = await payrollApiService.GetPayrollByIdAsync(newId.Value) ?? pendingPayroll.payroll;
-								result.RowIndex = pendingPayroll.index;
-								Payrolls[pendingPayroll.index] = result;
-						}
-
-						UpdatePayrollRowIndexes();
 						EditablePayroll = CreateNewPayroll();
+						await LoadPayrollsAsync().ConfigureAwait(false);
 
-						await LoadPayrollsAsync();
-						//UpdatePayrollCommandStates();
-						await Snackbar.Make(
-								$"Saved {pendingPayrolls.Count} payroll record(s) for {PeriodRangeDisplay}.",
-								duration: TimeSpan.FromSeconds(3)
-						).Show();
+						await MainThread.InvokeOnMainThreadAsync(() =>
+								Snackbar.Make(
+										$"Saved {savedCount} payroll record(s) for {PeriodRangeDisplay}. Skipped {pendingPayrolls.Count - savedCount} record(s).",
+										duration: TimeSpan.FromSeconds(3))
+									.Show());
 
-						await TraceCommandAsync(nameof(SavePayrollAsync));
+						await TraceCommandAsync(nameof(SavePayrollAsync), new
+						{
+								Attempted = pendingPayrolls.Count,
+								Saved = savedCount,
+								Skipped = pendingPayrolls.Count - savedCount
+						}).ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
@@ -218,6 +210,152 @@ public partial class PayrollViewModel : BaseViewModel
 				{
 						IsBusy = false;
 						UpdatePayrollCommandStates();
+				}
+		}
+
+		[RelayCommand]
+		private async Task SubmitPayrollAsync(PayrollSummary? payroll)
+		{
+				if (IsBusy || payroll is null || payroll.IsSaved || !payroll.EmployeeId.HasValue || payroll.EmployeeId.Value == Guid.Empty)
+				{
+						return;
+				}
+
+				int index = Payrolls.IndexOf(payroll);
+				if (index < 0)
+				{
+						return;
+				}
+
+				try
+				{
+						IsBusy = true;
+
+						int savedCount = await SavePayrollEntriesAsync([(payroll, index)]).ConfigureAwait(false);
+
+						await RefreshPayrollPeriodCompletionStateAsync().ConfigureAwait(false);
+						UpdatePayrollCommandStates();
+
+						if (savedCount > 0)
+						{
+								await MainThread.InvokeOnMainThreadAsync(() =>
+										Snackbar.Make($"Submitted payroll entry for {payroll.Name}.", duration: TimeSpan.FromSeconds(3)).Show());
+						}
+
+						await TraceCommandAsync(nameof(SubmitPayrollAsync), new
+						{
+								payroll.Id,
+								payroll.EmployeeId,
+								Saved = savedCount > 0
+						}).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Submitting payroll entry");
+				}
+				finally
+				{
+						IsBusy = false;
+						UpdatePayrollCommandStates();
+				}
+		}
+
+		[RelayCommand(CanExecute = nameof(CanDownloadPayrollPeriod))]
+		private async Task DownloadPayrollsAsync()
+		{
+				if (IsBusy)
+				{
+						return;
+				}
+
+				try
+				{
+						PagedResult<PayrollSummary> payrollPeriod = await payrollApiService
+								.GetPayrollsAsync(StartDate, EndDate, ChargingFilter)
+								.ConfigureAwait(false);
+
+						if (payrollPeriod.TotalCount == 0 || payrollPeriod.Items.Count == 0)
+						{
+								await MainThread.InvokeOnMainThreadAsync(() =>
+										Shell.Current.DisplayAlert("Download", "No payroll records to download.", "Okay"));
+								return;
+						}
+
+						string chargingName = string.IsNullOrWhiteSpace(ChargingFilter) ? "All" : ChargingFilter;
+						bool confirmed = await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.DisplayAlert(
+								"Download payroll",
+								$"Download {chargingName} payroll records for {PeriodRangeDisplay} to your Downloads folder?",
+								"Yes",
+								"No"));
+
+						if (!confirmed)
+						{
+								return;
+						}
+
+						IsBusy = true;
+
+						StringBuilder csv = new();
+						csv.AppendLine(string.Join(",", new[]
+						{
+								"Employee",
+								"Barcode",
+								"Department",
+								"Section",
+								"Position",
+								"Charging",
+								"Date",
+								"Gross Pay",
+								"Net Pay",
+								"Tax",
+								"Deductions",
+								"Saved"
+						}));
+
+						foreach (PayrollSummary item in payrollPeriod.Items.OrderBy(item => item.Name).ThenBy(item => item.Date))
+						{
+								csv.AppendLine(string.Join(",", new[]
+								{
+										EscapeCsv(item.Name),
+										EscapeCsv(item.Barcode),
+										EscapeCsv(item.Department),
+										EscapeCsv(item.Section),
+										EscapeCsv(item.Position),
+										EscapeCsv(item.Charging),
+										EscapeCsv(item.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+										EscapeCsv(item.GrossPayAmount.ToString("0.00", CultureInfo.InvariantCulture)),
+										EscapeCsv(item.NetAmount.ToString("0.00", CultureInfo.InvariantCulture)),
+										EscapeCsv(item.TaxDeductions.ToString("0.00", CultureInfo.InvariantCulture)),
+										EscapeCsv(item.TotalDeductions.ToString("0.00", CultureInfo.InvariantCulture)),
+										EscapeCsv(item.IsSaved ? "Yes" : "No")
+								}));
+						}
+
+						string fileName = $"payroll_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
+						string downloadsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
+						Directory.CreateDirectory(downloadsDirectory);
+						string filePath = Path.Combine(downloadsDirectory, fileName);
+						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8).ConfigureAwait(false);
+
+						await MainThread.InvokeOnMainThreadAsync(() =>
+								Shell.Current.DisplayAlert("Download", $"Payroll downloaded to {filePath}", "Okay"));
+
+						await TraceCommandAsync(nameof(DownloadPayrollsAsync), new
+						{
+								StartDate,
+								EndDate,
+								Charging = chargingName,
+								RecordCount = payrollPeriod.Items.Count,
+								FileName = fileName
+						}).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Downloading payroll");
+				}
+				finally
+				{
+						IsBusy = false;
 				}
 		}
 
@@ -282,10 +420,9 @@ public partial class PayrollViewModel : BaseViewModel
 								}
 
 								payrollCountInPeriod = page.TotalCount;
-								hasPendingPayrollsInPeriod = Payrolls.Any(payroll => !payroll.IsSaved);
 						});
 
-						//await RefreshPayrollPeriodCompletionStateAsync();
+						await RefreshPayrollPeriodCompletionStateAsync().ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
@@ -365,6 +502,56 @@ public partial class PayrollViewModel : BaseViewModel
 		}
 
 
+		private static IReadOnlyList<(PayrollSummary payroll, int index)> GetPendingPayrolls(IEnumerable<PayrollSummary> payrolls)
+		{
+				return payrolls
+						.Select((payroll, index) => (payroll, index))
+						.Where(item => !item.payroll.IsSaved && item.payroll.EmployeeId.HasValue && item.payroll.EmployeeId.Value != Guid.Empty)
+						.ToList();
+		}
+
+		private async Task<int> SavePayrollEntriesAsync(IReadOnlyList<(PayrollSummary payroll, int index)> payrollEntries)
+		{
+				int savedCount = 0;
+
+				foreach ((PayrollSummary payroll, int index) payrollEntry in payrollEntries)
+				{
+						if (payrollEntry.payroll.IsSaved)
+						{
+								continue;
+						}
+
+						Guid? newId = await payrollApiService.CreatePayrollAsync(payrollEntry.payroll).ConfigureAwait(false);
+						if (!newId.HasValue)
+						{
+								continue;
+						}
+
+						PayrollSummary result = await payrollApiService.GetPayrollByIdAsync(newId.Value).ConfigureAwait(false) ?? payrollEntry.payroll;
+						result.RowIndex = payrollEntry.index;
+						await MainThread.InvokeOnMainThreadAsync(() => Payrolls[payrollEntry.index] = result);
+						savedCount++;
+				}
+
+				await MainThread.InvokeOnMainThreadAsync(UpdatePayrollRowIndexes);
+				return savedCount;
+		}
+
+		private static string EscapeCsv(string? value)
+		{
+				if (string.IsNullOrEmpty(value))
+				{
+						return string.Empty;
+				}
+
+				if (value.Contains(',') || value.Contains('"') || value.Contains("\n", StringComparison.Ordinal) || value.Contains("\r", StringComparison.Ordinal))
+				{
+						return $"\"{value.Replace("\"", "\"\"")}\"";
+				}
+
+				return value;
+		}
+
 		private void UpdatePayrollRowIndexes()
 		{
 				Payrolls.UpdateRowIndexes();
@@ -400,7 +587,7 @@ public partial class PayrollViewModel : BaseViewModel
 
 		private async Task RefreshPayrollPeriodCompletionStateAsync()
 		{
-				PagedResult<PayrollSummary> payrollPeriodState = await payrollApiService.GetPayrollsAsync(StartDate, EndDate)
+				PagedResult<PayrollSummary> payrollPeriodState = await payrollApiService.GetPayrollsAsync(StartDate, EndDate, ChargingFilter)
 						.ConfigureAwait(false);
 
 				payrollCountInPeriod = payrollPeriodState.TotalCount;

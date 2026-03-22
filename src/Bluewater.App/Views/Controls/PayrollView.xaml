@@ -38,6 +38,7 @@
 					FontSize="14"
 					VerticalOptions="End"
 					IsEnabled="{Binding CanDownloadPayrollPeriod}"
+					Command="{Binding DownloadPayrollsCommand}"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 					Style="{StaticResource SecondaryButtonStyle}" />
 			<Button Grid.Column="4"
@@ -165,6 +166,9 @@
                                     <MenuFlyout>
                                         <MenuFlyoutItem Text="Edit"
                                                         Command="{Binding Source={x:Reference PayrollViewRoot}, Path=BindingContext.BeginEditPayrollCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                        <MenuFlyoutItem Text="Submit"
+                                                        Command="{Binding Source={x:Reference PayrollViewRoot}, Path=BindingContext.SubmitPayrollCommand}"
                                                         CommandParameter="{Binding .}" />
                                         <!--<MenuFlyoutItem Text="Delete"
                                                         Command="{Binding Source={x:Reference PayrollViewRoot}, Path=BindingContext.DeletePayrollCommand}"
