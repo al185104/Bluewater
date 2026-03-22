@@ -9,9 +9,10 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
 		public async Task<PagedResult<EmployeeSummary>> GetEmployeesAsync(
 			int? skip = null,
 			int? take = null,
-			CancellationToken cancellationToken = default)
+			CancellationToken cancellationToken = default,
+			TenantDto? tenant = null)
 		{
-				TenantDto selectedTenant = TenantPreferences.GetSelectedTenant();
+				TenantDto selectedTenant = tenant ?? TenantPreferences.GetSelectedTenant();
 
 				string requestUri = BuildRequestUri(skip, take, selectedTenant);
 

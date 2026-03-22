@@ -7,7 +7,8 @@ public interface IEmployeeApiService
   Task<PagedResult<EmployeeSummary>> GetEmployeesAsync(
     int? skip = null,
     int? take = null,
-    CancellationToken cancellationToken = default);
+    CancellationToken cancellationToken = default,
+    TenantDto? tenant = null);
 
   Task<EmployeeSummary?> UpdateEmployeeAsync(
     UpdateEmployeeRequestDto request,
