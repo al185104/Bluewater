@@ -33,12 +33,12 @@
 									 VerticalOptions="End">
 							<Picker WidthRequest="220"
 									ItemsSource="{Binding ChargingOptions}"
-									SelectedItem="{Binding SelectedCharging}"
+									SelectedItem="{Binding SelectedCharging, Mode=TwoWay}"
 									ItemDisplayBinding="{Binding Name}"
 									Title="Charging" />
 							<Picker WidthRequest="220"
 									ItemsSource="{Binding DepartmentOptions}"
-									SelectedItem="{Binding SelectedDepartment}"
+									SelectedItem="{Binding SelectedDepartment, Mode=TwoWay}"
 									ItemDisplayBinding="{Binding Name}"
 									Title="Department" />
 					</HorizontalStackLayout>
