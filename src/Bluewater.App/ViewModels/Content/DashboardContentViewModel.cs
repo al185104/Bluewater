@@ -16,11 +16,13 @@ public partial class DashboardContentViewModel : BaseViewModel
 		private const string AllChargingOptionName = "All Charging";
 		private readonly IEmployeeApiService employeeApiService;
 		private readonly IPayrollApiService payrollApiService;
+		private readonly ITimesheetApiService timesheetApiService;
 		private readonly ILeaveApiService leaveApiService;
 		private readonly IHolidayApiService holidayApiService;
 		private readonly IReferenceDataService referenceDataService;
 		private readonly SemaphoreSlim dashboardLoadSemaphore = new(1, 1);
 		private readonly Dictionary<DashboardPayrollCacheKey, IReadOnlyList<PayrollSummary>> payrollCache = [];
+		private readonly Dictionary<DashboardTimesheetCacheKey, IReadOnlyList<EmployeeTimesheetSummary>> timesheetCache = [];
 		private CancellationTokenSource? dashboardLoadCancellationTokenSource;
 		private IReadOnlyList<EmployeeSummary> cachedEmployees = Array.Empty<EmployeeSummary>();
 		private TenantDto? cachedEmployeesTenant;
@@ -30,6 +32,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 		public DashboardContentViewModel(
 			IEmployeeApiService employeeApiService,
 			IPayrollApiService payrollApiService,
+			ITimesheetApiService timesheetApiService,
 			ILeaveApiService leaveApiService,
 			IHolidayApiService holidayApiService,
 			IReferenceDataService referenceDataService,
@@ -39,6 +42,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 		{
 				this.employeeApiService = employeeApiService;
 				this.payrollApiService = payrollApiService;
+				this.timesheetApiService = timesheetApiService;
 				this.leaveApiService = leaveApiService;
 				this.holidayApiService = holidayApiService;
 				this.referenceDataService = referenceDataService;
@@ -237,19 +241,21 @@ public partial class DashboardContentViewModel : BaseViewModel
 						string? selectedChargingName = NormalizeChargingName(SelectedCharging?.Name);
 
 						Task<IReadOnlyList<EmployeeSummary>> employeesTask = LoadEmployeesForTenantAsync(SelectedTenant, linkedCancellationTokenSource.Token);
-						Task<IReadOnlyList<PayrollSummary>> payrollTask = LoadPayrollsInPeriodAsync(linkedCancellationTokenSource.Token);
-						Task<IReadOnlyList<LeaveSummary>> leaveTask = leaveApiService.GetLeavesAsync(tenant: SelectedTenant, cancellationToken: linkedCancellationTokenSource.Token);
-						Task<IReadOnlyList<HolidaySummary>> holidayTask = holidayApiService.GetHolidaysAsync(cancellationToken: linkedCancellationTokenSource.Token);
+					Task<IReadOnlyList<PayrollSummary>> payrollTask = LoadPayrollsInPeriodAsync(linkedCancellationTokenSource.Token);
+					Task<IReadOnlyList<EmployeeTimesheetSummary>> timesheetTask = LoadTimesheetsInPeriodAsync(linkedCancellationTokenSource.Token);
+					Task<IReadOnlyList<LeaveSummary>> leaveTask = leaveApiService.GetLeavesAsync(tenant: SelectedTenant, cancellationToken: linkedCancellationTokenSource.Token);
+					Task<IReadOnlyList<HolidaySummary>> holidayTask = holidayApiService.GetHolidaysAsync(cancellationToken: linkedCancellationTokenSource.Token);
 
-						await Task.WhenAll(employeesTask, payrollTask, leaveTask, holidayTask).ConfigureAwait(false);
-						linkedCancellationTokenSource.Token.ThrowIfCancellationRequested();
+					await Task.WhenAll(employeesTask, payrollTask, timesheetTask, leaveTask, holidayTask).ConfigureAwait(false);
+					linkedCancellationTokenSource.Token.ThrowIfCancellationRequested();
 
-						IReadOnlyList<EmployeeSummary> scopedEmployees = FilterEmployees(employeesTask.Result, selectedDepartmentName, selectedChargingName);
-						IReadOnlyList<PayrollSummary> scopedPayrolls = FilterPayrolls(payrollTask.Result, selectedDepartmentName, selectedChargingName);
-						IReadOnlyList<LeaveSummary> scopedLeaves = FilterLeaves(leaveTask.Result, scopedEmployees);
+					IReadOnlyList<EmployeeSummary> scopedEmployees = FilterEmployees(employeesTask.Result, selectedDepartmentName, selectedChargingName);
+					IReadOnlyList<PayrollSummary> scopedPayrolls = FilterPayrolls(payrollTask.Result, selectedDepartmentName, selectedChargingName);
+					IReadOnlyList<EmployeeTimesheetSummary> scopedTimesheets = FilterTimesheets(timesheetTask.Result, selectedDepartmentName, selectedChargingName);
+					IReadOnlyList<LeaveSummary> scopedLeaves = FilterLeaves(leaveTask.Result, scopedEmployees);
 
-						DashboardComputationResult result = ComputeDashboard(scopedEmployees, scopedPayrolls, scopedLeaves, holidayTask.Result, todayDate);
-						await ApplyDashboardResultAsync(result).ConfigureAwait(false);
+					DashboardComputationResult result = ComputeDashboard(scopedEmployees, scopedPayrolls, scopedTimesheets, scopedLeaves, holidayTask.Result, todayDate);
+					await ApplyDashboardResultAsync(result).ConfigureAwait(false);
 				}
 				catch (OperationCanceledException)
 				{
@@ -349,6 +355,42 @@ public partial class DashboardContentViewModel : BaseViewModel
 				return payrolls;
 		}
 
+
+		private async Task<IReadOnlyList<EmployeeTimesheetSummary>> LoadTimesheetsInPeriodAsync(CancellationToken cancellationToken)
+		{
+				DashboardTimesheetCacheKey cacheKey = new(SelectedTenant, PayrollPeriodStart, PayrollPeriodEnd);
+				if (timesheetCache.TryGetValue(cacheKey, out IReadOnlyList<EmployeeTimesheetSummary>? cachedTimesheets))
+				{
+						return cachedTimesheets;
+				}
+
+				List<EmployeeTimesheetSummary> timesheets = [];
+				int skip = 0;
+
+				while (true)
+				{
+						PagedResult<EmployeeTimesheetSummary> page = await timesheetApiService
+							.GetTimesheetSummariesAsync(null, PayrollPeriodStart, PayrollPeriodEnd, SelectedTenant, skip: skip, take: BatchSize, cancellationToken: cancellationToken)
+							.ConfigureAwait(false);
+
+						if (page.Items.Count == 0)
+						{
+								break;
+						}
+
+						timesheets.AddRange(page.Items);
+						skip += page.Items.Count;
+
+						if (timesheets.Count >= page.TotalCount)
+						{
+								break;
+						}
+				}
+
+				timesheetCache[cacheKey] = timesheets;
+				return timesheets;
+		}
+
 		private static IReadOnlyList<EmployeeSummary> FilterEmployees(IReadOnlyList<EmployeeSummary> source, string? department, string? charging)
 		{
 				if (string.IsNullOrWhiteSpace(department) && string.IsNullOrWhiteSpace(charging))
@@ -372,6 +414,19 @@ public partial class DashboardContentViewModel : BaseViewModel
 				return source
 					.Where(payroll => MatchesDepartment(payroll.Department, department)
 						&& MatchesCharging(payroll.Charging, charging))
+					.ToList();
+		}
+
+		private static IReadOnlyList<EmployeeTimesheetSummary> FilterTimesheets(IReadOnlyList<EmployeeTimesheetSummary> source, string? department, string? charging)
+		{
+				if (string.IsNullOrWhiteSpace(department) && string.IsNullOrWhiteSpace(charging))
+				{
+						return source;
+				}
+
+				return source
+					.Where(timesheet => MatchesDepartment(timesheet.Department, department)
+						&& MatchesCharging(timesheet.Charging, charging))
 					.ToList();
 		}
 
@@ -421,6 +476,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 		private DashboardComputationResult ComputeDashboard(
 			IReadOnlyList<EmployeeSummary> employees,
 			IReadOnlyList<PayrollSummary> payrolls,
+			IReadOnlyList<EmployeeTimesheetSummary> timesheets,
 			IReadOnlyList<LeaveSummary> leaves,
 			IReadOnlyList<HolidaySummary> holidays,
 			DateOnly todayDate)
@@ -440,7 +496,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 								DateTime? dateTerminated = employee.EmploymentInfo.DateTerminated;
 								return dateTerminated.HasValue && IsWithinPeriod(DateOnly.FromDateTime(dateTerminated.Value));
 						}),
-						TotalWorkHoursLogged = payrolls.Sum(payroll => payroll.LaborHrs),
+						TotalWorkHoursLogged = timesheets.Sum(timesheet => timesheet.TotalWorkHours),
 						TotalOvertimeHours = payrolls.Sum(payroll =>
 							payroll.OvertimeHrs
 							+ payroll.OvertimeRestDayHrs
@@ -706,6 +762,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 		private void ClearPayrollCache()
 		{
 				payrollCache.Clear();
+				timesheetCache.Clear();
 		}
 
 		private void RaisePeriodNavigationState()
@@ -745,6 +802,11 @@ public class ChargingPayrollGenerationSummary
 }
 
 internal sealed record DashboardPayrollCacheKey(
+	TenantDto Tenant,
+	DateOnly PayrollPeriodStart,
+	DateOnly PayrollPeriodEnd);
+
+internal sealed record DashboardTimesheetCacheKey(
 	TenantDto Tenant,
 	DateOnly PayrollPeriodStart,
 	DateOnly PayrollPeriodEnd);

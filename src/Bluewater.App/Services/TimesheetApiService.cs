@@ -56,7 +56,7 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
   }
 
   public async Task<PagedResult<EmployeeTimesheetSummary>> GetTimesheetSummariesAsync(
-    string charging,
+    string? charging,
     DateOnly startDate,
     DateOnly endDate,
     TenantDto tenant,
@@ -64,11 +64,6 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
     int? take = null,
     CancellationToken cancellationToken = default)
   {
-    if (string.IsNullOrWhiteSpace(charging))
-    {
-      throw new ArgumentException("Charging must be provided", nameof(charging));
-    }
-
     TenantDto selectedTenant = TenantPreferences.GetSelectedTenant();
     string requestUri = BuildListAllRequestUri(startDate, endDate, selectedTenant, skip, take, charging);
 

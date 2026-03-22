@@ -18,7 +18,7 @@ public interface ITimesheetApiService
     CancellationToken cancellationToken = default);
 
   Task<PagedResult<EmployeeTimesheetSummary>> GetTimesheetSummariesAsync(
-    string charging,
+    string? charging,
     DateOnly startDate,
     DateOnly endDate,
     TenantDto tenant,
