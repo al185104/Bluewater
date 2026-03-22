@@ -377,11 +377,10 @@ public partial class DashboardContentViewModel : BaseViewModel
 						return source;
 				}
 
-				return source
-					.Where(employee => MatchesDepartment(employee.Department, department)
-						&& MatchesCharging(employee.Charging, charging))
-					.ToList();
-		}
+        return source
+          .Where(employee => MatchesCharging(employee.Charging, charging))
+          .ToList();
+  }
 
 		private static IReadOnlyList<PayrollSummary> FilterPayrolls(IReadOnlyList<PayrollSummary> source, string? department, string? charging)
 		{
@@ -390,11 +389,10 @@ public partial class DashboardContentViewModel : BaseViewModel
 						return source;
 				}
 
-				return source
-					.Where(payroll => MatchesDepartment(payroll.Department, department)
-						&& MatchesCharging(payroll.Charging, charging))
-					.ToList();
-		}
+        return source
+          .Where(payroll => MatchesCharging(payroll.Charging, charging))
+          .ToList();
+  }
 
 		private static IReadOnlyList<EmployeeTimesheetSummary> FilterTimesheets(IReadOnlyList<EmployeeTimesheetSummary> source, string? department, string? charging)
 		{
@@ -403,11 +401,10 @@ public partial class DashboardContentViewModel : BaseViewModel
 						return source;
 				}
 
-				return source
-					.Where(timesheet => MatchesDepartment(timesheet.Department, department)
-						&& MatchesCharging(timesheet.Charging, charging))
-					.ToList();
-		}
+        return source
+        .Where(timesheet => MatchesCharging(timesheet.Charging, charging))
+        .ToList();
+    }
 
 		private IReadOnlyList<LeaveSummary> FilterLeaves(IReadOnlyList<LeaveSummary> leaves, IReadOnlyList<EmployeeSummary> scopedEmployees)
 		{
@@ -542,11 +539,11 @@ public partial class DashboardContentViewModel : BaseViewModel
 
 				decimal totalLeaveDaysTaken = approvedLeaves.Sum(leave => CalculateLeaveDaysWithinPeriod(leave, periodStart, periodEnd));
 				decimal sickLeaveDays = approvedLeaves
-					.Where(leave => IsMatchingLeaveType(leave.LeaveCreditName, "sick"))
+					.Where(leave => IsMatchingLeaveType(leave.LeaveCreditName, "sl"))
 					.Sum(leave => CalculateLeaveDaysWithinPeriod(leave, periodStart, periodEnd));
 
 				decimal vacationLeaveDays = approvedLeaves
-					.Where(leave => IsMatchingLeaveType(leave.LeaveCreditName, "vacation"))
+					.Where(leave => IsMatchingLeaveType(leave.LeaveCreditName, "vl"))
 					.Sum(leave => CalculateLeaveDaysWithinPeriod(leave, periodStart, periodEnd));
 
 				return new DashboardLeaveMetrics
