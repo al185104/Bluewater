@@ -227,13 +227,13 @@ public class Payroll : EntityBase<Guid>, IAggregateRoot
     // need to filter this. some parameters may be assigned directly.
     public void UpdatePayrollByAttendance(
         string type, 
-        decimal basicPay, decimal dailyRate, decimal hourlyRate, decimal hdmfCon, decimal hdmfEr, 
+        decimal basicPay, decimal dailyRate, decimal hourlyRate, decimal hdmfCon, decimal hdmfEr,
         decimal totalWorkHours, decimal totalLateHrs, decimal totalUnderHrs, decimal totalOverbreakHrs, decimal totalNightShiftHrs, decimal totalLeaves,
         decimal restDayHrs, decimal regularHolidayHrs, decimal specialHolidayHrs, decimal overtimeHrs, decimal nightOtHrs, decimal nightRegHolHrs, decimal nightSpecHolHrs, decimal otRestDayHrs, decimal otRegHolHrs, decimal otSpHolHrs,
         decimal cola, decimal monal, decimal salun, decimal refabs, decimal refut, decimal refot,
-        int absences, decimal totalMonthlyAmortization)
+        int absences, decimal totalMonthlyAmortization, bool hasScheduledWork)
     {
-        BasicPayAmount = basicPay;
+        BasicPayAmount = hasScheduledWork ? basicPay : 0;
         LaborHoursIncome = BasicPayAmount / 2; // semi-monthly
         LaborHrs = totalWorkHours;
 
@@ -283,7 +283,7 @@ public class Payroll : EntityBase<Guid>, IAggregateRoot
         OverbreakAmount = Math.Round(totalOverbreakHrs * hourlyRate, 2);
 
         Leaves = totalLeaves;
-        LeavesAmount = Math.Round(totalLeaves * dailyRate, 2);
+        LeavesAmount = 0;
 
         GrossPayAmount = LaborHoursIncome
         /*premiums*/ + RestDayAmount + RegularHolidayAmount + SpecialHolidayAmount + OvertimeAmount + NightDiffAmount + NightDiffOvertimeAmount + NightDiffRegularHolidayAmount + NightDiffSpecialHolidayAmount + OvertimeRestDayAmount + OvertimeRegularHolidayAmount + OvertimeSpecialHolidayAmount
@@ -296,10 +296,10 @@ public class Payroll : EntityBase<Guid>, IAggregateRoot
         // + contant deductions
         PagibigAmount = Date.Day == 25 ? 0 : Math.Round(hdmfCon, 2);
         PagibigERAmount = Date.Day == 25 ? 0 : Math.Round(hdmfEr, 2);
-        PhilhealthAmount = Date.Day == 25 ? 0 : Math.Round(basicPay * 0.05m / 2, 2);
+        PhilhealthAmount = Date.Day == 25 ? 0 : Math.Round(BasicPayAmount * 0.05m / 2, 2);
         PhilhealthERAmount = Date.Day == 25 ? 0 : PhilhealthAmount;
 
-        (decimal ER, decimal EE) = CompensationLookup.FindValuesByCompensation(basicPay);
+        (decimal ER, decimal EE) = CompensationLookup.FindValuesByCompensation(BasicPayAmount);
         SSSAmount = Date.Day != 25 ? 0 : Math.Round(EE);
         SSSERAmount = Date.Day != 25 ? 0 : Math.Round(ER);
         // - constant deductions

@@ -142,6 +142,11 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
       
       var totalMonthlyAmortization = deductions.Where(s => s.EmpId == empId).Sum(i => i.MonthlyAmortization);
 
+      var hasScheduledWork = attendance.Attendances.Any(s =>
+        s.ShiftId.HasValue
+        && s.Shift != null
+        && !s.Shift.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase));
+
       var monal = otherEarnings.Where(s => s.EmpId == empId && s.EarningType == OtherEarningTypeDTO.MONAL).Sum(i => i.TotalAmount);
       var salun = otherEarnings.Where(s => s.EmpId == empId && s.EarningType == OtherEarningTypeDTO.SALUN).Sum(i => i.TotalAmount);
       var refabs = otherEarnings.Where(s => s.EmpId == empId && s.EarningType == OtherEarningTypeDTO.REFABS).Sum(i => i.TotalAmount);
@@ -195,7 +200,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
           totalWorkHours: attendance.TotalWorkHrs, totalLateHrs: attendance.TotalLateHrs, totalUnderHrs: attendance.TotalUnderHrs, attendance.TotalOverbreakHrs, attendance.TotalNightShiftHrs, totalLeaves: attendance.TotalLeaves,
           restDayHrs: restDayHrs ?? 0, regularHolidayHrs: regularHolidayHrs ?? 0, specialHolidayHrs: specialHolidayHrs ?? 0, overtimeHrs: overtimeApprovedHrs ?? 0, nightOtHrs: nightOtHrs, nightRegHolHrs: nightRegHolHrs ?? 0, nightSpecHolHrs: nightSpecHolHrs ?? 0, otRestDayHrs: otRestDayHrs ?? 0, otRegHolHrs: otRegHolHrs ?? 0, otSpHolHrs: otSpHolHrs ?? 0,
           /*other earnings*/ cola: pay?.Cola ?? 0, monal: monal ?? 0, salun: salun ?? 0, refabs: refabs ?? 0, refut: refut ?? 0, refot: refot ?? 0, 
-          /*deductions*/ absences: absences, totalMonthlyAmortization: totalMonthlyAmortization ?? 0);
+          /*deductions*/ absences: absences, totalMonthlyAmortization: totalMonthlyAmortization ?? 0, hasScheduledWork: hasScheduledWork);
       }
       else {
         name = $"{payroll.Employee?.LastName}, {payroll.Employee?.FirstName}";
