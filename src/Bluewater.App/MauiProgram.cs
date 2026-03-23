@@ -91,6 +91,7 @@ public static class MauiProgram
 				builder.Services.AddSingleton<ILevelApiService, LevelApiService>();
 				builder.Services.AddSingleton<ILeaveCreditApiService, LeaveCreditApiService>();
 				builder.Services.AddSingleton<ILeaveApiService, LeaveApiService>();
+				builder.Services.AddSingleton<IDeductionApiService, DeductionApiService>();
 				builder.Services.AddSingleton<IAttendanceApiService, AttendanceApiService>();
 				builder.Services.AddSingleton<ITimesheetApiService, TimesheetApiService>();
 				builder.Services.AddSingleton<IPayrollApiService, PayrollApiService>();
@@ -107,6 +108,7 @@ public static class MauiProgram
 				// viewmodels
 				builder.Services.AddTransient<AttendanceViewModel>();
 				builder.Services.AddTransient<EmployeeViewModel>();
+				builder.Services.AddTransient<FormsViewModel>();
 				builder.Services.AddTransient<HomeViewModel>();
 				builder.Services.AddTransient<LeaveViewModel>();
 				builder.Services.AddTransient<LoginViewModel>();
