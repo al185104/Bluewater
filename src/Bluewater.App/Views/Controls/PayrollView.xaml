@@ -53,6 +53,8 @@
 
         <CollectionView Grid.Row="1"
                         ItemsSource="{Binding Payrolls}"
+                        SelectedItem="{Binding SelectedPayroll, Mode=TwoWay}"
+                        SelectionMode="Single"
                         ItemsUpdatingScrollMode="KeepScrollOffset">
             <CollectionView.Header>
                 <Grid ColumnSpacing="12"

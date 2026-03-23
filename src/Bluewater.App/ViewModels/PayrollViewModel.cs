@@ -227,6 +227,8 @@ public partial class PayrollViewModel : BaseViewModel
 						return;
 				}
 
+				SelectedPayroll = payroll;
+
 				try
 				{
 						IsBusy = true;
@@ -238,8 +240,15 @@ public partial class PayrollViewModel : BaseViewModel
 
 						if (savedCount > 0)
 						{
+								PayrollSummary refreshedPayroll = Payrolls[index];
+								SelectedPayroll = refreshedPayroll;
+								if (ReferenceEquals(EditablePayroll, payroll))
+								{
+										EditablePayroll = refreshedPayroll;
+								}
+
 								await MainThread.InvokeOnMainThreadAsync(() =>
-										Snackbar.Make($"Submitted payroll entry for {payroll.Name}.", duration: TimeSpan.FromSeconds(3)).Show());
+										Snackbar.Make($"Submitted payroll entry for {refreshedPayroll.Name}.", duration: TimeSpan.FromSeconds(3)).Show());
 						}
 
 						await TraceCommandAsync(nameof(SubmitPayrollAsync), new
@@ -529,12 +538,28 @@ public partial class PayrollViewModel : BaseViewModel
 
 						PayrollSummary result = await payrollApiService.GetPayrollByIdAsync(newId.Value).ConfigureAwait(false) ?? payrollEntry.payroll;
 						result.RowIndex = payrollEntry.index;
-						await MainThread.InvokeOnMainThreadAsync(() => Payrolls[payrollEntry.index] = result);
+						await MainThread.InvokeOnMainThreadAsync(() => ReplacePayrollAtIndex(payrollEntry.index, payrollEntry.payroll, result));
 						savedCount++;
 				}
 
 				await MainThread.InvokeOnMainThreadAsync(UpdatePayrollRowIndexes);
 				return savedCount;
+		}
+
+
+		private void ReplacePayrollAtIndex(int index, PayrollSummary previousPayroll, PayrollSummary refreshedPayroll)
+		{
+				Payrolls[index] = refreshedPayroll;
+
+				if (ReferenceEquals(SelectedPayroll, previousPayroll))
+				{
+						SelectedPayroll = refreshedPayroll;
+				}
+
+				if (ReferenceEquals(EditablePayroll, previousPayroll))
+				{
+						EditablePayroll = refreshedPayroll;
+				}
 		}
 
 		private static string EscapeCsv(string? value)
