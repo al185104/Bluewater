@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Bluewater.App.Exceptions;
 using Bluewater.App.Interfaces;
+using Bluewater.Core.Serialization;
 
 namespace Bluewater.App.Services;
 
@@ -16,10 +17,10 @@ public class ApiClient(HttpClient httpClient) : IApiClient
     "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
     RegexOptions.Compiled);
 
-  private static readonly JsonSerializerOptions JsonOptions = new()
+  private static readonly JsonSerializerOptions JsonOptions = new JsonSerializerOptions
   {
     PropertyNameCaseInsensitive = true
-  };
+  }.UseUpperCaseGuids();
 
   public async Task<T?> GetAsync<T>(string requestUri, CancellationToken cancellationToken = default)
   {

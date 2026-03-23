@@ -29,6 +29,7 @@ using Bluewater.Core.PayrollAggregate;
 using Bluewater.Core.ServiceChargeAggregate;
 using Bluewater.Core.MealCreditAggregate;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Bluewater.Infrastructure.Data.Converters;
 
 namespace Bluewater.Infrastructure.Data;
 public class AppDbContext : IdentityDbContext
@@ -76,6 +77,32 @@ public class AppDbContext : IdentityDbContext
   {
     base.OnModelCreating(modelBuilder);
     modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+    ConfigureGuidStorage(modelBuilder);
+  }
+
+  private static void ConfigureGuidStorage(ModelBuilder modelBuilder)
+  {
+    UpperCaseGuidToStringConverter guidConverter = new();
+    NullableUpperCaseGuidToStringConverter nullableGuidConverter = new();
+
+    foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+    {
+      foreach (var property in entityType.GetProperties())
+      {
+        if (property.ClrType == typeof(Guid))
+        {
+          property.SetValueConverter(guidConverter);
+          property.SetColumnType("TEXT");
+          property.UseCollation("NOCASE");
+        }
+        else if (property.ClrType == typeof(Guid?))
+        {
+          property.SetValueConverter(nullableGuidConverter);
+          property.SetColumnType("TEXT");
+          property.UseCollation("NOCASE");
+        }
+      }
+    }
   }
 
   protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
