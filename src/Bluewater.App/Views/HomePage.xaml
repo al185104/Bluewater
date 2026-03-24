@@ -82,6 +82,15 @@
                     BackgroundColor="Transparent"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Leaves}" />
+            <Button x:Name="btnUsers"
+                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.FileText}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                    Text="Forms"
+                    HorizontalOptions="Start"
+                    TextColor="{StaticResource TextPrimaryColor}"
+                    ContentLayout="Left, 20"
+                    BackgroundColor="Transparent"
+                    Command="{Binding NavigateCommand}"
+                    CommandParameter="{x:Static enum:MainSectionEnum.Forms}" />
             <Button x:Name="btnTimesheet" 
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.Calendar}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Timesheet"
@@ -100,7 +109,7 @@
                     BackgroundColor="Transparent"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Attendance}" />-->
-            <Button x:Name="btnPayroll" 
+            <Button x:Name="btnPayroll"
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.CreditCard}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Payroll"
                     HorizontalOptions="Start"
@@ -109,15 +118,6 @@
                     BackgroundColor="Transparent"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Payroll}" />
-            <Button x:Name="btnUsers" 
-                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.FileText}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
-                    Text="Forms"
-                    HorizontalOptions="Start"
-                    TextColor="{StaticResource TextPrimaryColor}"
-                    ContentLayout="Left, 20"
-                    BackgroundColor="Transparent"
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Forms}" />
         </VerticalStackLayout>
         
         <VerticalStackLayout x:Name="vslSubmenu" Grid.Row="1" WidthRequest="140">

@@ -131,7 +131,6 @@ public partial class PayrollViewModel : BaseViewModel
 		private async Task LoadChargingOptionsAsync()
 		{
 				ChargingOptions.Clear();
-				//ChargingOptions.Add(string.Empty);
 
 				foreach (ChargingSummary charging in referenceDataService.Chargings.OrderBy(c => c.Name))
 				{

@@ -34,7 +34,7 @@
 							<Picker WidthRequest="220"
 									ItemsSource="{Binding ChargingOptions}"
 									SelectedItem="{Binding SelectedCharging, Mode=TwoWay}"
-									ItemDisplayBinding="{Binding Name}"
+									ItemDisplayBinding="{Binding Description}"
 									Title="Charging" />
 							<Picker WidthRequest="220"
 									ItemsSource="{Binding DepartmentOptions}"

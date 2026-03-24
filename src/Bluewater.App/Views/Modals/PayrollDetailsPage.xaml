@@ -52,8 +52,8 @@
                     <Grid ColumnDefinitions="*,Auto"><Label Text="Tax" /><Label Grid.Column="1" Text="{Binding Payroll.TaxDeductions, StringFormat='₱{0:N2}'}" /></Grid>
                     <Grid ColumnDefinitions="*,Auto"><Label Text="Union Dues" /><Label Grid.Column="1" Text="{Binding Payroll.UnionDues, StringFormat='₱{0:N2}'}" /></Grid>
                     <Grid ColumnDefinitions="*,Auto"><Label Text="Absence/Leave/Lates/Undertime/Overbreak" /><Label Grid.Column="1" Text="{Binding TotalTimeBasedDeductionsAmount, StringFormat='₱{0:N2}'}" /></Grid>
-                    <Grid ColumnDefinitions="*,Auto"><Label Text="Total Constant Deductions" /><Label Grid.Column="1" Text="{Binding Payroll.TotalConstantDeductions, StringFormat='₱{0:N2}'}" /></Grid>
-                    <Grid ColumnDefinitions="*,Auto"><Label Text="Total Loan Deductions" /><Label Grid.Column="1" Text="{Binding Payroll.TotalLoanDeductions, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Total Constant Deductions" FontAttributes="Bold" /><Label Grid.Column="1" FontAttributes="Bold" Text="{Binding Payroll.TotalConstantDeductions, StringFormat='₱{0:N2}'}" /></Grid>
+                    <Grid ColumnDefinitions="*,Auto"><Label Text="Total Loan Deductions" FontAttributes="Bold"/><Label Grid.Column="1" FontAttributes="Bold" Text="{Binding Payroll.TotalLoanDeductions, StringFormat='₱{0:N2}'}" /></Grid>
                     <Grid ColumnDefinitions="*,Auto"><Label Text="Total Deductions" FontAttributes="Bold" /><Label Grid.Column="1" FontAttributes="Bold" Text="{Binding Payroll.TotalDeductions, StringFormat='₱{0:N2}'}" /></Grid>
                 </VerticalStackLayout>
             </Border>

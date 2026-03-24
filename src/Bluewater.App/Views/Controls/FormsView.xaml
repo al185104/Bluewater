@@ -18,14 +18,16 @@
             <Picker Grid.Column="0"
                     Title="Select charging"
                     ItemsSource="{Binding Chargings}"
-                    ItemDisplayBinding="{Binding Name}"
+                    ItemDisplayBinding="{Binding Description}"
                     SelectedItem="{Binding SelectedCharging}" />
             <SearchBar Grid.Column="1"
                        Placeholder="Search employees"
+                       VerticalOptions="End"
                        Text="{Binding SearchText}" />
             <Button Grid.Column="2"
                     Text="{x:Static helpers:Icon.RefreshCcw}"
                     FontFamily="Icons"
+                    VerticalOptions="End"
                     Style="{StaticResource SecondaryButtonStyle}"
                     Command="{Binding RefreshCommand}" />
             <Label Grid.Column="3"
@@ -134,8 +136,10 @@
                         <Border StrokeShape="RoundRectangle 5 5 5 5">
                             <Grid Padding="10"
                                   ColumnDefinitions="*,Auto"
+                                  VerticalOptions="Center"
                                   ColumnSpacing="12">
-                                <VerticalStackLayout Grid.Column="0" Spacing="4">
+                                <VerticalStackLayout Grid.Column="0" 
+                                                     Spacing="4">
                                     <Label>
                                         <Label.FormattedText>
                                             <FormattedString>
@@ -165,26 +169,22 @@
                                     <Label FontSize="12"
                                            Text="{Binding Remarks}" />
                                 </VerticalStackLayout>
-                                <VerticalStackLayout Grid.Column="1"
-                                                     Spacing="8"
-                                                     HorizontalOptions="End"
-                                                     VerticalOptions="Center">
+                                <HorizontalStackLayout Grid.Column="1" Spacing="8">
                                     <Label HorizontalTextAlignment="End"
-                                           Text="{Binding Status}" />
-                                    <HorizontalStackLayout Spacing="8">
-                                        <Button Text="Approve"
-                                                Padding="12,6"
-                                                IsEnabled="{Binding CanReview}"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.ApproveDeductionCommand}"
-                                                CommandParameter="{Binding .}" />
-                                        <Button Text="Reject"
-                                                Padding="12,6"
-                                                Style="{StaticResource SecondaryButtonStyle}"
-                                                IsEnabled="{Binding CanReview}"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.RejectDeductionCommand}"
-                                                CommandParameter="{Binding .}" />
-                                    </HorizontalStackLayout>
-                                </VerticalStackLayout>
+                                            Text="{Binding Status}" />
+                                    <Button Text="Approve"
+                                            Padding="12,6"
+                                            IsEnabled="{Binding CanReview}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.ApproveDeductionCommand}"
+                                            CommandParameter="{Binding .}" 
+                                            Style="{StaticResource SecondaryButtonStyle}" />
+                                    <Button Text="Reject"
+                                            Padding="12,6"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            IsEnabled="{Binding CanReview}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.RejectDeductionCommand}"
+                                            CommandParameter="{Binding .}" />
+                                </HorizontalStackLayout>
                             </Grid>
                         </Border>
                     </DataTemplate>
