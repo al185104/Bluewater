@@ -9,9 +9,10 @@ public class DeductionApiService(IApiClient apiClient) : IDeductionApiService
     int? skip = null,
     int? take = null,
     TenantDto tenant = TenantDto.Maribago,
+    Guid? chargingId = null,
     CancellationToken cancellationToken = default)
   {
-    string requestUri = BuildRequestUri(skip, take, tenant);
+    string requestUri = BuildRequestUri(skip, take, tenant, chargingId);
 
     DeductionListResponseDto? response = await apiClient
       .GetAsync<DeductionListResponseDto>(requestUri, cancellationToken)
@@ -96,7 +97,7 @@ public class DeductionApiService(IApiClient apiClient) : IDeductionApiService
     return response?.Deduction is null ? null : MapToSummary(response.Deduction);
   }
 
-  private static string BuildRequestUri(int? skip, int? take, TenantDto tenant)
+  private static string BuildRequestUri(int? skip, int? take, TenantDto tenant, Guid? chargingId)
   {
     List<string> parameters = [];
 
@@ -111,6 +112,11 @@ public class DeductionApiService(IApiClient apiClient) : IDeductionApiService
     }
 
     parameters.Add($"tenant={tenant}");
+
+    if (chargingId.HasValue && chargingId.Value != Guid.Empty)
+    {
+      parameters.Add($"chargingId={chargingId.Value}");
+    }
 
     string query = string.Join('&', parameters);
     return $"Deductions?{query}";

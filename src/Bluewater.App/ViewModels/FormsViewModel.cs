@@ -189,6 +189,12 @@ public partial class FormsViewModel : BaseViewModel
       SelectedEmployee = null;
     }
 
+    if (hasInitialized)
+    {
+      _ = LoadDeductionsAsync();
+      return;
+    }
+
     ApplyDeductionFilter();
   }
 
@@ -251,7 +257,7 @@ public partial class FormsViewModel : BaseViewModel
       IsBusy = true;
 
       IReadOnlyList<DeductionSummary> deductions = await deductionApiService
-        .GetDeductionsAsync(tenant: TenantFilter)
+        .GetDeductionsAsync(tenant: TenantFilter, chargingId: SelectedCharging?.Id)
         .ConfigureAwait(false);
 
       allDeductions.Clear();

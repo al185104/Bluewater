@@ -8,6 +8,7 @@ public interface IDeductionApiService
     int? skip = null,
     int? take = null,
     TenantDto tenant = TenantDto.Maribago,
+    Guid? chargingId = null,
     CancellationToken cancellationToken = default);
 
   Task<DeductionSummary?> CreateDeductionAsync(DeductionSummary deduction, CancellationToken cancellationToken = default);
