@@ -16,6 +16,7 @@ namespace Bluewater.App.ViewModels;
 public partial class PayrollViewModel : BaseViewModel
 {
 		private const int PageSize = 24;
+		private const int DownloadBatchSize = 200;
 		private readonly IPayrollApiService payrollApiService;
 		private readonly IReferenceDataService referenceDataService;
 		private bool hasInitialized;
@@ -287,11 +288,9 @@ public partial class PayrollViewModel : BaseViewModel
 
 				try
 				{
-						PagedResult<PayrollSummary> payrollPeriod = await payrollApiService
-								.GetPayrollsAsync(StartDate, EndDate, ChargingFilter)
-								.ConfigureAwait(false);
+						IReadOnlyList<PayrollSummary> payrollPeriod = await LoadPayrollsForDownloadAsync().ConfigureAwait(false);
 
-						if (payrollPeriod.TotalCount == 0 || payrollPeriod.Items.Count == 0)
+						if (payrollPeriod.Count == 0)
 						{
 								await MainThread.InvokeOnMainThreadAsync(() =>
 										Shell.Current.DisplayAlert("Download", "No payroll records to download.", "Okay"));
@@ -313,39 +312,11 @@ public partial class PayrollViewModel : BaseViewModel
 						IsBusy = true;
 
 						StringBuilder csv = new();
-						csv.AppendLine(string.Join(",", new[]
-						{
-								"Employee",
-								"Barcode",
-								"Department",
-								"Section",
-								"Position",
-								"Charging",
-								"Date",
-								"Gross Pay",
-								"Net Pay",
-								"Tax",
-								"Deductions",
-								"Saved"
-						}));
+						csv.AppendLine(string.Join(",", GetPayrollExportHeaders()));
 
-						foreach (PayrollSummary item in payrollPeriod.Items.OrderBy(item => item.Name).ThenBy(item => item.Date))
+						foreach (PayrollSummary item in payrollPeriod.OrderBy(item => item.Name).ThenBy(item => item.Date))
 						{
-								csv.AppendLine(string.Join(",", new[]
-								{
-										EscapeCsv(item.Name),
-										EscapeCsv(item.Barcode),
-										EscapeCsv(item.Department),
-										EscapeCsv(item.Section),
-										EscapeCsv(item.Position),
-										EscapeCsv(item.Charging),
-										EscapeCsv(item.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
-										EscapeCsv(item.GrossPayAmount.ToString("0.00", CultureInfo.InvariantCulture)),
-										EscapeCsv(item.NetAmount.ToString("0.00", CultureInfo.InvariantCulture)),
-										EscapeCsv(item.TaxDeductions.ToString("0.00", CultureInfo.InvariantCulture)),
-										EscapeCsv(item.TotalDeductions.ToString("0.00", CultureInfo.InvariantCulture)),
-										EscapeCsv(item.IsSaved ? "Yes" : "No")
-								}));
+								csv.AppendLine(string.Join(",", GetPayrollExportRow(item)));
 						}
 
 						string fileName = $"payroll_{DateTime.Now:yyyyMMdd_HHmmss}.csv";
@@ -362,7 +333,7 @@ public partial class PayrollViewModel : BaseViewModel
 								StartDate,
 								EndDate,
 								Charging = chargingName,
-								RecordCount = payrollPeriod.Items.Count,
+								RecordCount = payrollPeriod.Count,
 								FileName = fileName
 						}).ConfigureAwait(false);
 				}
@@ -583,6 +554,185 @@ public partial class PayrollViewModel : BaseViewModel
 				}
 
 				return value;
+		}
+
+		private async Task<IReadOnlyList<PayrollSummary>> LoadPayrollsForDownloadAsync()
+		{
+				List<PayrollSummary> payrolls = [];
+				int skip = 0;
+
+				while (true)
+				{
+						PagedResult<PayrollSummary> page = await payrollApiService
+								.GetPayrollsAsync(StartDate, EndDate, ChargingFilter, skip: skip, take: DownloadBatchSize)
+								.ConfigureAwait(false);
+
+						if (page.Items.Count == 0)
+						{
+								break;
+						}
+
+						payrolls.AddRange(page.Items);
+						skip += page.Items.Count;
+
+						if (payrolls.Count >= page.TotalCount)
+						{
+								break;
+						}
+				}
+
+				return payrolls;
+		}
+
+		private static IReadOnlyList<string> GetPayrollExportHeaders()
+		{
+				return
+				[
+						"Employee Id",
+						"Employee",
+						"Barcode",
+						"Bank Account",
+						"Division",
+						"Department",
+						"Section",
+						"Position",
+						"Charging",
+						"Date",
+						"Gross Pay",
+						"Net Pay",
+						"Basic Pay",
+						"SSS",
+						"SSS ER",
+						"PAGIBIG",
+						"PAGIBIG ER",
+						"Philhealth",
+						"Philhealth ER",
+						"Rest Day Amount",
+						"Rest Day Hours",
+						"Regular Holiday Amount",
+						"Regular Holiday Hours",
+						"Special Holiday Amount",
+						"Special Holiday Hours",
+						"Overtime Amount",
+						"Overtime Hours",
+						"Night Differential Amount",
+						"Night Differential Hours",
+						"Night Diff Overtime Amount",
+						"Night Diff Overtime Hours",
+						"Night Diff Regular Holiday Amount",
+						"Night Diff Regular Holiday Hours",
+						"Night Diff Special Holiday Amount",
+						"Night Diff Special Holiday Hours",
+						"Overtime Rest Day Amount",
+						"Overtime Rest Day Hours",
+						"Overtime Regular Holiday Amount",
+						"Overtime Regular Holiday Hours",
+						"Overtime Special Holiday Amount",
+						"Overtime Special Holiday Hours",
+						"Union Dues",
+						"Absences",
+						"Absences Amount",
+						"Leaves",
+						"Leaves Amount",
+						"Lates",
+						"Lates Amount",
+						"Undertime",
+						"Undertime Amount",
+						"Overbreak",
+						"Overbreak Amount",
+						"Service Charge",
+						"Cost Of Living Allowance",
+						"Monthly Allowance",
+						"Salary Underpayment",
+						"Refund Absences",
+						"Refund Undertime",
+						"Refund Overtime",
+						"Labor Hours Income",
+						"Labor Hours",
+						"Tax Deductions",
+						"Total Constant Deductions",
+						"Total Loan Deductions",
+						"Total Deductions",
+						"Saved"
+				];
+		}
+
+		private static IReadOnlyList<string> GetPayrollExportRow(PayrollSummary item)
+		{
+				return
+				[
+						EscapeCsv(item.EmployeeId?.ToString()),
+						EscapeCsv(item.Name),
+						EscapeCsv(item.Barcode),
+						EscapeCsv(item.BankAccount),
+						EscapeCsv(item.Division),
+						EscapeCsv(item.Department),
+						EscapeCsv(item.Section),
+						EscapeCsv(item.Position),
+						EscapeCsv(item.Charging),
+						EscapeCsv(item.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)),
+						EscapeCsv(ToDecimalCsv(item.GrossPayAmount)),
+						EscapeCsv(ToDecimalCsv(item.NetAmount)),
+						EscapeCsv(ToDecimalCsv(item.BasicPayAmount)),
+						EscapeCsv(ToDecimalCsv(item.SssAmount)),
+						EscapeCsv(ToDecimalCsv(item.SssERAmount)),
+						EscapeCsv(ToDecimalCsv(item.PagibigAmount)),
+						EscapeCsv(ToDecimalCsv(item.PagibigERAmount)),
+						EscapeCsv(ToDecimalCsv(item.PhilhealthAmount)),
+						EscapeCsv(ToDecimalCsv(item.PhilhealthERAmount)),
+						EscapeCsv(ToDecimalCsv(item.RestDayAmount)),
+						EscapeCsv(ToDecimalCsv(item.RestDayHrs)),
+						EscapeCsv(ToDecimalCsv(item.RegularHolidayAmount)),
+						EscapeCsv(ToDecimalCsv(item.RegularHolidayHrs)),
+						EscapeCsv(ToDecimalCsv(item.SpecialHolidayAmount)),
+						EscapeCsv(ToDecimalCsv(item.SpecialHolidayHrs)),
+						EscapeCsv(ToDecimalCsv(item.OvertimeAmount)),
+						EscapeCsv(ToDecimalCsv(item.OvertimeHrs)),
+						EscapeCsv(ToDecimalCsv(item.NightDiffAmount)),
+						EscapeCsv(ToDecimalCsv(item.NightDiffHrs)),
+						EscapeCsv(ToDecimalCsv(item.NightDiffOvertimeAmount)),
+						EscapeCsv(ToDecimalCsv(item.NightDiffOvertimeHrs)),
+						EscapeCsv(ToDecimalCsv(item.NightDiffRegularHolidayAmount)),
+						EscapeCsv(ToDecimalCsv(item.NightDiffRegularHolidayHrs)),
+						EscapeCsv(ToDecimalCsv(item.NightDiffSpecialHolidayAmount)),
+						EscapeCsv(ToDecimalCsv(item.NightDiffSpecialHolidayHrs)),
+						EscapeCsv(ToDecimalCsv(item.OvertimeRestDayAmount)),
+						EscapeCsv(ToDecimalCsv(item.OvertimeRestDayHrs)),
+						EscapeCsv(ToDecimalCsv(item.OvertimeRegularHolidayAmount)),
+						EscapeCsv(ToDecimalCsv(item.OvertimeRegularHolidayHrs)),
+						EscapeCsv(ToDecimalCsv(item.OvertimeSpecialHolidayAmount)),
+						EscapeCsv(ToDecimalCsv(item.OvertimeSpecialHolidayHrs)),
+						EscapeCsv(ToDecimalCsv(item.UnionDues)),
+						EscapeCsv(item.Absences.ToString(CultureInfo.InvariantCulture)),
+						EscapeCsv(ToDecimalCsv(item.AbsencesAmount)),
+						EscapeCsv(ToDecimalCsv(item.Leaves)),
+						EscapeCsv(ToDecimalCsv(item.LeavesAmount)),
+						EscapeCsv(ToDecimalCsv(item.Lates)),
+						EscapeCsv(ToDecimalCsv(item.LatesAmount)),
+						EscapeCsv(ToDecimalCsv(item.Undertime)),
+						EscapeCsv(ToDecimalCsv(item.UndertimeAmount)),
+						EscapeCsv(ToDecimalCsv(item.Overbreak)),
+						EscapeCsv(ToDecimalCsv(item.OverbreakAmount)),
+						EscapeCsv(ToDecimalCsv(item.SvcCharge)),
+						EscapeCsv(ToDecimalCsv(item.CostOfLivingAllowanceAmount)),
+						EscapeCsv(ToDecimalCsv(item.MonthlyAllowanceAmount)),
+						EscapeCsv(ToDecimalCsv(item.SalaryUnderpaymentAmount)),
+						EscapeCsv(ToDecimalCsv(item.RefundAbsencesAmount)),
+						EscapeCsv(ToDecimalCsv(item.RefundUndertimeAmount)),
+						EscapeCsv(ToDecimalCsv(item.RefundOvertimeAmount)),
+						EscapeCsv(ToDecimalCsv(item.LaborHoursIncome)),
+						EscapeCsv(ToDecimalCsv(item.LaborHrs)),
+						EscapeCsv(ToDecimalCsv(item.TaxDeductions)),
+						EscapeCsv(ToDecimalCsv(item.TotalConstantDeductions)),
+						EscapeCsv(ToDecimalCsv(item.TotalLoanDeductions)),
+						EscapeCsv(ToDecimalCsv(item.TotalDeductions)),
+						EscapeCsv(item.IsSaved ? "Yes" : "No")
+				];
+		}
+
+		private static string ToDecimalCsv(decimal value)
+		{
+				return value.ToString("0.00", CultureInfo.InvariantCulture);
 		}
 
 		private void UpdatePayrollRowIndexes()
