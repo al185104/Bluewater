@@ -11,4 +11,5 @@ public interface IDeductionApiService
     CancellationToken cancellationToken = default);
 
   Task<DeductionSummary?> CreateDeductionAsync(DeductionSummary deduction, CancellationToken cancellationToken = default);
+  Task<DeductionSummary?> UpdateDeductionAsync(DeductionSummary deduction, CancellationToken cancellationToken = default);
 }

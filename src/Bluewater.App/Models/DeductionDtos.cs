@@ -43,6 +43,29 @@ public class CreateDeductionResponseDto
   public DeductionDto? Deduction { get; set; }
 }
 
+public class UpdateDeductionRequestDto
+{
+  public Guid DeductionId { get; set; }
+  public Guid Id { get; set; }
+  public Guid EmpId { get; set; }
+  public DeductionTypeDto? Type { get; set; } = DeductionTypeDto.NotSet;
+  public decimal? TotalAmount { get; set; }
+  public decimal? MonthlyAmortization { get; set; }
+  public decimal? RemainingBalance { get; set; }
+  public int? NoOfMonths { get; set; }
+  public DateTime? StartDate { get; set; }
+  public DateTime? EndDate { get; set; }
+  public string? Remarks { get; set; }
+  public ApplicationStatusDto? Status { get; set; } = ApplicationStatusDto.NotSet;
+
+  public static string BuildRoute(Guid deductionId) => $"Deductions/{deductionId}";
+}
+
+public class UpdateDeductionResponseDto
+{
+  public DeductionDto? Deduction { get; set; }
+}
+
 public class DeductionSummary : IRowIndexed
 {
   public Guid Id { get; set; }
@@ -57,6 +80,7 @@ public class DeductionSummary : IRowIndexed
   public DateTime? EndDate { get; set; }
   public string? Remarks { get; set; }
   public ApplicationStatusDto? Status { get; set; } = ApplicationStatusDto.NotSet;
+  public bool CanReview => Status is ApplicationStatusDto.NotSet or ApplicationStatusDto.Pending;
   public int RowIndex { get; set; }
 }
 

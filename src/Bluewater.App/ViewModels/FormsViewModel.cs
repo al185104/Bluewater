@@ -84,6 +84,8 @@ public partial class FormsViewModel : BaseViewModel
       EditableDeduction.EmpId = SelectedEmployee.Id;
       EditableDeduction.Name = SelectedEmployee.FullName;
     }
+
+    RecalculateEditableDeduction();
   }
 
   [RelayCommand]
@@ -133,6 +135,7 @@ public partial class FormsViewModel : BaseViewModel
       EditableDeduction.EmpId = SelectedEmployee.Id;
       EditableDeduction.Name = SelectedEmployee.FullName;
       SelectedDeductionType = null;
+      RecalculateEditableDeduction();
     }
     catch (Exception ex)
     {
@@ -171,6 +174,48 @@ public partial class FormsViewModel : BaseViewModel
     EditableDeduction.Type = value.Value;
   }
 
+  [RelayCommand]
+  private async Task ApproveDeductionAsync(DeductionSummary? deduction)
+  {
+    await UpdateDeductionStatusAsync(deduction, ApplicationStatusDto.Approved);
+  }
+
+  [RelayCommand]
+  private async Task RejectDeductionAsync(DeductionSummary? deduction)
+  {
+    await UpdateDeductionStatusAsync(deduction, ApplicationStatusDto.Rejected);
+  }
+
+  public void RecalculateEditableDeduction()
+  {
+    if (EditableDeduction is null)
+    {
+      return;
+    }
+
+    DateTime? startDate = EditableDeduction.StartDate?.Date;
+    DateTime? endDate = EditableDeduction.EndDate?.Date;
+    decimal totalAmount = EditableDeduction.TotalAmount ?? 0m;
+
+    if (!startDate.HasValue || !endDate.HasValue || endDate.Value < startDate.Value)
+    {
+      EditableDeduction.NoOfMonths = null;
+      EditableDeduction.MonthlyAmortization = null;
+      EditableDeduction.RemainingBalance = totalAmount > 0 ? totalAmount : null;
+      OnPropertyChanged(nameof(EditableDeduction));
+      return;
+    }
+
+    int months = CalculateInclusiveMonthCount(startDate.Value, endDate.Value);
+    decimal monthly = months > 0 ? decimal.Round(totalAmount / months, 2, MidpointRounding.AwayFromZero) : 0m;
+
+    EditableDeduction.NoOfMonths = months;
+    EditableDeduction.MonthlyAmortization = monthly;
+    EditableDeduction.RemainingBalance = totalAmount;
+
+    OnPropertyChanged(nameof(EditableDeduction));
+  }
+
   private async Task LoadDeductionsAsync()
   {
     try
@@ -188,6 +233,44 @@ public partial class FormsViewModel : BaseViewModel
     catch (Exception ex)
     {
       ExceptionHandlingService.Handle(ex, "Loading deductions");
+    }
+    finally
+    {
+      IsBusy = false;
+    }
+  }
+
+  private async Task UpdateDeductionStatusAsync(DeductionSummary? deduction, ApplicationStatusDto status)
+  {
+    if (deduction is null)
+    {
+      return;
+    }
+
+    if (deduction.Status is ApplicationStatusDto.Approved or ApplicationStatusDto.Rejected)
+    {
+      return;
+    }
+
+    try
+    {
+      IsBusy = true;
+      deduction.Status = status;
+
+      DeductionSummary? updated = await deductionApiService.UpdateDeductionAsync(deduction).ConfigureAwait(false);
+      DeductionSummary result = updated ?? CloneDeduction(deduction);
+      int existingIndex = allDeductions.FindIndex(item => item.Id == result.Id);
+      if (existingIndex >= 0)
+      {
+        allDeductions[existingIndex] = result;
+      }
+
+      ApplyDeductionFilter();
+      await TraceCommandAsync(nameof(UpdateDeductionStatusAsync), result.Id);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, $"Updating deduction to {status}");
     }
     finally
     {
@@ -328,5 +411,11 @@ public partial class FormsViewModel : BaseViewModel
       Status = deduction.Status,
       RowIndex = deduction.RowIndex
     };
+  }
+
+  private static int CalculateInclusiveMonthCount(DateTime startDate, DateTime endDate)
+  {
+    int monthCount = ((endDate.Year - startDate.Year) * 12) + endDate.Month - startDate.Month + 1;
+    return Math.Max(monthCount, 1);
   }
 }
