@@ -62,6 +62,7 @@
                         <Label Text="Total" />
                         <Entry Keyboard="Numeric"
                                WidthRequest="110"
+                               TextChanged="TotalAmountEntry_TextChanged"
                                Text="{Binding EditableDeduction.TotalAmount}" />
                     </VerticalStackLayout>
 
@@ -69,6 +70,7 @@
                         <Label Text="Monthly" />
                         <Entry Keyboard="Numeric"
                                WidthRequest="110"
+                               IsEnabled="False"
                                Text="{Binding EditableDeduction.MonthlyAmortization}" />
                     </VerticalStackLayout>
 
@@ -76,6 +78,7 @@
                         <Label Text="Balance" />
                         <Entry Keyboard="Numeric"
                                WidthRequest="110"
+                               IsEnabled="False"
                                Text="{Binding EditableDeduction.RemainingBalance}" />
                     </VerticalStackLayout>
 
@@ -83,17 +86,20 @@
                         <Label Text="Months" />
                         <Entry Keyboard="Numeric"
                                WidthRequest="80"
+                               IsEnabled="False"
                                Text="{Binding EditableDeduction.NoOfMonths}" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Grid.Column="6" Spacing="6">
                         <Label Text="Start date" />
-                        <DatePicker Date="{Binding EditableDeduction.StartDate}" />
+                        <DatePicker Date="{Binding EditableDeduction.StartDate}"
+                                    DateSelected="DatePicker_DateSelected" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Grid.Column="7" Spacing="6">
                         <Label Text="End date" />
-                        <DatePicker Date="{Binding EditableDeduction.EndDate}" />
+                        <DatePicker Date="{Binding EditableDeduction.EndDate}"
+                                    DateSelected="DatePicker_DateSelected" />
                     </VerticalStackLayout>
 
                     <VerticalStackLayout Grid.Column="8" Spacing="6">
@@ -154,9 +160,26 @@
                                     <Label FontSize="12"
                                            Text="{Binding Remarks}" />
                                 </VerticalStackLayout>
-                                <Label Grid.Column="1"
-                                       VerticalTextAlignment="Center"
-                                       Text="{Binding Status}" />
+                                <VerticalStackLayout Grid.Column="1"
+                                                     Spacing="8"
+                                                     HorizontalOptions="End"
+                                                     VerticalOptions="Center">
+                                    <Label HorizontalTextAlignment="End"
+                                           Text="{Binding Status}" />
+                                    <HorizontalStackLayout Spacing="8">
+                                        <Button Text="Approve"
+                                                Padding="12,6"
+                                                IsEnabled="{Binding CanReview}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.ApproveDeductionCommand}"
+                                                CommandParameter="{Binding .}" />
+                                        <Button Text="Reject"
+                                                Padding="12,6"
+                                                Style="{StaticResource SecondaryButtonStyle}"
+                                                IsEnabled="{Binding CanReview}"
+                                                Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.RejectDeductionCommand}"
+                                                CommandParameter="{Binding .}" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
                             </Grid>
                         </Border>
                     </DataTemplate>

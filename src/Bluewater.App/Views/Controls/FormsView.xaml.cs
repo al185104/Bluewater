@@ -21,4 +21,20 @@ public partial class FormsView : ContentView
   private void ContentView_Unloaded(object sender, EventArgs e)
   {
   }
+
+  private void TotalAmountEntry_TextChanged(object sender, TextChangedEventArgs e)
+  {
+    if (BindingContext is FormsViewModel vm)
+    {
+      vm.RecalculateEditableDeduction();
+    }
+  }
+
+  private void DatePicker_DateSelected(object sender, DateChangedEventArgs e)
+  {
+    if (BindingContext is FormsViewModel vm)
+    {
+      vm.RecalculateEditableDeduction();
+    }
+  }
 }

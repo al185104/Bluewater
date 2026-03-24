@@ -58,6 +58,44 @@ public class DeductionApiService(IApiClient apiClient) : IDeductionApiService
     return response?.Deduction is null ? null : MapToSummary(response.Deduction);
   }
 
+  public async Task<DeductionSummary?> UpdateDeductionAsync(DeductionSummary deduction, CancellationToken cancellationToken = default)
+  {
+    ArgumentNullException.ThrowIfNull(deduction);
+
+    if (deduction.Id == Guid.Empty)
+    {
+      throw new ArgumentException("Deduction ID must be provided", nameof(deduction));
+    }
+
+    if (!deduction.EmpId.HasValue || deduction.EmpId == Guid.Empty)
+    {
+      throw new ArgumentException("Employee ID must be provided", nameof(deduction));
+    }
+
+    UpdateDeductionRequestDto request = new()
+    {
+      DeductionId = deduction.Id,
+      Id = deduction.Id,
+      EmpId = deduction.EmpId.Value,
+      Type = deduction.Type,
+      TotalAmount = deduction.TotalAmount,
+      MonthlyAmortization = deduction.MonthlyAmortization,
+      RemainingBalance = deduction.RemainingBalance,
+      NoOfMonths = deduction.NoOfMonths,
+      StartDate = deduction.StartDate,
+      EndDate = deduction.EndDate,
+      Remarks = deduction.Remarks,
+      Status = deduction.Status
+    };
+
+    UpdateDeductionResponseDto? response = await apiClient.PutAsync<UpdateDeductionRequestDto, UpdateDeductionResponseDto>(
+      UpdateDeductionRequestDto.BuildRoute(deduction.Id),
+      request,
+      cancellationToken).ConfigureAwait(false);
+
+    return response?.Deduction is null ? null : MapToSummary(response.Deduction);
+  }
+
   private static string BuildRequestUri(int? skip, int? take, TenantDto tenant)
   {
     List<string> parameters = [];
