@@ -65,17 +65,24 @@ public partial class EmployeeViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task EditEmployeeAsync(EmployeeSummary? employee)
 		{
-				if (employee is null)
+				try
 				{
-						return;
+						if (employee is null)
+						{
+								return;
+						}
+
+						EditableEmployee = EditableEmployee.FromSummary(employee);
+						EditorTitle = $"Edit {EditableEmployee.FullName}";
+						EditorPrimaryActionText = "Update Employee";
+						IsEditorOpen = true;
+
+						await TraceCommandAsync(nameof(EditEmployeeAsync), employee.Id);
 				}
-
-				EditableEmployee = EditableEmployee.FromSummary(employee);
-				EditorTitle = $"Edit {EditableEmployee.FullName}";
-				EditorPrimaryActionText = "Update Employee";
-				IsEditorOpen = true;
-
-				await TraceCommandAsync(nameof(EditEmployeeAsync), employee.Id);
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Editing employee");
+				}
 		}
 
 		[RelayCommand]
@@ -128,6 +135,7 @@ public partial class EmployeeViewModel : BaseViewModel
 		[RelayCommand]
 		private void CloseEditor()
 		{
+				_ = TraceCommandAsync(nameof(CloseEditor));
 				IsEditorOpen = false;
 				EditorTitle = string.Empty;
 				EditorPrimaryActionText = DefaultPrimaryActionText;
@@ -306,18 +314,26 @@ public partial class EmployeeViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task GoToPageAsync(int page)
 		{
-				if (IsBusy || page < 1 || page == CurrentPage)
+				try
 				{
-						return;
-				}
+						if (IsBusy || page < 1 || page == CurrentPage)
+						{
+								return;
+						}
 
-				if (TotalPages > 0 && page > TotalPages)
+						if (TotalPages > 0 && page > TotalPages)
+						{
+								return;
+						}
+
+						CurrentPage = page;
+						await TraceCommandAsync(nameof(GoToPageAsync), new { page }).ConfigureAwait(false);
+						await LoadEmployeesAsync(forceRefresh: true).ConfigureAwait(false);
+				}
+				catch (Exception ex)
 				{
-						return;
+						ExceptionHandlingService.Handle(ex, $"Navigating to employee page {page}");
 				}
-
-				CurrentPage = page;
-				await LoadEmployeesAsync(forceRefresh: true).ConfigureAwait(false);
 		}
 
 		public override Task InitializeAsync()

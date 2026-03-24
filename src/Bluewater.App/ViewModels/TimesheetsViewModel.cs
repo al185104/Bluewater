@@ -118,26 +118,47 @@ public partial class TimesheetsViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task RefreshAsync()
 		{
-				await TraceCommandAsync(nameof(RefreshAsync)).ConfigureAwait(false);
-				await LoadTimesheetsAsync().ConfigureAwait(false);
+				try
+				{
+						await TraceCommandAsync(nameof(RefreshAsync)).ConfigureAwait(false);
+						await LoadTimesheetsAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Refreshing timesheets");
+				}
 		}
 
 		[RelayCommand(CanExecute = nameof(CanChangePeriod))]
 		private async Task PreviousPeriodAsync()
 		{
-				SetPreviousPayslipPeriod();
-				CurrentPage = 1;
-				await TraceCommandAsync(nameof(PreviousPeriodAsync)).ConfigureAwait(false);
-				await LoadTimesheetsAsync().ConfigureAwait(false);
+				try
+				{
+						SetPreviousPayslipPeriod();
+						CurrentPage = 1;
+						await TraceCommandAsync(nameof(PreviousPeriodAsync)).ConfigureAwait(false);
+						await LoadTimesheetsAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Loading previous timesheet period");
+				}
 		}
 
 		[RelayCommand(CanExecute = nameof(CanChangePeriod))]
 		private async Task NextPeriodAsync()
 		{
-				SetNextPayslipPeriod();
-				CurrentPage = 1;
-				await TraceCommandAsync(nameof(NextPeriodAsync)).ConfigureAwait(false);
-				await LoadTimesheetsAsync().ConfigureAwait(false);
+				try
+				{
+						SetNextPayslipPeriod();
+						CurrentPage = 1;
+						await TraceCommandAsync(nameof(NextPeriodAsync)).ConfigureAwait(false);
+						await LoadTimesheetsAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Loading next timesheet period");
+				}
 		}
 
 		private bool CanChangePeriod() => !IsBusy;
@@ -145,28 +166,35 @@ public partial class TimesheetsViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task EditTimesheetAsync(EmployeeTimesheetSummary? summary)
 		{
-				if (summary is null)
+				try
 				{
-						return;
-				}
-
-				MainThread.BeginInvokeOnMainThread(() =>
-				{
-						SelectedEmployeeTimesheet = summary;
-						LoadEditableTimesheets(summary);
-
-				});
-
-				await Shell.Current.GoToAsync(
-						nameof(TimesheetDetailsPage),
-						new Dictionary<string, object>
+						if (summary is null)
 						{
-								["EditableTimesheets"] = EditableTimesheets,
-								["SelectedEditableTimesheet"] = SelectedEditableTimesheet!,
-								["SelectedEmployeeTimesheet"] = SelectedEmployeeTimesheet!
+								return;
+						}
+
+						MainThread.BeginInvokeOnMainThread(() =>
+						{
+								SelectedEmployeeTimesheet = summary;
+								LoadEditableTimesheets(summary);
+
 						});
 
-				await TraceCommandAsync(nameof(EditTimesheetAsync), summary.EmployeeId).ConfigureAwait(false);
+						await Shell.Current.GoToAsync(
+								nameof(TimesheetDetailsPage),
+								new Dictionary<string, object>
+								{
+										["EditableTimesheets"] = EditableTimesheets,
+										["SelectedEditableTimesheet"] = SelectedEditableTimesheet!,
+										["SelectedEmployeeTimesheet"] = SelectedEmployeeTimesheet!
+								});
+
+						await TraceCommandAsync(nameof(EditTimesheetAsync), summary.EmployeeId).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Opening timesheet details");
+				}
 		}
 
 		[RelayCommand]
@@ -514,18 +542,26 @@ public partial class TimesheetsViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task GoToPageAsync(int page)
 		{
-				if (IsBusy || page < 1 || page == CurrentPage)
+				try
 				{
-						return;
-				}
+						if (IsBusy || page < 1 || page == CurrentPage)
+						{
+								return;
+						}
 
-				if (TotalPages > 0 && page > TotalPages)
+						if (TotalPages > 0 && page > TotalPages)
+						{
+								return;
+						}
+
+						CurrentPage = page;
+						await TraceCommandAsync(nameof(GoToPageAsync), new { page }).ConfigureAwait(false);
+						await LoadTimesheetsAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
 				{
-						return;
+						ExceptionHandlingService.Handle(ex, $"Navigating to timesheet page {page}");
 				}
-
-				CurrentPage = page;
-				await LoadTimesheetsAsync().ConfigureAwait(false);
 		}
 
 		private async Task LoadTimesheetsAsync()

@@ -109,17 +109,33 @@ public partial class ScheduleViewModel : BaseViewModel
 		[RelayCommand(CanExecute = nameof(CanChangeWeek))]
 		private async Task PreviousWeekAsync()
 		{
-				SetWeek(CurrentWeekStart.AddDays(-7));
-				CurrentPage = 1;
-				await LoadSchedulesAsync().ConfigureAwait(false);
+				try
+				{
+						SetWeek(CurrentWeekStart.AddDays(-7));
+						CurrentPage = 1;
+						await TraceCommandAsync(nameof(PreviousWeekAsync), new { CurrentWeekStart, CurrentWeekEnd }).ConfigureAwait(false);
+						await LoadSchedulesAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Loading previous schedule week");
+				}
 		}
 
 		[RelayCommand(CanExecute = nameof(CanChangeWeek))]
 		private async Task NextWeekAsync()
 		{
-				SetWeek(CurrentWeekStart.AddDays(7));
-				CurrentPage = 1;
-				await LoadSchedulesAsync().ConfigureAwait(false);
+				try
+				{
+						SetWeek(CurrentWeekStart.AddDays(7));
+						CurrentPage = 1;
+						await TraceCommandAsync(nameof(NextWeekAsync), new { CurrentWeekStart, CurrentWeekEnd }).ConfigureAwait(false);
+						await LoadSchedulesAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Loading next schedule week");
+				}
 		}
 
 		[RelayCommand]
@@ -447,18 +463,26 @@ public partial class ScheduleViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task GoToPageAsync(int page)
 		{
-				if (IsBusy || page < 1 || page == CurrentPage)
+				try
 				{
-						return;
-				}
+						if (IsBusy || page < 1 || page == CurrentPage)
+						{
+								return;
+						}
 
-				if (TotalPages > 0 && page > TotalPages)
+						if (TotalPages > 0 && page > TotalPages)
+						{
+								return;
+						}
+
+						CurrentPage = page;
+						await TraceCommandAsync(nameof(GoToPageAsync), new { page }).ConfigureAwait(false);
+						await LoadSchedulesAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
 				{
-						return;
+						ExceptionHandlingService.Handle(ex, $"Navigating to schedule page {page}");
 				}
-
-				CurrentPage = page;
-				await LoadSchedulesAsync().ConfigureAwait(false);
 		}
 
 		partial void OnCurrentWeekStartChanged(DateOnly value) => RaiseWeekHeaderProperties();

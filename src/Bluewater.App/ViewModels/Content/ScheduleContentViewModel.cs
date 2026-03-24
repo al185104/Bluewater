@@ -17,6 +17,6 @@ public partial class ScheduleContentViewModel : BaseViewModel
 
 		public override async Task InitializeAsync()
 		{
-
+				await TraceCommandAsync(nameof(InitializeAsync)).ConfigureAwait(false);
 		}
 }

@@ -76,15 +76,23 @@ public partial class LeaveViewModel : BaseViewModel
   [RelayCommand]
   private async Task RefreshAsync()
   {
-    await TraceCommandAsync(nameof(RefreshAsync));
-    await LoadReferenceDataAsync();
-    await LoadChargingsAsync();
-    await LoadLeavesAsync();
+    try
+    {
+      await TraceCommandAsync(nameof(RefreshAsync));
+      await LoadReferenceDataAsync();
+      await LoadChargingsAsync();
+      await LoadLeavesAsync();
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Refreshing leave records");
+    }
   }
 
   [RelayCommand]
   private void BeginCreateLeave()
   {
+    _ = TraceCommandAsync(nameof(BeginCreateLeave), new { SelectedEmployeeId = SelectedEmployee?.Id });
     EditableLeave = CreateNewLeave();
     SelectedLeave = null;
     SelectedLeaveCredit = null;
@@ -158,12 +166,14 @@ public partial class LeaveViewModel : BaseViewModel
   [RelayCommand]
   private Task AcceptLeaveAsync(LeaveSummary? leave)
   {
+    _ = TraceCommandAsync(nameof(AcceptLeaveAsync), leave?.Id);
     return UpdateLeaveStatusAsync(leave, ApplicationStatusDto.Approved);
   }
 
   [RelayCommand]
   private Task RejectLeaveAsync(LeaveSummary? leave)
   {
+    _ = TraceCommandAsync(nameof(RejectLeaveAsync), leave?.Id);
     return UpdateLeaveStatusAsync(leave, ApplicationStatusDto.Rejected);
   }
 

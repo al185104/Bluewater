@@ -96,44 +96,73 @@ public partial class PayrollViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task RefreshAsync()
 		{
-				await TraceCommandAsync(nameof(RefreshAsync));
-				CurrentPage = 1;
-				await LoadPayrollsAsync();
+				try
+				{
+						await TraceCommandAsync(nameof(RefreshAsync));
+						CurrentPage = 1;
+						await LoadPayrollsAsync();
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Refreshing payroll");
+				}
 		}
 
 		[RelayCommand(CanExecute = nameof(CanChangePeriod))]
 		private async Task PreviousPeriodAsync()
 		{
-				SetPreviousPayslipPeriod();
-				CurrentPage = 1;
-				await TraceCommandAsync(nameof(PreviousPeriodAsync));
-				await LoadPayrollsAsync();
+				try
+				{
+						SetPreviousPayslipPeriod();
+						CurrentPage = 1;
+						await TraceCommandAsync(nameof(PreviousPeriodAsync));
+						await LoadPayrollsAsync();
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Loading previous payroll period");
+				}
 		}
 
 		[RelayCommand(CanExecute = nameof(CanChangePeriod))]
 		private async Task NextPeriodAsync()
 		{
-				SetNextPayslipPeriod();
-				CurrentPage = 1;
-				await TraceCommandAsync(nameof(NextPeriodAsync));
-				await LoadPayrollsAsync();
+				try
+				{
+						SetNextPayslipPeriod();
+						CurrentPage = 1;
+						await TraceCommandAsync(nameof(NextPeriodAsync));
+						await LoadPayrollsAsync();
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Loading next payroll period");
+				}
 		}
 
 		[RelayCommand]
 		private async Task GoToPageAsync(int page)
 		{
-				if (IsBusy || page < 1 || page == CurrentPage)
+				try
 				{
-						return;
-				}
+						if (IsBusy || page < 1 || page == CurrentPage)
+						{
+								return;
+						}
 
-				if (TotalPages > 0 && page > TotalPages)
+						if (TotalPages > 0 && page > TotalPages)
+						{
+								return;
+						}
+
+						CurrentPage = page;
+						await TraceCommandAsync(nameof(GoToPageAsync), new { page }).ConfigureAwait(false);
+						await LoadPayrollsAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
 				{
-						return;
+						ExceptionHandlingService.Handle(ex, $"Navigating to payroll page {page}");
 				}
-
-				CurrentPage = page;
-				await LoadPayrollsAsync().ConfigureAwait(false);
 		}
 
 		private bool CanChangePeriod() => !IsBusy;
@@ -156,6 +185,7 @@ public partial class PayrollViewModel : BaseViewModel
 		[RelayCommand]
 		private void BeginCreatePayroll()
 		{
+				_ = TraceCommandAsync(nameof(BeginCreatePayroll));
 				EditablePayroll = CreateNewPayroll();
 				SelectedPayroll = null;
 		}
@@ -163,20 +193,28 @@ public partial class PayrollViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task BeginEditPayrollAsync(PayrollSummary? payroll)
 		{
-				if (payroll is null)
+				try
 				{
-						return;
-				}
-
-				SelectedPayroll = payroll;
-				EditablePayroll = payroll;
-
-				await Shell.Current.GoToAsync(
-						nameof(PayrollDetailsPage),
-						new Dictionary<string, object>
+						if (payroll is null)
 						{
-								["Payroll"] = payroll
-						});
+								return;
+						}
+
+						await TraceCommandAsync(nameof(BeginEditPayrollAsync), payroll.Id).ConfigureAwait(false);
+						SelectedPayroll = payroll;
+						EditablePayroll = payroll;
+
+						await Shell.Current.GoToAsync(
+								nameof(PayrollDetailsPage),
+								new Dictionary<string, object>
+								{
+										["Payroll"] = payroll
+								});
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Opening payroll details");
+				}
 		}
 
 		[RelayCommand(CanExecute = nameof(CanSavePayrollPeriod))]
