@@ -69,10 +69,12 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
     List<Payroll> existingPayrolls = await _repository.ListAsync(
       new PayrollByEmployeeIdsAndDateSpec(employees.Select(employee => employee.Item1), request.end),
       cancellationToken);
+
     Dictionary<Guid, Payroll> payrollByEmployeeId = existingPayrolls
-      .GroupBy(payroll => payroll.EmployeeId)
-      .ToDictionary(group => group.Key, group => group.First());
-    
+        .Where(p => p.EmployeeId.HasValue)
+        .GroupBy(p => p.EmployeeId!.Value)
+        .ToDictionary(g => g.Key, g => g.First());
+
     // find the holidays that are between the start and end date
     var regularHolidayDates = holidays.Where(s => DateOnly.FromDateTime(s.Date) >= request.start && DateOnly.FromDateTime(s.Date) <= request.end && s.IsRegular).Select(i => DateOnly.FromDateTime(i.Date)).ToList();
     var specialHolidayDates = holidays.Where(s => DateOnly.FromDateTime(s.Date) >= request.start && DateOnly.FromDateTime(s.Date) <= request.end && !s.IsRegular).Select(i => DateOnly.FromDateTime(i.Date)).ToList();

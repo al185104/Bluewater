@@ -288,7 +288,8 @@ public partial class PayrollViewModel : BaseViewModel
 
 				try
 				{
-						IReadOnlyList<PayrollSummary> payrollPeriod = await LoadPayrollsForDownloadAsync().ConfigureAwait(false);
+            IsBusy = true;
+            IReadOnlyList<PayrollSummary> payrollPeriod = await LoadPayrollsForDownloadAsync().ConfigureAwait(false);
 
 						if (payrollPeriod.Count == 0)
 						{
@@ -308,8 +309,6 @@ public partial class PayrollViewModel : BaseViewModel
 						{
 								return;
 						}
-
-						IsBusy = true;
 
 						StringBuilder csv = new();
 						csv.AppendLine(string.Join(",", GetPayrollExportHeaders()));
