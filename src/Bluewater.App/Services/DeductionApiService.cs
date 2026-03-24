@@ -1,4 +1,4 @@
-using Bluewater.App.Interfaces;
+﻿using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 
 namespace Bluewater.App.Services;
@@ -24,7 +24,7 @@ public class DeductionApiService(IApiClient apiClient) : IDeductionApiService
 
     return response.Deductions
       .Where(dto => dto is not null)
-      .Select(MapToSummary)
+      .Select(MapToSummary!)
       .ToList();
   }
 
