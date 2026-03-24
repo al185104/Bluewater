@@ -228,6 +228,12 @@ public partial class LeaveViewModel : BaseViewModel
       SelectedEmployee = null;
     }
 
+    if (hasInitialized)
+    {
+      _ = LoadLeavesAsync();
+      return;
+    }
+
     ApplyLeaveFilter();
   }
 
@@ -249,7 +255,7 @@ public partial class LeaveViewModel : BaseViewModel
       IsBusy = true;
 
       IReadOnlyList<LeaveSummary> leaves = await leaveApiService
-        .GetLeavesAsync(tenant: TenantFilter)
+        .GetLeavesAsync(tenant: TenantFilter, chargingId: SelectedCharging?.Id)
         .ConfigureAwait(false);
 
       allLeaves.Clear();

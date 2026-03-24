@@ -12,9 +12,10 @@ public class LeaveApiService(IApiClient apiClient) : ILeaveApiService
     int? skip = null,
     int? take = null,
     TenantDto tenant = TenantDto.Maribago,
+    Guid? chargingId = null,
     CancellationToken cancellationToken = default)
   {
-    string requestUri = BuildRequestUri(skip, take, tenant);
+    string requestUri = BuildRequestUri(skip, take, tenant, chargingId);
 
     LeaveListResponseDto? response = await apiClient.GetAsync<LeaveListResponseDto>(requestUri, cancellationToken);
 
@@ -131,7 +132,7 @@ public class LeaveApiService(IApiClient apiClient) : ILeaveApiService
     return apiClient.DeleteAsync($"Leaves/{leaveId}", cancellationToken);
   }
 
-  private static string BuildRequestUri(int? skip, int? take, TenantDto tenant)
+  private static string BuildRequestUri(int? skip, int? take, TenantDto tenant, Guid? chargingId)
   {
     List<string> parameters = [];
 
@@ -146,6 +147,11 @@ public class LeaveApiService(IApiClient apiClient) : ILeaveApiService
     }
 
     parameters.Add($"tenant={tenant}");
+
+    if (chargingId.HasValue && chargingId.Value != Guid.Empty)
+    {
+      parameters.Add($"chargingId={chargingId.Value}");
+    }
 
     if (parameters.Count == 0)
     {
