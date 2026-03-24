@@ -14,18 +14,24 @@ public partial class FormsViewModel : BaseViewModel
 {
   private readonly IDeductionApiService deductionApiService;
   private readonly IEmployeeApiService employeeApiService;
+  private readonly IReferenceDataService referenceDataService;
   private readonly List<DeductionSummary> allDeductions = [];
+  private readonly Dictionary<Guid, HashSet<Guid>> employeeIdsByCharging = [];
   private bool hasInitialized;
+  private bool suppressSelectedChargingChanged;
+  private bool hasLoadedEmployeeChargingMap;
 
   public FormsViewModel(
     IDeductionApiService deductionApiService,
     IEmployeeApiService employeeApiService,
+    IReferenceDataService referenceDataService,
     IActivityTraceService activityTraceService,
     IExceptionHandlingService exceptionHandlingService)
     : base(activityTraceService, exceptionHandlingService)
   {
     this.deductionApiService = deductionApiService;
     this.employeeApiService = employeeApiService;
+    this.referenceDataService = referenceDataService;
 
     EditableDeduction = CreateNewDeduction();
     LoadDeductionTypes();
@@ -34,6 +40,7 @@ public partial class FormsViewModel : BaseViewModel
   public ObservableCollection<DeductionSummary> Deductions { get; } = new();
   public ObservableCollection<EmployeeSummary> Employees { get; } = new();
   public ObservableCollection<DeductionTypeOption> DeductionTypes { get; } = new();
+  public ObservableCollection<ChargingSummary> Chargings { get; } = new();
 
   [ObservableProperty]
   public partial DeductionSummary? SelectedDeduction { get; set; }
@@ -51,6 +58,9 @@ public partial class FormsViewModel : BaseViewModel
   public partial EmployeeSummary? SelectedEmployee { get; set; }
 
   [ObservableProperty]
+  public partial ChargingSummary? SelectedCharging { get; set; }
+
+  [ObservableProperty]
   public partial DeductionTypeOption? SelectedDeductionType { get; set; }
 
   public override async Task InitializeAsync()
@@ -62,6 +72,7 @@ public partial class FormsViewModel : BaseViewModel
 
     hasInitialized = true;
     await TraceCommandAsync(nameof(InitializeAsync));
+    await LoadChargingsAsync();
     await LoadDeductionsAsync();
   }
 
@@ -69,6 +80,7 @@ public partial class FormsViewModel : BaseViewModel
   private async Task RefreshAsync()
   {
     await TraceCommandAsync(nameof(RefreshAsync));
+    await LoadChargingsAsync();
     await LoadDeductionsAsync();
   }
 
@@ -157,8 +169,24 @@ public partial class FormsViewModel : BaseViewModel
   {
     if (value is not null)
     {
+      TrySelectChargingForEmployee(value);
       EditableDeduction.EmpId = value.Id;
       EditableDeduction.Name = value.FullName;
+    }
+
+    ApplyDeductionFilter();
+  }
+
+  partial void OnSelectedChargingChanged(ChargingSummary? value)
+  {
+    if (suppressSelectedChargingChanged)
+    {
+      return;
+    }
+
+    if (SelectedEmployee is not null && SelectedEmployee.ChargingId != value?.Id)
+    {
+      SelectedEmployee = null;
     }
 
     ApplyDeductionFilter();
@@ -228,6 +256,7 @@ public partial class FormsViewModel : BaseViewModel
 
       allDeductions.Clear();
       allDeductions.AddRange(deductions);
+      await EnsureEmployeeChargingMapAsync();
       ApplyDeductionFilter();
     }
     catch (Exception ex)
@@ -319,6 +348,7 @@ public partial class FormsViewModel : BaseViewModel
       if (matchedEmployee is not null)
       {
         Employees.Add(matchedEmployee);
+        RegisterEmployeeCharging(matchedEmployee);
       }
 
       SelectedEmployee = matchedEmployee;
@@ -333,6 +363,16 @@ public partial class FormsViewModel : BaseViewModel
   private void ApplyDeductionFilter()
   {
     IEnumerable<DeductionSummary> filteredDeductions = allDeductions;
+
+    if (SelectedCharging is not null)
+    {
+      HashSet<Guid> employeeIds = employeeIdsByCharging.TryGetValue(SelectedCharging.Id, out HashSet<Guid>? ids)
+        ? ids
+        : [];
+      filteredDeductions = filteredDeductions.Where(deduction =>
+        deduction.EmpId.HasValue && employeeIds.Contains(deduction.EmpId.Value));
+    }
+
     if (SelectedEmployee is not null)
     {
       filteredDeductions = filteredDeductions.Where(deduction => deduction.EmpId == SelectedEmployee.Id);
@@ -351,6 +391,110 @@ public partial class FormsViewModel : BaseViewModel
     }
 
     Deductions.UpdateRowIndexes();
+  }
+
+  private async Task LoadChargingsAsync()
+  {
+    try
+    {
+      await referenceDataService.InitializeAsync();
+
+      suppressSelectedChargingChanged = true;
+      Guid? previousId = SelectedCharging?.Id;
+
+      Chargings.Clear();
+      foreach (ChargingSummary charging in referenceDataService.Chargings
+        .OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase))
+      {
+        Chargings.Add(charging);
+      }
+
+      if (previousId.HasValue)
+      {
+        SelectedCharging = Chargings.FirstOrDefault(item => item.Id == previousId.Value);
+      }
+
+      if (SelectedCharging is null && Chargings.Count > 0)
+      {
+        SelectedCharging = Chargings[0];
+      }
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Loading chargings");
+    }
+    finally
+    {
+      suppressSelectedChargingChanged = false;
+    }
+  }
+
+  private void TrySelectChargingForEmployee(EmployeeSummary employee)
+  {
+    RegisterEmployeeCharging(employee);
+
+    if (!employee.ChargingId.HasValue || employee.ChargingId.Value == Guid.Empty)
+    {
+      return;
+    }
+
+    ChargingSummary? targetCharging = Chargings.FirstOrDefault(charging => charging.Id == employee.ChargingId.Value);
+    if (targetCharging is null || SelectedCharging?.Id == targetCharging.Id)
+    {
+      return;
+    }
+
+    suppressSelectedChargingChanged = true;
+    SelectedCharging = targetCharging;
+    suppressSelectedChargingChanged = false;
+  }
+
+  private async Task EnsureEmployeeChargingMapAsync()
+  {
+    if (hasLoadedEmployeeChargingMap)
+    {
+      return;
+    }
+
+    const int pageSize = 200;
+    int skip = 0;
+    while (true)
+    {
+      PagedResult<EmployeeSummary> page = await employeeApiService.GetEmployeesAsync(skip: skip, take: pageSize);
+      if (page.Items.Count == 0)
+      {
+        break;
+      }
+
+      foreach (EmployeeSummary employee in page.Items)
+      {
+        RegisterEmployeeCharging(employee);
+      }
+
+      skip += page.Items.Count;
+      if (page.Items.Count < pageSize)
+      {
+        break;
+      }
+    }
+
+    hasLoadedEmployeeChargingMap = true;
+  }
+
+  private void RegisterEmployeeCharging(EmployeeSummary employee)
+  {
+    if (!employee.ChargingId.HasValue || employee.ChargingId.Value == Guid.Empty)
+    {
+      return;
+    }
+
+    if (!employeeIdsByCharging.TryGetValue(employee.ChargingId.Value, out HashSet<Guid>? employeeIds))
+    {
+      employeeIds = [];
+      employeeIdsByCharging[employee.ChargingId.Value] = employeeIds;
+    }
+
+    employeeIds.Add(employee.Id);
   }
 
   private void LoadDeductionTypes()
