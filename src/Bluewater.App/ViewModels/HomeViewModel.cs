@@ -12,6 +12,9 @@ public partial class HomeViewModel : BaseViewModel
 		[ObservableProperty]
 		public partial bool IsToggled { get; set; } = true;
 
+		[ObservableProperty]
+		public partial MainSectionEnum CurrentSection { get; set; } = MainSectionEnum.Dashboard;
+
 		public event Func<MainSectionEnum, Task>? NavigateRequested;
 
 		private readonly IDashboardApiService _dashboardApiService;
@@ -35,6 +38,8 @@ public partial class HomeViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task NavigateAsync(MainSectionEnum section)
 		{
+				CurrentSection = section;
+
 				var handler = NavigateRequested;
 				if (handler is null) return;
 
