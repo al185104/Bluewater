@@ -32,7 +32,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
     string?, string?, string?, string?, string?,
     string?)> employees = new();
     int totalCount = 0;
-    using (var scope = serviceScopeFactory.CreateScope())
+    using (IServiceScope scope = serviceScopeFactory.CreateScope())
     {
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
       Result<Common.PagedResult<EmployeeDTO>> ret;
@@ -50,64 +50,28 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
       }
     }
 
-    List<AllAttendancesDTO> attendances = new();
-    using (var scope = serviceScopeFactory.CreateScope())
-    {
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var ret = await mediator.Send(new ListAllAttendancesQuery(request.skip, request.take, request.chargingName ?? string.Empty, request.start, request.end, request.tenant));
-        if (ret.IsSuccess)
-            attendances = ret.Value.Items.ToList();
-    }
+    Task<List<AllAttendancesDTO>> attendancesTask = LoadAttendancesAsync(request, cancellationToken);
+    Task<List<HolidayDTO>> holidaysTask = LoadHolidaysAsync(request, cancellationToken);
+    Task<List<OvertimeDTO>> overtimesTask = LoadOvertimesAsync(request, cancellationToken);
+    Task<List<OtherEarningDTO>> otherEarningsTask = LoadOtherEarningsAsync(request, cancellationToken);
+    Task<List<DeductionDTO>> deductionsTask = LoadDeductionsAsync(request, cancellationToken);
+    Task<List<ServiceChargeDTO>> serviceChargesTask = LoadServiceChargesAsync(request, cancellationToken);
 
-    // get all holidays by dates
-    List<HolidayDTO> holidays = new();
-    using (var scope = serviceScopeFactory.CreateScope())
-    {
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var ret = await mediator.Send(new ListHolidayByDatesQuery(null, null, request.start, request.end));
-        if (ret.IsSuccess)
-            holidays = ret.Value.ToList();
-    }
+    await Task.WhenAll(attendancesTask, holidaysTask, overtimesTask, otherEarningsTask, deductionsTask, serviceChargesTask);
 
-    // get all overtimes
-    List<OvertimeDTO> overtimes = new();
-    using (var scope = serviceScopeFactory.CreateScope())
-    {
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var ret = await mediator.Send(new ListOvertimeByDatesQuery(null, null, request.start, request.end));
-        if (ret.IsSuccess)
-            overtimes = ret.Value.ToList();
-    }
+    List<AllAttendancesDTO> attendances = attendancesTask.Result;
+    List<HolidayDTO> holidays = holidaysTask.Result;
+    List<OvertimeDTO> overtimes = overtimesTask.Result;
+    List<OtherEarningDTO> otherEarnings = otherEarningsTask.Result;
+    List<DeductionDTO> deductions = deductionsTask.Result;
+    List<ServiceChargeDTO> serviceCharges = serviceChargesTask.Result;
 
-    // get all other earnings.
-    List<OtherEarningDTO> otherEarnings = new();
-    using (var scope = serviceScopeFactory.CreateScope())
-    {
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var ret = await mediator.Send(new ListOtherEarningsByDatesQuery(null, null, request.start, request.end));
-        if (ret.IsSuccess)
-            otherEarnings = ret.Value.ToList();
-    }
-
-    // get all deductions
-    List<DeductionDTO> deductions = new();
-    using (var scope = serviceScopeFactory.CreateScope())
-    {
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var ret = await mediator.Send(new ListDeductionByEmpIdDatesQuery(null, null, null, ApplicationStatusDTO.Approved, request.end));
-        if (ret.IsSuccess)
-            deductions = ret.Value.ToList();
-    }
-
-    // get all service charges
-    List<ServiceChargeDTO> serviceCharges = new();
-    using (var scope = serviceScopeFactory.CreateScope())
-    {
-        var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-        var ret = await mediator.Send(new ListServiceChargeQuery(null, null, request.end));
-        if (ret.IsSuccess)
-            serviceCharges = ret.Value.ToList();
-    }
+    List<Payroll> existingPayrolls = await _repository.ListAsync(
+      new PayrollByEmployeeIdsAndDateSpec(employees.Select(employee => employee.Item1), request.end),
+      cancellationToken);
+    Dictionary<Guid, Payroll> payrollByEmployeeId = existingPayrolls
+      .GroupBy(payroll => payroll.EmployeeId)
+      .ToDictionary(group => group.Key, group => group.First());
     
     // find the holidays that are between the start and end date
     var regularHolidayDates = holidays.Where(s => DateOnly.FromDateTime(s.Date) >= request.start && DateOnly.FromDateTime(s.Date) <= request.end && s.IsRegular).Select(i => DateOnly.FromDateTime(i.Date)).ToList();
@@ -185,8 +149,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
       // service charge by username
       var svcCharge = serviceCharges.FirstOrDefault(i => i.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
 
-      var spec = new PayrollByIdSpec(empId, request.end);
-      var payroll = await _repository.FirstOrDefaultAsync(spec, cancellationToken);
+      payrollByEmployeeId.TryGetValue(empId, out Payroll? payroll);
       
       if(payroll == null) {
         payroll = new Payroll();
@@ -217,6 +180,64 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
       results.Add(_payRoll);
     }
     return Result.Success(new Common.PagedResult<PayrollDTO>(results, totalCount));
+  }
+
+  private async Task<List<AllAttendancesDTO>> LoadAttendancesAsync(ListPayrollQuery request, CancellationToken cancellationToken)
+  {
+    using IServiceScope scope = serviceScopeFactory.CreateScope();
+    IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+    Result<Common.PagedResult<AllAttendancesDTO>> ret = await mediator.Send(
+      new ListAllAttendancesQuery(request.skip, request.take, request.chargingName ?? string.Empty, request.start, request.end, request.tenant),
+      cancellationToken);
+
+    return ret.IsSuccess ? ret.Value.Items.ToList() : new List<AllAttendancesDTO>();
+  }
+
+  private async Task<List<HolidayDTO>> LoadHolidaysAsync(ListPayrollQuery request, CancellationToken cancellationToken)
+  {
+    using IServiceScope scope = serviceScopeFactory.CreateScope();
+    IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+    Result<IEnumerable<HolidayDTO>> ret = await mediator.Send(new ListHolidayByDatesQuery(null, null, request.start, request.end), cancellationToken);
+
+    return ret.IsSuccess ? ret.Value.ToList() : new List<HolidayDTO>();
+  }
+
+  private async Task<List<OvertimeDTO>> LoadOvertimesAsync(ListPayrollQuery request, CancellationToken cancellationToken)
+  {
+    using IServiceScope scope = serviceScopeFactory.CreateScope();
+    IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+    Result<IEnumerable<OvertimeDTO>> ret = await mediator.Send(new ListOvertimeByDatesQuery(null, null, request.start, request.end), cancellationToken);
+
+    return ret.IsSuccess ? ret.Value.ToList() : new List<OvertimeDTO>();
+  }
+
+  private async Task<List<OtherEarningDTO>> LoadOtherEarningsAsync(ListPayrollQuery request, CancellationToken cancellationToken)
+  {
+    using IServiceScope scope = serviceScopeFactory.CreateScope();
+    IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+    Result<IEnumerable<OtherEarningDTO>> ret = await mediator.Send(new ListOtherEarningsByDatesQuery(null, null, request.start, request.end), cancellationToken);
+
+    return ret.IsSuccess ? ret.Value.ToList() : new List<OtherEarningDTO>();
+  }
+
+  private async Task<List<DeductionDTO>> LoadDeductionsAsync(ListPayrollQuery request, CancellationToken cancellationToken)
+  {
+    using IServiceScope scope = serviceScopeFactory.CreateScope();
+    IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+    Result<IEnumerable<DeductionDTO>> ret = await mediator.Send(
+      new ListDeductionByEmpIdDatesQuery(null, null, null, ApplicationStatusDTO.Approved, request.end),
+      cancellationToken);
+
+    return ret.IsSuccess ? ret.Value.ToList() : new List<DeductionDTO>();
+  }
+
+  private async Task<List<ServiceChargeDTO>> LoadServiceChargesAsync(ListPayrollQuery request, CancellationToken cancellationToken)
+  {
+    using IServiceScope scope = serviceScopeFactory.CreateScope();
+    IMediator mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+    Result<IEnumerable<ServiceChargeDTO>> ret = await mediator.Send(new ListServiceChargeQuery(null, null, request.end), cancellationToken);
+
+    return ret.IsSuccess ? ret.Value.ToList() : new List<ServiceChargeDTO>();
   }
 
   private decimal CalculateNightDiffOvertimePremium(decimal hourlyRate, List<OvertimeDTO> overtimes)

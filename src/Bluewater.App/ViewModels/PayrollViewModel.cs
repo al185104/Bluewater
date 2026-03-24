@@ -19,6 +19,7 @@ public partial class PayrollViewModel : BaseViewModel
 		private readonly IPayrollApiService payrollApiService;
 		private readonly IReferenceDataService referenceDataService;
 		private bool hasInitialized;
+		private bool isInitializing;
 		private bool hasPendingPayrollsInPeriod;
 		private int payrollCountInPeriod;
 
@@ -72,15 +73,23 @@ public partial class PayrollViewModel : BaseViewModel
 
 		public override async Task InitializeAsync()
 		{
-				if (hasInitialized)
+				if (hasInitialized || isInitializing)
 				{
 						return;
 				}
 
-				hasInitialized = true;
-				await TraceCommandAsync(nameof(InitializeAsync));
-				await LoadChargingOptionsAsync();
-				await LoadPayrollsAsync();
+				try
+				{
+						isInitializing = true;
+						await TraceCommandAsync(nameof(InitializeAsync));
+						await LoadChargingOptionsAsync();
+						await LoadPayrollsAsync();
+						hasInitialized = true;
+				}
+				finally
+				{
+						isInitializing = false;
+				}
 		}
 
 		[RelayCommand]
@@ -583,7 +592,7 @@ public partial class PayrollViewModel : BaseViewModel
 
 		partial void OnChargingFilterChanged(string? value)
 		{
-				if (!hasInitialized)
+				if (!hasInitialized || isInitializing)
 				{
 						return;
 				}
