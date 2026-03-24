@@ -10,6 +10,7 @@ public interface ILeaveApiService
     int? skip = null,
     int? take = null,
     TenantDto tenant = TenantDto.Maribago,
+    Guid? chargingId = null,
     CancellationToken cancellationToken = default);
 
   Task<LeaveSummary?> GetLeaveByIdAsync(Guid leaveId, CancellationToken cancellationToken = default);
