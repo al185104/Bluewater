@@ -27,79 +27,174 @@
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
                     Command="{Binding ToggleMenuCommand}"/>
-            <Button x:Name="btnHome" 
-                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.Home}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
-                    Text="Home"
-                    HorizontalOptions="Start"
-                    TextColor="{StaticResource TextPrimaryColor}"
-                    ContentLayout="Left, 20"
-                    BackgroundColor="Transparent"
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Dashboard}" />
-            <Button x:Name="btnEmployees" 
-                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.Users}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
-                    Text="Employees"
-                    HorizontalOptions="Start"
-                    TextColor="{StaticResource TextPrimaryColor}"
-                    ContentLayout="Left, 20"
-                    BackgroundColor="Transparent"
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Employees}" />
-            <Button x:Name="btnShifts" 
-                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.Moon}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
-                    Text="Shifts"
-                    HorizontalOptions="Start"
-                    TextColor="{StaticResource TextPrimaryColor}"
-                    ContentLayout="Left, 20"
-                    BackgroundColor="Transparent"
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Shifts}" />
-            <Button x:Name="btnSchedules" 
-                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.Clock}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
-                    Text="Schedules"
-                    HorizontalOptions="Start"
-                    TextColor="{StaticResource TextPrimaryColor}"
-                    ContentLayout="Left, 20"
-                    BackgroundColor="Transparent"
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Schedules}" />
-            <Button x:Name="btnMealCredits" 
-                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.Coffee}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
-                    Text="Meal Credits"
-                    HorizontalOptions="Start"
-                    TextColor="{StaticResource TextPrimaryColor}"
-                    ContentLayout="Left, 20"
-                    BackgroundColor="Transparent"
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.MealCredit}" 
-					IsVisible="False"/>
-            <Button x:Name="btnLeaves" 
-                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.Map}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
-                    Text="Leaves"
-                    HorizontalOptions="Start"
-                    TextColor="{StaticResource TextPrimaryColor}"
-                    ContentLayout="Left, 20"
-                    BackgroundColor="Transparent"
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Leaves}" />
-            <Button x:Name="btnUsers"
-                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.FileText}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
-                    Text="Forms"
-                    HorizontalOptions="Start"
-                    TextColor="{StaticResource TextPrimaryColor}"
-                    ContentLayout="Left, 20"
-                    BackgroundColor="Transparent"
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Forms}" />
-            <Button x:Name="btnTimesheet" 
-                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.Calendar}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
-                    Text="Timesheet"
-                    HorizontalOptions="Start"
-                    TextColor="{StaticResource TextPrimaryColor}"
-                    ContentLayout="Left, 20"
-                    BackgroundColor="Transparent"
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Timesheet}" />
+            <Grid ColumnDefinitions="4,*">
+                <BoxView Color="{StaticResource Primary}" IsVisible="False" />
+                <BoxView.Triggers>
+                    <DataTrigger TargetType="BoxView"
+                                 Binding="{Binding CurrentSection}"
+                                 Value="{x:Static enum:MainSectionEnum.Dashboard}">
+                        <Setter Property="IsVisible"
+                                Value="True" />
+                    </DataTrigger>
+                </BoxView.Triggers>
+                <Button x:Name="btnHome"
+                        Grid.Column="1"
+                        ImageSource="{FontImage Glyph={x:Static helpers:Icon.Home}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                        Text="Home"
+                        HorizontalOptions="Start"
+                        TextColor="{StaticResource TextPrimaryColor}"
+                        ContentLayout="Left, 20"
+                        BackgroundColor="Transparent"
+                        Command="{Binding NavigateCommand}"
+                        CommandParameter="{x:Static enum:MainSectionEnum.Dashboard}" />
+            </Grid>
+            <Grid ColumnDefinitions="4,*">
+                <BoxView Color="{StaticResource Primary}" IsVisible="False" />
+                <BoxView.Triggers>
+                    <DataTrigger TargetType="BoxView"
+                                 Binding="{Binding CurrentSection}"
+                                 Value="{x:Static enum:MainSectionEnum.Employees}">
+                        <Setter Property="IsVisible"
+                                Value="True" />
+                    </DataTrigger>
+                </BoxView.Triggers>
+                <Button x:Name="btnEmployees"
+                        Grid.Column="1"
+                        ImageSource="{FontImage Glyph={x:Static helpers:Icon.Users}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                        Text="Employees"
+                        HorizontalOptions="Start"
+                        TextColor="{StaticResource TextPrimaryColor}"
+                        ContentLayout="Left, 20"
+                        BackgroundColor="Transparent"
+                        Command="{Binding NavigateCommand}"
+                        CommandParameter="{x:Static enum:MainSectionEnum.Employees}" />
+            </Grid>
+            <Grid ColumnDefinitions="4,*">
+                <BoxView Color="{StaticResource Primary}" IsVisible="False" />
+                <BoxView.Triggers>
+                    <DataTrigger TargetType="BoxView"
+                                 Binding="{Binding CurrentSection}"
+                                 Value="{x:Static enum:MainSectionEnum.Shifts}">
+                        <Setter Property="IsVisible"
+                                Value="True" />
+                    </DataTrigger>
+                </BoxView.Triggers>
+                <Button x:Name="btnShifts"
+                        Grid.Column="1"
+                        ImageSource="{FontImage Glyph={x:Static helpers:Icon.Moon}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                        Text="Shifts"
+                        HorizontalOptions="Start"
+                        TextColor="{StaticResource TextPrimaryColor}"
+                        ContentLayout="Left, 20"
+                        BackgroundColor="Transparent"
+                        Command="{Binding NavigateCommand}"
+                        CommandParameter="{x:Static enum:MainSectionEnum.Shifts}" />
+            </Grid>
+            <Grid ColumnDefinitions="4,*">
+                <BoxView Color="{StaticResource Primary}" IsVisible="False" />
+                <BoxView.Triggers>
+                    <DataTrigger TargetType="BoxView"
+                                 Binding="{Binding CurrentSection}"
+                                 Value="{x:Static enum:MainSectionEnum.Schedules}">
+                        <Setter Property="IsVisible"
+                                Value="True" />
+                    </DataTrigger>
+                </BoxView.Triggers>
+                <Button x:Name="btnSchedules"
+                        Grid.Column="1"
+                        ImageSource="{FontImage Glyph={x:Static helpers:Icon.Clock}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                        Text="Schedules"
+                        HorizontalOptions="Start"
+                        TextColor="{StaticResource TextPrimaryColor}"
+                        ContentLayout="Left, 20"
+                        BackgroundColor="Transparent"
+                        Command="{Binding NavigateCommand}"
+                        CommandParameter="{x:Static enum:MainSectionEnum.Schedules}" />
+            </Grid>
+            <Grid ColumnDefinitions="4,*" IsVisible="False">
+                <BoxView Color="{StaticResource Primary}" IsVisible="False" />
+                <BoxView.Triggers>
+                    <DataTrigger TargetType="BoxView"
+                                 Binding="{Binding CurrentSection}"
+                                 Value="{x:Static enum:MainSectionEnum.MealCredit}">
+                        <Setter Property="IsVisible"
+                                Value="True" />
+                    </DataTrigger>
+                </BoxView.Triggers>
+                <Button x:Name="btnMealCredits"
+                        Grid.Column="1"
+                        ImageSource="{FontImage Glyph={x:Static helpers:Icon.Coffee}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                        Text="Meal Credits"
+                        HorizontalOptions="Start"
+                        TextColor="{StaticResource TextPrimaryColor}"
+                        ContentLayout="Left, 20"
+                        BackgroundColor="Transparent"
+                        Command="{Binding NavigateCommand}"
+                        CommandParameter="{x:Static enum:MainSectionEnum.MealCredit}" />
+            </Grid>
+            <Grid ColumnDefinitions="4,*">
+                <BoxView Color="{StaticResource Primary}" IsVisible="False" />
+                <BoxView.Triggers>
+                    <DataTrigger TargetType="BoxView"
+                                 Binding="{Binding CurrentSection}"
+                                 Value="{x:Static enum:MainSectionEnum.Leaves}">
+                        <Setter Property="IsVisible"
+                                Value="True" />
+                    </DataTrigger>
+                </BoxView.Triggers>
+                <Button x:Name="btnLeaves"
+                        Grid.Column="1"
+                        ImageSource="{FontImage Glyph={x:Static helpers:Icon.Map}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                        Text="Leaves"
+                        HorizontalOptions="Start"
+                        TextColor="{StaticResource TextPrimaryColor}"
+                        ContentLayout="Left, 20"
+                        BackgroundColor="Transparent"
+                        Command="{Binding NavigateCommand}"
+                        CommandParameter="{x:Static enum:MainSectionEnum.Leaves}" />
+            </Grid>
+            <Grid ColumnDefinitions="4,*">
+                <BoxView Color="{StaticResource Primary}" IsVisible="False" />
+                <BoxView.Triggers>
+                    <DataTrigger TargetType="BoxView"
+                                 Binding="{Binding CurrentSection}"
+                                 Value="{x:Static enum:MainSectionEnum.Forms}">
+                        <Setter Property="IsVisible"
+                                Value="True" />
+                    </DataTrigger>
+                </BoxView.Triggers>
+                <Button x:Name="btnUsers"
+                        Grid.Column="1"
+                        ImageSource="{FontImage Glyph={x:Static helpers:Icon.FileText}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                        Text="Forms"
+                        HorizontalOptions="Start"
+                        TextColor="{StaticResource TextPrimaryColor}"
+                        ContentLayout="Left, 20"
+                        BackgroundColor="Transparent"
+                        Command="{Binding NavigateCommand}"
+                        CommandParameter="{x:Static enum:MainSectionEnum.Forms}" />
+            </Grid>
+            <Grid ColumnDefinitions="4,*">
+                <BoxView Color="{StaticResource Primary}" IsVisible="False" />
+                <BoxView.Triggers>
+                    <DataTrigger TargetType="BoxView"
+                                 Binding="{Binding CurrentSection}"
+                                 Value="{x:Static enum:MainSectionEnum.Timesheet}">
+                        <Setter Property="IsVisible"
+                                Value="True" />
+                    </DataTrigger>
+                </BoxView.Triggers>
+                <Button x:Name="btnTimesheet"
+                        Grid.Column="1"
+                        ImageSource="{FontImage Glyph={x:Static helpers:Icon.Calendar}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                        Text="Timesheet"
+                        HorizontalOptions="Start"
+                        TextColor="{StaticResource TextPrimaryColor}"
+                        ContentLayout="Left, 20"
+                        BackgroundColor="Transparent"
+                        Command="{Binding NavigateCommand}"
+                        CommandParameter="{x:Static enum:MainSectionEnum.Timesheet}" />
+            </Grid>
             <!--<Button x:Name="btnAttendance" 
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.Users}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Attendance"
@@ -109,15 +204,27 @@
                     BackgroundColor="Transparent"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Attendance}" />-->
-            <Button x:Name="btnPayroll"
-                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.CreditCard}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
-                    Text="Payroll"
-                    HorizontalOptions="Start"
-                    TextColor="{StaticResource TextPrimaryColor}"
-                    ContentLayout="Left, 20"
-                    BackgroundColor="Transparent"
-                    Command="{Binding NavigateCommand}"
-                    CommandParameter="{x:Static enum:MainSectionEnum.Payroll}" />
+            <Grid ColumnDefinitions="4,*">
+                <BoxView Color="{StaticResource Primary}" IsVisible="False" />
+                <BoxView.Triggers>
+                    <DataTrigger TargetType="BoxView"
+                                 Binding="{Binding CurrentSection}"
+                                 Value="{x:Static enum:MainSectionEnum.Payroll}">
+                        <Setter Property="IsVisible"
+                                Value="True" />
+                    </DataTrigger>
+                </BoxView.Triggers>
+                <Button x:Name="btnPayroll"
+                        Grid.Column="1"
+                        ImageSource="{FontImage Glyph={x:Static helpers:Icon.CreditCard}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                        Text="Payroll"
+                        HorizontalOptions="Start"
+                        TextColor="{StaticResource TextPrimaryColor}"
+                        ContentLayout="Left, 20"
+                        BackgroundColor="Transparent"
+                        Command="{Binding NavigateCommand}"
+                        CommandParameter="{x:Static enum:MainSectionEnum.Payroll}" />
+            </Grid>
         </VerticalStackLayout>
         
         <VerticalStackLayout x:Name="vslSubmenu" Grid.Row="1" WidthRequest="140">
