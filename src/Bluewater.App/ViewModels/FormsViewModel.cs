@@ -565,7 +565,50 @@ public partial class FormsViewModel : BaseViewModel
 
   private static int CalculateInclusiveMonthCount(DateTime startDate, DateTime endDate)
   {
-    int monthCount = ((endDate.Year - startDate.Year) * 12) + endDate.Month - startDate.Month + 1;
-    return Math.Max(monthCount, 1);
+    DateTime startPeriodEnd = GetPayrollPeriodEnd(startDate.Date);
+    DateTime endPeriodEnd = GetPayrollPeriodEnd(endDate.Date);
+
+    int monthlyDeductionCount = 0;
+    DateTime currentPeriodEnd = startPeriodEnd;
+
+    while (currentPeriodEnd <= endPeriodEnd)
+    {
+      if (IsMonthlyDeductionPayrollPeriod(currentPeriodEnd))
+      {
+        monthlyDeductionCount++;
+      }
+
+      currentPeriodEnd = GetNextPayrollPeriodEnd(currentPeriodEnd);
+    }
+
+    return Math.Max(monthlyDeductionCount, 1);
+  }
+
+  private static DateTime GetPayrollPeriodEnd(DateTime date)
+  {
+    int periodEndDay = date.Day <= 15
+      ? 15
+      : DateTime.DaysInMonth(date.Year, date.Month);
+
+    return new DateTime(date.Year, date.Month, periodEndDay);
+  }
+
+  private static DateTime GetNextPayrollPeriodEnd(DateTime periodEndDate)
+  {
+    int monthEndDay = DateTime.DaysInMonth(periodEndDate.Year, periodEndDate.Month);
+
+    if (periodEndDate.Day < monthEndDay)
+    {
+      return new DateTime(periodEndDate.Year, periodEndDate.Month, monthEndDay);
+    }
+
+    DateTime nextMonth = periodEndDate.AddMonths(1);
+    return new DateTime(nextMonth.Year, nextMonth.Month, 15);
+  }
+
+  private static bool IsMonthlyDeductionPayrollPeriod(DateTime periodEndDate)
+  {
+    int monthEndDay = DateTime.DaysInMonth(periodEndDate.Year, periodEndDate.Month);
+    return periodEndDate.Day == monthEndDay;
   }
 }
