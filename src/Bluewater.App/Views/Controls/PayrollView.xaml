@@ -5,11 +5,17 @@
              xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
              xmlns:models="clr-namespace:Bluewater.App.Models"
              xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+             xmlns:converters="clr-namespace:Bluewater.App.Converters"
              x:DataType="vm:PayrollViewModel"
              Loaded="ContentView_Loaded"
              Unloaded="ContentView_Unloaded"
              x:Name="PayrollViewRoot"
              Background="{StaticResource CollectionBackgroundBrush}">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
     <Grid RowDefinitions="Auto,*,Auto"
           Padding="20">
         <Grid Grid.Row="0"
@@ -170,11 +176,9 @@
                                                         Command="{Binding Source={x:Reference PayrollViewRoot}, Path=BindingContext.BeginEditPayrollCommand}"
                                                         CommandParameter="{Binding .}" />
                                         <MenuFlyoutItem Text="Submit"
+                                                        IsEnabled="{Binding IsSaved, Converter={StaticResource BooleanNegationConverter}}"
                                                         Command="{Binding Source={x:Reference PayrollViewRoot}, Path=BindingContext.SubmitPayrollCommand}"
                                                         CommandParameter="{Binding .}" />
-                                        <!--<MenuFlyoutItem Text="Delete"
-                                                        Command="{Binding Source={x:Reference PayrollViewRoot}, Path=BindingContext.DeletePayrollCommand}"
-                                                        CommandParameter="{Binding .}" />-->
                                     </MenuFlyout>
                                 </FlyoutBase.ContextFlyout>
                             </Label>

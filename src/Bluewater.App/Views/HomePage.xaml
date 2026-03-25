@@ -5,6 +5,7 @@
              xmlns:controls="clr-namespace:Bluewater.App.Views.Controls"
              xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
              xmlns:enum="clr-namespace:Bluewater.App.Enums"
+             xmlns:sys="clr-namespace:Microsoft.Maui.ApplicationModel;assembly=Microsoft.Maui.Essentials"
              x:DataType="viewModels:HomeViewModel"
              x:Class="Bluewater.App.Views.HomePage"
              Title="Dashboard">
@@ -254,7 +255,7 @@
             </Grid>
         </VerticalStackLayout>
         
-        <VerticalStackLayout x:Name="vslSubmenu" Grid.Row="1" WidthRequest="140">
+        <VerticalStackLayout x:Name="vslSubmenu" Grid.Row="1" WidthRequest="140" Spacing="0">
             <VerticalStackLayout.Triggers>
                 <DataTrigger TargetType="VerticalStackLayout"
                              Binding="{Binding IsToggled}"
@@ -263,14 +264,14 @@
                             Value="50" />
                 </DataTrigger>
             </VerticalStackLayout.Triggers>
-            <Button x:Name="btnFeedback" 
+            <!--<Button x:Name="btnFeedback" 
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.MessageCircle}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Feedback"
                     HorizontalOptions="Start"
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
 					Clicked="btnFeedback_Clicked"
-                    BackgroundColor="Transparent"/>
+                    BackgroundColor="Transparent"/>-->
                     <!--Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Employees}" />-->
             <Button x:Name="btnSettings" 
@@ -282,6 +283,15 @@
                     BackgroundColor="Transparent"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Settings}" />
+            <Label Padding="18,0,18,5"
+                   IsVisible="{Binding IsToggled}">
+                <Label.FormattedText>
+                    <FormattedString>
+                        <Span Text="version: " />
+                        <Span Text="{x:Static sys:AppInfo.VersionString}" />
+                    </FormattedString>
+                </Label.FormattedText>
+            </Label>
         </VerticalStackLayout>
         
         <Border Grid.Column="1" Grid.RowSpan="2" Background="White" StrokeShape="RoundRectangle 10 0 0 0" Stroke="Transparent">

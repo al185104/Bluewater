@@ -49,12 +49,14 @@ public partial class HomeViewModel : BaseViewModel
 				try
 				{
 						CurrentSection = section;
-						await TraceCommandAsync(nameof(NavigateAsync), new { Section = section.ToString() }).ConfigureAwait(false);
+            await TraceCommandAsync(nameof(NavigateAsync), new { Section = section.ToString() }).ConfigureAwait(false);
 
 						var handler = NavigateRequested;
 						if (handler is null) return;
 
-						await handler.Invoke(section);
+            MainThread.BeginInvokeOnMainThread(async () => { 
+						      await handler.Invoke(section);
+            });
 				}
 				catch (Exception ex)
 				{
