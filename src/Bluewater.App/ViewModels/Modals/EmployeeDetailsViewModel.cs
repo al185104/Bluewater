@@ -135,7 +135,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 												duration: TimeSpan.FromSeconds(3)
 										).Show();
 										await TraceCommandAsync(nameof(UpdateEmployeeAsync), new { Action = "Updated", EmployeeId = updated.Id }).ConfigureAwait(false);
-										await Shell.Current.GoToAsync("..",
+										await NavigateAsync("..",
 												new Dictionary<string, object>
 												{
 														["TargetSection"] = MainSectionEnum.Employees
@@ -170,7 +170,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				{
 						IsBusy = true;
 						await TraceCommandAsync(nameof(CancelAsync), new { EditableEmployee?.Id }).ConfigureAwait(false);
-						await Shell.Current.GoToAsync("..");
+						await NavigateAsync("..");
 				}
 				finally
 				{

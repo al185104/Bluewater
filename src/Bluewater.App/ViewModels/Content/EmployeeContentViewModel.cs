@@ -148,7 +148,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						if (employee is null)
 								return;
 
-						await Shell.Current.GoToAsync(
+						await NavigateAsync(
 								nameof(EmployeeDetailsPage),
 								new Dictionary<string, object>
 								{

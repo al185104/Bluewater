@@ -204,7 +204,7 @@ public partial class PayrollViewModel : BaseViewModel
 						SelectedPayroll = payroll;
 						EditablePayroll = payroll;
 
-						await Shell.Current.GoToAsync(
+						await NavigateAsync(
 								nameof(PayrollDetailsPage),
 								new Dictionary<string, object>
 								{

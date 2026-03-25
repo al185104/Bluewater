@@ -222,18 +222,16 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 				if (anyUpdated)
 				{
-						MainThread.BeginInvokeOnMainThread(async () =>
-						{
-								await Snackbar.Make(
+						await MainThread.InvokeOnMainThreadAsync(() =>
+								Snackbar.Make(
 										"Timesheet has been successfully updated.",
 										duration: TimeSpan.FromSeconds(3)
-								).Show();
-								await Shell.Current.GoToAsync("..",
-										new Dictionary<string, object>
-										{
-												["TargetSection"] = MainSectionEnum.Timesheet
-										});
-						});
+								).Show());
+						await NavigateAsync("..",
+								new Dictionary<string, object>
+								{
+										["TargetSection"] = MainSectionEnum.Timesheet
+								});
 
 						await TraceCommandAsync(nameof(SaveTimesheetsAsync), SelectedEmployeeTimesheet?.EmployeeId).ConfigureAwait(false);
 				}
