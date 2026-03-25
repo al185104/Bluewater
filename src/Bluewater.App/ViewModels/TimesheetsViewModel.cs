@@ -180,7 +180,7 @@ public partial class TimesheetsViewModel : BaseViewModel
 
 						});
 
-						await Shell.Current.GoToAsync(
+						await NavigateAsync(
 								nameof(TimesheetDetailsPage),
 								new Dictionary<string, object>
 								{

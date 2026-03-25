@@ -34,6 +34,16 @@ public abstract partial class BaseViewModel : ObservableObject
       return;
     }
 
+    protected Task NavigateAsync(string route)
+    {
+      return MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(route));
+    }
+
+    protected Task NavigateAsync(string route, IDictionary<string, object> parameters)
+    {
+      return MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(route, parameters));
+    }
+
 		[RelayCommand]
     public virtual Task InitializeAsync() => Task.CompletedTask;
 }

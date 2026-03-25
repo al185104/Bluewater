@@ -37,10 +37,7 @@ public partial class LoginViewModel : BaseViewModel
 				{
 						IsBusy = true;
 						await TraceCommandAsync("Login", new { Target = nameof(HomePage) }).ConfigureAwait(false);
-						MainThread.BeginInvokeOnMainThread(async () =>
-						{
-								await Shell.Current.GoToAsync($"//{nameof(HomePage)}");
-						});
+						await NavigateAsync($"//{nameof(HomePage)}");
 				}
 				finally
 				{
