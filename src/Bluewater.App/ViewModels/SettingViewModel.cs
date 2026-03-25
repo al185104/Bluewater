@@ -161,16 +161,23 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task EditDivisionAsync(DivisionSummary? division)
 		{
-				if (division is null)
+				try
 				{
-						return;
+						if (division is null)
+						{
+								return;
+						}
+
+						EditableSetting = EditableSettingItem.FromDivision(division);
+						EditorTitle = $"Edit Division: {EditableSetting.Name}";
+						IsEditorOpen = true;
+
+						await TraceCommandAsync(nameof(EditDivisionAsync), division.Id);
 				}
-
-				EditableSetting = EditableSettingItem.FromDivision(division);
-				EditorTitle = $"Edit Division: {EditableSetting.Name}";
-				IsEditorOpen = true;
-
-				await TraceCommandAsync(nameof(EditDivisionAsync), division.Id);
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Editing division");
+				}
 		}
 
 		[RelayCommand]
@@ -202,16 +209,23 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task EditDepartmentAsync(DepartmentSummary? department)
 		{
-				if (department is null)
+				try
 				{
-						return;
+						if (department is null)
+						{
+								return;
+						}
+
+						EditableSetting = EditableSettingItem.FromDepartment(department);
+						EditorTitle = $"Edit Department: {EditableSetting.Name}";
+						IsEditorOpen = true;
+
+						await TraceCommandAsync(nameof(EditDepartmentAsync), department.Id);
 				}
-
-				EditableSetting = EditableSettingItem.FromDepartment(department);
-				EditorTitle = $"Edit Department: {EditableSetting.Name}";
-				IsEditorOpen = true;
-
-				await TraceCommandAsync(nameof(EditDepartmentAsync), department.Id);
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Editing department");
+				}
 		}
 
 		[RelayCommand]
@@ -242,16 +256,23 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task EditSectionAsync(SectionSummary? section)
 		{
-				if (section is null)
+				try
 				{
-						return;
+						if (section is null)
+						{
+								return;
+						}
+
+						EditableSetting = EditableSettingItem.FromSection(section);
+						EditorTitle = $"Edit Section: {EditableSetting.Name}";
+						IsEditorOpen = true;
+
+						await TraceCommandAsync(nameof(EditSectionAsync), section.Id);
 				}
-
-				EditableSetting = EditableSettingItem.FromSection(section);
-				EditorTitle = $"Edit Section: {EditableSetting.Name}";
-				IsEditorOpen = true;
-
-				await TraceCommandAsync(nameof(EditSectionAsync), section.Id);
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Editing section");
+				}
 		}
 
 		[RelayCommand]
@@ -282,16 +303,23 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task EditChargingAsync(ChargingSummary? charging)
 		{
-				if (charging is null)
+				try
 				{
-						return;
+						if (charging is null)
+						{
+								return;
+						}
+
+						EditableSetting = EditableSettingItem.FromCharging(charging);
+						EditorTitle = $"Edit Charging: {EditableSetting.Name}";
+						IsEditorOpen = true;
+
+						await TraceCommandAsync(nameof(EditChargingAsync), charging.Id);
 				}
-
-				EditableSetting = EditableSettingItem.FromCharging(charging);
-				EditorTitle = $"Edit Charging: {EditableSetting.Name}";
-				IsEditorOpen = true;
-
-				await TraceCommandAsync(nameof(EditChargingAsync), charging.Id);
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Editing charging");
+				}
 		}
 
 		[RelayCommand]
@@ -322,16 +350,23 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task EditPositionAsync(PositionSummary? position)
 		{
-				if (position is null)
+				try
 				{
-						return;
+						if (position is null)
+						{
+								return;
+						}
+
+						EditableSetting = EditableSettingItem.FromPosition(position);
+						EditorTitle = $"Edit Position: {EditableSetting.Name}";
+						IsEditorOpen = true;
+
+						await TraceCommandAsync(nameof(EditPositionAsync), position.Id);
 				}
-
-				EditableSetting = EditableSettingItem.FromPosition(position);
-				EditorTitle = $"Edit Position: {EditableSetting.Name}";
-				IsEditorOpen = true;
-
-				await TraceCommandAsync(nameof(EditPositionAsync), position.Id);
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Editing position");
+				}
 		}
 
 		[RelayCommand]
@@ -344,6 +379,7 @@ public partial class SettingViewModel : BaseViewModel
 
 				try
 				{
+						await TraceCommandAsync(nameof(UpdateSettingAsync), new { EditableSetting.Id, Type = EditableSetting.Type.ToString() }).ConfigureAwait(false);
 						switch (EditableSetting.Type)
 						{
 								case SettingItemType.Division:
@@ -605,16 +641,23 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task EditEmployeeTypeAsync(EmployeeTypeSummary? employeeType)
 		{
-				if (employeeType is null)
+				try
 				{
-						return;
+						if (employeeType is null)
+						{
+								return;
+						}
+
+						EditableSetting = EditableSettingItem.FromEmployeeType(employeeType);
+						EditorTitle = $"Edit Employee Type: {EditableSetting.Name}";
+						IsEditorOpen = true;
+
+						await TraceCommandAsync(nameof(EditEmployeeTypeAsync), employeeType.Id);
 				}
-
-				EditableSetting = EditableSettingItem.FromEmployeeType(employeeType);
-				EditorTitle = $"Edit Employee Type: {EditableSetting.Name}";
-				IsEditorOpen = true;
-
-				await TraceCommandAsync(nameof(EditEmployeeTypeAsync), employeeType.Id);
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Editing employee type");
+				}
 		}
 
 		[RelayCommand]
@@ -645,16 +688,23 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task EditEmployeeLevelAsync(LevelSummary? level)
 		{
-				if (level is null)
+				try
 				{
-						return;
+						if (level is null)
+						{
+								return;
+						}
+
+						EditableSetting = EditableSettingItem.FromEmployeeLevel(level);
+						EditorTitle = $"Edit Employee Level: {EditableSetting.Name}";
+						IsEditorOpen = true;
+
+						await TraceCommandAsync(nameof(EditEmployeeLevelAsync), level.Id);
 				}
-
-				EditableSetting = EditableSettingItem.FromEmployeeLevel(level);
-				EditorTitle = $"Edit Employee Level: {EditableSetting.Name}";
-				IsEditorOpen = true;
-
-				await TraceCommandAsync(nameof(EditEmployeeLevelAsync), level.Id);
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Editing employee level");
+				}
 		}
 
 		[RelayCommand]
@@ -688,6 +738,7 @@ public partial class SettingViewModel : BaseViewModel
 				if (string.IsNullOrWhiteSpace(NewDivisionName)) return;
 				try
 				{
+						await TraceCommandAsync(nameof(AddDivisionAsync), new { Name = NewDivisionName.Trim() }).ConfigureAwait(false);
 						DivisionSummary? created = await _divisionApiService.CreateDivisionAsync(new DivisionSummary
 						{
 								Name = NewDivisionName.Trim(),
@@ -714,6 +765,7 @@ public partial class SettingViewModel : BaseViewModel
 				if (string.IsNullOrWhiteSpace(NewDepartmentName) || SelectedDivisionForDepartment is null) return;
 				try
 				{
+						await TraceCommandAsync(nameof(AddDepartmentAsync), new { Name = NewDepartmentName.Trim(), DivisionId = SelectedDivisionForDepartment.Id }).ConfigureAwait(false);
 						DepartmentSummary? created = await _departmentApiService.CreateDepartmentAsync(new DepartmentSummary
 						{
 								Name = NewDepartmentName.Trim(),
@@ -744,6 +796,7 @@ public partial class SettingViewModel : BaseViewModel
 				if (string.IsNullOrWhiteSpace(NewSectionName) || SelectedDepartmentForSection is null) return;
 				try
 				{
+						await TraceCommandAsync(nameof(AddSectionAsync), new { Name = NewSectionName.Trim(), DepartmentId = SelectedDepartmentForSection.Id }).ConfigureAwait(false);
 						SectionSummary? created = await _sectionApiService.CreateSectionAsync(new SectionSummary
 						{
 								Name = NewSectionName.Trim(),
@@ -774,6 +827,7 @@ public partial class SettingViewModel : BaseViewModel
 				if (string.IsNullOrWhiteSpace(NewPositionName) || SelectedSectionForPosition is null) return;
 				try
 				{
+						await TraceCommandAsync(nameof(AddPositionAsync), new { Name = NewPositionName.Trim(), SectionId = SelectedSectionForPosition.Id }).ConfigureAwait(false);
 						PositionSummary? created = await _positionApiService.CreatePositionAsync(new PositionSummary
 						{
 								Name = NewPositionName.Trim(),
@@ -803,6 +857,7 @@ public partial class SettingViewModel : BaseViewModel
 				if (string.IsNullOrWhiteSpace(NewChargingName) || SelectedDepartmentForCharging is null) return;
 				try
 				{
+						await TraceCommandAsync(nameof(AddChargingAsync), new { Name = NewChargingName.Trim(), DepartmentId = SelectedDepartmentForCharging.Id }).ConfigureAwait(false);
 						ChargingSummary? created = await _chargingApiService.CreateChargingAsync(new ChargingSummary
 						{
 								Name = NewChargingName.Trim(),
@@ -833,6 +888,7 @@ public partial class SettingViewModel : BaseViewModel
 				if (string.IsNullOrWhiteSpace(NewEmployeeTypeName)) return;
 				try
 				{
+						await TraceCommandAsync(nameof(AddEmployeeTypeAsync), new { Name = NewEmployeeTypeName.Trim() }).ConfigureAwait(false);
 						EmployeeTypeSummary? created = await _employeeTypeApiService.CreateEmployeeTypeAsync(new EmployeeTypeSummary
 						{
 								Name = NewEmployeeTypeName.Trim(),
@@ -859,6 +915,7 @@ public partial class SettingViewModel : BaseViewModel
 				if (string.IsNullOrWhiteSpace(NewEmployeeLevelName)) return;
 				try
 				{
+						await TraceCommandAsync(nameof(AddEmployeeLevelAsync), new { Name = NewEmployeeLevelName.Trim() }).ConfigureAwait(false);
 						LevelSummary? created = await _levelApiService.CreateLevelAsync(new LevelSummary
 						{
 								Name = NewEmployeeLevelName.Trim(),

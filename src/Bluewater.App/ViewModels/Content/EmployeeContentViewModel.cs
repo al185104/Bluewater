@@ -140,17 +140,25 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		[RelayCommand]
 		public async Task EditEmployeeAsync(EmployeeSummary employee)
 		{
-				IsEditingEmployee = true;
+				try
+				{
+						await TraceCommandAsync(nameof(EditEmployeeAsync), employee?.Id);
+						IsEditingEmployee = true;
 
-				if (employee is null)
-						return;
+						if (employee is null)
+								return;
 
-				await Shell.Current.GoToAsync(
-						nameof(EmployeeDetailsPage),
-						new Dictionary<string, object>
-						{
-								["Employee"] = employee
-						});
+						await Shell.Current.GoToAsync(
+								nameof(EmployeeDetailsPage),
+								new Dictionary<string, object>
+								{
+										["Employee"] = employee
+								});
+				}
+				catch (Exception ex)
+				{
+						_exceptionHandlingService.Handle(ex, "Opening employee details");
+				}
 		}
 
 		[RelayCommand]
@@ -200,6 +208,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		[RelayCommand]
 		public async Task ImportEmployeesAsync()
 		{
+				await TraceCommandAsync(nameof(ImportEmployeesAsync));
 				CancelAndDispose();
 				_cts = new CancellationTokenSource();
 
@@ -428,6 +437,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		[RelayCommand]
 		public async Task ExportEmployeesAsync()
 		{
+				await TraceCommandAsync(nameof(ExportEmployeesAsync), new { Count = Employees?.Count ?? 0 });
 				if (IsBusy)
 				{
 						return;

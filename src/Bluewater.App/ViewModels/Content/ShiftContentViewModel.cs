@@ -198,6 +198,7 @@ public partial class ShiftContentViewModel : BaseViewModel
 		[RelayCommand]
 		public async Task ExportShiftsAsync()
 		{
+				await TraceCommandAsync(nameof(ExportShiftsAsync), new { Count = Shifts?.Count ?? 0 });
 				if (IsBusy)
 				{
 						return;
@@ -247,6 +248,10 @@ public partial class ShiftContentViewModel : BaseViewModel
 						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8);
 
 						await Shell.Current.DisplayAlert("Export", $"Shifts exported to {filePath}", "Okay");
+				}
+				catch (Exception ex)
+				{
+						_exceptionHandlingService.Handle(ex, "Exporting shifts failed.");
 				}
 				finally
 				{

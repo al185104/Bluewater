@@ -77,6 +77,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 
       _rowIndex = passedEmployee.RowIndex;
       EditableEmployee = EditableEmployee.FromSummary(passedEmployee);
+      _ = TraceCommandAsync(nameof(ApplyQueryAttributes), new { EmployeeId = passedEmployee.Id, passedEmployee.RowIndex });
       InitializeCommand.Execute(this);
     }
   }
@@ -119,6 +120,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				try
 				{
 						IsBusy = true;
+						await TraceCommandAsync(nameof(UpdateEmployeeAsync), new { EditableEmployee?.Id }).ConfigureAwait(false);
 						if (!ValidateRequiredPickers())
 								return;
 
@@ -132,6 +134,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 												"Employee has been successfully updated.",
 												duration: TimeSpan.FromSeconds(3)
 										).Show();
+										await TraceCommandAsync(nameof(UpdateEmployeeAsync), new { Action = "Updated", EmployeeId = updated.Id }).ConfigureAwait(false);
 										await Shell.Current.GoToAsync("..",
 												new Dictionary<string, object>
 												{
@@ -166,6 +169,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				try
 				{
 						IsBusy = true;
+						await TraceCommandAsync(nameof(CancelAsync), new { EditableEmployee?.Id }).ConfigureAwait(false);
 						await Shell.Current.GoToAsync("..");
 				}
 				finally
@@ -196,6 +200,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				try
 				{
 						IsBusy = true;
+						await TraceCommandAsync(nameof(InitializeWithReferenceDataAsync)).ConfigureAwait(false);
 						await _referenceDataService.InitializeAsync();
 						BindReferenceData();
 						await base.InitializeAsync();

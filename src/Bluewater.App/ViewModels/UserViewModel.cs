@@ -45,6 +45,7 @@ public partial class UserViewModel : BaseViewModel
   [RelayCommand]
   private void BeginCreateUser()
   {
+    _ = TraceCommandAsync(nameof(BeginCreateUser));
     EditableUser = CreateNewUser();
     SelectedUser = null;
   }
@@ -57,6 +58,7 @@ public partial class UserViewModel : BaseViewModel
       return;
     }
 
+    _ = TraceCommandAsync(nameof(BeginEditUser), user.Id);
     SelectedUser = user;
     EditableUser = user with { };
   }
@@ -64,10 +66,12 @@ public partial class UserViewModel : BaseViewModel
   [RelayCommand]
   private async Task SaveUserAsync()
   {
-    if (string.IsNullOrWhiteSpace(EditableUser.Username))
+    try
     {
-      return;
-    }
+      if (string.IsNullOrWhiteSpace(EditableUser.Username))
+      {
+        return;
+      }
 
     bool isNew = Users.All(item => item.Id != EditableUser.Id);
 
@@ -92,23 +96,35 @@ public partial class UserViewModel : BaseViewModel
       }
     }
 
-    UpdateUserRowIndexes();
-    EditableUser = user;
-    await TraceCommandAsync(nameof(SaveUserAsync), user.Id);
+      UpdateUserRowIndexes();
+      EditableUser = user;
+      await TraceCommandAsync(nameof(SaveUserAsync), user.Id);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Saving user");
+    }
   }
 
   [RelayCommand]
   private async Task DeleteUserAsync(UserAccount? user)
   {
-    if (user is null)
+    try
     {
-      return;
-    }
+      if (user is null)
+      {
+        return;
+      }
 
-    if (Users.Remove(user))
+      if (Users.Remove(user))
+      {
+        UpdateUserRowIndexes();
+        await TraceCommandAsync(nameof(DeleteUserAsync), user.Id);
+      }
+    }
+    catch (Exception ex)
     {
-      UpdateUserRowIndexes();
-      await TraceCommandAsync(nameof(DeleteUserAsync), user.Id);
+      ExceptionHandlingService.Handle(ex, "Deleting user");
     }
   }
 

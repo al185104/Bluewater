@@ -79,14 +79,22 @@ public partial class FormsViewModel : BaseViewModel
   [RelayCommand]
   private async Task RefreshAsync()
   {
-    await TraceCommandAsync(nameof(RefreshAsync));
-    await LoadChargingsAsync();
-    await LoadDeductionsAsync();
+    try
+    {
+      await TraceCommandAsync(nameof(RefreshAsync));
+      await LoadChargingsAsync();
+      await LoadDeductionsAsync();
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Refreshing deductions");
+    }
   }
 
   [RelayCommand]
   private void BeginCreateDeduction()
   {
+    _ = TraceCommandAsync(nameof(BeginCreateDeduction), new { SelectedEmployeeId = SelectedEmployee?.Id });
     EditableDeduction = CreateNewDeduction();
     SelectedDeduction = null;
     SelectedDeductionType = null;
@@ -211,13 +219,29 @@ public partial class FormsViewModel : BaseViewModel
   [RelayCommand]
   private async Task ApproveDeductionAsync(DeductionSummary? deduction)
   {
-    await UpdateDeductionStatusAsync(deduction, ApplicationStatusDto.Approved);
+    try
+    {
+      await TraceCommandAsync(nameof(ApproveDeductionAsync), deduction?.Id);
+      await UpdateDeductionStatusAsync(deduction, ApplicationStatusDto.Approved);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Approving deduction");
+    }
   }
 
   [RelayCommand]
   private async Task RejectDeductionAsync(DeductionSummary? deduction)
   {
-    await UpdateDeductionStatusAsync(deduction, ApplicationStatusDto.Rejected);
+    try
+    {
+      await TraceCommandAsync(nameof(RejectDeductionAsync), deduction?.Id);
+      await UpdateDeductionStatusAsync(deduction, ApplicationStatusDto.Rejected);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Rejecting deduction");
+    }
   }
 
   public void RecalculateEditableDeduction()

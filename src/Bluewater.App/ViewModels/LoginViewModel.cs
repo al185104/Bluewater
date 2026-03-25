@@ -54,6 +54,7 @@ public partial class LoginViewModel : BaseViewModel
 				try
 				{
 						IsBusy = true;
+						await TraceCommandAsync(nameof(RefreshReferenceDataAsync)).ConfigureAwait(false);
 						await referenceDataService.InitializeAsync().ConfigureAwait(false);
 						ShowRefreshButton = referenceDataService.HasInitializationFailed;
 				}

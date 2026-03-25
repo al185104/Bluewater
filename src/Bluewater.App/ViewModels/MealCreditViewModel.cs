@@ -50,13 +50,21 @@ public partial class MealCreditViewModel : BaseViewModel
   [RelayCommand]
   private async Task RefreshAsync()
   {
-    await TraceCommandAsync(nameof(RefreshAsync));
-    await LoadMealCreditsAsync();
+    try
+    {
+      await TraceCommandAsync(nameof(RefreshAsync));
+      await LoadMealCreditsAsync();
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Refreshing meal credits");
+    }
   }
 
   [RelayCommand]
   private void BeginCreateMealCredit()
   {
+    _ = TraceCommandAsync(nameof(BeginCreateMealCredit));
     EditableMealCredit = CreateNewMealCredit();
     SelectedMealCredit = null;
   }
@@ -69,6 +77,7 @@ public partial class MealCreditViewModel : BaseViewModel
       return;
     }
 
+    _ = TraceCommandAsync(nameof(BeginEditMealCredit), mealCredit.Id);
     SelectedMealCredit = mealCredit;
     EditableMealCredit = CloneMealCredit(mealCredit);
   }
@@ -76,52 +85,66 @@ public partial class MealCreditViewModel : BaseViewModel
   [RelayCommand]
   private async Task SaveMealCreditAsync()
   {
-    if (string.IsNullOrWhiteSpace(EditableMealCredit.Code))
+    try
     {
-      return;
-    }
-
-    bool isNew = EditableMealCredit.Id == Guid.Empty || MealCredits.All(item => item.Id != EditableMealCredit.Id);
-    LeaveCreditSummary item = CloneMealCredit(EditableMealCredit);
-
-    if (isNew)
-    {
-      item.Id = Guid.NewGuid();
-      item.RowIndex = MealCredits.Count;
-      MealCredits.Add(item);
-    }
-    else
-    {
-      int index = FindMealCreditIndex(item.Id);
-      if (index >= 0)
+      if (string.IsNullOrWhiteSpace(EditableMealCredit.Code))
       {
-        item.RowIndex = index;
-        MealCredits[index] = item;
+        return;
       }
-      else
+
+      bool isNew = EditableMealCredit.Id == Guid.Empty || MealCredits.All(item => item.Id != EditableMealCredit.Id);
+      LeaveCreditSummary item = CloneMealCredit(EditableMealCredit);
+
+      if (isNew)
       {
+        item.Id = Guid.NewGuid();
         item.RowIndex = MealCredits.Count;
         MealCredits.Add(item);
       }
-    }
+      else
+      {
+        int index = FindMealCreditIndex(item.Id);
+        if (index >= 0)
+        {
+          item.RowIndex = index;
+          MealCredits[index] = item;
+        }
+        else
+        {
+          item.RowIndex = MealCredits.Count;
+          MealCredits.Add(item);
+        }
+      }
 
-    UpdateMealCreditRowIndexes();
-    EditableMealCredit = item;
-    await TraceCommandAsync(nameof(SaveMealCreditAsync), item.Id);
+      UpdateMealCreditRowIndexes();
+      EditableMealCredit = item;
+      await TraceCommandAsync(nameof(SaveMealCreditAsync), item.Id);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Saving meal credit");
+    }
   }
 
   [RelayCommand]
   private async Task DeleteMealCreditAsync(LeaveCreditSummary? mealCredit)
   {
-    if (mealCredit is null)
+    try
     {
-      return;
-    }
+      if (mealCredit is null)
+      {
+        return;
+      }
 
-    if (MealCredits.Remove(mealCredit))
+      if (MealCredits.Remove(mealCredit))
+      {
+        UpdateMealCreditRowIndexes();
+        await TraceCommandAsync(nameof(DeleteMealCreditAsync), mealCredit.Id);
+      }
+    }
+    catch (Exception ex)
     {
-      UpdateMealCreditRowIndexes();
-      await TraceCommandAsync(nameof(DeleteMealCreditAsync), mealCredit.Id);
+      ExceptionHandlingService.Handle(ex, "Deleting meal credit");
     }
   }
 

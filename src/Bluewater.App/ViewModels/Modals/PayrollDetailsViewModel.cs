@@ -61,6 +61,7 @@ public partial class PayrollDetailsViewModel : BaseViewModel, IQueryAttributable
 				if (query.TryGetValue("Payroll", out object? value) && value is PayrollSummary payroll)
 				{
 						Payroll = payroll;
+						_ = TraceCommandAsync(nameof(ApplyQueryAttributes), new { PayrollId = payroll.Id, payroll.EmployeeId, payroll.Date });
 						RaiseComputedProperties();
 				}
 		}

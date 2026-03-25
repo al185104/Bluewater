@@ -32,17 +32,33 @@ public partial class HomeViewModel : BaseViewModel
 		[RelayCommand]
 		async Task ToggleMenuAsync()
 		{
-				IsToggled = !IsToggled;
+				try
+				{
+						IsToggled = !IsToggled;
+						await TraceCommandAsync(nameof(ToggleMenuAsync), new { IsToggled }).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Toggling main menu");
+				}
 		}
 
 		[RelayCommand]
 		private async Task NavigateAsync(MainSectionEnum section)
 		{
-				CurrentSection = section;
+				try
+				{
+						CurrentSection = section;
+						await TraceCommandAsync(nameof(NavigateAsync), new { Section = section.ToString() }).ConfigureAwait(false);
 
-				var handler = NavigateRequested;
-				if (handler is null) return;
+						var handler = NavigateRequested;
+						if (handler is null) return;
 
-				await handler.Invoke(section);
+						await handler.Invoke(section);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, $"Navigating to {section}");
+				}
 		}
 }

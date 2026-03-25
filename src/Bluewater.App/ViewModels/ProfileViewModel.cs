@@ -44,6 +44,7 @@ public partial class ProfileViewModel : BaseViewModel
   [RelayCommand]
   private void BeginCreateProfile()
   {
+    _ = TraceCommandAsync(nameof(BeginCreateProfile));
     EditableProfile = CreateNewProfile();
     SelectedProfile = null;
   }
@@ -56,6 +57,7 @@ public partial class ProfileViewModel : BaseViewModel
       return;
     }
 
+    _ = TraceCommandAsync(nameof(BeginEditProfile), profile.Id);
     SelectedProfile = profile;
     EditableProfile = profile with { };
   }
@@ -63,10 +65,12 @@ public partial class ProfileViewModel : BaseViewModel
   [RelayCommand]
   private async Task SaveProfileAsync()
   {
-    if (string.IsNullOrWhiteSpace(EditableProfile.DisplayName))
+    try
     {
-      return;
-    }
+      if (string.IsNullOrWhiteSpace(EditableProfile.DisplayName))
+      {
+        return;
+      }
 
     bool isNew = Profiles.All(item => item.Id != EditableProfile.Id);
 
@@ -91,23 +95,35 @@ public partial class ProfileViewModel : BaseViewModel
       }
     }
 
-    UpdateProfileRowIndexes();
-    EditableProfile = profile;
-    await TraceCommandAsync(nameof(SaveProfileAsync), profile.Id);
+      UpdateProfileRowIndexes();
+      EditableProfile = profile;
+      await TraceCommandAsync(nameof(SaveProfileAsync), profile.Id);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Saving profile");
+    }
   }
 
   [RelayCommand]
   private async Task DeleteProfileAsync(ProfileDetail? profile)
   {
-    if (profile is null)
+    try
     {
-      return;
-    }
+      if (profile is null)
+      {
+        return;
+      }
 
-    if (Profiles.Remove(profile))
+      if (Profiles.Remove(profile))
+      {
+        UpdateProfileRowIndexes();
+        await TraceCommandAsync(nameof(DeleteProfileAsync), profile.Id);
+      }
+    }
+    catch (Exception ex)
     {
-      UpdateProfileRowIndexes();
-      await TraceCommandAsync(nameof(DeleteProfileAsync), profile.Id);
+      ExceptionHandlingService.Handle(ex, "Deleting profile");
     }
   }
 

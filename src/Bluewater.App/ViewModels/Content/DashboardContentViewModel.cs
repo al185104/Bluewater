@@ -131,27 +131,48 @@ public partial class DashboardContentViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task RefreshAsync()
 		{
-				await TraceCommandAsync(nameof(RefreshAsync));
-				ResetCachedData();
-				await LoadDashboardAsync().ConfigureAwait(false);
+				try
+				{
+						await TraceCommandAsync(nameof(RefreshAsync));
+						ResetCachedData();
+						await LoadDashboardAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Refreshing dashboard");
+				}
 		}
 
 		[RelayCommand(CanExecute = nameof(CanChangePeriod))]
 		private async Task PreviousPayrollPeriodAsync()
 		{
-				SetCurrentPayslipPeriod(PayrollPeriodStart.AddDays(-1));
-				ClearPayrollCache();
-				await TraceCommandAsync(nameof(PreviousPayrollPeriodAsync));
-				await LoadDashboardAsync().ConfigureAwait(false);
+				try
+				{
+						SetCurrentPayslipPeriod(PayrollPeriodStart.AddDays(-1));
+						ClearPayrollCache();
+						await TraceCommandAsync(nameof(PreviousPayrollPeriodAsync));
+						await LoadDashboardAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Loading previous dashboard period");
+				}
 		}
 
 		[RelayCommand(CanExecute = nameof(CanChangePeriod))]
 		private async Task NextPayrollPeriodAsync()
 		{
-				SetCurrentPayslipPeriod(PayrollPeriodEnd.AddDays(1));
-				ClearPayrollCache();
-				await TraceCommandAsync(nameof(NextPayrollPeriodAsync));
-				await LoadDashboardAsync().ConfigureAwait(false);
+				try
+				{
+						SetCurrentPayslipPeriod(PayrollPeriodEnd.AddDays(1));
+						ClearPayrollCache();
+						await TraceCommandAsync(nameof(NextPayrollPeriodAsync));
+						await LoadDashboardAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Loading next dashboard period");
+				}
 		}
 
 		private bool CanChangePeriod() => !IsBusy;

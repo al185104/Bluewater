@@ -68,60 +68,81 @@ public partial class ShiftsViewModel : BaseViewModel
   [RelayCommand]
   private async Task AddShift()
   {
-    var newShift = new ShiftSummary
+    try
     {
-      Id = Guid.Empty,
-      Name = string.Empty,
-      ShiftStartTime = string.Empty,
-      ShiftBreakTime = string.Empty,
-      ShiftBreakEndTime = string.Empty,
-      ShiftEndTime = string.Empty,
-      BreakHours = 0m,
-      RowIndex = 0
-    };
+      var newShift = new ShiftSummary
+      {
+        Id = Guid.Empty,
+        Name = string.Empty,
+        ShiftStartTime = string.Empty,
+        ShiftBreakTime = string.Empty,
+        ShiftBreakEndTime = string.Empty,
+        ShiftEndTime = string.Empty,
+        BreakHours = 0m,
+        RowIndex = 0
+      };
 
-    Shifts.Insert(0, newShift);
-    UpdateRowIndices();
-    SelectedShift = newShift;
+      Shifts.Insert(0, newShift);
+      UpdateRowIndices();
+      SelectedShift = newShift;
 
-    await TraceCommandAsync("AddShift", new
+      await TraceCommandAsync("AddShift", new
+      {
+        ShiftCount = Shifts.Count
+      }).ConfigureAwait(false);
+    }
+    catch (Exception ex)
     {
-      ShiftCount = Shifts.Count
-    }).ConfigureAwait(false);
+      ExceptionHandlingService.Handle(ex, "Adding shift");
+    }
   }
 
   [RelayCommand(CanExecute = nameof(CanSaveSelectedShift))]
   private async Task SaveShiftAsync()
   {
-    if (SelectedShift is null)
+    try
     {
-      return;
+      if (SelectedShift is null)
+      {
+        return;
+      }
+
+      await TraceCommandAsync("SaveShift", new
+      {
+        ShiftId = SelectedShift.Id,
+        SelectedShift.Name
+      }).ConfigureAwait(false);
+
+      await PersistShiftAsync(SelectedShift, isNew: true).ConfigureAwait(false);
     }
-
-    await TraceCommandAsync("SaveShift", new
+    catch (Exception ex)
     {
-      ShiftId = SelectedShift.Id,
-      SelectedShift.Name
-    }).ConfigureAwait(false);
-
-    await PersistShiftAsync(SelectedShift, isNew: true).ConfigureAwait(false);
+      ExceptionHandlingService.Handle(ex, "Saving shift");
+    }
   }
 
   [RelayCommand(CanExecute = nameof(CanUpdateSelectedShift))]
   private async Task UpdateShiftAsync()
   {
-    if (SelectedShift is null)
+    try
     {
-      return;
+      if (SelectedShift is null)
+      {
+        return;
+      }
+
+      await TraceCommandAsync("UpdateShift", new
+      {
+        ShiftId = SelectedShift.Id,
+        SelectedShift.Name
+      }).ConfigureAwait(false);
+
+      await PersistShiftAsync(SelectedShift, isNew: false).ConfigureAwait(false);
     }
-
-    await TraceCommandAsync("UpdateShift", new
+    catch (Exception ex)
     {
-      ShiftId = SelectedShift.Id,
-      SelectedShift.Name
-    }).ConfigureAwait(false);
-
-    await PersistShiftAsync(SelectedShift, isNew: false).ConfigureAwait(false);
+      ExceptionHandlingService.Handle(ex, "Updating shift");
+    }
   }
 
   private async Task PersistShiftAsync(ShiftSummary shift, bool isNew)

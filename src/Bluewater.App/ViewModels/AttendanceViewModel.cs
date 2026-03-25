@@ -271,43 +271,72 @@ public partial class AttendanceViewModel : BaseViewModel
   [RelayCommand]
   private async Task RefreshAsync()
   {
-    await TraceCommandAsync(nameof(RefreshAsync)).ConfigureAwait(false);
-    await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+    try
+    {
+      await TraceCommandAsync(nameof(RefreshAsync)).ConfigureAwait(false);
+      await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Refreshing attendance");
+    }
   }
 
   [RelayCommand(CanExecute = nameof(CanChangePeriod))]
   private async Task PreviousPeriodAsync()
   {
-    SetPreviousPayslipPeriod();
-    CurrentPage = 1;
-    await TraceCommandAsync(nameof(PreviousPeriodAsync)).ConfigureAwait(false);
-    await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+    try
+    {
+      SetPreviousPayslipPeriod();
+      CurrentPage = 1;
+      await TraceCommandAsync(nameof(PreviousPeriodAsync)).ConfigureAwait(false);
+      await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Loading previous attendance period");
+    }
   }
 
   [RelayCommand(CanExecute = nameof(CanChangePeriod))]
   private async Task NextPeriodAsync()
   {
-    SetNextPayslipPeriod();
-    CurrentPage = 1;
-    await TraceCommandAsync(nameof(NextPeriodAsync)).ConfigureAwait(false);
-    await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+    try
+    {
+      SetNextPayslipPeriod();
+      CurrentPage = 1;
+      await TraceCommandAsync(nameof(NextPeriodAsync)).ConfigureAwait(false);
+      await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Loading next attendance period");
+    }
   }
 
   [RelayCommand]
   private async Task GoToPageAsync(int page)
   {
-    if (IsBusy || page < 1 || page == CurrentPage)
+    try
     {
-      return;
-    }
+      if (IsBusy || page < 1 || page == CurrentPage)
+      {
+        return;
+      }
 
-    if (TotalPages > 0 && page > TotalPages)
+      if (TotalPages > 0 && page > TotalPages)
+      {
+        return;
+      }
+
+      CurrentPage = page;
+      await TraceCommandAsync(nameof(GoToPageAsync), new { page }).ConfigureAwait(false);
+      await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+    }
+    catch (Exception ex)
     {
-      return;
+      ExceptionHandlingService.Handle(ex, $"Navigating to attendance page {page}");
     }
-
-    CurrentPage = page;
-    await LoadAttendanceSummariesAsync().ConfigureAwait(false);
   }
 
   private bool CanChangePeriod() => !IsBusy;
@@ -315,38 +344,53 @@ public partial class AttendanceViewModel : BaseViewModel
   [RelayCommand]
   private async Task ApplyDateRangeAsync()
   {
-    await TraceCommandAsync(nameof(ApplyDateRangeAsync)).ConfigureAwait(false);
-    await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+    try
+    {
+      await TraceCommandAsync(nameof(ApplyDateRangeAsync)).ConfigureAwait(false);
+      await LoadAttendanceSummariesAsync().ConfigureAwait(false);
+    }
+    catch (Exception ex)
+    {
+      ExceptionHandlingService.Handle(ex, "Applying attendance date range");
+    }
   }
 
   [RelayCommand]
   private async Task EditAttendanceAsync(EmployeeAttendanceSummary? summary)
   {
-    if (summary is null)
+    try
     {
-      return;
+      if (summary is null)
+      {
+        return;
+      }
+
+      await TraceCommandAsync(nameof(EditAttendanceAsync), summary.EmployeeId).ConfigureAwait(false);
+
+      await EnsureShiftOptionsLoadedAsync().ConfigureAwait(false);
+
+      await MainThread.InvokeOnMainThreadAsync(() =>
+      {
+        SelectedEmployeeAttendance = summary;
+        DetailsTitle = string.IsNullOrWhiteSpace(summary.Name)
+          ? "Attendance Details"
+          : $"Attendance Details - {summary.Name}";
+        DetailsPrimaryActionText = SaveDetailsPrimaryActionText;
+        LoadDisplayAttendances(summary);
+        IsDetailsOpen = true;
+        CanSaveAttendanceChanges = false;
+      }).ConfigureAwait(false);
     }
-
-    await TraceCommandAsync(nameof(EditAttendanceAsync), summary.EmployeeId).ConfigureAwait(false);
-
-    await EnsureShiftOptionsLoadedAsync().ConfigureAwait(false);
-
-    await MainThread.InvokeOnMainThreadAsync(() =>
+    catch (Exception ex)
     {
-      SelectedEmployeeAttendance = summary;
-      DetailsTitle = string.IsNullOrWhiteSpace(summary.Name)
-        ? "Attendance Details"
-        : $"Attendance Details - {summary.Name}";
-      DetailsPrimaryActionText = SaveDetailsPrimaryActionText;
-      LoadDisplayAttendances(summary);
-      IsDetailsOpen = true;
-      CanSaveAttendanceChanges = false;
-    }).ConfigureAwait(false);
+      ExceptionHandlingService.Handle(ex, "Opening attendance details");
+    }
   }
 
   [RelayCommand]
   private void CloseAttendanceDetails()
   {
+    _ = TraceCommandAsync(nameof(CloseAttendanceDetails), new { SelectedAttendanceId = SelectedAttendance?.Id });
     IsDetailsOpen = false;
   }
 
