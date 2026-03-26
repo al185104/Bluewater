@@ -1,4 +1,4 @@
-using Bluewater.App.Interfaces;
+﻿using Bluewater.App.Interfaces;
 
 namespace Bluewater.App.Services;
 
@@ -78,7 +78,7 @@ public sealed class ApiBaseAddressService : IApiBaseAddressService
     }
 
     string normalized = parsedUri.ToString();
-    if (!normalized.EndsWith('/', StringComparison.Ordinal))
+    if (!normalized.EndsWith("/", StringComparison.Ordinal))
     {
       normalized += "/";
     }

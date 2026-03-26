@@ -823,7 +823,27 @@
 						</CollectionView>
 					</Grid>
 				</Border>
-			</VerticalStackLayout>
+                <Border>
+                    <Grid ColumnDefinitions="*,Auto"
+                          RowDefinitions="Auto,Auto"
+                          ColumnSpacing="16"
+                          RowSpacing="8">
+                        <Label Text="API Base Address"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimaryColor}" />
+                        <Entry Grid.Row="1"
+                               Placeholder="https://localhost:57679/"
+                               Text="{Binding ApiBaseAddress}"
+                               Keyboard="Url" />
+                        <Button Grid.Column="1"
+                                Grid.Row="1"
+                                Text="Save"
+                                Command="{Binding SaveApiBaseAddressCommand}"
+                                HorizontalOptions="End"
+                                Style="{StaticResource PrimaryButtonStyle}" />
+                    </Grid>
+                </Border>
+            </VerticalStackLayout>
 		</ScrollView>
 		
 		<ActivityIndicator IsRunning="{Binding IsBusy}"

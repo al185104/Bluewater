@@ -38,7 +38,8 @@
             <Entry Placeholder="Password"
                    Text="{Binding Password}"
                    IsPassword="True"
-                   ReturnType="Go"/>
+                   ReturnType="Go"
+                   ReturnCommand="{Binding LoginCommand}"/>
             <Button Text="Login"
                     Command="{Binding LoginCommand}"/>
             <!--<Label Text="Forgot password?" VerticalTextAlignment="Center"/>-->
@@ -55,5 +56,7 @@
                 </Label.FormattedText>
             </Label>-->
         </VerticalStackLayout>
+        <ActivityIndicator IsVisible="{Binding IsBusy}"
+                           IsRunning="{Binding IsBusy}" />
     </Grid>
 </ContentPage>
