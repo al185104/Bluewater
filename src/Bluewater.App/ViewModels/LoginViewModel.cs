@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using Bluewater.App.Models;
 using Bluewater.App.Interfaces;
 using Bluewater.App.ViewModels.Base;
 using Bluewater.App.Views;
@@ -11,18 +12,27 @@ namespace Bluewater.App.ViewModels;
 public partial class LoginViewModel : BaseViewModel
 {
 		private readonly IReferenceDataService referenceDataService;
+		private readonly IUserApiService userApiService;
 
 		public LoginViewModel(
 			IActivityTraceService activityTraceService,
 			IExceptionHandlingService exceptionHandlingService,
-			IReferenceDataService referenceDataService)
+			IReferenceDataService referenceDataService,
+			IUserApiService userApiService)
 			: base(activityTraceService, exceptionHandlingService)
 		{
 				this.referenceDataService = referenceDataService;
+				this.userApiService = userApiService;
 		}
 
 		[ObservableProperty]
 		public partial bool ShowRefreshButton { get; set; }
+
+		[ObservableProperty]
+		public partial string Username { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial string Password { get; set; } = string.Empty;
 
 		public override Task InitializeAsync()
 		{
@@ -36,8 +46,34 @@ public partial class LoginViewModel : BaseViewModel
 				try
 				{
 						IsBusy = true;
+
+						string providedUsername = Username.Trim();
+						string providedPassword = Password;
+
+						if (string.IsNullOrWhiteSpace(providedUsername) || string.IsNullOrWhiteSpace(providedPassword))
+						{
+								await MainThread.InvokeOnMainThreadAsync(() =>
+									Shell.Current.DisplayAlert("Login", "Please enter both username and password.", "Okay"));
+								return;
+						}
+
+						IReadOnlyList<UserRecordDto> users = await userApiService.GetUsersAsync().ConfigureAwait(false);
+						UserRecordDto? user = users.FirstOrDefault(existingUser =>
+							string.Equals(existingUser.Username?.Trim(), providedUsername, StringComparison.OrdinalIgnoreCase));
+
+						if (user is null || !string.Equals(user.PasswordHash, providedPassword, StringComparison.Ordinal))
+						{
+								await MainThread.InvokeOnMainThreadAsync(() =>
+									Shell.Current.DisplayAlert("Login failed", "Invalid username or password.", "Okay"));
+								return;
+						}
+
 						await TraceCommandAsync("Login", new { Target = nameof(HomePage) }).ConfigureAwait(false);
 						await NavigateAsync($"//{nameof(HomePage)}");
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Logging in");
 				}
 				finally
 				{
