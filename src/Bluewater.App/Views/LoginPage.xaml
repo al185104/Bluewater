@@ -41,19 +41,19 @@
                    ReturnType="Go"/>
             <Button Text="Login"
                     Command="{Binding LoginCommand}"/>
-            <Label Text="Forgot password?" VerticalTextAlignment="Center"/>
+            <!--<Label Text="Forgot password?" VerticalTextAlignment="Center"/>-->
             <Grid ColumnDefinitions="*,40" HorizontalOptions="Fill">
                 <Label Grid.Column="0" Text="Remember sign in details" VerticalTextAlignment="Center" HorizontalOptions="Fill" HorizontalTextAlignment="Start"/>
                 <Switch Grid.Column="1" HorizontalOptions="End"/>
             </Grid>
-            <Label VerticalTextAlignment="Center" HorizontalTextAlignment="Center">
+            <!--<Label VerticalTextAlignment="Center" HorizontalTextAlignment="Center">
                 <Label.FormattedText>
                     <FormattedString>
                         <Span Text="Don't have an account? "/>
                         <Span Text="Register"/>
                     </FormattedString>
                 </Label.FormattedText>
-            </Label>
+            </Label>-->
         </VerticalStackLayout>
     </Grid>
 </ContentPage>

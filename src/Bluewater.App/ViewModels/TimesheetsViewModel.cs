@@ -778,8 +778,11 @@ public partial class TimesheetsViewModel : BaseViewModel
 
 		private void UpdateCanSubmit()
 		{
-				OnPropertyChanged(nameof(CanSubmit));
-				SubmitCommand.NotifyCanExecuteChanged();
+        MainThread.BeginInvokeOnMainThread(() =>
+        { 
+            OnPropertyChanged(nameof(CanSubmit));
+				    SubmitCommand.NotifyCanExecuteChanged();
+        });
 		}
 
 		private void SetCurrentPayslipPeriod(DateOnly? referenceDate = null)

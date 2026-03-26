@@ -44,10 +44,10 @@
 				</Grid>
 				<Grid ColumnDefinitions="*,*,*">
 					<Entry Grid.Column="0"
-						   Placeholder="Height"
+						   Placeholder="Height (cm)"
 						   Text="{Binding EditableEmployee.Height}" />
 					<Entry Grid.Column="1"
-						   Placeholder="Weight"
+						   Placeholder="Weight (kg)"
 						   Text="{Binding EditableEmployee.Weight}" />
 					<HorizontalStackLayout Grid.Column="2" Spacing="10" HorizontalOptions="Fill">
 						<Label Text="Date of Birth"

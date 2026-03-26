@@ -5,11 +5,17 @@
 			 xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
 			 xmlns:models="clr-namespace:Bluewater.App.Models"
 			 xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+             xmlns:converters="clr-namespace:Bluewater.App.Converters"
 			 x:DataType="vm:TimesheetsViewModel"
 			 Loaded="ContentView_Loaded"
 			 Unloaded="ContentView_Unloaded"
 			 x:Name="TimesheetViewRoot"
 			 Background="{StaticResource CollectionBackgroundBrush}">
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <converters:BooleanNegationConverter x:Key="BooleanNegationConverter" />
+        </ResourceDictionary>
+    </ContentView.Resources>
 	<Grid RowDefinitions="Auto,*,Auto"
 		  Padding="20">
 		<!--header-->
@@ -175,32 +181,23 @@
 								   FontFamily="Icons">
 								<FlyoutBase.ContextFlyout>
 									<MenuFlyout>
-										<MenuFlyoutItem Text="Edit"
-														Command="{Binding Source={x:Reference TimesheetViewRoot}, Path=BindingContext.EditTimesheetCommand}"
-														CommandParameter="{Binding .}">
-											<MenuFlyoutItem.Triggers>
+                                        <MenuFlyoutItem Text="Edit"
+                                                        IsEnabled="{Binding HasPayrollCreated, Converter={StaticResource BooleanNegationConverter}}"
+                                                        Command="{Binding Source={x:Reference TimesheetViewRoot}, Path=BindingContext.EditTimesheetCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                        <!--<MenuFlyoutItem.Triggers>
 												<DataTrigger TargetType="MenuFlyoutItem"
 															 Binding="{Binding HasPayrollCreated}"
 															 Value="True">
 													<Setter Property="IsVisible"
 															Value="False" />
 												</DataTrigger>
-											</MenuFlyoutItem.Triggers>
-										</MenuFlyoutItem>
-										<MenuFlyoutItem Text="View"
-														Command="{Binding Source={x:Reference TimesheetViewRoot}, Path=BindingContext.ViewTimesheetCommand}"
-														CommandParameter="{Binding .}"
-														IsVisible="False">
-											<MenuFlyoutItem.Triggers>
-												<DataTrigger TargetType="MenuFlyoutItem"
-															 Binding="{Binding HasPayrollCreated}"
-															 Value="True">
-													<Setter Property="IsVisible"
-															Value="True" />
-												</DataTrigger>
-											</MenuFlyoutItem.Triggers>
-										</MenuFlyoutItem>
-										<MenuFlyoutSeparator />
+											</MenuFlyoutItem.Triggers>-->
+                                        <MenuFlyoutItem Text="View"
+                                                        IsEnabled="{Binding HasPayrollCreated}"
+                                                        Command="{Binding Source={x:Reference TimesheetViewRoot}, Path=BindingContext.ViewTimesheetCommand}"
+                                                        CommandParameter="{Binding .}" />
+                                        <MenuFlyoutSeparator />
 									</MenuFlyout>
 								</FlyoutBase.ContextFlyout>
 							</Label>
