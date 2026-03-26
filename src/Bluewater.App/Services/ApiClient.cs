@@ -10,7 +10,7 @@ using Bluewater.App.Interfaces;
 
 namespace Bluewater.App.Services;
 
-public class ApiClient(HttpClient httpClient) : IApiClient
+public class ApiClient(HttpClient httpClient, IApiBaseAddressService apiBaseAddressService) : IApiClient
 {
   private static readonly Regex GuidRegex = new(
     "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}",
@@ -26,7 +26,7 @@ public class ApiClient(HttpClient httpClient) : IApiClient
     string normalizedRequestUri = NormalizeGuidCasing(requestUri);
 
     using HttpResponseMessage response = await httpClient
-      .GetAsync(normalizedRequestUri, cancellationToken)
+      .GetAsync(BuildRequestUri(normalizedRequestUri), cancellationToken)
       .ConfigureAwait(false);
 
     if (response.StatusCode == HttpStatusCode.NotFound)
@@ -56,7 +56,7 @@ public class ApiClient(HttpClient httpClient) : IApiClient
   {
     string normalizedRequestUri = NormalizeGuidCasing(requestUri);
     using HttpContent content = CreateJsonContent(request);
-    using var message = new HttpRequestMessage(HttpMethod.Post, normalizedRequestUri) { Content = content };
+    using var message = new HttpRequestMessage(HttpMethod.Post, BuildRequestUri(normalizedRequestUri)) { Content = content };
     return await SendAsync<TResponse>(message, cancellationToken).ConfigureAwait(false);
   }
 
@@ -67,14 +67,14 @@ public class ApiClient(HttpClient httpClient) : IApiClient
   {
     string normalizedRequestUri = NormalizeGuidCasing(requestUri);
     using HttpContent content = CreateJsonContent(request);
-    using var message = new HttpRequestMessage(HttpMethod.Put, normalizedRequestUri) { Content = content };
+    using var message = new HttpRequestMessage(HttpMethod.Put, BuildRequestUri(normalizedRequestUri)) { Content = content };
     return await SendAsync<TResponse>(message, cancellationToken).ConfigureAwait(false);
   }
 
   public async Task<bool> DeleteAsync(string requestUri, CancellationToken cancellationToken = default)
   {
     string normalizedRequestUri = NormalizeGuidCasing(requestUri);
-    using var message = new HttpRequestMessage(HttpMethod.Delete, normalizedRequestUri);
+    using var message = new HttpRequestMessage(HttpMethod.Delete, BuildRequestUri(normalizedRequestUri));
     using HttpResponseMessage response = await httpClient
       .SendAsync(message, cancellationToken)
       .ConfigureAwait(false);
@@ -86,6 +86,17 @@ public class ApiClient(HttpClient httpClient) : IApiClient
 
     await EnsureSuccessOrThrowAsync(response, cancellationToken).ConfigureAwait(false);
     return true;
+  }
+
+
+  private Uri BuildRequestUri(string requestUri)
+  {
+    if (Uri.TryCreate(requestUri, UriKind.Absolute, out Uri? absoluteUri))
+    {
+      return absoluteUri;
+    }
+
+    return new Uri(apiBaseAddressService.ApiBaseUri, requestUri);
   }
 
   private static string NormalizeGuidCasing(string requestUri)

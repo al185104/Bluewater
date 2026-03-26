@@ -17,8 +17,6 @@ public static class MauiProgram
 {
 		public static MauiApp CreateMauiApp()
 		{
-				const string ApiBaseAddress = "https://localhost:57679";
-
 				var builder = MauiApp.CreateBuilder();
 				builder
 					.UseMauiApp<App>()
@@ -61,7 +59,8 @@ public static class MauiProgram
 #endif
 
 				// services
-				builder.Services.AddSingleton(sp =>
+				builder.Services.AddSingleton<IApiBaseAddressService, ApiBaseAddressService>();
+				builder.Services.AddSingleton(_ =>
 				{
 #if DEBUG
 						var handler = new HttpClientHandler
@@ -72,10 +71,7 @@ public static class MauiProgram
       var handler = new HttpClientHandler();
 #endif
 
-						return new HttpClient(handler)
-						{
-								BaseAddress = new Uri(ApiBaseAddress)
-						};
+						return new HttpClient(handler);
 				});
 
 				builder.Services.AddSingleton<IApiClient, ApiClient>();
