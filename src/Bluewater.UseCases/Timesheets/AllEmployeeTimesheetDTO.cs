@@ -14,5 +14,6 @@ public record AllEmployeeTimesheetDTO(
   int TotalAbsents,
   decimal TotalUndertimes,
   decimal TotalOverbreaks,
-  decimal TotalLeaves)
+  decimal TotalLeaves,
+  bool HasPayrollCreated)
   : EmployeeTimesheetDTO(EmployeeId, Name, Department, Section, Charging, Timesheets);
