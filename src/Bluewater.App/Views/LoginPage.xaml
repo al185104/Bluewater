@@ -32,9 +32,15 @@
             HorizontalOptions="Center"
             VerticalOptions="Center">
             <Image Source="bluewater.png" HeightRequest="400" Aspect="AspectFit"/>
-            <Entry Placeholder="Username"/>
-            <Entry Placeholder="Password" IsPassword="True"/>
-            <Button Text="Login" Command="{Binding LoginCommand}"/>
+            <Entry Placeholder="Username"
+                   Text="{Binding Username}"
+                   ReturnType="Next"/>
+            <Entry Placeholder="Password"
+                   Text="{Binding Password}"
+                   IsPassword="True"
+                   ReturnType="Go"/>
+            <Button Text="Login"
+                    Command="{Binding LoginCommand}"/>
             <Label Text="Forgot password?" VerticalTextAlignment="Center"/>
             <Grid ColumnDefinitions="*,40" HorizontalOptions="Fill">
                 <Label Grid.Column="0" Text="Remember sign in details" VerticalTextAlignment="Center" HorizontalOptions="Fill" HorizontalTextAlignment="Start"/>
