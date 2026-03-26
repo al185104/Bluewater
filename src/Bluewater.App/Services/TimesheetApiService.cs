@@ -195,7 +195,8 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
       TotalAbsents = dto.TotalAbsents,
       TotalUndertimes = dto.TotalUndertimes,
       TotalOverbreaks = dto.TotalOverbreaks,
-      TotalLeaves = dto.TotalLeaves
+      TotalLeaves = dto.TotalLeaves,
+      HasPayrollCreated = dto.HasPayrollCreated
     };
 
     if (dto.Timesheets is { Count: > 0 })

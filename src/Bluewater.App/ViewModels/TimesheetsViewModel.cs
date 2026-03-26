@@ -86,11 +86,13 @@ public partial class TimesheetsViewModel : BaseViewModel
 		public partial EditableTimesheetEntry? SelectedEditableTimesheet { get; set; }
 
 		public bool CanSaveTimesheets => !IsBusy && EditableTimesheets.Any(entry => entry.HasChanges);
+		public bool CanSubmit => !IsBusy && Timesheets.Count > 0 && Timesheets.Any(summary => !summary.HasPayrollCreated);
 
 		public override void IsBusyChanged(bool isBusy)
 		{
 				base.IsBusyChanged(isBusy);
 				UpdateCanSaveTimesheets();
+				UpdateCanSubmit();
 				RaiseNavigationState();
 		}
 
@@ -168,7 +170,7 @@ public partial class TimesheetsViewModel : BaseViewModel
 		{
 				try
 				{
-						if (summary is null)
+						if (summary is null || summary.HasPayrollCreated)
 						{
 								return;
 						}
@@ -186,7 +188,8 @@ public partial class TimesheetsViewModel : BaseViewModel
 								{
 										["EditableTimesheets"] = EditableTimesheets,
 										["SelectedEditableTimesheet"] = SelectedEditableTimesheet!,
-										["SelectedEmployeeTimesheet"] = SelectedEmployeeTimesheet!
+										["SelectedEmployeeTimesheet"] = SelectedEmployeeTimesheet!,
+										["IsReadOnlyMode"] = false
 								});
 
 						await TraceCommandAsync(nameof(EditTimesheetAsync), summary.EmployeeId).ConfigureAwait(false);
@@ -194,6 +197,40 @@ public partial class TimesheetsViewModel : BaseViewModel
 				catch (Exception ex)
 				{
 						ExceptionHandlingService.Handle(ex, "Opening timesheet details");
+				}
+		}
+
+		[RelayCommand]
+		private async Task ViewTimesheetAsync(EmployeeTimesheetSummary? summary)
+		{
+				try
+				{
+						if (summary is null || !summary.HasPayrollCreated)
+						{
+								return;
+						}
+
+						MainThread.BeginInvokeOnMainThread(() =>
+						{
+								SelectedEmployeeTimesheet = summary;
+								LoadEditableTimesheets(summary);
+						});
+
+						await NavigateAsync(
+								nameof(TimesheetDetailsPage),
+								new Dictionary<string, object>
+								{
+										["EditableTimesheets"] = EditableTimesheets,
+										["SelectedEditableTimesheet"] = SelectedEditableTimesheet!,
+										["SelectedEmployeeTimesheet"] = SelectedEmployeeTimesheet!,
+										["IsReadOnlyMode"] = true
+								});
+
+						await TraceCommandAsync(nameof(ViewTimesheetAsync), summary.EmployeeId).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Opening timesheet details in view mode");
 				}
 		}
 
@@ -453,10 +490,10 @@ public partial class TimesheetsViewModel : BaseViewModel
 				return value;
 		}
 
-		[RelayCommand]
+		[RelayCommand(CanExecute = nameof(CanSubmit))]
 		private async Task SubmitAsync()
 		{
-				if (IsBusy || Timesheets.Count == 0)
+				if (!CanSubmit)
 				{
 						return;
 				}
@@ -599,6 +636,7 @@ public partial class TimesheetsViewModel : BaseViewModel
 								}
 
 								//SyncSelectedTimesheetSummary();
+								UpdateCanSubmit();
 						});
 				}
 				catch (Exception ex)
@@ -644,6 +682,7 @@ public partial class TimesheetsViewModel : BaseViewModel
 		private void ClearTimesheets()
 		{
 				Timesheets.Clear();
+				UpdateCanSubmit();
 				UpdatePagination(0);
 		}
 
@@ -735,6 +774,12 @@ public partial class TimesheetsViewModel : BaseViewModel
 		private void UpdateCanSaveTimesheets()
 		{
 				OnPropertyChanged(nameof(CanSaveTimesheets));
+		}
+
+		private void UpdateCanSubmit()
+		{
+				OnPropertyChanged(nameof(CanSubmit));
+				SubmitCommand.NotifyCanExecuteChanged();
 		}
 
 		private void SetCurrentPayslipPeriod(DateOnly? referenceDate = null)

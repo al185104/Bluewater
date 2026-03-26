@@ -25,9 +25,13 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 		[ObservableProperty]
 		public partial ShiftSummary? SelectedShift { get; set; }
 
+		[ObservableProperty]
+		public partial bool IsReadOnlyMode { get; set; }
+
 		public ObservableCollection<EditableTimesheetEntry> EditableTimesheets { get; set; } = [];
 		public ObservableCollection<ShiftSummary> ShiftOptions { get; } = [];
-		public bool CanSaveTimesheets => !IsBusy && EditableTimesheets.Any(entry => entry.HasChanges);
+		public bool CanSaveTimesheets => !IsBusy && !IsReadOnlyMode && EditableTimesheets.Any(entry => entry.HasChanges);
+		public bool CanEditTimesheets => !IsReadOnlyMode;
 
 		public TimesheetDetailsViewModel(
 				ITimesheetApiService timesheetApiService,
@@ -73,6 +77,15 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 						SelectedEmployeeTimesheet = selectedEmpTimesheet;
 				}
 
+				if (query.TryGetValue("IsReadOnlyMode", out var isReadOnly) && isReadOnly is bool valueIsReadOnly)
+				{
+						IsReadOnlyMode = valueIsReadOnly;
+				}
+				else
+				{
+						IsReadOnlyMode = false;
+				}
+
 				UpdateCanSaveTimesheets();
 				InitializeCommand.Execute(this);
 		}
@@ -101,7 +114,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 		[RelayCommand]
 		private async Task ClearSelectedShiftAsync() 
 		{
-				if (IsBusy || SelectedEditableTimesheet is null)
+				if (IsBusy || IsReadOnlyMode || SelectedEditableTimesheet is null)
 				{
 						return;
 				}
@@ -168,7 +181,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 		[RelayCommand(CanExecute = nameof(CanSaveTimesheets))]
 		private async Task SaveTimesheetsAsync()
 		{
-				if (IsBusy || EditableTimesheets.Count == 0)
+				if (IsBusy || IsReadOnlyMode || EditableTimesheets.Count == 0)
 				{
 						return;
 				}
@@ -242,6 +255,11 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				SyncSelectedShift();
 		}
 
+		partial void OnIsReadOnlyModeChanged(bool value)
+		{
+				UpdateCanSaveTimesheets();
+		}
+
 		partial void OnSelectedShiftChanged(ShiftSummary? value)
 		{
 				if (SelectedEditableTimesheet is null)
@@ -267,6 +285,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 		private void UpdateCanSaveTimesheets()
 		{
 				OnPropertyChanged(nameof(CanSaveTimesheets));
+				OnPropertyChanged(nameof(CanEditTimesheets));
 				SaveTimesheetsCommand.NotifyCanExecuteChanged();
 		}
 

@@ -34,6 +34,7 @@ public class AllEmployeeTimesheetDto : EmployeeTimesheetDto
   public decimal TotalUndertimes { get; set; }
   public decimal TotalOverbreaks { get; set; }
   public decimal TotalLeaves { get; set; }
+  public bool HasPayrollCreated { get; set; }
 }
 
 public class TimesheetInfoDto

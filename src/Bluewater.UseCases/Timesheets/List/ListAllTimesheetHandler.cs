@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Ardalis.Result;
 using Ardalis.SharedKernel;
 using Bluewater.Core.UserAggregate;
+using Bluewater.Core.PayrollAggregate;
+using Bluewater.Core.PayrollAggregate.Specifications;
 using Bluewater.UseCases.Common;
 using Bluewater.UseCases.Attendances;
 using Bluewater.UseCases.Attendances.List;
@@ -16,7 +18,10 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Bluewater.UseCases.Timesheets.List;
 
-internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAllTimesheetQuery, Result<Common.PagedResult<AllEmployeeTimesheetDTO>>>
+internal class ListAllTimesheetHandler(
+  IRepository<AppUser> _userRepository,
+  IRepository<Payroll> payrollRepository,
+  IServiceScopeFactory serviceScopeFactory) : IQueryHandler<ListAllTimesheetQuery, Result<Common.PagedResult<AllEmployeeTimesheetDTO>>>
 {
   public async Task<Result<Common.PagedResult<AllEmployeeTimesheetDTO>>> Handle(ListAllTimesheetQuery request, CancellationToken cancellationToken)
   {
@@ -43,6 +48,20 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
     }
 
     List<AllEmployeeTimesheetDTO> results = new();
+    IReadOnlyCollection<Guid> employeeIds = employees.Select(employee => employee.Id).Distinct().ToList();
+    HashSet<Guid> payrollCreatedEmployeeIds = [];
+
+    if (employeeIds.Count > 0)
+    {
+      List<Payroll> existingPayrolls = await payrollRepository.ListAsync(
+        new PayrollByEmployeeIdsAndDateSpec(employeeIds, request.endDate),
+        cancellationToken);
+
+      payrollCreatedEmployeeIds = existingPayrolls
+        .Where(payroll => payroll.EmployeeId.HasValue)
+        .Select(payroll => payroll.EmployeeId!.Value)
+        .ToHashSet();
+    }
 
     foreach (EmployeeDTO employee in employees)
     {
@@ -93,7 +112,8 @@ internal class ListAllTimesheetHandler(IRepository<AppUser> _userRepository, ISe
             totalAbsents,
             totalUndertimes,
             totalOverbreaks,
-            totalLeaves));
+            totalLeaves,
+            payrollCreatedEmployeeIds.Contains(employee.Id)));
         }
       }
     }

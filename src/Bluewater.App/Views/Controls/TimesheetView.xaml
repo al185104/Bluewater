@@ -54,6 +54,7 @@
 					VerticalOptions="End"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Send},FontFamily=Icons, Color={StaticResource ButtonTextColor},Size=18}"
 					Style="{StaticResource PrimaryButtonStyle}"
+					IsEnabled="{Binding CanSubmit}"
 					Command="{Binding SubmitCommand}" />
 		</Grid>
 		<!--body-->
@@ -176,7 +177,29 @@
 									<MenuFlyout>
 										<MenuFlyoutItem Text="Edit"
 														Command="{Binding Source={x:Reference TimesheetViewRoot}, Path=BindingContext.EditTimesheetCommand}"
-														CommandParameter="{Binding .}" />
+														CommandParameter="{Binding .}">
+											<MenuFlyoutItem.Triggers>
+												<DataTrigger TargetType="MenuFlyoutItem"
+															 Binding="{Binding HasPayrollCreated}"
+															 Value="True">
+													<Setter Property="IsVisible"
+															Value="False" />
+												</DataTrigger>
+											</MenuFlyoutItem.Triggers>
+										</MenuFlyoutItem>
+										<MenuFlyoutItem Text="View"
+														Command="{Binding Source={x:Reference TimesheetViewRoot}, Path=BindingContext.ViewTimesheetCommand}"
+														CommandParameter="{Binding .}"
+														IsVisible="False">
+											<MenuFlyoutItem.Triggers>
+												<DataTrigger TargetType="MenuFlyoutItem"
+															 Binding="{Binding HasPayrollCreated}"
+															 Value="True">
+													<Setter Property="IsVisible"
+															Value="True" />
+												</DataTrigger>
+											</MenuFlyoutItem.Triggers>
+										</MenuFlyoutItem>
 										<MenuFlyoutSeparator />
 									</MenuFlyout>
 								</FlyoutBase.ContextFlyout>

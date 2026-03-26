@@ -49,7 +49,8 @@ public record AllEmployeeTimesheetRecord(
   int TotalAbsents,
   decimal TotalUndertimes,
   decimal TotalOverbreaks,
-  decimal TotalLeaves)
+  decimal TotalLeaves,
+  bool HasPayrollCreated)
   : EmployeeTimesheetRecord(EmployeeId, Name, Department, Section, Charging, Timesheets);
 
 public static class TimesheetMapper
@@ -83,5 +84,6 @@ public static class TimesheetMapper
       dto.TotalAbsents,
       dto.TotalUndertimes,
       dto.TotalOverbreaks,
-      dto.TotalLeaves);
+      dto.TotalLeaves,
+      dto.HasPayrollCreated);
 }
