@@ -98,6 +98,7 @@ public static class MauiProgram
 				builder.Services.AddSingleton<IActivityTraceService, ActivityTraceService>();
 				builder.Services.AddSingleton<IExceptionHandlingService, ExceptionHandlingService>();
 				builder.Services.AddSingleton<IReferenceDataService, ReferenceDataService>();
+				builder.Services.AddSingleton<IApiBaseAddressRecoveryService, ApiBaseAddressRecoveryService>();
 
 				builder.Services.AddSingleton<AppShell>();
 
@@ -151,13 +152,22 @@ public static class MauiProgram
 				exceptionHandlingService.Initialize();
 
 				IReferenceDataService referenceDataService = app.Services.GetRequiredService<IReferenceDataService>();
+				IApiBaseAddressRecoveryService apiBaseAddressRecoveryService = app.Services.GetRequiredService<IApiBaseAddressRecoveryService>();
 				try
 				{
 						referenceDataService.InitializeAsync().GetAwaiter().GetResult();
 				}
 				catch (Exception ex)
 				{
-						exceptionHandlingService.Handle(ex, "Initializing reference data");
+						bool hasRecovered = apiBaseAddressRecoveryService
+							.TryRecoverAsync("application startup", () => referenceDataService.InitializeAsync(), ex)
+							.GetAwaiter()
+							.GetResult();
+
+						if (!hasRecovered)
+						{
+								exceptionHandlingService.Handle(ex, "Initializing reference data");
+						}
 				}
 
 				return app;
