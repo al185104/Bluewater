@@ -24,6 +24,7 @@ public partial class SettingViewModel : BaseViewModel
 		private readonly IScheduleApiService _scheduleApiService;
 		private readonly IShiftApiService _shiftApiService;
 		private readonly IReferenceDataService _referenceService;
+		private readonly IApiBaseAddressService _apiBaseAddressService;
 
 		[ObservableProperty]
 		public partial EditableSettingItem? EditableSetting { get; set; }
@@ -97,6 +98,10 @@ public partial class SettingViewModel : BaseViewModel
 		[ObservableProperty]
 		public partial Tenant SelectedTenant { get; set; } = Tenant.Maribago;
 
+		[ObservableProperty]
+		public partial string ApiBaseAddress { get; set; } = string.Empty;
+
+
 		public ObservableCollection<DivisionSummary> Divisions { get; } = new();
 		public ObservableCollection<DepartmentSummary> Departments { get; } = new();
 		public ObservableCollection<SectionSummary> Sections { get; } = new();
@@ -118,7 +123,8 @@ public partial class SettingViewModel : BaseViewModel
 			ITimesheetApiService timesheetApiService,
 			IScheduleApiService scheduleApiService,
 			IShiftApiService shiftApiService,
-			IReferenceDataService referenceService)
+			IReferenceDataService referenceService,
+			IApiBaseAddressService apiBaseAddressService)
 			: base(activityTraceService, exceptionHandlingService)
 		{
 				_divisionApiService = divisionApiService;
@@ -133,11 +139,14 @@ public partial class SettingViewModel : BaseViewModel
 				_scheduleApiService = scheduleApiService;
 				_shiftApiService = shiftApiService;
 				_referenceService = referenceService;
+				_apiBaseAddressService = apiBaseAddressService;
 
 				var tenant = Preferences.Get(nameof(SelectedTenant), Tenant.Maribago.ToString());
 				SelectedTenant = Enum.TryParse<Tenant>(tenant, out Tenant parsed) ? parsed : Tenant.Maribago;
 
 				EditorTitle = "Title";
+
+				ApiBaseAddress = _apiBaseAddressService.ApiBaseAddress;
 
 				Divisions = new ObservableCollection<DivisionSummary>(_referenceService.Divisions);
 				Departments = new ObservableCollection<DepartmentSummary>(_referenceService.Departments);
@@ -156,6 +165,21 @@ public partial class SettingViewModel : BaseViewModel
 		partial void OnSelectedTenantChanged(Tenant value)
 		{
 				Preferences.Set(nameof(SelectedTenant), value.ToString());
+		}
+
+
+		[RelayCommand]
+		private async Task SaveApiBaseAddressAsync()
+		{
+				if (!_apiBaseAddressService.TryUpdate(ApiBaseAddress, out string? validationMessage))
+				{
+						await Shell.Current.DisplayAlert("Invalid API Address", validationMessage ?? "Please provide a valid API address.", "OK");
+						return;
+				}
+
+				ApiBaseAddress = _apiBaseAddressService.ApiBaseAddress;
+				await TraceCommandAsync(nameof(SaveApiBaseAddressAsync), ApiBaseAddress);
+				await Shell.Current.DisplayAlert("API Address Updated", "Future requests will use the new API base address.", "OK");
 		}
 
 		[RelayCommand]

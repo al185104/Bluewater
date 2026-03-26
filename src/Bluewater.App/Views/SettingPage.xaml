@@ -406,6 +406,30 @@
                         Padding="16"
                         BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
                         Stroke="Transparent">
+                    <Grid ColumnDefinitions="*,Auto"
+                          RowDefinitions="Auto,Auto"
+                          ColumnSpacing="16"
+                          RowSpacing="8">
+                        <Label Text="API Base Address"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimaryColor}" />
+                        <Entry Grid.Row="1"
+                               Placeholder="https://localhost:57679/"
+                               Text="{Binding ApiBaseAddress}"
+                               Keyboard="Url" />
+                        <Button Grid.Column="1"
+                                Grid.Row="1"
+                                Text="Save"
+                                Command="{Binding SaveApiBaseAddressCommand}"
+                                HorizontalOptions="End"
+                                Style="{StaticResource PrimaryButtonStyle}" />
+                    </Grid>
+                </Border>
+
+                <Border StrokeShape="RoundRectangle 12"
+                        Padding="16"
+                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
+                        Stroke="Transparent">
                     <Grid ColumnDefinitions="*,*,Auto"
                           ColumnSpacing="16">
                         <VerticalStackLayout Spacing="4">
