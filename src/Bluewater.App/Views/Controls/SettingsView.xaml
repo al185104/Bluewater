@@ -825,6 +825,35 @@
 				</Border>
                 <Border>
                     <Grid ColumnDefinitions="*,Auto"
+                          RowDefinitions="Auto,Auto,Auto"
+                          ColumnSpacing="16"
+                          RowSpacing="8">
+                        <Label Text="Application Updates"
+                               FontAttributes="Bold"
+                               TextColor="{StaticResource TextPrimaryColor}" />
+                        <Entry Grid.Row="1"
+                               Placeholder="https://cdn.example.com/bluewater/version.json"
+                               Text="{Binding UpdateManifestUrl}"
+                               Keyboard="Url" />
+                        <Label Grid.Row="2"
+                               Grid.ColumnSpan="2"
+                               Text="{Binding UpdateStatusMessage}"
+                               Style="{StaticResource CaptionTextStyle}" />
+                        <HorizontalStackLayout Grid.Row="1"
+                                               Grid.Column="1"
+                                               Spacing="8"
+                                               HorizontalOptions="End">
+                            <Button Text="Save Feed"
+                                    Command="{Binding SaveUpdateManifestUrlCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}" />
+                            <Button Text="Check &amp; Install"
+                                    Command="{Binding CheckAndInstallUpdateCommand}"
+                                    Style="{StaticResource PrimaryButtonStyle}" />
+                        </HorizontalStackLayout>
+                    </Grid>
+                </Border>
+                <Border>
+                    <Grid ColumnDefinitions="*,Auto"
                           RowDefinitions="Auto,Auto"
                           ColumnSpacing="16"
                           RowSpacing="8">

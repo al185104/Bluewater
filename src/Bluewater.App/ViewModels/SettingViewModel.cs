@@ -25,6 +25,7 @@ public partial class SettingViewModel : BaseViewModel
 		private readonly IShiftApiService _shiftApiService;
 		private readonly IReferenceDataService _referenceService;
 		private readonly IApiBaseAddressService _apiBaseAddressService;
+		private readonly IAppUpdaterService _appUpdaterService;
 
 		[ObservableProperty]
 		public partial EditableSettingItem? EditableSetting { get; set; }
@@ -101,6 +102,12 @@ public partial class SettingViewModel : BaseViewModel
 		[ObservableProperty]
 		public partial string ApiBaseAddress { get; set; } = string.Empty;
 
+		[ObservableProperty]
+		public partial string UpdateManifestUrl { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial string UpdateStatusMessage { get; set; } = "Updater feed is not configured.";
+
 
 		public ObservableCollection<DivisionSummary> Divisions { get; } = new();
 		public ObservableCollection<DepartmentSummary> Departments { get; } = new();
@@ -124,7 +131,8 @@ public partial class SettingViewModel : BaseViewModel
 			IScheduleApiService scheduleApiService,
 			IShiftApiService shiftApiService,
 			IReferenceDataService referenceService,
-			IApiBaseAddressService apiBaseAddressService)
+			IApiBaseAddressService apiBaseAddressService,
+			IAppUpdaterService appUpdaterService)
 			: base(activityTraceService, exceptionHandlingService)
 		{
 				_divisionApiService = divisionApiService;
@@ -140,6 +148,7 @@ public partial class SettingViewModel : BaseViewModel
 				_shiftApiService = shiftApiService;
 				_referenceService = referenceService;
 				_apiBaseAddressService = apiBaseAddressService;
+				_appUpdaterService = appUpdaterService;
 
 				var tenant = Preferences.Get(nameof(SelectedTenant), Tenant.Maribago.ToString());
 				SelectedTenant = Enum.TryParse<Tenant>(tenant, out Tenant parsed) ? parsed : Tenant.Maribago;
@@ -147,6 +156,10 @@ public partial class SettingViewModel : BaseViewModel
 				EditorTitle = "Title";
 
 				ApiBaseAddress = _apiBaseAddressService.ApiBaseAddress;
+				UpdateManifestUrl = _appUpdaterService.ManifestUrl;
+				UpdateStatusMessage = string.IsNullOrWhiteSpace(UpdateManifestUrl)
+					? "Updater feed is not configured."
+					: "Updater feed ready.";
 
 				Divisions = new ObservableCollection<DivisionSummary>(_referenceService.Divisions);
 				Departments = new ObservableCollection<DepartmentSummary>(_referenceService.Departments);
@@ -180,6 +193,74 @@ public partial class SettingViewModel : BaseViewModel
 				ApiBaseAddress = _apiBaseAddressService.ApiBaseAddress;
 				await TraceCommandAsync(nameof(SaveApiBaseAddressAsync), ApiBaseAddress);
 				await Shell.Current.DisplayAlert("API Address Updated", "Future requests will use the new API base address.", "OK");
+		}
+
+
+		[RelayCommand]
+		private async Task SaveUpdateManifestUrlAsync()
+		{
+			if (!_appUpdaterService.TryUpdateManifestUrl(UpdateManifestUrl, out string? validationMessage))
+			{
+				await Shell.Current.DisplayAlert("Invalid Feed URL", validationMessage ?? "Please provide a valid updater feed URL.", "OK");
+				return;
+			}
+
+			UpdateManifestUrl = _appUpdaterService.ManifestUrl;
+			UpdateStatusMessage = "Updater feed saved.";
+			await TraceCommandAsync(nameof(SaveUpdateManifestUrlAsync), UpdateManifestUrl);
+		}
+
+		[RelayCommand]
+		private async Task CheckAndInstallUpdateAsync()
+		{
+			try
+			{
+				IsBusy = true;
+				AppUpdateCheckResult checkResult = await _appUpdaterService.CheckForUpdatesAsync();
+				UpdateStatusMessage = checkResult.Message ?? string.Empty;
+
+				if (!checkResult.IsConfigured || !checkResult.IsUpdateAvailable || checkResult.Manifest is null)
+				{
+					return;
+				}
+
+				bool confirmed = await Shell.Current.DisplayAlert(
+					"Install Update",
+					$"Version {checkResult.AvailableVersion} is available. Download and install now?",
+					"Install",
+					"Later");
+
+				if (!confirmed)
+				{
+					return;
+				}
+
+				AppUpdateInstallResult installResult = await _appUpdaterService.DownloadAndInstallAsync(checkResult.Manifest);
+				UpdateStatusMessage = installResult.Message;
+
+				if (!installResult.IsSuccess)
+				{
+					await Shell.Current.DisplayAlert("Update Failed", installResult.Message, "OK");
+					return;
+				}
+
+				await TraceCommandAsync(nameof(CheckAndInstallUpdateAsync), checkResult.AvailableVersion?.ToString());
+
+				if (installResult.RequiresRestart)
+				{
+					await Shell.Current.DisplayAlert("Installing", installResult.Message, "OK");
+					Application.Current?.Quit();
+				}
+			}
+			catch (Exception ex)
+			{
+				UpdateStatusMessage = "Update failed. Check feed URL and network access.";
+				ExceptionHandlingService.Handle(ex, "Checking for app updates");
+			}
+			finally
+			{
+				IsBusy = false;
+			}
 		}
 
 		[RelayCommand]
