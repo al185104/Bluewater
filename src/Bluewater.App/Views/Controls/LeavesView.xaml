@@ -6,6 +6,7 @@
              xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
              x:Class="Bluewater.App.Views.Controls.LeavesView"
              x:DataType="vm:LeaveViewModel"
+			 x:Name="Page"
 			 Loaded="ContentView_Loaded"
 			 Unloaded="ContentView_Unloaded"
              Background="{StaticResource CollectionBackgroundBrush}">
@@ -108,7 +109,8 @@
             <CollectionView Grid.Row="1"
                             SelectionMode="Single"
                             SelectedItem="{Binding SelectedLeave}"
-                            ItemsSource="{Binding Leaves}">
+                            ItemsSource="{Binding Leaves}"
+                            ItemSizingStrategy="MeasureAllItems">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Vertical"
                                        ItemSpacing="5" />
@@ -139,7 +141,7 @@
 										Text="Accept"
 										IsEnabled="False"
 										Style="{StaticResource SecondaryButtonStyle}"
-										Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LeaveViewModel}}, Path=AcceptLeaveCommand}"
+										Command="{Binding Source={x:Reference Page}, Path=BindingContext.AcceptLeaveCommand}"
 										CommandParameter="{Binding .}">
 									<Button.Triggers>
 										<DataTrigger TargetType="Button" Binding="{Binding Status}" Value="{x:Static models:ApplicationStatusDto.Pending}">
@@ -156,7 +158,7 @@
 										Text="Reject"
 										IsEnabled="False"
 										Style="{StaticResource SecondaryButtonStyle}"
-										Command="{Binding Source={RelativeSource AncestorType={x:Type vm:LeaveViewModel}}, Path=RejectLeaveCommand}"
+										Command="{Binding Source={x:Reference Page}, Path=BindingContext.RejectLeaveCommand}"
 										CommandParameter="{Binding .}">
 									<Button.Triggers>
 										<DataTrigger TargetType="Button"

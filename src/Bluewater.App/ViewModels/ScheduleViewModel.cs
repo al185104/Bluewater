@@ -82,10 +82,12 @@ public partial class ScheduleViewModel : BaseViewModel
 
 				try
 				{
-						IsBusy = true;
-
-						SetWeek(DateOnly.FromDateTime(DateTime.Today));
-						LoadChargings();
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								IsBusy = true;
+								SetWeek(DateOnly.FromDateTime(DateTime.Today));
+								LoadChargings();
+						});
 						await EnsureShiftOptionsAsync().ConfigureAwait(false);
 
 						hasInitialized = true;
@@ -97,7 +99,7 @@ public partial class ScheduleViewModel : BaseViewModel
 				}
 				finally
 				{
-						IsBusy = false;
+						await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
 				}
 
 				if (SelectedCharging is not null)
@@ -498,7 +500,7 @@ public partial class ScheduleViewModel : BaseViewModel
 
 				try
 				{
-						IsBusy = true;
+						await MainThread.InvokeOnMainThreadAsync(() => IsBusy = true);
 
 						await EnsureShiftOptionsAsync().ConfigureAwait(false);
 
@@ -507,7 +509,7 @@ public partial class ScheduleViewModel : BaseViewModel
 							.GetSchedulesAsync(SelectedCharging.Name, CurrentWeekStart, CurrentWeekEnd, skip, PageSize, SelectedTenant)
 							.ConfigureAwait(false);
 
-						UpdatePagination(page.TotalCount);
+						await MainThread.InvokeOnMainThreadAsync(() => UpdatePagination(page.TotalCount));
 
 						var weeklySchedules = new List<WeeklyEmployeeSchedule>();
 						int rowIndex = 0;
@@ -553,13 +555,15 @@ public partial class ScheduleViewModel : BaseViewModel
 								}
 						});
 
+						int employeeCount = await MainThread.InvokeOnMainThreadAsync(() => Employees.Count);
+
 						await TraceCommandAsync(nameof(LoadSchedulesAsync), new
 						{
 								WeekStart = CurrentWeekStart,
 								WeekEnd = CurrentWeekEnd,
 								Charging = SelectedCharging.Name,
 								Tenant = SelectedTenant.ToString(),
-								EmployeeCount = Employees.Count
+								EmployeeCount = employeeCount
 						}).ConfigureAwait(false);
 				}
 				catch (Exception ex)
@@ -568,7 +572,7 @@ public partial class ScheduleViewModel : BaseViewModel
 				}
 				finally
 				{
-						IsBusy = false;
+						await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
 				}
 		}
 
@@ -607,19 +611,25 @@ public partial class ScheduleViewModel : BaseViewModel
 				try
 				{
 						var shifts = await shiftApiService.GetShiftsAsync().ConfigureAwait(false);
+						List<ShiftSummary> orderedShifts = shifts
+								.Where(s => s.Id != Guid.Empty)
+								.OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase)
+								.ToList();
 
-						ShiftOptions.Clear();
-						ShiftOptions.Add(noShiftOption);
-						shiftLookup.Clear();
-
-						foreach (var shift in shifts.Where(s => s.Id != Guid.Empty)
-																				.OrderBy(s => s.Name, StringComparer.OrdinalIgnoreCase))
+						await MainThread.InvokeOnMainThreadAsync(() =>
 						{
-								var option = CreateShiftOption(shift);
-								InsertShiftOption(option);
-						}
+								ShiftOptions.Clear();
+								ShiftOptions.Add(noShiftOption);
+								shiftLookup.Clear();
 
-						shiftsLoaded = true;
+								foreach (var shift in orderedShifts)
+								{
+										var option = CreateShiftOption(shift);
+										InsertShiftOption(option);
+								}
+
+								shiftsLoaded = true;
+						});
 				}
 				catch (Exception ex)
 				{
@@ -629,6 +639,12 @@ public partial class ScheduleViewModel : BaseViewModel
 
 		private void ResetEmployeesCollection()
 		{
+				if (!MainThread.IsMainThread)
+				{
+						MainThread.BeginInvokeOnMainThread(ResetEmployeesCollection);
+						return;
+				}
+
 				foreach (var weekly in Employees)
 				{
 						foreach (var day in weekly.Days)
@@ -970,6 +986,12 @@ public partial class ScheduleViewModel : BaseViewModel
 
 		private void UpdatePagination(int totalCount)
 		{
+				if (!MainThread.IsMainThread)
+				{
+						MainThread.BeginInvokeOnMainThread(() => UpdatePagination(totalCount));
+						return;
+				}
+
 				TotalCount = totalCount;
 				OnPropertyChanged(nameof(TotalPages));
 				OnPropertyChanged(nameof(HasPagination));
