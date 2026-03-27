@@ -6,9 +6,8 @@
              xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
              x:Class="Bluewater.App.Views.Controls.LeavesView"
              x:DataType="vm:LeaveViewModel"
-			 x:Name="Page"
-			 Loaded="ContentView_Loaded"
-			 Unloaded="ContentView_Unloaded"
+             Loaded="ContentView_Loaded"
+             Unloaded="ContentView_Unloaded"
              Background="{StaticResource CollectionBackgroundBrush}">
     <Grid RowDefinitions="Auto,*,Auto"
           Padding="20"
@@ -109,8 +108,7 @@
             <CollectionView Grid.Row="1"
                             SelectionMode="Single"
                             SelectedItem="{Binding SelectedLeave}"
-                            ItemsSource="{Binding Leaves}"
-                            ItemSizingStrategy="MeasureAllItems">
+                            ItemsSource="{Binding Leaves}">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Vertical"
                                        ItemSpacing="5" />
@@ -119,62 +117,79 @@
                     <DataTemplate x:DataType="models:LeaveSummary">
                         <Border StrokeShape="RoundRectangle 5 5 5 5">
                             <Grid Padding="10"
-                                  ColumnDefinitions="*,Auto,Auto,Auto"
+                                  ColumnDefinitions="*,Auto"
                                   ColumnSpacing="12">
-                                <Label Grid.Column="0">
-                                    <Label.FormattedText>
-                                        <FormattedString>
-                                            <Span Text="{Binding EmployeeName}" />
-                                            <Span Text=" • " />
-                                            <Span Text="{Binding LeaveCreditName}" />
-                                            <Span Text=" (" />
-                                            <Span Text="{Binding StartDate, StringFormat='{}{0:MMM dd, yyyy}'}" />
-                                            <Span Text=" - " />
-                                            <Span Text="{Binding EndDate, StringFormat='{}{0:MMM dd, yyyy}'}" />
-                                            <Span Text=")" />
-                                        </FormattedString>
-                                    </Label.FormattedText>
-                                </Label>
-                                <Label Grid.Column="1"
-                                       Text="{Binding Status}" />
-								<Button Grid.Column="2"
-										Text="Accept"
-										IsEnabled="False"
-										Style="{StaticResource SecondaryButtonStyle}"
-										Command="{Binding Source={x:Reference Page}, Path=BindingContext.AcceptLeaveCommand}"
-										CommandParameter="{Binding .}">
-									<Button.Triggers>
-										<DataTrigger TargetType="Button" Binding="{Binding Status}" Value="{x:Static models:ApplicationStatusDto.Pending}">
-											<Setter Property="IsEnabled" Value="True"/>
-										</DataTrigger>
-										<DataTrigger TargetType="Button"
-													 Binding="{Binding Status}"
-													 Value="{x:Static models:ApplicationStatusDto.NotSet}">
-											<Setter Property="IsEnabled" Value="True" />
-										</DataTrigger>
-									</Button.Triggers>
-								</Button>
-								<Button Grid.Column="3"
-										Text="Reject"
-										IsEnabled="False"
-										Style="{StaticResource SecondaryButtonStyle}"
-										Command="{Binding Source={x:Reference Page}, Path=BindingContext.RejectLeaveCommand}"
-										CommandParameter="{Binding .}">
-									<Button.Triggers>
-										<DataTrigger TargetType="Button"
-													 Binding="{Binding Status}"
-													 Value="{x:Static models:ApplicationStatusDto.Pending}">
-											<Setter Property="IsEnabled"
-													Value="True" />
-										</DataTrigger>
-										<DataTrigger TargetType="Button"
-													 Binding="{Binding Status}"
-													 Value="{x:Static models:ApplicationStatusDto.NotSet}">
-											<Setter Property="IsEnabled"
-													Value="True" />
-										</DataTrigger>
-									</Button.Triggers>
-								</Button>
+
+                                <VerticalStackLayout Grid.Column="0"
+                                                     Spacing="4">
+                                    <Label>
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="{Binding EmployeeName}" />
+                                                <Span Text=" • " />
+                                                <Span Text="{Binding LeaveCreditName}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                    <Label FontSize="12"
+                                           TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}">
+                                        <Label.FormattedText>
+                                            <FormattedString>
+                                                <Span Text="From " />
+                                                <Span Text="{Binding StartDate, StringFormat='{}{0:MMM dd, yyyy}'}" />
+                                                <Span Text=" to " />
+                                                <Span Text="{Binding EndDate, StringFormat='{}{0:MMM dd, yyyy}'}" />
+                                            </FormattedString>
+                                        </Label.FormattedText>
+                                    </Label>
+                                </VerticalStackLayout>
+
+                                <HorizontalStackLayout Grid.Column="1"
+                                                       Spacing="8">
+                                    <Label HorizontalTextAlignment="End"
+                                           VerticalTextAlignment="Center"
+                                           Text="{Binding Status}" />
+
+                                    <Button Text="Accept"
+                                            Padding="12,6"
+                                            IsEnabled="False"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.AcceptLeaveCommand}"
+                                            CommandParameter="{Binding .}">
+                                        <Button.Triggers>
+                                            <DataTrigger TargetType="Button"
+                                                         Binding="{Binding Status}"
+                                                         Value="{x:Static models:ApplicationStatusDto.Pending}">
+                                                <Setter Property="IsEnabled" Value="True" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Button"
+                                                         Binding="{Binding Status}"
+                                                         Value="{x:Static models:ApplicationStatusDto.NotSet}">
+                                                <Setter Property="IsEnabled" Value="True" />
+                                            </DataTrigger>
+                                        </Button.Triggers>
+                                    </Button>
+
+                                    <Button Text="Reject"
+                                            Padding="12,6"
+                                            IsEnabled="False"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.RejectLeaveCommand}"
+                                            CommandParameter="{Binding .}">
+                                        <Button.Triggers>
+                                            <DataTrigger TargetType="Button"
+                                                         Binding="{Binding Status}"
+                                                         Value="{x:Static models:ApplicationStatusDto.Pending}">
+                                                <Setter Property="IsEnabled" Value="True" />
+                                            </DataTrigger>
+                                            <DataTrigger TargetType="Button"
+                                                         Binding="{Binding Status}"
+                                                         Value="{x:Static models:ApplicationStatusDto.NotSet}">
+                                                <Setter Property="IsEnabled" Value="True" />
+                                            </DataTrigger>
+                                        </Button.Triggers>
+                                    </Button>
+                                </HorizontalStackLayout>
 							</Grid>
                         </Border>
                     </DataTemplate>
