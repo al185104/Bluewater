@@ -265,8 +265,7 @@ public partial class LeaveViewModel : BaseViewModel
       IsBusy = true;
 
       IReadOnlyList<LeaveSummary> leaves = await leaveApiService
-        .GetLeavesAsync(tenant: TenantFilter, chargingId: SelectedCharging?.Id)
-        .ConfigureAwait(false);
+        .GetLeavesAsync(tenant: TenantFilter, chargingId: SelectedCharging?.Id);
 
       allLeaves.Clear();
       allLeaves.AddRange(leaves);
@@ -287,8 +286,11 @@ public partial class LeaveViewModel : BaseViewModel
   {
     if (string.IsNullOrWhiteSpace(searchText))
     {
-      Employees.Clear();
-      SelectedEmployee = null;
+      await MainThread.InvokeOnMainThreadAsync(() =>
+      {
+        Employees.Clear();
+        SelectedEmployee = null;
+      });
       return;
     }
 
@@ -320,14 +322,17 @@ public partial class LeaveViewModel : BaseViewModel
         }
       }
 
-      Employees.Clear();
-      if (matchedEmployee is not null)
+      await MainThread.InvokeOnMainThreadAsync(() =>
       {
-        Employees.Add(matchedEmployee);
-        RegisterEmployeeCharging(matchedEmployee);
-      }
+        Employees.Clear();
+        if (matchedEmployee is not null)
+        {
+          Employees.Add(matchedEmployee);
+          RegisterEmployeeCharging(matchedEmployee);
+        }
 
-      SelectedEmployee = matchedEmployee;
+        SelectedEmployee = matchedEmployee;
+      });
       await ApplyLeaveFilterAsync();
     }
     catch (Exception ex)
@@ -379,11 +384,14 @@ public partial class LeaveViewModel : BaseViewModel
     try
     {
       await referenceDataService.InitializeAsync();
-      LeaveCredits.Clear();
-      foreach (LeaveCreditSummary leaveCredit in referenceDataService.LeaveCredits)
+      await MainThread.InvokeOnMainThreadAsync(() =>
       {
-        LeaveCredits.Add(leaveCredit);
-      }
+        LeaveCredits.Clear();
+        foreach (LeaveCreditSummary leaveCredit in referenceDataService.LeaveCredits)
+        {
+          LeaveCredits.Add(leaveCredit);
+        }
+      });
     }
     catch (Exception ex)
     {
@@ -435,26 +443,27 @@ public partial class LeaveViewModel : BaseViewModel
     try
     {
       await referenceDataService.InitializeAsync();
-
-      suppressSelectedChargingChanged = true;
       Guid? previousId = SelectedCharging?.Id;
-
-      Chargings.Clear();
-      foreach (ChargingSummary charging in referenceDataService.Chargings
-        .OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase))
+      suppressSelectedChargingChanged = true;
+      await MainThread.InvokeOnMainThreadAsync(() =>
       {
-        Chargings.Add(charging);
-      }
+        Chargings.Clear();
+        foreach (ChargingSummary charging in referenceDataService.Chargings
+          .OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase))
+        {
+          Chargings.Add(charging);
+        }
 
-      if (previousId.HasValue)
-      {
-        SelectedCharging = Chargings.FirstOrDefault(item => item.Id == previousId.Value);
-      }
+        if (previousId.HasValue)
+        {
+          SelectedCharging = Chargings.FirstOrDefault(item => item.Id == previousId.Value);
+        }
 
-      if (SelectedCharging is null && Chargings.Count > 0)
-      {
-        SelectedCharging = Chargings[0];
-      }
+        if (SelectedCharging is null && Chargings.Count > 0)
+        {
+          SelectedCharging = Chargings[0];
+        }
+      });
     }
     catch (Exception ex)
     {
