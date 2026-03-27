@@ -267,10 +267,12 @@ public partial class LeaveViewModel : BaseViewModel
       IReadOnlyList<LeaveSummary> leaves = await leaveApiService
         .GetLeavesAsync(tenant: TenantFilter, chargingId: SelectedCharging?.Id);
 
-      allLeaves.Clear();
-      allLeaves.AddRange(leaves);
-      await EnsureEmployeeChargingMapAsync();
-      await ApplyLeaveFilterAsync();
+      MainThread.BeginInvokeOnMainThread(async() => { 
+        allLeaves.Clear();
+        allLeaves.AddRange(leaves);
+        await EnsureEmployeeChargingMapAsync();
+        await ApplyLeaveFilterAsync();
+      });
     }
     catch (Exception ex)
     {
@@ -420,7 +422,15 @@ public partial class LeaveViewModel : BaseViewModel
       .OrderByDescending(item => item.StartDate)
       .ToList();
 
-    await MainThread.InvokeOnMainThreadAsync(() => ReplaceLeaves(orderedLeaves));
+    MainThread.BeginInvokeOnMainThread(() => {
+      Leaves.Clear();
+      foreach (LeaveSummary leave in orderedLeaves)
+      {
+        Leaves.Add(leave);
+      }
+
+      Leaves.UpdateRowIndexes();
+    });
   }
 
   private async Task LoadChargingsAsync()

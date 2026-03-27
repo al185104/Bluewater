@@ -34,31 +34,7 @@
                    VerticalTextAlignment="Center"
                    Text="{Binding Leaves.Count, StringFormat='{}{0} leave applications'}" />
         </Grid>
-
-        <!--<CollectionView Grid.Row="1"
-                        HeightRequest="140"
-                        SelectionMode="Single"
-                        SelectedItem="{Binding SelectedEmployee}"
-                        ItemsSource="{Binding Employees}">
-            <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Vertical"
-                                   ItemSpacing="5" />
-            </CollectionView.ItemsLayout>
-            <CollectionView.ItemTemplate>
-                <DataTemplate x:DataType="models:EmployeeSummary">
-                    <Border StrokeShape="RoundRectangle 5 5 5 5"
-                            Padding="10,8">
-                        <Grid RowDefinitions="Auto,Auto">
-                            <Label Text="{Binding FullName}" />
-                            <Label Grid.Row="1"
-                                   FontSize="12"
-                                   Text="{Binding PositionDisplay}" />
-                        </Grid>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>-->
-
+        
         <Grid Grid.Row="1"
               RowDefinitions="Auto,*"
               RowSpacing="10">

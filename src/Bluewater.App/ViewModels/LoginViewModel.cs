@@ -1,11 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Bluewater.App.Models;
+using Bluewater.App.Exceptions;
 using Bluewater.App.Interfaces;
+using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using Bluewater.App.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Bluewater.App.Exceptions;
 
 namespace Bluewater.App.ViewModels;
 
@@ -143,7 +143,15 @@ public partial class LoginViewModel : BaseViewModel
 						return;
 				}
 
-				await TraceCommandAsync("Login", new { Target = nameof(HomePage) }).ConfigureAwait(false);
+        bool isAuthorizedCredential = (int)user.Credential >= 7;
+        if (!isAuthorizedCredential)
+        {
+          await MainThread.InvokeOnMainThreadAsync(() =>
+            Shell.Current.DisplayAlert("Login failed", "You do not have permission to access this application.", "Okay"));
+          return;
+        }
+
+    await TraceCommandAsync("Login", new { Target = nameof(HomePage) }).ConfigureAwait(false);
 				await NavigateAsync($"//{nameof(HomePage)}");
 		}
 
