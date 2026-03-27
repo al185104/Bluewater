@@ -386,14 +386,8 @@ public partial class LeaveViewModel : BaseViewModel
     try
     {
       await referenceDataService.InitializeAsync();
-      await MainThread.InvokeOnMainThreadAsync(() =>
-      {
-        LeaveCredits.Clear();
-        foreach (LeaveCreditSummary leaveCredit in referenceDataService.LeaveCredits)
-        {
-          LeaveCredits.Add(leaveCredit);
-        }
-      });
+      IReadOnlyList<LeaveCreditSummary> leaveCredits = referenceDataService.LeaveCredits.ToList();
+      await MainThread.InvokeOnMainThreadAsync(() => ReplaceLeaveCredits(leaveCredits));
     }
     catch (Exception ex)
     {
@@ -410,7 +404,7 @@ public partial class LeaveViewModel : BaseViewModel
         ? ids
         : [];
       filteredLeaves = filteredLeaves.Where(leave =>
-        leave.EmployeeId.HasValue && employeeIds.Contains(leave.EmployeeId.Value));
+        !leave.EmployeeId.HasValue || employeeIds.Contains(leave.EmployeeId.Value));
     }
 
     if (SelectedEmployee is not null)
@@ -446,25 +440,10 @@ public partial class LeaveViewModel : BaseViewModel
       await referenceDataService.InitializeAsync();
       Guid? previousId = SelectedCharging?.Id;
       suppressSelectedChargingChanged = true;
-      await MainThread.InvokeOnMainThreadAsync(() =>
-      {
-        Chargings.Clear();
-        foreach (ChargingSummary charging in referenceDataService.Chargings
-          .OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase))
-        {
-          Chargings.Add(charging);
-        }
-
-        if (previousId.HasValue)
-        {
-          SelectedCharging = Chargings.FirstOrDefault(item => item.Id == previousId.Value);
-        }
-
-        if (SelectedCharging is null && Chargings.Count > 0)
-        {
-          SelectedCharging = Chargings[0];
-        }
-      });
+      IReadOnlyList<ChargingSummary> chargings = referenceDataService.Chargings
+        .OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase)
+        .ToList();
+      await MainThread.InvokeOnMainThreadAsync(() => ReplaceChargings(chargings, previousId));
     }
     catch (Exception ex)
     {
@@ -571,5 +550,44 @@ public partial class LeaveViewModel : BaseViewModel
       LeaveCreditName = leave.LeaveCreditName,
       RowIndex = leave.RowIndex
     };
+  }
+
+  private void ReplaceLeaveCredits(IReadOnlyList<LeaveCreditSummary> leaveCredits)
+  {
+    LeaveCredits.Clear();
+    foreach (LeaveCreditSummary leaveCredit in leaveCredits)
+    {
+      LeaveCredits.Add(leaveCredit);
+    }
+  }
+
+  private void ReplaceLeaves(IReadOnlyList<LeaveSummary> leaves)
+  {
+    Leaves.Clear();
+    foreach (LeaveSummary leave in leaves)
+    {
+      Leaves.Add(leave);
+    }
+
+    Leaves.UpdateRowIndexes();
+  }
+
+  private void ReplaceChargings(IReadOnlyList<ChargingSummary> chargings, Guid? previousId)
+  {
+    Chargings.Clear();
+    foreach (ChargingSummary charging in chargings)
+    {
+      Chargings.Add(charging);
+    }
+
+    if (previousId.HasValue)
+    {
+      SelectedCharging = Chargings.FirstOrDefault(item => item.Id == previousId.Value);
+    }
+
+    if (SelectedCharging is null && Chargings.Count > 0)
+    {
+      SelectedCharging = Chargings[0];
+    }
   }
 }
