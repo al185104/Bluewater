@@ -274,7 +274,7 @@
                     BackgroundColor="Transparent"/>-->
                     <!--Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Employees}" />-->
-            <Button x:Name="btnSettings" 
+            <Button x:Name="btnSettings"
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.Settings}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Settings"
                     HorizontalOptions="Start"
@@ -288,7 +288,7 @@
                 <Label.FormattedText>
                     <FormattedString>
                         <Span Text="version: " />
-                        <Span Text="{x:Static sys:AppInfo.VersionString}" />
+                        <Span Text="{x:Static helpers:AppInfoHelper.Version}" />
                     </FormattedString>
                 </Label.FormattedText>
             </Label>
