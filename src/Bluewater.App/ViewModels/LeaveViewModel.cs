@@ -148,7 +148,7 @@ public partial class LeaveViewModel : BaseViewModel
         allLeaves.Add(result);
       }
 
-      ApplyLeaveFilter();
+      await ApplyLeaveFilterAsync();
       EditableLeave = CloneLeave(result);
       SelectedLeave = result;
       await TraceCommandAsync(nameof(SaveLeaveAsync), result.Id);
@@ -194,7 +194,7 @@ public partial class LeaveViewModel : BaseViewModel
       if (deleted)
       {
         allLeaves.RemoveAll(item => item.Id == leave.Id);
-        ApplyLeaveFilter();
+        await ApplyLeaveFilterAsync();
         await TraceCommandAsync(nameof(DeleteLeaveAsync), leave.Id);
       }
     }
@@ -211,7 +211,7 @@ public partial class LeaveViewModel : BaseViewModel
   partial void OnSearchTextChanged(string value)
   {
     _ = LoadSearchedEmployeeAsync(value);
-    ApplyLeaveFilter();
+    _ = ApplyLeaveFilterAsync();
   }
 
   partial void OnSelectedEmployeeChanged(EmployeeSummary? value)
@@ -223,7 +223,7 @@ public partial class LeaveViewModel : BaseViewModel
       EditableLeave.EmployeeName = value.FullName;
     }
 
-    ApplyLeaveFilter();
+    _ = ApplyLeaveFilterAsync();
   }
 
   partial void OnSelectedChargingChanged(ChargingSummary? value)
@@ -244,7 +244,7 @@ public partial class LeaveViewModel : BaseViewModel
       return;
     }
 
-    ApplyLeaveFilter();
+    _ = ApplyLeaveFilterAsync();
   }
 
   partial void OnSelectedLeaveCreditChanged(LeaveCreditSummary? value)
@@ -271,7 +271,7 @@ public partial class LeaveViewModel : BaseViewModel
       allLeaves.Clear();
       allLeaves.AddRange(leaves);
       await EnsureEmployeeChargingMapAsync();
-      ApplyLeaveFilter();
+      await ApplyLeaveFilterAsync();
     }
     catch (Exception ex)
     {
@@ -328,7 +328,7 @@ public partial class LeaveViewModel : BaseViewModel
       }
 
       SelectedEmployee = matchedEmployee;
-      ApplyLeaveFilter();
+      await ApplyLeaveFilterAsync();
     }
     catch (Exception ex)
     {
@@ -361,7 +361,7 @@ public partial class LeaveViewModel : BaseViewModel
         allLeaves[existingIndex] = updated;
       }
 
-      ApplyLeaveFilter();
+      await ApplyLeaveFilterAsync();
       await TraceCommandAsync(nameof(UpdateLeaveStatusAsync), updated.Id);
     }
     catch (Exception ex)
@@ -391,7 +391,7 @@ public partial class LeaveViewModel : BaseViewModel
     }
   }
 
-  private void ApplyLeaveFilter()
+  private async Task ApplyLeaveFilterAsync()
   {
     IEnumerable<LeaveSummary> filteredLeaves = allLeaves;
     if (SelectedCharging is not null)
@@ -414,13 +414,20 @@ public partial class LeaveViewModel : BaseViewModel
         leave.EmployeeName.Contains(search, StringComparison.OrdinalIgnoreCase));
     }
 
-    Leaves.Clear();
-    foreach (LeaveSummary leave in filteredLeaves.OrderByDescending(item => item.StartDate))
-    {
-      Leaves.Add(leave);
-    }
+    List<LeaveSummary> orderedLeaves = filteredLeaves
+      .OrderByDescending(item => item.StartDate)
+      .ToList();
 
-    Leaves.UpdateRowIndexes();
+    await MainThread.InvokeOnMainThreadAsync(() =>
+    {
+      Leaves.Clear();
+      foreach (LeaveSummary leave in orderedLeaves)
+      {
+        Leaves.Add(leave);
+      }
+
+      Leaves.UpdateRowIndexes();
+    });
   }
 
   private async Task LoadChargingsAsync()
