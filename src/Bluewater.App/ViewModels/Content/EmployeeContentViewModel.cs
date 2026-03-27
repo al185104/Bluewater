@@ -20,6 +20,9 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		private int skip = 0;
 		private int take = 50;
 		private readonly List<EmployeeSummary> _allEmployees = [];
+		private readonly SemaphoreSlim _searchLoadLock = new(1, 1);
+		private bool _hasLoadedAllEmployeesForSearch;
+		private bool _isUpdatingSelectedChargingFromSearch;
 
 		// cancellation token
 		private CancellationTokenSource? _cts;
@@ -65,7 +68,9 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		{
 				CancelAndDispose();
 				_cts = new CancellationTokenSource();
-				LoadChargings();
+				LoadChargings(selectFirstCharging: true);
+				SearchText = string.Empty;
+				_hasLoadedAllEmployeesForSearch = false;
 
 				try
 				{
@@ -537,18 +542,37 @@ public partial class EmployeeContentViewModel : BaseViewModel
 
 		partial void OnSearchTextChanged(string value)
 		{
-				ApplyEmployeeFilter();
+				if (string.IsNullOrWhiteSpace(value))
+				{
+						ApplyEmployeeFilter();
+						return;
+				}
+
+				_ = RefreshSearchResultsAsync();
 		}
 
 		partial void OnSelectedChargingChanged(ChargingSummary? value)
 		{
+				if (_isUpdatingSelectedChargingFromSearch)
+				{
+						return;
+				}
+
 				ApplyEmployeeFilter();
 		}
 
 		private void ApplyEmployeeFilter()
 		{
 				IEnumerable<EmployeeSummary> filteredEmployees = _allEmployees;
-				filteredEmployees = filteredEmployees.Where(EmployeeMatchesFilter);
+				if (string.IsNullOrWhiteSpace(SearchText))
+				{
+						filteredEmployees = filteredEmployees.Where(EmployeeMatchesCharging);
+				}
+				else
+				{
+						filteredEmployees = filteredEmployees.Where(EmployeeMatchesSearch);
+						UpdateSelectedChargingFromSearchResults(filteredEmployees);
+				}
 
 				ResetEmployees(filteredEmployees);
 		}
@@ -575,7 +599,9 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				}
 
 				IEnumerable<EmployeeSummary> employeesToAdd = newEmployees;
-				employeesToAdd = newEmployees.Where(EmployeeMatchesFilter);
+				employeesToAdd = string.IsNullOrWhiteSpace(SearchText)
+						? newEmployees.Where(EmployeeMatchesCharging)
+						: newEmployees.Where(EmployeeMatchesSearch);
 
 				foreach (var employee in employeesToAdd)
 				{
@@ -597,10 +623,8 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				}
 		}
 
-		private void LoadChargings()
+		private void LoadChargings(bool selectFirstCharging = false)
 		{
-				Guid? previousChargingId = SelectedCharging?.Id;
-
 				Chargings.Clear();
 				Chargings.Add(new ChargingSummary
 				{
@@ -614,19 +638,14 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						Chargings.Add(charging);
 				}
 
-				SelectedCharging = previousChargingId.HasValue
-						? Chargings.FirstOrDefault(charging => charging.Id == previousChargingId.Value) ?? Chargings.FirstOrDefault()
-						: Chargings.FirstOrDefault();
-		}
-
-		private bool EmployeeMatchesFilter(EmployeeSummary employee)
-		{
-				if (!EmployeeMatchesCharging(employee))
+				if (selectFirstCharging || SelectedCharging is null)
 				{
-						return false;
+						SelectedCharging = Chargings.FirstOrDefault();
+						return;
 				}
 
-				return string.IsNullOrWhiteSpace(SearchText) || EmployeeMatchesSearch(employee);
+				SelectedCharging = Chargings.FirstOrDefault(charging => charging.Id == SelectedCharging.Id)
+						?? Chargings.FirstOrDefault();
 		}
 
 		private bool EmployeeMatchesCharging(EmployeeSummary employee)
@@ -638,7 +657,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						return true;
 				}
 
-				return string.Equals(employee.Charging, SelectedCharging.Name, StringComparison.OrdinalIgnoreCase);
+				return employee.ChargingId == SelectedCharging.Id;
 		}
 
 		private bool EmployeeMatchesSearch(EmployeeSummary employee)
@@ -651,6 +670,102 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						|| (employee.Type?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
 						|| (employee.Level?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false)
 						|| (employee.Email?.Contains(search, StringComparison.OrdinalIgnoreCase) ?? false);
+		}
+
+		private async Task RefreshSearchResultsAsync()
+		{
+				try
+				{
+						await EnsureAllEmployeesLoadedForSearchAsync();
+						ApplyEmployeeFilter();
+				}
+				catch (OperationCanceledException)
+				{
+						await _activityTraceService.LogCommandAsync("Employee search refresh was canceled.");
+				}
+				catch (Exception ex)
+				{
+						_exceptionHandlingService.Handle(ex, "Refreshing employee search");
+				}
+		}
+
+		private async Task EnsureAllEmployeesLoadedForSearchAsync()
+		{
+				if (_hasLoadedAllEmployeesForSearch)
+				{
+						return;
+				}
+
+				await _searchLoadLock.WaitAsync();
+				try
+				{
+						if (_hasLoadedAllEmployeesForSearch)
+						{
+								return;
+						}
+
+						while (true)
+						{
+								CancellationToken token = _cts?.Token ?? CancellationToken.None;
+								var employees = await _employeeApiService.GetEmployeesAsync(skip, take, token);
+								if (employees?.Items is null || employees.Items.Count == 0)
+								{
+										_hasLoadedAllEmployeesForSearch = true;
+										return;
+								}
+
+								_allEmployees.AddRange(employees.Items);
+								skip += employees.Items.Count;
+
+								if (employees.Items.Count < take)
+								{
+										_hasLoadedAllEmployeesForSearch = true;
+										return;
+								}
+						}
+				}
+				finally
+				{
+						_searchLoadLock.Release();
+				}
+		}
+
+		private void UpdateSelectedChargingFromSearchResults(IEnumerable<EmployeeSummary> filteredEmployees)
+		{
+				if (string.IsNullOrWhiteSpace(SearchText))
+				{
+						return;
+				}
+
+				List<Guid> matchingChargingIds = filteredEmployees
+						.Select(employee => employee.ChargingId)
+						.OfType<Guid>()
+						.Distinct()
+						.ToList();
+
+				if (matchingChargingIds.Count == 0)
+				{
+						return;
+				}
+
+				ChargingSummary? nextSelectedCharging = matchingChargingIds.Count == 1
+						? Chargings.FirstOrDefault(c => c.Id == matchingChargingIds[0])
+						: Chargings.FirstOrDefault(c => c.Id == Guid.Empty);
+
+				if (nextSelectedCharging is null || SelectedCharging?.Id == nextSelectedCharging.Id)
+				{
+						return;
+				}
+
+				_isUpdatingSelectedChargingFromSearch = true;
+				try
+				{
+						SelectedCharging = nextSelectedCharging;
+				}
+				finally
+				{
+						_isUpdatingSelectedChargingFromSearch = false;
+				}
 		}
 
 		public void CancelInitialization()
