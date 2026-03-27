@@ -99,6 +99,7 @@ public static class MauiProgram
 				builder.Services.AddSingleton<IExceptionHandlingService, ExceptionHandlingService>();
 				builder.Services.AddSingleton<IReferenceDataService, ReferenceDataService>();
 				builder.Services.AddSingleton<IApiBaseAddressRecoveryService, ApiBaseAddressRecoveryService>();
+				builder.Services.AddSingleton<IAppUpdaterService, AppUpdaterService>();
 
 				builder.Services.AddSingleton<AppShell>();
 
