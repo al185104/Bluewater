@@ -11,4 +11,10 @@ public interface IHolidayApiService
     int? skip = null,
     int? take = null,
     CancellationToken cancellationToken = default);
+
+  Task<HolidaySummary?> CreateHolidayAsync(HolidaySummary holiday, CancellationToken cancellationToken = default);
+
+  Task<HolidaySummary?> UpdateHolidayAsync(HolidaySummary holiday, CancellationToken cancellationToken = default);
+
+  Task<bool> DeleteHolidayAsync(Guid holidayId, CancellationToken cancellationToken = default);
 }
