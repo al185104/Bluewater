@@ -632,6 +632,7 @@ public partial class TimesheetsViewModel : BaseViewModel
 								foreach (EmployeeTimesheetSummary summary in page.Items)
 								{
 										UpdateTimesheetRowIndexes(summary);
+										UpdateSummaryAlert(summary);
 										Timesheets.Add(summary);
 								}
 
@@ -743,6 +744,7 @@ public partial class TimesheetsViewModel : BaseViewModel
 				existing.TimeOut2 = updatedTimesheet.TimeOut2;
 				existing.EntryDate = updatedTimesheet.EntryDate;
 				existing.IsEdited = updatedTimesheet.IsEdited;
+				UpdateSummaryAlert(summary);
 		}
 
 		//private void SyncSelectedTimesheetSummary()
@@ -769,6 +771,38 @@ public partial class TimesheetsViewModel : BaseViewModel
 				{
 						summary.Timesheets[i].RowIndex = i;
 				}
+		}
+
+		private static void UpdateSummaryAlert(EmployeeTimesheetSummary summary)
+		{
+				summary.IsShowAlert = summary.Timesheets.Any(ShouldShowAlertForTimesheet);
+		}
+
+		private static bool ShouldShowAlertForTimesheet(AttendanceTimesheetSummary timesheet)
+		{
+				int mask = 0;
+
+				if (timesheet.TimeOut2.HasValue)
+				{
+						mask |= 1 << 3;
+				}
+
+				if (timesheet.TimeIn2.HasValue)
+				{
+						mask |= 1 << 2;
+				}
+
+				if (timesheet.TimeOut1.HasValue)
+				{
+						mask |= 1 << 1;
+				}
+
+				if (timesheet.TimeIn1.HasValue)
+				{
+						mask |= 1;
+				}
+
+				return mask is not (0 or 3 or 9 or 12 or 15);
 		}
 
 		private void UpdateCanSaveTimesheets()
