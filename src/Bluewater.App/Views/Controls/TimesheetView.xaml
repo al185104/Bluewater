@@ -123,10 +123,16 @@
 							  VerticalOptions="Center">
 							<VerticalStackLayout Grid.Column="0"
 												 Spacing="4">
-								<Label Text="{Binding Name}"
-									   FontAttributes="Bold"
-									   FontSize="14"
-									   LineBreakMode="TailTruncation" />
+								<HorizontalStackLayout Spacing="6">
+									<Label Text="{Binding Name}"
+										   FontAttributes="Bold"
+										   FontSize="14"
+										   LineBreakMode="TailTruncation" />
+									<Label Text="{x:Static helpers:Icon.AlertTriangle}"
+										   FontFamily="Icons"
+										   TextColor="#EAA545"
+										   IsVisible="{Binding IsShowAlert}" />
+								</HorizontalStackLayout>
 								<Label FontSize="12"
 									   TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}">
 									<Label.FormattedText>

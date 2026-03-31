@@ -18,5 +18,6 @@ public class EmployeeTimesheetSummary
   public decimal TotalOverbreaks { get; set; }
   public decimal TotalLeaves { get; set; }
   public bool HasPayrollCreated { get; set; }
+  public bool IsShowAlert { get; set; }
   public ObservableCollection<AttendanceTimesheetSummary> Timesheets { get; } = new();
 }
