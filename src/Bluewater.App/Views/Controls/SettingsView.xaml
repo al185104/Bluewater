@@ -895,8 +895,20 @@
 										<Label Grid.Column="0" Text="{Binding Name}" VerticalOptions="Center" />
 										<Label Grid.Column="1" Text="{Binding Description}" VerticalOptions="Center" />
 										<Label Grid.Column="2" Text="{Binding Date, StringFormat='{0:yyyy-MM-dd}'}" VerticalOptions="Center" />
-										<Label Grid.Column="3" Text="{Binding IsRegular, StringFormat='Regular: {0}'}" VerticalOptions="Center" />
-										<Button Grid.Column="4"
+                                               <!--Text="{Binding IsRegular, StringFormat='Regular: {0}'}"-->
+                                        <Label Grid.Column="3"
+                                               Text="Special"
+                                               VerticalOptions="Center">
+                                            <Label.Triggers>
+                                                <DataTrigger TargetType="Label"
+                                                             Binding="{Binding IsRegular}"
+                                                             Value="True">
+                                                    <Setter Property="Text"
+                                                            Value="Regular" />
+                                                </DataTrigger>
+                                            </Label.Triggers>
+                                        </Label>
+                                        <Button Grid.Column="4"
 												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Trash2},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 												Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.DeleteHolidayCommand}"
 												CommandParameter="{Binding .}"
