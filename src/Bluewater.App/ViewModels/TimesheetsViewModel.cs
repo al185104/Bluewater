@@ -100,7 +100,6 @@ public partial class TimesheetsViewModel : BaseViewModel
 		{
 				if (hasInitialized)
 				{
-						await LoadTimesheetsAsync().ConfigureAwait(false);
 						return;
 				}
 
