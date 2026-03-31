@@ -19,6 +19,7 @@ public partial class SettingViewModel : BaseViewModel
 		private readonly IPositionApiService _positionApiService;
 		private readonly IEmployeeTypeApiService _employeeTypeApiService;
 		private readonly ILevelApiService _levelApiService;
+		private readonly IHolidayApiService _holidayApiService;
 		private readonly IEmployeeApiService _employeeApiService;
 		private readonly ITimesheetApiService _timesheetApiService;
 		private readonly IScheduleApiService _scheduleApiService;
@@ -97,6 +98,18 @@ public partial class SettingViewModel : BaseViewModel
 		public partial string NewEmployeeLevelValue { get; set; } = string.Empty;
 
 		[ObservableProperty]
+		public partial string NewHolidayName { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial string NewHolidayDescription { get; set; } = string.Empty;
+
+		[ObservableProperty]
+		public partial DateTime NewHolidayDate { get; set; } = DateTime.Today;
+
+		[ObservableProperty]
+		public partial bool NewHolidayIsRegular { get; set; } = true;
+
+		[ObservableProperty]
 		public partial Tenant SelectedTenant { get; set; } = Tenant.Maribago;
 
 		[ObservableProperty]
@@ -116,6 +129,7 @@ public partial class SettingViewModel : BaseViewModel
 		public ObservableCollection<PositionSummary> Positions { get; } = new();
 		public ObservableCollection<EmployeeTypeSummary> EmployeeTypes { get; } = new();
 		public ObservableCollection<LevelSummary> EmployeeLevels { get; } = new();
+		public ObservableCollection<HolidaySummary> Holidays { get; } = new();
 		public IReadOnlyList<Tenant> TenantOptions { get; } = Enum.GetValues<Tenant>();
 
 		public SettingViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService,
@@ -126,6 +140,7 @@ public partial class SettingViewModel : BaseViewModel
 			IPositionApiService positionApiService,
 			IEmployeeTypeApiService employeeTypeApiService,
 			ILevelApiService levelApiService,
+			IHolidayApiService holidayApiService,
 			IEmployeeApiService employeeApiService,
 			ITimesheetApiService timesheetApiService,
 			IScheduleApiService scheduleApiService,
@@ -142,6 +157,7 @@ public partial class SettingViewModel : BaseViewModel
 				_positionApiService = positionApiService;
 				_employeeTypeApiService = employeeTypeApiService;
 				_levelApiService = levelApiService;
+				_holidayApiService = holidayApiService;
 				_employeeApiService = employeeApiService;
 				_timesheetApiService = timesheetApiService;
 				_scheduleApiService = scheduleApiService;
@@ -168,6 +184,7 @@ public partial class SettingViewModel : BaseViewModel
 				Chargings = new ObservableCollection<ChargingSummary>(_referenceService.Chargings);
 				EmployeeTypes = new ObservableCollection<EmployeeTypeSummary>(_referenceService.EmployeeTypes);
 				EmployeeLevels = new ObservableCollection<LevelSummary>(_referenceService.Levels);
+				Holidays = new ObservableCollection<HolidaySummary>(_referenceService.Holidays);
 				SelectedDivisionForDepartment = Divisions.FirstOrDefault();
 				SelectedDepartmentForSection = Departments.FirstOrDefault();
 				SelectedSectionForPosition = Sections.FirstOrDefault();
@@ -838,6 +855,31 @@ public partial class SettingViewModel : BaseViewModel
 		}
 
 		[RelayCommand]
+		private async Task DeleteHolidayAsync(HolidaySummary? holiday)
+		{
+				if (holiday is null || !await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this holiday?", "Yes", "No"))
+				{
+						return;
+				}
+
+				try
+				{
+						bool deleted = await _holidayApiService.DeleteHolidayAsync(holiday.Id).ConfigureAwait(false);
+						if (!deleted)
+						{
+								return;
+						}
+
+						await MainThread.InvokeOnMainThreadAsync(() => Holidays.Remove(holiday));
+						await TraceCommandAsync(nameof(DeleteHolidayAsync), holiday.Id).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Deleting holiday");
+				}
+		}
+
+		[RelayCommand]
 		private async Task AddDivisionAsync()
 		{
 				if (string.IsNullOrWhiteSpace(NewDivisionName)) return;
@@ -1041,6 +1083,38 @@ public partial class SettingViewModel : BaseViewModel
 				}
 		}
 
+		[RelayCommand]
+		private async Task AddHolidayAsync()
+		{
+				if (string.IsNullOrWhiteSpace(NewHolidayName)) return;
+				try
+				{
+						await TraceCommandAsync(nameof(AddHolidayAsync), new { Name = NewHolidayName.Trim(), Date = NewHolidayDate, NewHolidayIsRegular }).ConfigureAwait(false);
+						HolidaySummary? created = await _holidayApiService.CreateHolidayAsync(new HolidaySummary
+						{
+								Name = NewHolidayName.Trim(),
+								Description = string.IsNullOrWhiteSpace(NewHolidayDescription) ? null : NewHolidayDescription.Trim(),
+								Date = NewHolidayDate.Date,
+								IsRegular = NewHolidayIsRegular
+						}).ConfigureAwait(false);
+
+						if (created is null) return;
+
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								Holidays.Add(created);
+								NewHolidayName = string.Empty;
+								NewHolidayDescription = string.Empty;
+								NewHolidayDate = DateTime.Today;
+								NewHolidayIsRegular = true;
+						});
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Adding holiday");
+				}
+		}
+
 
 
 		[RelayCommand]
@@ -1092,6 +1166,13 @@ public partial class SettingViewModel : BaseViewModel
 			rows => CreateSettingsAsync(rows, CreateEmployeeLevelFromRow, _levelApiService.CreateLevelAsync),
 			InitializeAsync);
 
+		[RelayCommand]
+		private Task ImportHolidaysAsync() => ImportSettingsAsync(
+			"Select holidays CSV file",
+			"Importing holidays",
+			rows => CreateSettingsAsync(rows, CreateHolidayFromRow, _holidayApiService.CreateHolidayAsync),
+			InitializeAsync);
+
 
 		[RelayCommand]
 		private Task ExportDivisionsAsync() => ExportSettingsAsync(
@@ -1134,6 +1215,12 @@ public partial class SettingViewModel : BaseViewModel
 			"employee_levels",
 			EmployeeLevels,
 			item => [item.Name, item.Value, string.Empty]);
+
+		[RelayCommand]
+		private Task ExportHolidaysAsync() => ExportSettingsAsync(
+			"holidays",
+			Holidays,
+			item => [item.Name, item.Description, item.Date.ToString("yyyy-MM-dd"), item.IsRegular.ToString()]);
 
 		[RelayCommand]
 		private async Task RandomizeDataAsync()
@@ -1418,7 +1505,7 @@ public partial class SettingViewModel : BaseViewModel
 						}
 
 						var csv = new StringBuilder();
-						csv.AppendLine("Name,Description");
+						csv.AppendLine("Name,Description,Value,IsActive,ParentId,ParentName");
 
 						foreach (var item in items)
 						{
@@ -1598,6 +1685,27 @@ public partial class SettingViewModel : BaseViewModel
 				IsActive = row.IsActive
 		};
 
+		private HolidaySummary? CreateHolidayFromRow(SettingsCsvRow row)
+		{
+				if (string.IsNullOrWhiteSpace(row.Value))
+				{
+						return null;
+				}
+
+				if (!DateTime.TryParse(row.Value, out DateTime holidayDate))
+				{
+						return null;
+				}
+
+				return new HolidaySummary
+				{
+						Name = row.Name,
+						Description = row.Description,
+						Date = holidayDate.Date,
+						IsRegular = row.IsActive
+				};
+		}
+
 		private static Guid? ResolveId(SettingsCsvRow row, IEnumerable<(Guid Id, string Name)> source) =>
 			ResolveOptionalId(row, source);
 
@@ -1636,6 +1744,7 @@ public partial class SettingViewModel : BaseViewModel
 								Positions.Clear();
 								EmployeeTypes.Clear();
 								EmployeeLevels.Clear();
+								Holidays.Clear();
 						});
 
 						var divisionTask = _divisionApiService.GetDivisionsAsync();
@@ -1645,8 +1754,9 @@ public partial class SettingViewModel : BaseViewModel
 						var positionTask = _positionApiService.GetPositionsAsync();
 						var employeeTypeTask = _employeeTypeApiService.GetEmployeeTypesAsync();
 						var levelTask = _levelApiService.GetLevelsAsync();
+						var holidayTask = _holidayApiService.GetHolidaysAsync();
 
-						await Task.WhenAll(divisionTask, departmentTask, sectionTask, chargingTask, positionTask, employeeTypeTask, levelTask).ConfigureAwait(false);
+						await Task.WhenAll(divisionTask, departmentTask, sectionTask, chargingTask, positionTask, employeeTypeTask, levelTask, holidayTask).ConfigureAwait(false);
 
 						IReadOnlyList<DivisionSummary> divisions = divisionTask.Result.OrderBy(d => d.Name).ToList();
 						IReadOnlyList<DepartmentSummary> departments = departmentTask.Result.OrderBy(d => d.Name).ToList();
@@ -1655,6 +1765,7 @@ public partial class SettingViewModel : BaseViewModel
 						IReadOnlyList<PositionSummary> positions = positionTask.Result.OrderBy(p => p.Name).ToList();
 						IReadOnlyList<EmployeeTypeSummary> employeeTypes = employeeTypeTask.Result.OrderBy(t => t.Name).ToList();
 						IReadOnlyList<LevelSummary> levels = levelTask.Result.OrderBy(l => l.Name).ToList();
+						IReadOnlyList<HolidaySummary> holidays = holidayTask.Result.OrderBy(h => h.Date).ThenBy(h => h.Name).ToList();
 
 						await RunOnMainThreadAsync(() =>
 						{
@@ -1709,6 +1820,11 @@ public partial class SettingViewModel : BaseViewModel
 								foreach (LevelSummary level in levels)
 								{
 										EmployeeLevels.Add(level);
+								}
+
+								foreach (HolidaySummary holiday in holidays)
+								{
+										Holidays.Add(holiday);
 								}
 						});
 				}

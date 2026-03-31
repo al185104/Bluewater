@@ -823,6 +823,96 @@
 						</CollectionView>
 					</Grid>
 				</Border>
+				<!--Holidays-->
+				<Border HeightRequest="300">
+					<Grid RowDefinitions="Auto,*"
+						  ColumnDefinitions="Auto,*,Auto,Auto,Auto">
+						<Label Grid.Column="0"
+							   Text="{x:Static helpers:Icon.List}"
+							   FontFamily="Icons"
+							   FontSize="24" />
+						<VerticalStackLayout Grid.Column="1">
+							<Label Text="Holiday"
+								   FontSize="16"
+								   FontAttributes="Bold" />
+							<Label Text="Maintain holiday entries used by scheduling and payroll."
+								   Style="{StaticResource CaptionTextStyle}" />
+						</VerticalStackLayout>
+						<Grid Grid.Column="2"
+							  ColumnDefinitions="Auto,Auto,Auto,Auto,Auto">
+							<Entry Grid.Column="0"
+								   Placeholder="Name"
+								   Text="{Binding NewHolidayName}"
+								   WidthRequest="140" />
+							<Entry Grid.Column="1"
+								   Placeholder="Description"
+								   Text="{Binding NewHolidayDescription}"
+								   WidthRequest="220" />
+							<DatePicker Grid.Column="2"
+										Date="{Binding NewHolidayDate}"
+										WidthRequest="150" />
+							<HorizontalStackLayout Grid.Column="3"
+												   VerticalOptions="Center"
+												   Spacing="6">
+								<Label Text="Regular" VerticalOptions="Center" />
+								<Switch IsToggled="{Binding NewHolidayIsRegular}" VerticalOptions="Center" />
+							</HorizontalStackLayout>
+							<Button Grid.Column="4"
+									Text="Add"
+									ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+									Command="{Binding AddHolidayCommand}"
+									Style="{StaticResource SecondaryButtonStyle}" />
+						</Grid>
+						<Button Grid.Column="3"
+								Text="Upload"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ImportHolidaysCommand}" />
+						<Button Grid.Column="4"
+								Text="Download"
+								FontSize="14"
+								ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+								Style="{StaticResource SecondaryButtonStyle}"
+								Command="{Binding ExportHolidaysCommand}" />
+						<CollectionView Grid.Row="1"
+										Grid.ColumnSpan="5"
+										ItemsSource="{Binding Holidays}">
+							<CollectionView.Header>
+								<Grid ColumnDefinitions="200,*,130,90,50"
+									  Padding="5">
+									<Label Text="Name" FontAttributes="Bold" />
+									<Label Grid.Column="1" Text="Description" FontAttributes="Bold" />
+									<Label Grid.Column="2" Text="Date" FontAttributes="Bold" />
+									<Label Grid.Column="3" Text="Type" FontAttributes="Bold" />
+									<Label Grid.Column="4" Text="Action" FontAttributes="Bold" />
+								</Grid>
+							</CollectionView.Header>
+							<CollectionView.ItemTemplate>
+								<DataTemplate>
+									<Grid ColumnDefinitions="200,*,130,90,Auto"
+										  Padding="5">
+										<Label Grid.Column="0" Text="{Binding Name}" VerticalOptions="Center" />
+										<Label Grid.Column="1" Text="{Binding Description}" VerticalOptions="Center" />
+										<Label Grid.Column="2" Text="{Binding Date, StringFormat='{0:yyyy-MM-dd}'}" VerticalOptions="Center" />
+										<Label Grid.Column="3" Text="{Binding IsRegular, StringFormat='Regular: {0}'}" VerticalOptions="Center" />
+										<Button Grid.Column="4"
+												ImageSource="{FontImage Glyph={x:Static helpers:Icon.Trash2},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+												Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.DeleteHolidayCommand}"
+												CommandParameter="{Binding .}"
+												Style="{StaticResource SecondaryButtonStyle}" />
+									</Grid>
+								</DataTemplate>
+							</CollectionView.ItemTemplate>
+							<CollectionView.EmptyView>
+								<Label Text="No holidays to show."
+									   HorizontalOptions="Center"
+									   HorizontalTextAlignment="Center"
+									   VerticalOptions="Center" />
+							</CollectionView.EmptyView>
+						</CollectionView>
+					</Grid>
+				</Border>
                 <Border>
                     <Grid ColumnDefinitions="*,Auto"
                           RowDefinitions="Auto,Auto,Auto"
