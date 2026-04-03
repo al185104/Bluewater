@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Dispatching;
-using Microsoft.Maui.Storage;
 
 namespace Bluewater.App.Services;
 
@@ -100,7 +99,7 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     }
 
     LogException(source, exception, context, isTerminating);
-    _ = CopyLatestLogToDesktopAsync();
+    _ = CreateDiagnosticArchiveAsync(exception);
     ShowFatalErrorPage(new PresentationException(exception));
   }
 
@@ -264,7 +263,7 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
     });
   }
 
-  private Task CopyLatestLogToDesktopAsync()
+  private Task CreateDiagnosticArchiveAsync(Exception exception)
   {
     return Task.Run(() =>
     {
@@ -276,7 +275,11 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
           return;
         }
 
-        string appDataDirectory = FileSystem.AppDataDirectory;
+        string appDataDirectory = Path.Combine(
+          Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+          "Bluewater",
+          "App",
+          "Logs");
 
         if (!Directory.Exists(appDataDirectory))
         {
@@ -284,30 +287,32 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
           return;
         }
 
-        FileInfo? latestLog = Directory
-          .EnumerateFiles(appDataDirectory, "activity-trace-*.log")
+        List<FileInfo> logFiles = Directory
+          .EnumerateFiles(appDataDirectory, "*.log")
           .Select(path => new FileInfo(path))
+          .Where(file => file.Exists)
           .OrderByDescending(file => file.LastWriteTimeUtc)
-          .ThenByDescending(file => file.CreationTimeUtc)
-          .FirstOrDefault(file => file.Exists);
+          .ToList();
 
-        if (latestLog is null)
+        if (logFiles.Count == 0)
         {
-          logger?.LogWarning("No activity trace logs found to archive.");
+          logger?.LogWarning("No logs found to archive from '{AppDataDirectory}'.", appDataDirectory);
           return;
         }
-        var downloadsDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-        //string downloadsDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
+        string downloadsDirectory = Path.Combine(
+          Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+          "Downloads",
+          "DiagnosticLogs");
 
         if (string.IsNullOrWhiteSpace(downloadsDirectory))
         {
-          logger?.LogWarning("Desktop directory could not be resolved; skipping log archive.");
+          logger?.LogWarning("Downloads directory could not be resolved; skipping log archive.");
           return;
         }
 
         Directory.CreateDirectory(downloadsDirectory);
 
-        string zipFileName = $"{Path.GetFileNameWithoutExtension(latestLog.Name)}-{DateTimeOffset.Now:yyyyMMddHHmmss}.zip";
+        string zipFileName = $"DiagnosticLogs_{DateTimeOffset.Now:yyyyMMdd_HHmmss}.zip";
         string destinationPath = Path.Combine(downloadsDirectory, zipFileName);
 
         if (File.Exists(destinationPath))
@@ -317,14 +322,23 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
 
         using (ZipArchive archive = ZipFile.Open(destinationPath, ZipArchiveMode.Create))
         {
-          archive.CreateEntryFromFile(latestLog.FullName, latestLog.Name);
+          foreach (FileInfo logFile in logFiles)
+          {
+            archive.CreateEntryFromFile(logFile.FullName, logFile.Name);
+          }
+
+          string exceptionDetails = $"Generated: {DateTimeOffset.Now:O}{Environment.NewLine}{Environment.NewLine}{exception}";
+          ZipArchiveEntry exceptionEntry = archive.CreateEntry("exception.txt");
+          using Stream entryStream = exceptionEntry.Open();
+          using var writer = new StreamWriter(entryStream);
+          writer.Write(exceptionDetails);
         }
 
-        logger?.LogInformation("Copied latest activity log '{LogFile}' to Desktop as '{ArchivePath}'.", latestLog.FullName, destinationPath);
+        logger?.LogInformation("Created diagnostic archive at '{ArchivePath}' from '{AppDataDirectory}'.", destinationPath, appDataDirectory);
       }
       catch (Exception archiveException)
       {
-        logger?.LogError(archiveException, "Failed to archive the latest activity log to the Desktop.");
+        logger?.LogError(archiveException, "Failed to create diagnostic archive in Downloads.");
       }
     });
   }

@@ -4,7 +4,6 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
-using Microsoft.Maui.Storage;
 
 namespace Bluewater.App.Services;
 
@@ -22,7 +21,8 @@ public sealed class ActivityTraceService : IActivityTraceService, IAsyncDisposab
 
 		public ActivityTraceService(string? appDataDirectory = null)
 		{
-				this.appDataDirectory = appDataDirectory ?? FileSystem.AppDataDirectory;
+				this.appDataDirectory = appDataDirectory ?? GetDefaultLogDirectory();
+				Directory.CreateDirectory(this.appDataDirectory);
 		}
 
 		public Task<string> GetCurrentLogPathAsync()
@@ -83,6 +83,12 @@ public sealed class ActivityTraceService : IActivityTraceService, IAsyncDisposab
 		{
 				string fileName = $"{LogFilePrefix}{timestamp:yyyyMMdd}.log";
 				return Path.Combine(appDataDirectory, fileName);
+		}
+
+		private static string GetDefaultLogDirectory()
+		{
+				string localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+				return Path.Combine(localAppDataPath, "Bluewater", "App", "Logs");
 		}
 
 		public ValueTask DisposeAsync()
