@@ -27,6 +27,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		// cancellation token
 		private CancellationTokenSource? _cts;
 		private CancellationTokenSource? _loadMoreCts;
+		private CancellationTokenSource? _selectedChargingCts;
 		private readonly IEmployeeApiService _employeeApiService;
 		private readonly IReferenceDataService _referenceDataService;
 		private readonly IPayApiService _payApiService;
@@ -558,7 +559,64 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						return;
 				}
 
-				ApplyEmployeeFilter();
+				_ = LoadEmployeesBySelectedChargingAsync(value);
+		}
+
+
+		private async Task LoadEmployeesBySelectedChargingAsync(ChargingSummary? charging)
+		{
+				if (charging is null
+						|| charging.Id == Guid.Empty
+						|| string.Equals(charging.Name, AllChargingName, StringComparison.OrdinalIgnoreCase))
+				{
+						ApplyEmployeeFilter();
+						return;
+				}
+
+				CancelAndDisposeSelectedCharging();
+				_selectedChargingCts = new CancellationTokenSource();
+
+				try
+				{
+						IsBusy = true;
+						int localSkip = 0;
+						List<EmployeeSummary> employeesByCharging = [];
+
+						while (true)
+						{
+								var employees = await _employeeApiService.GetEmployeesAsync(localSkip, take, _selectedChargingCts.Token);
+								if (employees?.Items is null || employees.Items.Count == 0)
+								{
+										break;
+								}
+
+								employeesByCharging.AddRange(employees.Items.Where(employee => employee.ChargingId == charging.Id));
+								localSkip += employees.Items.Count;
+
+								if (employees.Items.Count < take)
+								{
+										break;
+								}
+						}
+
+						IEnumerable<EmployeeSummary> employeesToDisplay = string.IsNullOrWhiteSpace(SearchText)
+								? employeesByCharging
+								: employeesByCharging.Where(EmployeeMatchesSearch);
+
+						ResetEmployees(employeesToDisplay);
+				}
+				catch (OperationCanceledException)
+				{
+						await _activityTraceService.LogCommandAsync("Loading employees by charging was canceled.");
+				}
+				catch (Exception ex)
+				{
+						_exceptionHandlingService.Handle(ex, "Loading employees by selected charging failed.");
+				}
+				finally
+				{
+						IsBusy = false;
+				}
 		}
 
 		private void ApplyEmployeeFilter()
@@ -777,6 +835,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		{
 				CancelAndDispose();
 				CancelAndDisposeLoadMore();
+				CancelAndDisposeSelectedCharging();
 				_allEmployees.Clear();
 				Employees!.Clear();
 				Employees = null;
@@ -790,6 +849,17 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				_cts.Cancel();
 				_cts.Dispose();
 				_cts = null;
+		}
+
+
+		private void CancelAndDisposeSelectedCharging()
+		{
+				if (_selectedChargingCts is null)
+						return;
+
+				_selectedChargingCts.Cancel();
+				_selectedChargingCts.Dispose();
+				_selectedChargingCts = null;
 		}
 
 		private void CancelAndDisposeLoadMore()
