@@ -168,6 +168,26 @@ public partial class EmployeeContentViewModel : BaseViewModel
 		}
 
 		[RelayCommand]
+		public async Task AddEmployeeAsync()
+		{
+				try
+				{
+						await TraceCommandAsync(nameof(AddEmployeeAsync));
+						IsEditingEmployee = false;
+						await NavigateAsync(
+								nameof(EmployeeDetailsPage),
+								new Dictionary<string, object>
+								{
+										["IsNewEmployee"] = true
+								});
+				}
+				catch (Exception ex)
+				{
+						_exceptionHandlingService.Handle(ex, "Opening add employee form");
+				}
+		}
+
+		[RelayCommand]
 		public async Task DeleteEmployeeAsync(EmployeeSummary employee)
 		{
 				CancelAndDispose();

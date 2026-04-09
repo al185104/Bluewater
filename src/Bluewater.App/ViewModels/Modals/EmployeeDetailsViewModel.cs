@@ -13,6 +13,8 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 {
 		private readonly IReferenceDataService _referenceDataService;
 		private readonly IEmployeeApiService _employeeApiService;
+		private readonly IUserApiService _userApiService;
+		private readonly IPayApiService _payApiService;
 		private int _rowIndex;
 
 		[ObservableProperty]
@@ -58,29 +60,50 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 		[ObservableProperty]
 		public partial bool ShowLevelValidation { get; set; }
 
+		[ObservableProperty]
+		public partial bool IsCreateMode { get; set; } = true;
+
+		public string SaveButtonText => IsCreateMode ? "Save & Add" : "Save & Update";
+
 		public EmployeeDetailsViewModel(
 				IActivityTraceService activityTraceService, 
 				IExceptionHandlingService exceptionHandlingService, 
 				IReferenceDataService referenceDataService,
-				IEmployeeApiService employeeApiService) 
+				IEmployeeApiService employeeApiService,
+				IUserApiService userApiService,
+				IPayApiService payApiService) 
 				: base(activityTraceService, exceptionHandlingService)
 		{
 				_referenceDataService = referenceDataService;
 				_employeeApiService = employeeApiService;
+				_userApiService = userApiService;
+				_payApiService = payApiService;
 		}
 
 		public void ApplyQueryAttributes(IDictionary<string, object> query)
 		{
 				if (query.TryGetValue("Employee", out var value) && value is EmployeeSummary passedEmployee)
-    {
-      SetupOptions();
+				{
+						IsCreateMode = false;
+						_rowIndex = passedEmployee.RowIndex;
+						EditableEmployee = EditableEmployee.FromSummary(passedEmployee);
+						_ = TraceCommandAsync(nameof(ApplyQueryAttributes), new { EmployeeId = passedEmployee.Id, passedEmployee.RowIndex });
+						InitializeCommand.Execute(this);
+						return;
+				}
 
-      _rowIndex = passedEmployee.RowIndex;
-      EditableEmployee = EditableEmployee.FromSummary(passedEmployee);
-      _ = TraceCommandAsync(nameof(ApplyQueryAttributes), new { EmployeeId = passedEmployee.Id, passedEmployee.RowIndex });
-      InitializeCommand.Execute(this);
-    }
-  }
+				if (query.TryGetValue("IsNewEmployee", out var isNewEmployeeValue) && isNewEmployeeValue is bool isNewEmployee)
+				{
+						IsCreateMode = isNewEmployee;
+				}
+
+				if (IsCreateMode)
+				{
+						EditableEmployee = new EditableEmployee();
+						_ = TraceCommandAsync(nameof(ApplyQueryAttributes), new { IsCreateMode });
+						InitializeCommand.Execute(this);
+				}
+		}
 
   private void SetupOptions()
   {
@@ -114,38 +137,46 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
       LevelOptions.Add(level);
   }
 
-  [RelayCommand]
-		public async Task UpdateEmployeeAsync()
+		[RelayCommand]
+		public async Task SaveEmployeeAsync()
 		{
 				try
 				{
 						IsBusy = true;
-						await TraceCommandAsync(nameof(UpdateEmployeeAsync), new { EditableEmployee?.Id }).ConfigureAwait(false);
+						await TraceCommandAsync(nameof(SaveEmployeeAsync), new { EditableEmployee?.Id, IsCreateMode }).ConfigureAwait(false);
 						if (!ValidateRequiredPickers())
 								return;
 
-						if(EditableEmployee != null)
+						if(EditableEmployee == null)
 						{
-								var summary = EditableEmployee.ToSummary(_rowIndex);
-								UpdateEmployeeRequestDto request = EditableEmployee.ToUpdateRequest(summary);
-								var updated = await _employeeApiService.UpdateEmployeeAsync(request, summary);
-								if (updated != null) {
-										await Snackbar.Make(
-												"Employee has been successfully updated.",
-												duration: TimeSpan.FromSeconds(3)
-										).Show();
-										await TraceCommandAsync(nameof(UpdateEmployeeAsync), new { Action = "Updated", EmployeeId = updated.Id }).ConfigureAwait(false);
-										await NavigateAsync("..",
-												new Dictionary<string, object>
-												{
-														["TargetSection"] = MainSectionEnum.Employees
-												});
-								}
+								return;
+						}
+
+						if (IsCreateMode)
+						{
+								await CreateEmployeeAsync();
+								return;
+						}
+
+						var summary = EditableEmployee.ToSummary(_rowIndex);
+						UpdateEmployeeRequestDto request = EditableEmployee.ToUpdateRequest(summary);
+						var updated = await _employeeApiService.UpdateEmployeeAsync(request, summary);
+						if (updated != null) {
+								await Snackbar.Make(
+										"Employee has been successfully updated.",
+										duration: TimeSpan.FromSeconds(3)
+								).Show();
+								await TraceCommandAsync(nameof(SaveEmployeeAsync), new { Action = "Updated", EmployeeId = updated.Id }).ConfigureAwait(false);
+								await NavigateAsync("..",
+										new Dictionary<string, object>
+										{
+												["TargetSection"] = MainSectionEnum.Employees
+										});
 						}
 				}
 				catch (Exception ex)
 				{
-						ExceptionHandlingService.Handle(ex, "Updating employee");
+						ExceptionHandlingService.Handle(ex, IsCreateMode ? "Creating employee" : "Updating employee");
 				}
 				finally
 				{
@@ -191,7 +222,17 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 						return InitializeWithReferenceDataAsync();
 				}
 
-				BindReferenceData();
+				SetupOptions();
+
+				if (IsCreateMode)
+				{
+						InitializeCreateDefaults();
+				}
+				else
+				{
+						BindReferenceData();
+				}
+
 				return base.InitializeAsync();
 		}
 
@@ -202,7 +243,16 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 						IsBusy = true;
 						await TraceCommandAsync(nameof(InitializeWithReferenceDataAsync)).ConfigureAwait(false);
 						await _referenceDataService.InitializeAsync();
-						BindReferenceData();
+						SetupOptions();
+
+						if (IsCreateMode)
+						{
+								InitializeCreateDefaults();
+						}
+						else
+						{
+								BindReferenceData();
+						}
 						await base.InitializeAsync();
 				}
 				catch (Exception ex)
@@ -247,6 +297,92 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 						? null
 						: DivisionOptions.FirstOrDefault(i => i.Id == Department.DivisionId);
 
+		}
+
+		private async Task CreateEmployeeAsync()
+		{
+				var summary = EditableEmployee.ToSummary(_rowIndex);
+				var request = EditableEmployee.ToCreateRequest(summary);
+
+				if (!string.IsNullOrWhiteSpace(EditableEmployee.Username) &&
+						!string.IsNullOrWhiteSpace(EditableEmployee.PasswordHash))
+				{
+						var user = await _userApiService.CreateUserAsync(new UserRecordDto
+						{
+								Username = EditableEmployee.Username,
+								PasswordHash = EditableEmployee.PasswordHash,
+								Credential = EditableEmployee.Credential,
+								IsGlobalSupervisor = EditableEmployee.IsGlobalSupervisor,
+								SupervisedGroup = Guid.TryParse(EditableEmployee.SupervisedGroup, out Guid parsedSupervisedGroup)
+										? parsedSupervisedGroup
+										: null
+						});
+
+						request.UserId = user?.Id;
+				}
+
+				if (EditableEmployee.BasicPay.HasValue ||
+						EditableEmployee.DailyRate.HasValue ||
+						EditableEmployee.HourlyRate.HasValue ||
+						EditableEmployee.HdmfCon.HasValue ||
+						EditableEmployee.HdmfEr.HasValue)
+				{
+						var pay = await _payApiService.CreatePayAsync(new PayRecordDto
+						{
+								BasicPay = EditableEmployee.BasicPay ?? 0,
+								DailyRate = EditableEmployee.DailyRate ?? 0,
+								HourlyRate = EditableEmployee.HourlyRate ?? 0,
+								HdmfEmployeeContribution = EditableEmployee.HdmfCon ?? 0,
+								HdmfEmployerContribution = EditableEmployee.HdmfEr ?? 0
+						});
+
+						request.PayId = pay?.Id;
+				}
+
+				var created = await _employeeApiService.CreateEmployeeAsync(request);
+				if (!created)
+				{
+						await Snackbar.Make(
+								"Employee create failed. Please check required fields and try again.",
+								duration: TimeSpan.FromSeconds(3)
+						).Show();
+						return;
+				}
+
+				await Snackbar.Make(
+						"Employee has been successfully created.",
+						duration: TimeSpan.FromSeconds(3)
+				).Show();
+				await TraceCommandAsync(nameof(SaveEmployeeAsync), new { Action = "Created" }).ConfigureAwait(false);
+				await NavigateAsync("..",
+						new Dictionary<string, object>
+						{
+								["TargetSection"] = MainSectionEnum.Employees
+						});
+		}
+
+		private void InitializeCreateDefaults()
+		{
+				EmployeeType = TypeOptions.FirstOrDefault();
+				EditableEmployee.Type = EmployeeType?.Name;
+				EditableEmployee.TypeId = EmployeeType?.Id;
+
+				Level = LevelOptions.FirstOrDefault();
+				EditableEmployee.Level = Level?.Name;
+				EditableEmployee.LevelId = Level?.Id;
+
+				Charging = ChargingOptions.FirstOrDefault();
+				EditableEmployee.Charging = Charging?.Name;
+				EditableEmployee.ChargingId = Charging?.Id;
+
+				Position = PositionOptions.FirstOrDefault();
+				EditableEmployee.Position = Position?.Name;
+				EditableEmployee.PositionId = Position?.Id;
+		}
+
+		partial void OnIsCreateModeChanged(bool value)
+		{
+				OnPropertyChanged(nameof(SaveButtonText));
 		}
 
 

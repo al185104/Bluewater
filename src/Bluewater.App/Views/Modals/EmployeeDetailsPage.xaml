@@ -295,8 +295,8 @@
 							Command="{Binding CancelCommand}"
 							Style="{StaticResource SecondaryButtonStyle}" />
 					<Button Grid.Column="2"
-							Text="Save &amp; Update" 
-							Command="{Binding UpdateEmployeeCommand}"
+							Text="{Binding SaveButtonText}" 
+							Command="{Binding SaveEmployeeCommand}"
 							Style="{StaticResource PrimaryButtonStyle}"/>
 				</Grid>
 			</VerticalStackLayout>
