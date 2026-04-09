@@ -246,7 +246,7 @@ inputmode="none" />
                     var _now = DateTime.Now;
                     var _dateOnly = DateOnly.FromDateTime(_now);
                     var result = await mediator.Send(new CreateTimesheetFromTimeLogCommand(barcodeBuffer, _now, _dateOnly, isCheckIn == true ? 1 : 2));
-                    if (result.IsSuccess)
+                    if (result.IsSuccess && !string.IsNullOrEmpty(result.Value))
                     {
                         // Create new record
                         var newRecord = new EmployeeRecord
@@ -282,6 +282,10 @@ inputmode="none" />
         catch (Exception ex)
         {
             ShowError($"Failed to process scan: {ex.Message}");
+        }
+        finally
+        {
+            isBusy = false;
         }
     }
 
