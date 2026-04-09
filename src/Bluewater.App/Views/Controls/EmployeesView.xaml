@@ -12,7 +12,7 @@
     <Grid RowDefinitions="Auto,*,Auto"
 		  Padding="20">
 		<!--header-->
-		<Grid Grid.Row="0" ColumnDefinitions="240,220,Auto,Auto,*,Auto,Auto"
+		<Grid Grid.Row="0" ColumnDefinitions="240,220,Auto,Auto,*,Auto,Auto,Auto"
 			  ColumnSpacing="10">
 			<Picker Grid.Column="0"
 					VerticalOptions="End"
@@ -34,13 +34,20 @@
 				   VerticalOptions="End"
 				   Text="{Binding Employees.Count, StringFormat='{0} employees'}" />
 			<Button Grid.Column="5"
+					Text="Add"
+					FontSize="14"
+					VerticalOptions="End"
+					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Plus},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+					Style="{StaticResource SecondaryButtonStyle}"
+					Command="{Binding AddEmployeeCommand}"/>
+			<Button Grid.Column="6"
 					Text="Upload" 
 					FontSize="14"
 					VerticalOptions="End"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 					Style="{StaticResource SecondaryButtonStyle}"
 					Command="{Binding ImportEmployeesCommand}"/>
-			<Button Grid.Column="6"
+			<Button Grid.Column="7"
 					Text="Download"
 					FontSize="14"
 					VerticalOptions="End"
