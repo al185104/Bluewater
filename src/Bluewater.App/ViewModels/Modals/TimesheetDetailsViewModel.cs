@@ -321,6 +321,13 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 				if (existing is null)
 				{
+						existing = SelectedEmployeeTimesheet.Timesheets.FirstOrDefault(timesheet =>
+								timesheet.EmployeeId == updatedTimesheet.EmployeeId &&
+								timesheet.EntryDate == updatedTimesheet.EntryDate);
+				}
+
+				if (existing is null)
+				{
 						return;
 				}
 

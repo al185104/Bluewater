@@ -14,17 +14,19 @@ public partial class TimesheetView : ContentView
 
 		private async void ContentView_Loaded(object sender, EventArgs e)
 		{
-				if (hasLoadedOnce)
+				if (BindingContext is not TimesheetsViewModel vm)
 				{
 						return;
 				}
 
-				hasLoadedOnce = true;
-
-				if (BindingContext is TimesheetsViewModel vm)
+				if (!hasLoadedOnce)
 				{
+						hasLoadedOnce = true;
 						await vm.InitializeAsync();
+						return;
 				}
+
+				await vm.RefreshCommand.ExecuteAsync(null);
 		}
 
 		private void ContentView_Unloaded(object sender, EventArgs e)

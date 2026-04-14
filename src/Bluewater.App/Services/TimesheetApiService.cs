@@ -217,9 +217,11 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
 
   private static AttendanceTimesheetSummary MapToSummary(Guid employeeId, TimesheetInfoDto dto)
   {
+    Guid timesheetId = dto.TimesheetId != Guid.Empty ? dto.TimesheetId : dto.Id;
+
     return new AttendanceTimesheetSummary
     {
-      Id = dto.TimesheetId,
+      Id = timesheetId,
       EmployeeId = employeeId,
       TimeIn1 = dto.TimeIn1,
       TimeOut1 = dto.TimeOut1,
