@@ -635,7 +635,7 @@ public partial class TimesheetsViewModel : BaseViewModel
 										Timesheets.Add(summary);
 								}
 
-								//SyncSelectedTimesheetSummary();
+								SyncSelectedTimesheetSummary();
 								UpdateCanSubmit();
 						});
 				}
@@ -746,23 +746,23 @@ public partial class TimesheetsViewModel : BaseViewModel
 				UpdateSummaryAlert(summary);
 		}
 
-		//private void SyncSelectedTimesheetSummary()
-		//{
-		//		if (!IsDetailsOpen || SelectedEmployeeTimesheet is null)
-		//		{
-		//				return;
-		//		}
+		private void SyncSelectedTimesheetSummary()
+		{
+				if (SelectedEmployeeTimesheet is null)
+				{
+						return;
+				}
 
-		//		EmployeeTimesheetSummary? updated = Timesheets
-		//			.FirstOrDefault(item => item.EmployeeId == SelectedEmployeeTimesheet.EmployeeId);
+				EmployeeTimesheetSummary? updated = Timesheets
+					.FirstOrDefault(item => item.EmployeeId == SelectedEmployeeTimesheet.EmployeeId);
 
-		//		if (updated is null || ReferenceEquals(updated, SelectedEmployeeTimesheet))
-		//		{
-		//				return;
-		//		}
+				if (updated is null || ReferenceEquals(updated, SelectedEmployeeTimesheet))
+				{
+						return;
+				}
 
-		//		SelectedEmployeeTimesheet = updated;
-		//}
+				SelectedEmployeeTimesheet = updated;
+		}
 
 		private static void UpdateTimesheetRowIndexes(EmployeeTimesheetSummary summary)
 		{

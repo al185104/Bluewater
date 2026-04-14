@@ -39,7 +39,11 @@ public class AllEmployeeTimesheetDto : EmployeeTimesheetDto
 
 public class TimesheetInfoDto
 {
+  [JsonPropertyName("timesheetId")]
   public Guid TimesheetId { get; set; }
+
+  [JsonPropertyName("id")]
+  public Guid Id { get; set; }
   public Guid? ScheduleId { get; set; }
   public Guid? ShiftId { get; set; }
   public string? ShiftName { get; set; }
