@@ -26,7 +26,7 @@ public partial class TimesheetView : ContentView
 						return;
 				}
 
-				await vm.RefreshCommand.ExecuteAsync(null);
+				vm.RefreshSelectedTimesheetEntry();
 		}
 
 		private void ContentView_Unloaded(object sender, EventArgs e)
