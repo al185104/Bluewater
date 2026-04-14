@@ -764,6 +764,29 @@ public partial class TimesheetsViewModel : BaseViewModel
 				SelectedEmployeeTimesheet = updated;
 		}
 
+		public void RefreshSelectedTimesheetEntry()
+		{
+				if (SelectedEmployeeTimesheet is null || Timesheets.Count == 0)
+				{
+						return;
+				}
+
+				int selectedIndex = Timesheets
+					.Select((item, index) => new { item, index })
+					.FirstOrDefault(entry => entry.item.EmployeeId == SelectedEmployeeTimesheet.EmployeeId)
+					?.index ?? -1;
+
+				if (selectedIndex < 0)
+				{
+						return;
+				}
+
+				UpdateSummaryAlert(SelectedEmployeeTimesheet);
+				UpdateTimesheetRowIndexes(SelectedEmployeeTimesheet);
+				Timesheets[selectedIndex] = SelectedEmployeeTimesheet;
+				UpdateCanSubmit();
+		}
+
 		private static void UpdateTimesheetRowIndexes(EmployeeTimesheetSummary summary)
 		{
 				for (int i = 0; i < summary.Timesheets.Count; i++)
