@@ -26,6 +26,16 @@ public interface ITimesheetApiService
     int? take = null,
     CancellationToken cancellationToken = default);
 
+  Task<PagedResult<EmployeeTimesheetSummary>> GetTimesheetSummariesByEmployeeIdAsync(
+    Guid employeeId,
+    string? charging,
+    DateOnly startDate,
+    DateOnly endDate,
+    TenantDto tenant,
+    int? skip = null,
+    int? take = null,
+    CancellationToken cancellationToken = default);
+
   Task<bool> CreateTimesheetEntryAsync(
     string username,
     DateTime? timeInput,

@@ -25,7 +25,7 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
       throw new ArgumentException("Employee ID must be provided", nameof(employeeId));
     }
 
-    string requestUri = BuildListAllRequestUri(startDate, endDate, tenant, skip, take, charging: null);
+    string requestUri = BuildListAllRequestUri(startDate, endDate, tenant, skip, take, charging: null, employeeId: null);
 
     TimesheetListAllResponseDto? response = await apiClient
       .GetAsync<TimesheetListAllResponseDto>(requestUri, cancellationToken)
@@ -62,7 +62,43 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
     int? take = null,
     CancellationToken cancellationToken = default)
   {
-    string requestUri = BuildListAllRequestUri(startDate, endDate, tenant, skip, take, charging);
+    string requestUri = BuildListAllRequestUri(startDate, endDate, tenant, skip, take, charging, employeeId: null);
+
+    TimesheetListAllResponseDto? response = await apiClient
+      .GetAsync<TimesheetListAllResponseDto>(requestUri, cancellationToken)
+      .ConfigureAwait(false);
+
+    if (response?.Employees is not { Count: > 0 })
+    {
+      return new PagedResult<EmployeeTimesheetSummary>(Array.Empty<EmployeeTimesheetSummary>(), response?.TotalCount ?? 0);
+    }
+
+    IReadOnlyList<EmployeeTimesheetSummary> timesheets = response.Employees
+      .Where(employee => employee is not null)
+      .Select(employee => MapToEmployeeSummary(employee!))
+      .Where(summary => summary.Timesheets.Count > 0)
+      .OrderBy(summary => summary.Name, StringComparer.OrdinalIgnoreCase)
+      .ToList();
+
+    return new PagedResult<EmployeeTimesheetSummary>(timesheets, response.TotalCount);
+  }
+
+  public async Task<PagedResult<EmployeeTimesheetSummary>> GetTimesheetSummariesByEmployeeIdAsync(
+    Guid employeeId,
+    string? charging,
+    DateOnly startDate,
+    DateOnly endDate,
+    TenantDto tenant,
+    int? skip = null,
+    int? take = null,
+    CancellationToken cancellationToken = default)
+  {
+    if (employeeId == Guid.Empty)
+    {
+      throw new ArgumentException("Employee ID must be provided", nameof(employeeId));
+    }
+
+    string requestUri = BuildListAllRequestUri(startDate, endDate, tenant, skip, take, charging, employeeId);
 
     TimesheetListAllResponseDto? response = await apiClient
       .GetAsync<TimesheetListAllResponseDto>(requestUri, cancellationToken)
@@ -116,7 +152,8 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
     TenantDto tenant,
     int? skip,
     int? take,
-    string? charging)
+    string? charging,
+    Guid? employeeId)
   {
     List<string> parameters =
     [
@@ -128,6 +165,11 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
     if (!string.IsNullOrWhiteSpace(charging))
     {
       parameters.Add($"charging={Uri.EscapeDataString(charging)}");
+    }
+
+    if (employeeId.HasValue && employeeId.Value != Guid.Empty)
+    {
+      parameters.Add($"employeeId={employeeId.Value}");
     }
 
     if (skip.HasValue)
