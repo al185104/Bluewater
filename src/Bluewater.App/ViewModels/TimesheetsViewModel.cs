@@ -764,7 +764,7 @@ public partial class TimesheetsViewModel : BaseViewModel
 				SelectedEmployeeTimesheet = updated;
 		}
 
-		public void RefreshSelectedTimesheetEntry()
+		public async Task RefreshSelectedTimesheetEntry()
 		{
 				if (SelectedEmployeeTimesheet is null || Timesheets.Count == 0)
 				{
@@ -781,10 +781,39 @@ public partial class TimesheetsViewModel : BaseViewModel
 						return;
 				}
 
-				UpdateSummaryAlert(SelectedEmployeeTimesheet);
-				UpdateTimesheetRowIndexes(SelectedEmployeeTimesheet);
-				Timesheets[selectedIndex] = SelectedEmployeeTimesheet;
-				UpdateCanSubmit();
+				try
+				{
+						PagedResult<EmployeeTimesheetSummary> refreshed = await timesheetApiService
+								.GetTimesheetSummariesByEmployeeIdAsync(
+										SelectedEmployeeTimesheet.EmployeeId,
+										SelectedCharging?.Name,
+										StartDate,
+										EndDate,
+										SelectedTenant,
+										skip: 0,
+										take: 1)
+								.ConfigureAwait(false);
+
+						EmployeeTimesheetSummary? refreshedSummary = refreshed.Items.FirstOrDefault();
+						if (refreshedSummary is null)
+						{
+								return;
+						}
+
+						UpdateSummaryAlert(refreshedSummary);
+						UpdateTimesheetRowIndexes(refreshedSummary);
+
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								Timesheets[selectedIndex] = refreshedSummary;
+								SelectedEmployeeTimesheet = refreshedSummary;
+								UpdateCanSubmit();
+						});
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Refreshing selected timesheet entry");
+				}
 		}
 
 		private static void UpdateTimesheetRowIndexes(EmployeeTimesheetSummary summary)
