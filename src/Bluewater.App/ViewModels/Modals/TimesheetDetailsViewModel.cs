@@ -152,6 +152,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 						if (updated is not null)
 						{
 								selectedEntry.ApplySummary(updated);
+								UpdateSelectedEmployeeTimesheetEntry(updated);
 						}
 
 						await MainThread.InvokeOnMainThreadAsync(() =>
@@ -215,6 +216,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 								}
 
 								entry.ApplySummary(updated);
+								UpdateSelectedEmployeeTimesheetEntry(updated);
 								anyUpdated = true;
 						}
 								catch (Exception ex)
@@ -305,5 +307,59 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				}
 
 				EditableTimesheets.Clear();
+		}
+
+		private void UpdateSelectedEmployeeTimesheetEntry(AttendanceTimesheetSummary updatedTimesheet)
+		{
+				if (SelectedEmployeeTimesheet is null)
+				{
+						return;
+				}
+
+				AttendanceTimesheetSummary? existing = SelectedEmployeeTimesheet.Timesheets
+					.FirstOrDefault(timesheet => timesheet.Id == updatedTimesheet.Id);
+
+				if (existing is null)
+				{
+						return;
+				}
+
+				existing.TimeIn1 = updatedTimesheet.TimeIn1;
+				existing.TimeOut1 = updatedTimesheet.TimeOut1;
+				existing.TimeIn2 = updatedTimesheet.TimeIn2;
+				existing.TimeOut2 = updatedTimesheet.TimeOut2;
+				existing.EntryDate = updatedTimesheet.EntryDate;
+				existing.IsEdited = updatedTimesheet.IsEdited;
+				existing.ScheduleId = updatedTimesheet.ScheduleId;
+				existing.ShiftId = updatedTimesheet.ShiftId;
+				existing.ShiftName = updatedTimesheet.ShiftName;
+				SelectedEmployeeTimesheet.IsShowAlert = SelectedEmployeeTimesheet.Timesheets.Any(ShouldShowAlertForTimesheet);
+		}
+
+		private static bool ShouldShowAlertForTimesheet(AttendanceTimesheetSummary timesheet)
+		{
+				int mask = 0;
+
+				if (timesheet.TimeOut2.HasValue)
+				{
+						mask |= 1 << 3;
+				}
+
+				if (timesheet.TimeIn2.HasValue)
+				{
+						mask |= 1 << 2;
+				}
+
+				if (timesheet.TimeOut1.HasValue)
+				{
+						mask |= 1 << 1;
+				}
+
+				if (timesheet.TimeIn1.HasValue)
+				{
+						mask |= 1;
+				}
+
+				return mask is not (0 or 3 or 9 or 12 or 15);
 		}
 }
