@@ -977,9 +977,24 @@
             </VerticalStackLayout>
 		</ScrollView>
 		
-		<ActivityIndicator IsRunning="{Binding IsBusy}"
-						   IsVisible="{Binding IsBusy}"
-						   HorizontalOptions="Center"
-						   VerticalOptions="Center" />
-	</Grid>
-</ContentView>
+			<Grid IsVisible="{Binding IsBusy}"
+			      BackgroundColor="#66000000"
+			      InputTransparent="False"
+			      ZIndex="10">
+				<VerticalStackLayout Spacing="12"
+				                     HorizontalOptions="Center"
+				                     VerticalOptions="Center">
+					<ActivityIndicator x:Name="SettingsLoadingIndicator"
+					                   AutomationId="SettingsLoadingIndicator"
+					                   IsRunning="{Binding IsBusy}"
+					                   IsVisible="{Binding IsBusy}"
+					                   WidthRequest="48"
+					                   HeightRequest="48" />
+					<Label Text="Loading settings..."
+					       HorizontalTextAlignment="Center"
+					       TextColor="White"
+					       FontAttributes="Bold" />
+				</VerticalStackLayout>
+			</Grid>
+		</Grid>
+	</ContentView>
