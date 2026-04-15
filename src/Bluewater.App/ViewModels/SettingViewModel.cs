@@ -12,6 +12,8 @@ namespace Bluewater.App.ViewModels;
 
 public partial class SettingViewModel : BaseViewModel
 {
+		private readonly SemaphoreSlim _initializeSemaphore = new(1, 1);
+		private bool _hasInitialized;
 		private readonly IDivisionApiService _divisionApiService;
 		private readonly IDepartmentApiService _departmentApiService;
 		private readonly ISectionApiService _sectionApiService;
@@ -176,19 +178,6 @@ public partial class SettingViewModel : BaseViewModel
 				UpdateStatusMessage = string.IsNullOrWhiteSpace(UpdateManifestUrl)
 					? "Updater feed is not configured."
 					: "Updater feed ready.";
-
-				Divisions = new ObservableCollection<DivisionSummary>(_referenceService.Divisions);
-				Departments = new ObservableCollection<DepartmentSummary>(_referenceService.Departments);
-				Sections = new ObservableCollection<SectionSummary>(_referenceService.Sections);
-				Positions = new ObservableCollection<PositionSummary>(_referenceService.Positions);
-				Chargings = new ObservableCollection<ChargingSummary>(_referenceService.Chargings);
-				EmployeeTypes = new ObservableCollection<EmployeeTypeSummary>(_referenceService.EmployeeTypes);
-				EmployeeLevels = new ObservableCollection<LevelSummary>(_referenceService.Levels);
-				Holidays = new ObservableCollection<HolidaySummary>(_referenceService.Holidays);
-				SelectedDivisionForDepartment = Divisions.FirstOrDefault();
-				SelectedDepartmentForSection = Departments.FirstOrDefault();
-				SelectedSectionForPosition = Sections.FirstOrDefault();
-				SelectedDepartmentForCharging = Departments.FirstOrDefault();
 
 		}
 
@@ -1727,13 +1716,19 @@ public partial class SettingViewModel : BaseViewModel
 
 		public override async Task InitializeAsync()
 		{
-				if (IsBusy)
+				if (_hasInitialized)
 				{
 						return;
 				}
 
+				await _initializeSemaphore.WaitAsync().ConfigureAwait(false);
 				try
 				{
+						if (_hasInitialized)
+						{
+								return;
+						}
+
 						await RunOnMainThreadAsync(() =>
 						{
 								IsBusy = true;
@@ -1747,25 +1742,16 @@ public partial class SettingViewModel : BaseViewModel
 								Holidays.Clear();
 						});
 
-						var divisionTask = _divisionApiService.GetDivisionsAsync();
-						var departmentTask = _departmentApiService.GetDepartmentsAsync();
-						var sectionTask = _sectionApiService.GetSectionsAsync();
-						var chargingTask = _chargingApiService.GetChargingsAsync();
-						var positionTask = _positionApiService.GetPositionsAsync();
-						var employeeTypeTask = _employeeTypeApiService.GetEmployeeTypesAsync();
-						var levelTask = _levelApiService.GetLevelsAsync();
-						var holidayTask = _holidayApiService.GetHolidaysAsync();
+						await _referenceService.InitializeAsync().ConfigureAwait(false);
 
-						await Task.WhenAll(divisionTask, departmentTask, sectionTask, chargingTask, positionTask, employeeTypeTask, levelTask, holidayTask).ConfigureAwait(false);
-
-						IReadOnlyList<DivisionSummary> divisions = divisionTask.Result.OrderBy(d => d.Name).ToList();
-						IReadOnlyList<DepartmentSummary> departments = departmentTask.Result.OrderBy(d => d.Name).ToList();
-						IReadOnlyList<SectionSummary> sections = sectionTask.Result.OrderBy(s => s.Name).ToList();
-						IReadOnlyList<ChargingSummary> chargings = chargingTask.Result.OrderBy(c => c.Name).ToList();
-						IReadOnlyList<PositionSummary> positions = positionTask.Result.OrderBy(p => p.Name).ToList();
-						IReadOnlyList<EmployeeTypeSummary> employeeTypes = employeeTypeTask.Result.OrderBy(t => t.Name).ToList();
-						IReadOnlyList<LevelSummary> levels = levelTask.Result.OrderBy(l => l.Name).ToList();
-						IReadOnlyList<HolidaySummary> holidays = holidayTask.Result.OrderBy(h => h.Date).ThenBy(h => h.Name).ToList();
+						IReadOnlyList<DivisionSummary> divisions = _referenceService.Divisions;
+						IReadOnlyList<DepartmentSummary> departments = _referenceService.Departments;
+						IReadOnlyList<SectionSummary> sections = _referenceService.Sections;
+						IReadOnlyList<ChargingSummary> chargings = _referenceService.Chargings;
+						IReadOnlyList<PositionSummary> positions = _referenceService.Positions;
+						IReadOnlyList<EmployeeTypeSummary> employeeTypes = _referenceService.EmployeeTypes;
+						IReadOnlyList<LevelSummary> levels = _referenceService.Levels;
+						IReadOnlyList<HolidaySummary> holidays = _referenceService.Holidays;
 
 						await RunOnMainThreadAsync(() =>
 						{
@@ -1826,7 +1812,14 @@ public partial class SettingViewModel : BaseViewModel
 								{
 										Holidays.Add(holiday);
 								}
+
+								SelectedDivisionForDepartment = Divisions.FirstOrDefault();
+								SelectedDepartmentForSection = Departments.FirstOrDefault();
+								SelectedSectionForPosition = Sections.FirstOrDefault();
+								SelectedDepartmentForCharging = Departments.FirstOrDefault();
 						});
+
+						_hasInitialized = true;
 				}
 				catch (Exception ex)
 				{
@@ -1835,6 +1828,7 @@ public partial class SettingViewModel : BaseViewModel
 				finally
 				{
 						await RunOnMainThreadAsync(() => IsBusy = false);
+						_initializeSemaphore.Release();
 				}
 		}
 }
