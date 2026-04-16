@@ -31,14 +31,26 @@ internal class ListAllTimesheetHandler(
     using (var scope = serviceScopeFactory.CreateScope())
     {
       var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-      Result<Common.PagedResult<EmployeeDTO>> employeeResult = string.IsNullOrWhiteSpace(request.charging)
-        ? await mediator.Send(new ListEmployeeQuery(request.skip, request.take, request.tenant), cancellationToken)
-        : await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.charging, request.tenant), cancellationToken);
-
-      if (employeeResult.IsSuccess)
+      if (request.employeeId.HasValue)
       {
-        employees = employeeResult.Value.Items.ToList();
-        totalCount = employeeResult.Value.TotalCount;
+        Result<EmployeeDTO> employeeResult = await mediator.Send(new GetEmployeeQuery(request.employeeId.Value), cancellationToken);
+        if (employeeResult.IsSuccess)
+        {
+          employees = [employeeResult.Value];
+          totalCount = employees.Count;
+        }
+      }
+      else
+      {
+        Result<Common.PagedResult<EmployeeDTO>> employeeResult = string.IsNullOrWhiteSpace(request.charging)
+          ? await mediator.Send(new ListEmployeeQuery(request.skip, request.take, request.tenant), cancellationToken)
+          : await mediator.Send(new ListEmployeeByChargingQuery(request.skip, request.take, request.charging, request.tenant), cancellationToken);
+
+        if (employeeResult.IsSuccess)
+        {
+          employees = employeeResult.Value.Items.ToList();
+          totalCount = employeeResult.Value.TotalCount;
+        }
       }
     }
 
