@@ -21,4 +21,6 @@ public class TimesheetListAllRequest
 
   [Required]
   public Tenant Tenant { get; set; }
+
+  public Guid? EmployeeId { get; set; }
 }
