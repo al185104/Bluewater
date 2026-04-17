@@ -7,7 +7,10 @@ namespace Bluewater.Core.AttendanceAggregate;
 public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid? leaveId, DateOnly? entryDate, decimal? workHrs, decimal? lateHrs, decimal? underHrs, decimal? overbreakHrs, decimal? nightShiftHours, bool isLocked = false) : EntityBase<Guid>, IAggregateRoot
 {
     private const double LatenessThresholdMinutes = 15;
+    private const double UndertimeThresholdMinutes = 15;
     private const double BreakToleranceMinutes = 10;
+    private static readonly TimeOnly DefaultNightShiftStart = new(22, 0);
+    private static readonly TimeOnly DefaultNightShiftEnd = new(6, 0);
 
     public Guid EmployeeId { get; private set; } = employeeId;
     public Guid? ShiftId { get; private set; } = shiftId;
@@ -51,7 +54,13 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
     }
 
   public (decimal totalWorkHours, decimal totalLateHours, decimal totalUndertimeHours,
-          decimal totalOverbreakHours, decimal totalNightShiftHours) CalculateWorkHours()
+          decimal totalOverbreakHours, decimal totalNightShiftHours) CalculateWorkHours(
+            double lateThresholdMinutes = LatenessThresholdMinutes,
+            double undertimeThresholdMinutes = UndertimeThresholdMinutes,
+            double overbreakThresholdMinutes = BreakToleranceMinutes,
+            bool enableNightShiftComputation = true,
+            TimeOnly? nightShiftStartTime = null,
+            TimeOnly? nightShiftEndTime = null)
   {
     try
     {
@@ -81,45 +90,58 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
         return (0, 0, 0, 0, 0);
       }
 
-      decimal workWithinSchedule = 0m;
-      workWithinSchedule += CalculateOverlapHours(ts.TimeIn1.Value, firstClockOut.Value, scheduledStart, scheduledEnd);
+      (DateTime breakStart, DateTime breakEnd) = GetScheduledBreakWindow(scheduledStart, scheduledEnd, sh, ts.TimeIn1.Value);
+      decimal shiftBreakHours = CalculateOverlapHours(breakStart, breakEnd, scheduledStart, scheduledEnd);
+      decimal shiftWorkHours = Math.Max(0, (decimal)(scheduledEnd - scheduledStart).TotalHours - shiftBreakHours);
 
       bool hasSecondSession = ts.TimeIn2.HasValue && ts.TimeOut2.HasValue;
+
+      decimal workWithinSchedule = CalculateNetSessionHours(ts.TimeIn1.Value, firstClockOut.Value, scheduledStart, scheduledEnd, breakStart, breakEnd);
       if (hasSecondSession)
       {
-        workWithinSchedule += CalculateOverlapHours(ts.TimeIn2!.Value, ts.TimeOut2!.Value, scheduledStart, scheduledEnd);
+        workWithinSchedule += CalculateNetSessionHours(ts.TimeIn2!.Value, ts.TimeOut2!.Value, scheduledStart, scheduledEnd, breakStart, breakEnd);
       }
 
-      decimal penaltyLate = CalculateRoundedHourPenalty((ts.TimeIn1.Value - scheduledStart).TotalMinutes, LatenessThresholdMinutes);
+      decimal penaltyLate = CalculateRoundedHourPenalty((ts.TimeIn1.Value - scheduledStart).TotalMinutes, lateThresholdMinutes);
 
       DateTime attendanceEnd = hasSecondSession ? ts.TimeOut2!.Value : firstClockOut.Value;
       decimal penaltyEarly = 0m;
       if (attendanceEnd < scheduledEnd)
       {
-        penaltyEarly = CalculateRoundedHourPenalty((scheduledEnd - attendanceEnd).TotalMinutes, 0);
+        penaltyEarly = CalculateRoundedHourPenalty((scheduledEnd - attendanceEnd).TotalMinutes, undertimeThresholdMinutes);
       }
 
       decimal penaltyBreak = 0m;
       if (hasSecondSession && ts.TimeOut1.HasValue)
       {
-        (DateTime breakStart, DateTime breakEnd) = GetScheduledBreakWindow(scheduledStart, scheduledEnd, sh, ts.TimeIn1.Value);
-
         double scheduledBreakMinutes = Math.Max(0, (breakEnd - breakStart).TotalMinutes);
         DateTime effectiveBreakStart = ts.TimeOut1.Value < breakStart ? breakStart : ts.TimeOut1.Value;
         double actualBreakMinutes = (ts.TimeIn2!.Value - effectiveBreakStart).TotalMinutes;
         double excessBreakMinutes = actualBreakMinutes - scheduledBreakMinutes;
 
-        penaltyBreak = CalculateRoundedHourPenalty(excessBreakMinutes, BreakToleranceMinutes);
+        penaltyBreak = CalculateRoundedHourPenalty(excessBreakMinutes, overbreakThresholdMinutes);
       }
 
-      decimal netWorkHours = Math.Max(0, workWithinSchedule);
-      decimal nightShiftHours = IsNightShift(sh) ? netWorkHours : 0m;
+      decimal netWorkHours = Math.Max(0, Math.Min(workWithinSchedule, shiftWorkHours));
+      decimal roundedWorkHours = RoundToWholeHours(netWorkHours);
+      decimal roundedLateHours = RoundToWholeHours(penaltyLate);
+      decimal roundedUnderHours = RoundToWholeHours(penaltyEarly);
+      decimal roundedOverbreakHours = RoundToWholeHours(penaltyBreak);
 
-      WorkHrs = Math.Round(netWorkHours, 2);
-      LateHrs = Math.Round(penaltyLate, 2);
-      UnderHrs = Math.Round(penaltyEarly, 2);
-      OverbreakHrs = Math.Round(penaltyBreak, 2);
-      NightShiftHours = Math.Round(nightShiftHours, 2);
+      decimal nightShiftHours = 0m;
+      if (enableNightShiftComputation)
+      {
+        TimeOnly nsStart = nightShiftStartTime ?? DefaultNightShiftStart;
+        TimeOnly nsEnd = nightShiftEndTime ?? DefaultNightShiftEnd;
+        nightShiftHours = CalculateNightShiftHours(ts, scheduledStart, scheduledEnd, breakStart, breakEnd, nsStart, nsEnd);
+      }
+      decimal roundedNightShiftHours = RoundToWholeHours(nightShiftHours);
+
+      WorkHrs = roundedWorkHours;
+      LateHrs = roundedLateHours;
+      UnderHrs = roundedUnderHours;
+      OverbreakHrs = roundedOverbreakHours;
+      NightShiftHours = roundedNightShiftHours;
 
       return (WorkHrs ?? 0, LateHrs ?? 0, UnderHrs ?? 0, OverbreakHrs ?? 0, NightShiftHours ?? 0);
     }
@@ -150,6 +172,19 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
       : 0m;
   }
 
+  private static decimal CalculateNetSessionHours(
+    DateTime sessionStart,
+    DateTime sessionEnd,
+    DateTime scheduledStart,
+    DateTime scheduledEnd,
+    DateTime breakStart,
+    DateTime breakEnd)
+  {
+    decimal grossOverlap = CalculateOverlapHours(sessionStart, sessionEnd, scheduledStart, scheduledEnd);
+    decimal breakOverlap = CalculateOverlapHours(sessionStart, sessionEnd, breakStart, breakEnd);
+    return Math.Max(0m, grossOverlap - breakOverlap);
+  }
+
   private static decimal CalculateRoundedHourPenalty(double minutes, double thresholdMinutes)
   {
     if (minutes <= thresholdMinutes)
@@ -158,6 +193,11 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
     }
 
     return (decimal)(Math.Floor((minutes - thresholdMinutes - 1) / 60) + 1);
+  }
+
+  private static decimal RoundToWholeHours(decimal value)
+  {
+    return Math.Round(value, 0, MidpointRounding.AwayFromZero);
   }
 
   private static (DateTime breakStart, DateTime breakEnd) GetScheduledBreakWindow(DateTime scheduledStart, DateTime scheduledEnd, Shift shift, DateTime referenceDate)
@@ -179,14 +219,45 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
     return (defaultBreakStart, defaultBreakEnd);
   }
 
-  private static bool IsNightShift(Shift shift)
+  private static decimal CalculateNightShiftHours(
+    Timesheet timesheet,
+    DateTime scheduledStart,
+    DateTime scheduledEnd,
+    DateTime breakStart,
+    DateTime breakEnd,
+    TimeOnly nightShiftStartTime,
+    TimeOnly nightShiftEndTime)
   {
-    if (!shift.ShiftStartTime.HasValue || !shift.ShiftEndTime.HasValue)
+    DateTime nightStart = BuildShiftDateTime(scheduledStart, nightShiftStartTime);
+    DateTime nightEnd = BuildShiftDateTime(scheduledStart, nightShiftEndTime);
+    if (nightEnd <= nightStart)
     {
-      return false;
+      nightEnd = nightEnd.AddDays(1);
     }
 
-    return shift.ShiftStartTime.Value.Hour >= 22 || shift.ShiftEndTime.Value.Hour <= 6;
+    DateTime effectiveNightStart = nightStart > scheduledStart ? nightStart : scheduledStart;
+    DateTime effectiveNightEnd = nightEnd < scheduledEnd ? nightEnd : scheduledEnd;
+    if (effectiveNightEnd <= effectiveNightStart)
+    {
+      return 0m;
+    }
+
+    decimal total = 0m;
+    if (timesheet.TimeOut1.HasValue)
+    {
+      total += CalculateNetSessionHours(timesheet.TimeIn1!.Value, timesheet.TimeOut1.Value, effectiveNightStart, effectiveNightEnd, breakStart, breakEnd);
+    }
+    else if (timesheet.TimeOut2.HasValue)
+    {
+      total += CalculateNetSessionHours(timesheet.TimeIn1!.Value, timesheet.TimeOut2.Value, effectiveNightStart, effectiveNightEnd, breakStart, breakEnd);
+    }
+
+    if (timesheet.TimeIn2.HasValue && timesheet.TimeOut2.HasValue)
+    {
+      total += CalculateNetSessionHours(timesheet.TimeIn2.Value, timesheet.TimeOut2.Value, effectiveNightStart, effectiveNightEnd, breakStart, breakEnd);
+    }
+
+    return total;
   }
 
 
