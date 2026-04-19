@@ -57,9 +57,12 @@ public sealed class AppUpdaterService : IAppUpdaterService
       new JsonSerializerOptions { PropertyNameCaseInsensitive = true },
       cancellationToken).ConfigureAwait(false);
 
-    if (manifest is null || string.IsNullOrWhiteSpace(manifest.Version) || string.IsNullOrWhiteSpace(manifest.ZipUrl))
+    bool hasSelfUpdatePackage = !string.IsNullOrWhiteSpace(manifest?.ZipUrl);
+    bool hasMsixPackage = !string.IsNullOrWhiteSpace(manifest?.AppInstallerUrl) || !string.IsNullOrWhiteSpace(manifest?.MsixUrl);
+
+    if (manifest is null || string.IsNullOrWhiteSpace(manifest.Version) || (!hasSelfUpdatePackage && !hasMsixPackage))
     {
-      throw new InvalidOperationException("version.json is missing required values: version and zipUrl.");
+      throw new InvalidOperationException("version.json is missing required values. Provide version and at least one update source: zipUrl, appInstallerUrl, or msixUrl.");
     }
 
     if (!Version.TryParse(manifest.Version.Trim(), out Version? availableVersion))
@@ -93,6 +96,21 @@ public sealed class AppUpdaterService : IAppUpdaterService
       Message = "Self-update is currently supported on Windows builds only."
     };
 #else
+    if (IsRunningPackaged())
+    {
+      return await StartMsixUpdateFlowAsync(manifest).ConfigureAwait(false);
+    }
+
+    if (string.IsNullOrWhiteSpace(manifest.ZipUrl))
+    {
+      return new AppUpdateInstallResult
+      {
+        IsSuccess = false,
+        RequiresRestart = false,
+        Message = "This build requires zipUrl in version.json for unpackaged self-updates."
+      };
+    }
+
     string appDirectory = AppContext.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
     string executableName = ResolveExecutableName(manifest.EntryExecutable);
     string executablePath = Path.Combine(appDirectory, executableName);
@@ -154,6 +172,74 @@ public sealed class AppUpdaterService : IAppUpdaterService
     }
 #endif
   }
+
+#if WINDOWS
+  private static bool IsRunningPackaged()
+  {
+    try
+    {
+      _ = Windows.ApplicationModel.Package.Current;
+      return true;
+    }
+    catch
+    {
+      return false;
+    }
+  }
+
+  private static async Task<AppUpdateInstallResult> StartMsixUpdateFlowAsync(AppUpdateManifest manifest)
+  {
+    Uri? installerUri = TryBuildInstallerUri(manifest);
+    if (installerUri is null)
+    {
+      return new AppUpdateInstallResult
+      {
+        IsSuccess = false,
+        RequiresRestart = false,
+        Message = "This packaged build requires appInstallerUrl or msixUrl in version.json."
+      };
+    }
+
+    bool opened = await Launcher.Default.OpenAsync(installerUri).ConfigureAwait(false);
+    return opened
+      ? new AppUpdateInstallResult
+      {
+        IsSuccess = true,
+        RequiresRestart = false,
+        Message = "Update installer opened. Follow the installer prompts to complete update."
+      }
+      : new AppUpdateInstallResult
+      {
+        IsSuccess = false,
+        RequiresRestart = false,
+        Message = $"Unable to launch update installer: {installerUri}."
+      };
+  }
+
+  private static Uri? TryBuildInstallerUri(AppUpdateManifest manifest)
+  {
+    string? appInstallerUrl = manifest.AppInstallerUrl?.Trim();
+    if (!string.IsNullOrWhiteSpace(appInstallerUrl) &&
+        Uri.TryCreate(appInstallerUrl, UriKind.Absolute, out Uri? parsedAppInstaller))
+    {
+      return parsedAppInstaller;
+    }
+
+    string? msixUrl = manifest.MsixUrl?.Trim();
+    if (string.IsNullOrWhiteSpace(msixUrl))
+    {
+      return null;
+    }
+
+    if (!Uri.TryCreate(msixUrl, UriKind.Absolute, out Uri? parsedMsix))
+    {
+      return null;
+    }
+
+    string encodedSource = Uri.EscapeDataString(parsedMsix.ToString());
+    return new Uri($"ms-appinstaller:?source={encodedSource}", UriKind.Absolute);
+  }
+#endif
 
   private static Version GetCurrentVersion()
   {

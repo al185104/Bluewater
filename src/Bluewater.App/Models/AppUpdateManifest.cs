@@ -6,6 +6,10 @@ public sealed class AppUpdateManifest
 
   public string ZipUrl { get; set; } = string.Empty;
 
+  public string? AppInstallerUrl { get; set; }
+
+  public string? MsixUrl { get; set; }
+
   public string? EntryExecutable { get; set; }
 
   public string? ReleaseNotesUrl { get; set; }
