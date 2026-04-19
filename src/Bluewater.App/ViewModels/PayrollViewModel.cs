@@ -7,7 +7,6 @@ using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using Bluewater.App.Views.Modals;
-using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -236,11 +235,11 @@ public partial class PayrollViewModel : BaseViewModel
 						EditablePayroll = CreateNewPayroll();
 						await LoadPayrollsAsync().ConfigureAwait(false);
 
-						await MainThread.InvokeOnMainThreadAsync(() =>
-								Snackbar.Make(
-										$"Saved {savedCount} payroll record(s) for {PeriodRangeDisplay}. Skipped {pendingPayrolls.Count - savedCount} record(s).",
-										duration: TimeSpan.FromSeconds(3))
-									.Show());
+            await MainThread.InvokeOnMainThreadAsync(() =>
+                Shell.Current.DisplayAlert(
+                    "Payroll Saved",
+                    $"Saved {savedCount} payroll record(s) for {PeriodRangeDisplay}. Skipped {pendingPayrolls.Count - savedCount} record(s).",
+                    "OK"));
 
 						await TraceCommandAsync(nameof(SavePayrollAsync), new
 						{
@@ -294,8 +293,8 @@ public partial class PayrollViewModel : BaseViewModel
 										EditablePayroll = refreshedPayroll;
 								}
 
-								await MainThread.InvokeOnMainThreadAsync(() =>
-										Snackbar.Make($"Submitted payroll entry for {refreshedPayroll.Name}.", duration: TimeSpan.FromSeconds(3)).Show());
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                    Shell.Current.DisplayAlert("Payroll Submitted", $"Submitted payroll entry for {refreshedPayroll.Name}.", "OK"));
 						}
 
 						await TraceCommandAsync(nameof(SubmitPayrollAsync), new
