@@ -4,7 +4,6 @@ using Bluewater.App.Enums;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
-using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 
@@ -237,11 +236,11 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 				if (anyUpdated)
 				{
-						await MainThread.InvokeOnMainThreadAsync(() =>
-								Snackbar.Make(
-										"Timesheet has been successfully updated.",
-										duration: TimeSpan.FromSeconds(3)
-								).Show());
+            await MainThread.InvokeOnMainThreadAsync(() =>
+                Shell.Current.DisplayAlert(
+                    "Timesheet Updated",
+                    "Timesheet has been successfully updated.",
+                    "OK"));
 						await NavigateAsync("..",
 								new Dictionary<string, object>
 								{
