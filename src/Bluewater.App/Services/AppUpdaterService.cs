@@ -94,7 +94,7 @@ public sealed class AppUpdaterService : IAppUpdaterService
       Message = "Self-update is currently supported on Windows builds only."
     };
 #else
-    bool hasMsixUpdateSource = !string.IsNullOrWhiteSpace(manifest.AppInstallerUrl) || !string.IsNullOrWhiteSpace(manifest.MsixUrl);
+    bool hasMsixUpdateSource = HasMsixUpdateSource(manifest);
     if (hasMsixUpdateSource)
     {
       return await StartMsixUpdateFlowAsync(manifest).ConfigureAwait(false);
@@ -106,7 +106,7 @@ public sealed class AppUpdaterService : IAppUpdaterService
       {
         IsSuccess = false,
         RequiresRestart = false,
-        Message = "Packaged builds require appInstallerUrl or msixUrl in version.json."
+        Message = "Packaged builds require appInstallerUrl, msixUrl, or an .msix zipUrl in version.json."
       };
     }
 
@@ -205,7 +205,7 @@ public sealed class AppUpdaterService : IAppUpdaterService
       {
         IsSuccess = false,
         RequiresRestart = false,
-        Message = "This packaged build requires appInstallerUrl or msixUrl in version.json."
+        Message = "This packaged build requires appInstallerUrl, msixUrl, or an .msix zipUrl in version.json."
       };
     }
 
@@ -238,6 +238,11 @@ public sealed class AppUpdaterService : IAppUpdaterService
     string? msixUrl = manifest.MsixUrl?.Trim();
     if (string.IsNullOrWhiteSpace(msixUrl))
     {
+      msixUrl = TryGetMsixUrlFromZipUrl(manifest.ZipUrl);
+    }
+
+    if (string.IsNullOrWhiteSpace(msixUrl))
+    {
       return null;
     }
 
@@ -248,6 +253,33 @@ public sealed class AppUpdaterService : IAppUpdaterService
 
     string encodedSource = Uri.EscapeDataString(parsedMsix.ToString());
     return new Uri($"ms-appinstaller:?source={encodedSource}", UriKind.Absolute);
+  }
+
+  private static bool HasMsixUpdateSource(AppUpdateManifest manifest)
+  {
+    if (!string.IsNullOrWhiteSpace(manifest.AppInstallerUrl) || !string.IsNullOrWhiteSpace(manifest.MsixUrl))
+    {
+      return true;
+    }
+
+    return !string.IsNullOrWhiteSpace(TryGetMsixUrlFromZipUrl(manifest.ZipUrl));
+  }
+
+  private static string? TryGetMsixUrlFromZipUrl(string? zipUrl)
+  {
+    if (string.IsNullOrWhiteSpace(zipUrl))
+    {
+      return null;
+    }
+
+    string trimmedUrl = zipUrl.Trim();
+    if (!Uri.TryCreate(trimmedUrl, UriKind.Absolute, out Uri? parsedZipUrl))
+    {
+      return null;
+    }
+
+    string path = parsedZipUrl.AbsolutePath;
+    return path.EndsWith(".msix", StringComparison.OrdinalIgnoreCase) ? trimmedUrl : null;
   }
 #endif
 
