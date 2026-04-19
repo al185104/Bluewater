@@ -96,9 +96,20 @@ public sealed class AppUpdaterService : IAppUpdaterService
       Message = "Self-update is currently supported on Windows builds only."
     };
 #else
-    if (IsRunningPackaged())
+    bool hasMsixUpdateSource = !string.IsNullOrWhiteSpace(manifest.AppInstallerUrl) || !string.IsNullOrWhiteSpace(manifest.MsixUrl);
+    if (hasMsixUpdateSource)
     {
       return await StartMsixUpdateFlowAsync(manifest).ConfigureAwait(false);
+    }
+
+    if (IsRunningPackaged())
+    {
+      return new AppUpdateInstallResult
+      {
+        IsSuccess = false,
+        RequiresRestart = false,
+        Message = "Packaged builds require appInstallerUrl or msixUrl in version.json."
+      };
     }
 
     if (string.IsNullOrWhiteSpace(manifest.ZipUrl))
@@ -222,7 +233,8 @@ public sealed class AppUpdaterService : IAppUpdaterService
     if (!string.IsNullOrWhiteSpace(appInstallerUrl) &&
         Uri.TryCreate(appInstallerUrl, UriKind.Absolute, out Uri? parsedAppInstaller))
     {
-      return parsedAppInstaller;
+      string encodedSource = Uri.EscapeDataString(parsedAppInstaller.ToString());
+      return new Uri($"ms-appinstaller:?source={encodedSource}", UriKind.Absolute);
     }
 
     string? msixUrl = manifest.MsixUrl?.Trim();
