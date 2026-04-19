@@ -20,7 +20,20 @@ public static class MauiProgram
 				var builder = MauiApp.CreateBuilder();
 				builder
 					.UseMauiApp<App>()
-					.UseMauiCommunityToolkit(options => options.SetShouldEnableSnackbarOnWindows(true))
+					.UseMauiCommunityToolkit(options =>
+					{
+#if WINDOWS
+							// Enabling CommunityToolkit snackbars on Windows triggers an AppNotificationManager.Register()
+							// call, which requires packaged COM notification activation entries. Our MSIX currently
+							// doesn't provide those entries, causing startup crashes with:
+							// "No COM servers are registered for this app" (0x80004005).
+							//
+							// Keep snackbars disabled on Windows so startup is stable for MSIX installs.
+							options.SetShouldEnableSnackbarOnWindows(false);
+#else
+							options.SetShouldEnableSnackbarOnWindows(true);
+#endif
+					})
 					.ConfigureLifecycleEvents(lifecycle =>
 					{
 #if WINDOWS
