@@ -35,12 +35,10 @@
             <Entry Placeholder="Username"
                    x:Name="UsernameEntry"
                    Text="{Binding Username}"
-                   TextChanged="OnCredentialTextChanged"
                    ReturnType="Next"/>
             <Entry Placeholder="Password"
                    x:Name="PasswordEntry"
                    Text="{Binding Password}"
-                   TextChanged="OnCredentialTextChanged"
                    IsPassword="True"
                    ReturnType="Go"
                    ReturnCommand="{Binding LoginCommand}"/>
@@ -52,7 +50,7 @@
                 <Switch Grid.Column="1"
                         x:Name="RememberSignInSwitch"
                         HorizontalOptions="End"
-                        Toggled="OnRememberSignInToggled"/>
+                        IsToggled="{Binding RememberSignIn}"/>
             </Grid>
             <!--<Label VerticalTextAlignment="Center" HorizontalTextAlignment="Center">
                 <Label.FormattedText>
