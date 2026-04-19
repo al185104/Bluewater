@@ -4,6 +4,7 @@ using System.Text.Json.Serialization;
 using System.Threading;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
+using Microsoft.Maui.Storage;
 
 namespace Bluewater.App.Services;
 
@@ -21,8 +22,7 @@ public sealed class ActivityTraceService : IActivityTraceService, IAsyncDisposab
 
 		public ActivityTraceService(string? appDataDirectory = null)
 		{
-				this.appDataDirectory = appDataDirectory ?? GetDefaultLogDirectory();
-				Directory.CreateDirectory(this.appDataDirectory);
+				this.appDataDirectory = ResolveWritableLogDirectory(appDataDirectory);
 		}
 
 		public Task<string> GetCurrentLogPathAsync()
@@ -87,8 +87,53 @@ public sealed class ActivityTraceService : IActivityTraceService, IAsyncDisposab
 
 		private static string GetDefaultLogDirectory()
 		{
+				string mauiAppDataPath = FileSystem.Current.AppDataDirectory;
+				if (!string.IsNullOrWhiteSpace(mauiAppDataPath))
+				{
+						return Path.Combine(mauiAppDataPath, "Logs");
+				}
+
 				string localAppDataPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-				return Path.Combine(localAppDataPath, "Bluewater", "App", "Logs");
+				if (!string.IsNullOrWhiteSpace(localAppDataPath))
+				{
+						return Path.Combine(localAppDataPath, "Bluewater", "App", "Logs");
+				}
+
+				return Path.Combine(Path.GetTempPath(), "Bluewater", "App", "Logs");
+		}
+
+		private static string ResolveWritableLogDirectory(string? preferredDirectory)
+		{
+				if (!string.IsNullOrWhiteSpace(preferredDirectory))
+				{
+						Directory.CreateDirectory(preferredDirectory);
+						return preferredDirectory;
+				}
+
+				string[] candidates =
+				[
+						GetDefaultLogDirectory(),
+						Path.Combine(Path.GetTempPath(), "Bluewater", "App", "Logs")
+				];
+
+				foreach (string candidate in candidates)
+				{
+						try
+						{
+								Directory.CreateDirectory(candidate);
+								return candidate;
+						}
+						catch (UnauthorizedAccessException)
+						{
+								// Move to next fallback.
+						}
+						catch (IOException)
+						{
+								// Move to next fallback.
+						}
+				}
+
+				throw new InvalidOperationException("Unable to initialize a writable directory for activity trace logs.");
 		}
 
 		public ValueTask DisposeAsync()
