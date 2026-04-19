@@ -3,6 +3,7 @@ using System.IO.Compression;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Xml.Linq;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Microsoft.Maui.ApplicationModel;
@@ -26,7 +27,7 @@ public sealed class AppUpdaterService : IAppUpdaterService
   {
     if (!TryNormalizeUrl(candidateUrl, out Uri? manifestUri))
     {
-      validationMessage = "Please enter a valid absolute HTTP or HTTPS URL for version.json.";
+      validationMessage = "Please enter a valid absolute HTTP or HTTPS URL for version.json or .appinstaller.";
       return false;
     }
 
@@ -52,17 +53,14 @@ public sealed class AppUpdaterService : IAppUpdaterService
     response.EnsureSuccessStatusCode();
 
     await using Stream responseStream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
-    AppUpdateManifest? manifest = await JsonSerializer.DeserializeAsync<AppUpdateManifest>(
-      responseStream,
-      new JsonSerializerOptions { PropertyNameCaseInsensitive = true },
-      cancellationToken).ConfigureAwait(false);
+    AppUpdateManifest? manifest = await DeserializeManifestAsync(responseStream, manifestUrl, cancellationToken).ConfigureAwait(false);
 
     bool hasSelfUpdatePackage = !string.IsNullOrWhiteSpace(manifest?.ZipUrl);
     bool hasMsixPackage = !string.IsNullOrWhiteSpace(manifest?.AppInstallerUrl) || !string.IsNullOrWhiteSpace(manifest?.MsixUrl);
 
     if (manifest is null || string.IsNullOrWhiteSpace(manifest.Version) || (!hasSelfUpdatePackage && !hasMsixPackage))
     {
-      throw new InvalidOperationException("version.json is missing required values. Provide version and at least one update source: zipUrl, appInstallerUrl, or msixUrl.");
+      throw new InvalidOperationException("Update manifest is missing required values. Provide version and at least one update source: zipUrl, appInstallerUrl, or msixUrl.");
     }
 
     if (!Version.TryParse(manifest.Version.Trim(), out Version? availableVersion))
@@ -261,6 +259,87 @@ public sealed class AppUpdaterService : IAppUpdaterService
     }
 
     return Assembly.GetExecutingAssembly().GetName().Version ?? new Version(1, 0, 0, 0);
+  }
+
+  private static async Task<AppUpdateManifest?> DeserializeManifestAsync(Stream responseStream, string sourceUrl, CancellationToken cancellationToken)
+  {
+    using MemoryStream buffer = new();
+    await responseStream.CopyToAsync(buffer, cancellationToken).ConfigureAwait(false);
+
+    if (buffer.Length == 0)
+    {
+      return null;
+    }
+
+    buffer.Position = 0;
+    if (LooksLikeXml(buffer))
+    {
+      return ParseAppInstallerManifest(buffer, sourceUrl);
+    }
+
+    buffer.Position = 0;
+    return await JsonSerializer.DeserializeAsync<AppUpdateManifest>(
+      buffer,
+      new JsonSerializerOptions { PropertyNameCaseInsensitive = true },
+      cancellationToken).ConfigureAwait(false);
+  }
+
+  private static bool LooksLikeXml(Stream stream)
+  {
+    stream.Position = 0;
+    int firstByte;
+    do
+    {
+      firstByte = stream.ReadByte();
+    } while (firstByte != -1 && char.IsWhiteSpace((char)firstByte));
+
+    stream.Position = 0;
+    return firstByte == '<';
+  }
+
+  private static AppUpdateManifest ParseAppInstallerManifest(Stream xmlStream, string sourceUrl)
+  {
+    XDocument document = XDocument.Load(xmlStream);
+    XElement? appInstaller = document.Root;
+    if (appInstaller is null || !string.Equals(appInstaller.Name.LocalName, "AppInstaller", StringComparison.OrdinalIgnoreCase))
+    {
+      throw new InvalidOperationException("The .appinstaller file does not contain an AppInstaller root element.");
+    }
+
+    string version = appInstaller.Attribute("Version")?.Value?.Trim() ?? string.Empty;
+    string? mainPackageUri =
+      appInstaller.Elements().FirstOrDefault(element => string.Equals(element.Name.LocalName, "MainBundle", StringComparison.OrdinalIgnoreCase))?.Attribute("Uri")?.Value?.Trim()
+      ?? appInstaller.Elements().FirstOrDefault(element => string.Equals(element.Name.LocalName, "MainPackage", StringComparison.OrdinalIgnoreCase))?.Attribute("Uri")?.Value?.Trim();
+
+    string resolvedMainPackageUri = ResolveAbsoluteUri(sourceUrl, mainPackageUri);
+
+    return new AppUpdateManifest
+    {
+      Version = version,
+      AppInstallerUrl = sourceUrl,
+      MsixUrl = resolvedMainPackageUri
+    };
+  }
+
+  private static string ResolveAbsoluteUri(string baseUrl, string? candidateUri)
+  {
+    if (string.IsNullOrWhiteSpace(candidateUri))
+    {
+      return string.Empty;
+    }
+
+    if (Uri.TryCreate(candidateUri.Trim(), UriKind.Absolute, out Uri? absoluteUri))
+    {
+      return absoluteUri.ToString();
+    }
+
+    if (Uri.TryCreate(baseUrl, UriKind.Absolute, out Uri? baseUri) &&
+        Uri.TryCreate(baseUri, candidateUri.Trim(), out Uri? relativeUri))
+    {
+      return relativeUri.ToString();
+    }
+
+    return string.Empty;
   }
 
   private static bool TryNormalizeUrl(string? input, out Uri? normalizedUri)
