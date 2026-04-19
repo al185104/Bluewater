@@ -33,10 +33,14 @@
             VerticalOptions="Center">
             <Image Source="bluewater.png" HeightRequest="400" Aspect="AspectFit"/>
             <Entry Placeholder="Username"
+                   x:Name="UsernameEntry"
                    Text="{Binding Username}"
+                   TextChanged="OnCredentialTextChanged"
                    ReturnType="Next"/>
             <Entry Placeholder="Password"
+                   x:Name="PasswordEntry"
                    Text="{Binding Password}"
+                   TextChanged="OnCredentialTextChanged"
                    IsPassword="True"
                    ReturnType="Go"
                    ReturnCommand="{Binding LoginCommand}"/>
@@ -45,7 +49,10 @@
             <!--<Label Text="Forgot password?" VerticalTextAlignment="Center"/>-->
             <Grid ColumnDefinitions="*,40" HorizontalOptions="Fill">
                 <Label Grid.Column="0" Text="Remember sign in details" VerticalTextAlignment="Center" HorizontalOptions="Fill" HorizontalTextAlignment="Start"/>
-                <Switch Grid.Column="1" HorizontalOptions="End"/>
+                <Switch Grid.Column="1"
+                        x:Name="RememberSignInSwitch"
+                        HorizontalOptions="End"
+                        Toggled="OnRememberSignInToggled"/>
             </Grid>
             <!--<Label VerticalTextAlignment="Center" HorizontalTextAlignment="Center">
                 <Label.FormattedText>
