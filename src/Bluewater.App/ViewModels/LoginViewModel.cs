@@ -6,12 +6,17 @@ using Bluewater.App.ViewModels.Base;
 using Bluewater.App.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.Storage;
 
 namespace Bluewater.App.ViewModels;
 
 [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "CommunityToolkit.Mvvm RelayCommand attributes are platform-agnostic in .NET MAUI view models.")]
 public partial class LoginViewModel : BaseViewModel
 {
+		private const string RememberSignInKey = "Login.RememberSignIn";
+		private const string RememberedUsernameKey = "Login.RememberedUsername";
+		private const string RememberedPasswordKey = "Login.RememberedPassword";
+
 		private readonly IReferenceDataService referenceDataService;
 		private readonly IUserApiService userApiService;
 		private readonly IApiBaseAddressRecoveryService apiBaseAddressRecoveryService;
@@ -38,8 +43,12 @@ public partial class LoginViewModel : BaseViewModel
 		[ObservableProperty]
 		public partial string Password { get; set; } = string.Empty;
 
+		[ObservableProperty]
+		public partial bool RememberSignIn { get; set; }
+
 		public override Task InitializeAsync()
 		{
+				RecoverRememberedCredentials();
 				ShowRefreshButton = referenceDataService.HasInitializationFailed;
 				if (!ShowRefreshButton)
 				{
@@ -162,5 +171,52 @@ public partial class LoginViewModel : BaseViewModel
 					.ConfigureAwait(false);
 
 				ShowRefreshButton = !hasRecovered;
+		}
+
+		partial void OnRememberSignInChanged(bool value)
+		{
+				Preferences.Set(RememberSignInKey, value);
+				if (!value)
+				{
+						Preferences.Remove(RememberedUsernameKey);
+						Preferences.Remove(RememberedPasswordKey);
+						return;
+				}
+
+				StoreCredentials();
+		}
+
+		partial void OnUsernameChanged(string value)
+		{
+				if (RememberSignIn)
+				{
+						StoreCredentials();
+				}
+		}
+
+		partial void OnPasswordChanged(string value)
+		{
+				if (RememberSignIn)
+				{
+						StoreCredentials();
+				}
+		}
+
+		private void RecoverRememberedCredentials()
+		{
+				RememberSignIn = Preferences.Get(RememberSignInKey, false);
+				if (!RememberSignIn)
+				{
+						return;
+				}
+
+				Username = Preferences.Get(RememberedUsernameKey, string.Empty);
+				Password = Preferences.Get(RememberedPasswordKey, string.Empty);
+		}
+
+		private void StoreCredentials()
+		{
+				Preferences.Set(RememberedUsernameKey, Username);
+				Preferences.Set(RememberedPasswordKey, Password);
 		}
 }
