@@ -97,7 +97,7 @@ public sealed class AppUpdaterService : IAppUpdaterService
     bool hasMsixUpdateSource = HasMsixUpdateSource(manifest);
     if (hasMsixUpdateSource)
     {
-      return await StartMsixUpdateFlowAsync(manifest).ConfigureAwait(false);
+      return await StartMsixUpdateFlowAsync(manifest, cancellationToken).ConfigureAwait(false);
     }
 
     if (IsRunningPackaged())
@@ -196,10 +196,10 @@ public sealed class AppUpdaterService : IAppUpdaterService
     }
   }
 
-  private static async Task<AppUpdateInstallResult> StartMsixUpdateFlowAsync(AppUpdateManifest manifest)
+  private async Task<AppUpdateInstallResult> StartMsixUpdateFlowAsync(AppUpdateManifest manifest, CancellationToken cancellationToken)
   {
-    Uri? installerUri = TryBuildInstallerUri(manifest);
-    if (installerUri is null)
+    string? msixUrl = await TryResolveMsixDownloadUrlAsync(manifest, cancellationToken).ConfigureAwait(false);
+    if (string.IsNullOrWhiteSpace(msixUrl))
     {
       return new AppUpdateInstallResult
       {
@@ -209,50 +209,95 @@ public sealed class AppUpdaterService : IAppUpdaterService
       };
     }
 
-    bool opened = await Launcher.Default.OpenAsync(installerUri).ConfigureAwait(false);
+    string downloadDirectory = Path.Combine(Path.GetTempPath(), "BluewaterUpdater", "downloads");
+    Directory.CreateDirectory(downloadDirectory);
+    DeletePreviousMsixDownloads(downloadDirectory);
+
+    string localMsixPath = Path.Combine(downloadDirectory, $"BluewaterUpdate-{Guid.NewGuid():N}.msix");
+
+    using HttpResponseMessage msixResponse = await _httpClient.GetAsync(msixUrl, cancellationToken).ConfigureAwait(false);
+    msixResponse.EnsureSuccessStatusCode();
+
+    await using (Stream source = await msixResponse.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false))
+    await using (FileStream destination = File.Create(localMsixPath))
+    {
+      await source.CopyToAsync(destination, cancellationToken).ConfigureAwait(false);
+    }
+
+    bool opened = TryOpenLocalFile(localMsixPath);
     return opened
       ? new AppUpdateInstallResult
       {
         IsSuccess = true,
         RequiresRestart = false,
-        Message = "Update installer opened. Follow the installer prompts to complete update."
+        Message = "Update package downloaded and opened locally. Follow the installer prompts to complete update."
       }
       : new AppUpdateInstallResult
       {
         IsSuccess = false,
         RequiresRestart = false,
-        Message = $"Unable to launch update installer: {installerUri}."
+        Message = $"Unable to open downloaded update package: {localMsixPath}."
       };
   }
 
-  private static Uri? TryBuildInstallerUri(AppUpdateManifest manifest)
+  private async Task<string?> TryResolveMsixDownloadUrlAsync(AppUpdateManifest manifest, CancellationToken cancellationToken)
   {
-    string? appInstallerUrl = manifest.AppInstallerUrl?.Trim();
-    if (!string.IsNullOrWhiteSpace(appInstallerUrl) &&
-        Uri.TryCreate(appInstallerUrl, UriKind.Absolute, out Uri? parsedAppInstaller))
-    {
-      string encodedSource = Uri.EscapeDataString(parsedAppInstaller.ToString());
-      return new Uri($"ms-appinstaller:?source={encodedSource}", UriKind.Absolute);
-    }
-
     string? msixUrl = manifest.MsixUrl?.Trim();
-    if (string.IsNullOrWhiteSpace(msixUrl))
+    if (!string.IsNullOrWhiteSpace(msixUrl))
     {
-      msixUrl = TryGetMsixUrlFromZipUrl(manifest.ZipUrl);
+      return msixUrl;
     }
 
-    if (string.IsNullOrWhiteSpace(msixUrl))
+    msixUrl = TryGetMsixUrlFromZipUrl(manifest.ZipUrl);
+    if (!string.IsNullOrWhiteSpace(msixUrl))
+    {
+      return msixUrl;
+    }
+
+    string? appInstallerUrl = manifest.AppInstallerUrl?.Trim();
+    if (string.IsNullOrWhiteSpace(appInstallerUrl))
     {
       return null;
     }
 
-    if (!Uri.TryCreate(msixUrl, UriKind.Absolute, out Uri? parsedMsix))
-    {
-      return null;
-    }
+    using HttpResponseMessage response = await _httpClient.GetAsync(appInstallerUrl, cancellationToken).ConfigureAwait(false);
+    response.EnsureSuccessStatusCode();
 
-    string encodedSource = Uri.EscapeDataString(parsedMsix.ToString());
-    return new Uri($"ms-appinstaller:?source={encodedSource}", UriKind.Absolute);
+    await using Stream responseStream = await response.Content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+    AppUpdateManifest parsedManifest = ParseAppInstallerManifest(responseStream, appInstallerUrl);
+    return string.IsNullOrWhiteSpace(parsedManifest.MsixUrl) ? null : parsedManifest.MsixUrl.Trim();
+  }
+
+  private static bool TryOpenLocalFile(string localFilePath)
+  {
+    try
+    {
+      Process.Start(new ProcessStartInfo
+      {
+        FileName = localFilePath,
+        UseShellExecute = true
+      });
+      return true;
+    }
+    catch
+    {
+      return false;
+    }
+  }
+
+  private static void DeletePreviousMsixDownloads(string directoryPath)
+  {
+    foreach (string filePath in Directory.GetFiles(directoryPath, "*.msix", SearchOption.TopDirectoryOnly))
+    {
+      try
+      {
+        File.Delete(filePath);
+      }
+      catch
+      {
+        // no-op
+      }
+    }
   }
 
   private static bool HasMsixUpdateSource(AppUpdateManifest manifest)
