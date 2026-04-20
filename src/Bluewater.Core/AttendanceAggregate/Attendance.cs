@@ -64,6 +64,16 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
   {
     try
     {
+      if (Shift != null && string.Equals(Shift.Name?.Trim(), "R", StringComparison.OrdinalIgnoreCase))
+      {
+        WorkHrs = 0;
+        LateHrs = 0;
+        UnderHrs = 0;
+        OverbreakHrs = 0;
+        NightShiftHours = 0;
+        return (0, 0, 0, 0, 0);
+      }
+
       if (Timesheet == null || Shift == null || !Timesheet.TimeIn1.HasValue || !Shift.ShiftStartTime.HasValue || !Shift.ShiftEndTime.HasValue)
       {
         return (-1, 0, 0, 0, 0);
