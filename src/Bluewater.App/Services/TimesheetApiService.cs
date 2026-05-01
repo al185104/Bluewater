@@ -222,6 +222,21 @@ public class TimesheetApiService(IApiClient apiClient) : ITimesheetApiService
     };
   }
 
+
+  public async Task<bool> DeleteTimesheetAsync(
+    Guid timesheetId,
+    CancellationToken cancellationToken = default)
+  {
+    if (timesheetId == Guid.Empty)
+    {
+      throw new ArgumentException("Timesheet ID must be provided", nameof(timesheetId));
+    }
+
+    return await apiClient
+      .DeleteAsync($"Timesheets/{timesheetId}", cancellationToken)
+      .ConfigureAwait(false);
+  }
+
   private static EmployeeTimesheetSummary MapToEmployeeSummary(AllEmployeeTimesheetDto dto)
   {
     var summary = new EmployeeTimesheetSummary
