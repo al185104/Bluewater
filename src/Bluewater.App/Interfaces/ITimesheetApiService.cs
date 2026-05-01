@@ -46,4 +46,8 @@ public interface ITimesheetApiService
   Task<AttendanceTimesheetSummary?> UpdateTimesheetAsync(
     UpdateTimesheetRequestDto request,
     CancellationToken cancellationToken = default);
+
+  Task<bool> DeleteTimesheetAsync(
+    Guid timesheetId,
+    CancellationToken cancellationToken = default);
 }

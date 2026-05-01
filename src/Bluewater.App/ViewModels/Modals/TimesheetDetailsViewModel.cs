@@ -178,6 +178,69 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				}
 		}
 
+
+		[RelayCommand]
+		private async Task DeleteTimesheetAsync(EditableTimesheetEntry? timesheet)
+		{
+				if (IsBusy || IsReadOnlyMode || timesheet is null || timesheet.Id == Guid.Empty)
+				{
+						return;
+				}
+
+				bool confirmed = await MainThread.InvokeOnMainThreadAsync(() =>
+						Shell.Current.DisplayAlert(
+								"Delete Timesheet",
+								"Are you sure you want to delete this timesheet?",
+								"Delete",
+								"Cancel"));
+
+				if (!confirmed)
+				{
+						return;
+				}
+
+				try
+				{
+						IsBusy = true;
+						bool deleted = await timesheetApiService.DeleteTimesheetAsync(timesheet.Id).ConfigureAwait(false);
+						if (!deleted)
+						{
+								throw new InvalidOperationException("Failed to delete timesheet.");
+						}
+
+						await MainThread.InvokeOnMainThreadAsync(() =>
+						{
+								EditableTimesheets.Remove(timesheet);
+								timesheet.PropertyChanged -= OnEditableTimesheetPropertyChanged;
+								if (SelectedEditableTimesheet == timesheet)
+								{
+										SelectedEditableTimesheet = EditableTimesheets.FirstOrDefault();
+								}
+								if (SelectedEmployeeTimesheet is not null)
+								{
+										AttendanceTimesheetSummary? existing = SelectedEmployeeTimesheet.Timesheets
+												.FirstOrDefault(t => t.Id == timesheet.Id);
+										if (existing is not null)
+										{
+												SelectedEmployeeTimesheet.Timesheets.Remove(existing);
+										}
+										SelectedEmployeeTimesheet.IsShowAlert = SelectedEmployeeTimesheet.Timesheets.Any(ShouldShowAlertForTimesheet);
+								}
+								UpdateCanSaveTimesheets();
+						});
+
+						await TraceCommandAsync(nameof(DeleteTimesheetAsync), timesheet.Id).ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Deleting timesheet");
+				}
+				finally
+				{
+						IsBusy = false;
+				}
+		}
+
 		[RelayCommand(CanExecute = nameof(CanSaveTimesheets))]
 		private async Task SaveTimesheetsAsync()
 		{
