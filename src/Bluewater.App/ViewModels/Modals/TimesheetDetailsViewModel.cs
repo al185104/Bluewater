@@ -214,9 +214,14 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 						{
 								EditableTimesheets.Remove(timesheet);
 								timesheet.PropertyChanged -= OnEditableTimesheetPropertyChanged;
+
+								EditableTimesheetEntry blankEntry = CreateBlankEditableTimesheetEntry(timesheet);
+								blankEntry.PropertyChanged += OnEditableTimesheetPropertyChanged;
+								EditableTimesheets.Add(blankEntry);
+
 								if (SelectedEditableTimesheet == timesheet)
 								{
-										SelectedEditableTimesheet = EditableTimesheets.FirstOrDefault();
+										SelectedEditableTimesheet = blankEntry;
 								}
 								if (SelectedEmployeeTimesheet is not null)
 								{
@@ -350,6 +355,29 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				SelectedShift = ShiftOptions.FirstOrDefault(s => s.Id == shiftId);
 		}
 
+
+		private static EditableTimesheetEntry CreateBlankEditableTimesheetEntry(EditableTimesheetEntry template)
+		{
+				EditableTimesheetEntry blankEntry = new()
+				{
+						Id = Guid.Empty,
+						EmployeeId = template.EmployeeId,
+						EntryDate = template.EntryDate,
+						TimeIn1 = null,
+						TimeOut1 = null,
+						TimeIn2 = null,
+						TimeOut2 = null,
+						IsEdited = false,
+						IsLocked = false,
+						ScheduleId = null,
+						ShiftId = null,
+						ShiftName = null,
+						HasShiftMismatchAlert = false
+				};
+
+				blankEntry.ResetChangeTracking();
+				return blankEntry;
+		}
 		private void UpdateCanSaveTimesheets()
 		{
 				OnPropertyChanged(nameof(CanSaveTimesheets));
