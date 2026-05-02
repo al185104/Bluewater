@@ -161,10 +161,13 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 						UpdateEmployeeRequestDto request = EditableEmployee.ToUpdateRequest(summary);
 						var updated = await _employeeApiService.UpdateEmployeeAsync(request, summary);
 						if (updated != null) {
-                                await Shell.Current.DisplayAlert(
-                                        "Employee Updated",
-                                        "Employee has been successfully updated.",
-                                        "OK");
+              MainThread.BeginInvokeOnMainThread(async() =>
+              { 
+                  await Shell.Current.DisplayAlert(
+                  "Employee Updated",
+                  "Employee has been successfully updated.",
+                  "OK");
+              });
 								await TraceCommandAsync(nameof(SaveEmployeeAsync), new { Action = "Updated", EmployeeId = updated.Id }).ConfigureAwait(false);
 								await NavigateAsync("..",
 										new Dictionary<string, object>
@@ -341,18 +344,22 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				var created = await _employeeApiService.CreateEmployeeAsync(request);
 				if (!created)
 				{
-                        await Shell.Current.DisplayAlert(
-                                "Employee Create Failed",
-                                "Employee create failed. Please check required fields and try again.",
-                                "OK");
+            MainThread.BeginInvokeOnMainThread(async () => { 
+                              await Shell.Current.DisplayAlert(
+                                      "Employee Create Failed",
+                                      "Employee create failed. Please check required fields and try again.",
+                                      "OK");
+            });
 						return;
 				}
 
+    MainThread.BeginInvokeOnMainThread(async () => { 
                 await Shell.Current.DisplayAlert(
                         "Employee Created",
                         "Employee has been successfully created.",
                         "OK");
 				await TraceCommandAsync(nameof(SaveEmployeeAsync), new { Action = "Created" }).ConfigureAwait(false);
+    });
 				await NavigateAsync("..",
 						new Dictionary<string, object>
 						{

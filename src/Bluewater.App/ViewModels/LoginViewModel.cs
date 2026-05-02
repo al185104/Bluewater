@@ -160,7 +160,19 @@ public partial class LoginViewModel : BaseViewModel
           return;
         }
 
-    await TraceCommandAsync("Login", new { Target = nameof(HomePage) }).ConfigureAwait(false);
+
+        Preferences.Set(RememberSignInKey, RememberSignIn);
+        if (!RememberSignIn)
+        {
+            Preferences.Remove(RememberedUsernameKey);
+            Preferences.Remove(RememberedPasswordKey);
+        }
+        else
+        {
+            StoreCredentials();
+        }
+
+        await TraceCommandAsync("Login", new { Target = nameof(HomePage) }).ConfigureAwait(false);
 				await NavigateAsync($"//{nameof(HomePage)}");
 		}
 
@@ -173,18 +185,18 @@ public partial class LoginViewModel : BaseViewModel
 				ShowRefreshButton = !hasRecovered;
 		}
 
-		partial void OnRememberSignInChanged(bool value)
-		{
-				Preferences.Set(RememberSignInKey, value);
-				if (!value)
-				{
-						Preferences.Remove(RememberedUsernameKey);
-						Preferences.Remove(RememberedPasswordKey);
-						return;
-				}
+		//partial void OnRememberSignInChanged(bool value)
+		//{
+		//		Preferences.Set(RememberSignInKey, value);
+		//		if (!value)
+		//		{
+		//				Preferences.Remove(RememberedUsernameKey);
+		//				Preferences.Remove(RememberedPasswordKey);
+		//				return;
+		//		}
 
-				StoreCredentials();
-		}
+		//		StoreCredentials();
+		//}
 
 		partial void OnUsernameChanged(string value)
 		{

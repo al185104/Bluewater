@@ -5,6 +5,7 @@
 			 xmlns:vm="clr-namespace:Bluewater.App.ViewModels.Modals"
 			 xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
 			 xmlns:models="clr-namespace:Bluewater.App.Models"
+             xmlns:sys="clr-namespace:System;assembly=System.Runtime"
 			 Shell.FlyoutBehavior="Disabled"
 			 x:DataType="vm:TimesheetDetailsViewModel"
              Title="TimesheetDetailsPage">
@@ -120,7 +121,7 @@
 						BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
 					<Grid ColumnSpacing="12"
 						  Padding="20"
-						  ColumnDefinitions="*,*,*,*,*,*,Auto">
+						  ColumnDefinitions="*,*,*,*,*,*,80">
 						<Label Text="Date"
 							   TextColor="White"
 							   HorizontalTextAlignment="Center"
@@ -145,17 +146,17 @@
 							   HorizontalTextAlignment="Center"
 							   TextColor="White"
 							   FontAttributes="Bold" />
-										<Label Grid.Column="5"
-						   Text="Shift"
-						   HorizontalTextAlignment="Center"
-						   TextColor="White"
-						   FontAttributes="Bold" />
-											<Label Grid.Column="6"
-							   Text="Action"
-							   HorizontalTextAlignment="Center"
-							   TextColor="White"
-							   FontAttributes="Bold" />
-					</Grid>
+                        <Label Grid.Column="5"
+                               Text="Shift"
+                               HorizontalTextAlignment="Center"
+                               TextColor="White"
+                               FontAttributes="Bold" />
+                        <Label Grid.Column="6"
+                               Text="Action"
+                               HorizontalTextAlignment="Center"
+                               TextColor="White"
+                               FontAttributes="Bold" />
+                    </Grid>
 				</Border>
 			</CollectionView.Header>
 			<CollectionView.ItemTemplate>
@@ -165,7 +166,7 @@
 							BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}"
 							Padding="16,12"
 							StrokeShape="RoundRectangle 12">
-						<Grid ColumnDefinitions="*,*,*,*,*,*,Auto">
+						<Grid ColumnDefinitions="*,*,*,*,*,*,20,40">
 							<Label Grid.Column="0"
 								   HorizontalTextAlignment="Center"
 								   Text="{Binding EntryDate, StringFormat='{0: MMM dd yyyy (ddd)}'}" />
@@ -184,13 +185,27 @@
 							<Label Grid.Column="5"
 								   HorizontalTextAlignment="Center"
 								   Text="{Binding ShiftName}" />
-								<Button Grid.Column="6"
-										Text="Delete"
-										Command="{Binding BindingContext.DeleteTimesheetCommand, Source={x:Reference timeCollection}}"
-										CommandParameter="{Binding .}"
-										IsEnabled="{Binding Source={RelativeSource AncestorType={x:Type vm:TimesheetDetailsViewModel}}, Path=CanEditTimesheets}"
-										Style="{StaticResource SecondaryButtonStyle}" />
-						</Grid>
+                            <Label Grid.Column="7"
+                                   Text="{x:Static helpers:Icon.Trash}"
+                                   FontSize="Small"
+                                   HorizontalOptions="Fill"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalOptions="Fill"
+                                   FontFamily="Icons">
+                                <Label.Triggers>
+                                    <DataTrigger TargetType="Label"
+                                                 Binding="{Binding Id}"
+                                                 Value="{x:Static sys:Guid.Empty}">
+                                        <Setter Property="IsVisible"
+                                                Value="False" />
+                                    </DataTrigger>
+                                </Label.Triggers>
+                                <Label.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding BindingContext.DeleteTimesheetCommand, Source={x:Reference timeCollection}}"
+                                                          CommandParameter="{Binding .}" />
+                                </Label.GestureRecognizers>
+                            </Label>
+                        </Grid>
 					</Border>
 				</DataTemplate>
 			</CollectionView.ItemTemplate>

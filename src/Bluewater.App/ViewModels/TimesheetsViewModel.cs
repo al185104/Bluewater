@@ -515,10 +515,14 @@ public partial class TimesheetsViewModel : BaseViewModel
 								}
 						}
 
-            await Shell.Current.DisplayAlert(
-                "Timesheets Updated",
-                "Timesheet and attendance have been successfully updated.",
-                "OK");
+            MainThread.BeginInvokeOnMainThread(async() =>
+            {
+              await Shell.Current.DisplayAlert(
+                        "Timesheets Updated",
+                        "Timesheet and attendance have been successfully updated.",
+                        "OK");
+
+            });
 
 						await TraceCommandAsync(nameof(SubmitAsync), new
 						{
