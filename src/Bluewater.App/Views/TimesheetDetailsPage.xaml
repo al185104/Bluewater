@@ -185,6 +185,15 @@
 							<Label Grid.Column="5"
 								   HorizontalTextAlignment="Center"
 								   Text="{Binding ShiftName}" />
+                            <Label Grid.Column="6"
+                                   Text="{x:Static helpers:Icon.AlertTriangle}"
+                                   TextColor="#FBBF24"
+                                   FontSize="Small"
+                                   IsVisible="{Binding HasShiftMismatchAlert}"
+                                   HorizontalOptions="Fill"
+                                   HorizontalTextAlignment="Center"
+                                   VerticalOptions="Fill"
+                                   FontFamily="Icons" />
                             <Label Grid.Column="7"
                                    Text="{x:Static helpers:Icon.Trash}"
                                    FontSize="Small"
