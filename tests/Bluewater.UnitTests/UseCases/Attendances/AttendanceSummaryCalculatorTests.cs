@@ -39,4 +39,23 @@ public class AttendanceSummaryCalculatorTests
 
     totalAbsences.Should().Be(1);
   }
+
+
+  [Fact]
+  public void CountAbsencesExcludingApprovedLeaves_DoesNotTreatHolidayAsAbsence()
+  {
+    ShiftDTO shift = new(Guid.NewGuid(), "D", new TimeOnly(8, 0), new TimeOnly(12, 0), new TimeOnly(13, 0), new TimeOnly(17, 0), 1);
+    DateOnly holidayDate = DateOnly.FromDateTime(DateTime.Today);
+
+    List<AttendanceDTO> attendances =
+    [
+      new AttendanceDTO(Guid.NewGuid(), Guid.NewGuid(), shift.Id, null, null, holidayDate, 0, 0, 0, 0, 0, shift: shift),
+      new AttendanceDTO(Guid.NewGuid(), Guid.NewGuid(), shift.Id, null, null, holidayDate.AddDays(1), 0, 0, 0, 0, 0, shift: shift)
+    ];
+
+    int totalAbsences = AttendanceSummaryCalculator.CountAbsencesExcludingApprovedLeaves(attendances, [holidayDate]);
+
+    totalAbsences.Should().Be(1);
+  }
+
 }
