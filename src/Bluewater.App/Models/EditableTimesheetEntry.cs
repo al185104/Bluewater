@@ -50,6 +50,10 @@ public partial class EditableTimesheetEntry : ObservableObject
 		[ObservableProperty]
 		public partial string? ShiftName { get; set; }
 
+
+		[ObservableProperty]
+		public partial bool HasShiftMismatchAlert { get; set; }
+
 		public DateTime EntryDateDateTime
 		{
 				get => (EntryDate ?? DateOnly.FromDateTime(DateTime.Today)).ToDateTime(TimeOnly.MinValue);

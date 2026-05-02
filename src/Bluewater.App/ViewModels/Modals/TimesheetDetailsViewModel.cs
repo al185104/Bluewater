@@ -66,6 +66,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 						foreach (EditableTimesheetEntry timesheet in timesheetList)
 						{
 								timesheet.PropertyChanged += OnEditableTimesheetPropertyChanged;
+								timesheet.HasShiftMismatchAlert = ShouldShowAlertForEntry(timesheet);
 								EditableTimesheets.Add(timesheet);
 						}
 				}
@@ -151,6 +152,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 						if (updated is not null)
 						{
 								selectedEntry.ApplySummary(updated);
+								selectedEntry.HasShiftMismatchAlert = ShouldShowAlertForTimesheet(updated);
 								UpdateSelectedEmployeeTimesheetEntry(updated);
 						}
 
@@ -278,6 +280,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 								}
 
 								entry.ApplySummary(updated);
+								entry.HasShiftMismatchAlert = ShouldShowAlertForTimesheet(updated);
 								UpdateSelectedEmployeeTimesheetEntry(updated);
 								anyUpdated = true;
 						}
@@ -333,6 +336,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 				SelectedEditableTimesheet.ShiftId = value?.Id;
 				SelectedEditableTimesheet.ShiftName = value?.Name;
+				SelectedEditableTimesheet.HasShiftMismatchAlert = ShouldShowAlertForEntry(SelectedEditableTimesheet);
 		}
 
 		private void SyncSelectedShift()
@@ -355,6 +359,11 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 		private void OnEditableTimesheetPropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
+				if (sender is EditableTimesheetEntry entry && e.PropertyName is nameof(EditableTimesheetEntry.TimeIn1) or nameof(EditableTimesheetEntry.TimeOut1) or nameof(EditableTimesheetEntry.TimeIn2) or nameof(EditableTimesheetEntry.TimeOut2))
+				{
+						entry.HasShiftMismatchAlert = ShouldShowAlertForEntry(entry);
+				}
+
 				if (e.PropertyName == nameof(EditableTimesheetEntry.HasChanges))
 				{
 						UpdateCanSaveTimesheets();
@@ -403,6 +412,34 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				existing.ShiftId = updatedTimesheet.ShiftId;
 				existing.ShiftName = updatedTimesheet.ShiftName;
 				SelectedEmployeeTimesheet.IsShowAlert = SelectedEmployeeTimesheet.Timesheets.Any(ShouldShowAlertForTimesheet);
+		}
+
+
+		private static bool ShouldShowAlertForEntry(EditableTimesheetEntry entry)
+		{
+				int mask = 0;
+
+				if (entry.TimeOut2.HasValue)
+				{
+						mask |= 1 << 3;
+				}
+
+				if (entry.TimeIn2.HasValue)
+				{
+						mask |= 1 << 2;
+				}
+
+				if (entry.TimeOut1.HasValue)
+				{
+						mask |= 1 << 1;
+				}
+
+				if (entry.TimeIn1.HasValue)
+				{
+						mask |= 1;
+				}
+
+				return mask is not (0 or 3 or 9 or 12 or 15);
 		}
 
 		private static bool ShouldShowAlertForTimesheet(AttendanceTimesheetSummary timesheet)
