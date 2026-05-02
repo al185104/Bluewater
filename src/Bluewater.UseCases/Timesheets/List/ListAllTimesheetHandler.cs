@@ -13,6 +13,8 @@ using Bluewater.UseCases.Attendances;
 using Bluewater.UseCases.Attendances.List;
 using Bluewater.UseCases.Employees;
 using Bluewater.UseCases.Employees.List;
+using Bluewater.UseCases.Holidays;
+using Bluewater.UseCases.Holidays.List;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -60,6 +62,23 @@ internal class ListAllTimesheetHandler(
     }
 
     List<AllEmployeeTimesheetDTO> results = new();
+    HashSet<DateOnly> holidayDates = [];
+
+    using (var scope = serviceScopeFactory.CreateScope())
+    {
+      var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+      Result<IEnumerable<HolidayDTO>> holidayResult = await mediator.Send(
+        new ListHolidayByDatesQuery(null, null, request.startDate, request.endDate),
+        cancellationToken);
+
+      if (holidayResult.IsSuccess)
+      {
+        holidayDates = holidayResult.Value
+          .Select(holiday => DateOnly.FromDateTime(holiday.Date))
+          .ToHashSet();
+      }
+    }
+
     IReadOnlyCollection<Guid> employeeIds = employees.Select(employee => employee.Id).Distinct().ToList();
     HashSet<Guid> payrollCreatedEmployeeIds = [];
 
@@ -108,7 +127,7 @@ internal class ListAllTimesheetHandler(
 
           if (attendanceResult.IsSuccess)
           {
-            (totalWorkHours, totalBreak, totalLates, totalAbsents, totalUndertimes, totalOverbreaks, totalLeaves) = ProcessAttendanceSummary(attendanceResult.Value.ToList());
+            (totalWorkHours, totalBreak, totalLates, totalAbsents, totalUndertimes, totalOverbreaks, totalLeaves) = ProcessAttendanceSummary(attendanceResult.Value.ToList(), holidayDates);
           }
 
           results.Add(new AllEmployeeTimesheetDTO(
@@ -133,12 +152,14 @@ internal class ListAllTimesheetHandler(
     return Result<Common.PagedResult<AllEmployeeTimesheetDTO>>.Success(new Common.PagedResult<AllEmployeeTimesheetDTO>(results, totalCount));
   }
 
-  private static (decimal totalWorkHours, decimal totalBreak, decimal totalLates, int totalAbsents, decimal totalUndertimes, decimal totalOverbreaks, decimal totalLeaves) ProcessAttendanceSummary(List<AttendanceDTO> attendances)
+  private static (decimal totalWorkHours, decimal totalBreak, decimal totalLates, int totalAbsents, decimal totalUndertimes, decimal totalOverbreaks, decimal totalLeaves) ProcessAttendanceSummary(
+    List<AttendanceDTO> attendances,
+    IEnumerable<DateOnly> holidayDates)
   {
     var totalWorkHours = attendances.Sum(i => i.WorkHrs) ?? 0;
     var totalBreak = attendances.Sum(i => i.OverbreakHrs) ?? 0;
     var totalLates = attendances.Sum(i => i.LateHrs) ?? 0;
-    var totalAbsents = AttendanceSummaryCalculator.CountAbsencesExcludingApprovedLeaves(attendances);
+    var totalAbsents = AttendanceSummaryCalculator.CountAbsencesExcludingApprovedLeaves(attendances, holidayDates);
 
     decimal totalUndertimes = attendances.Sum(i => i.UnderHrs) ?? 0;
     decimal totalOverbreaks = attendances.Sum(i => i.OverbreakHrs) ?? 0;
