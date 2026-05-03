@@ -204,6 +204,9 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				try
 				{
 						IsBusy = true;
+
+            int index = EditableTimesheets.IndexOf(timesheet);
+
 						bool deleted = await timesheetApiService.DeleteTimesheetAsync(timesheet.Id).ConfigureAwait(false);
 						if (!deleted)
 						{
@@ -212,14 +215,22 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 						await MainThread.InvokeOnMainThreadAsync(() =>
 						{
+                IsBusy = false;
+                SelectedEditableTimesheet = timesheet;
+                ClearSelectedShiftCommand.Execute(this);
+                IsBusy = true;
+
 								EditableTimesheets.Remove(timesheet);
 								timesheet.PropertyChanged -= OnEditableTimesheetPropertyChanged;
 
 								EditableTimesheetEntry blankEntry = CreateBlankEditableTimesheetEntry(timesheet);
 								blankEntry.PropertyChanged += OnEditableTimesheetPropertyChanged;
-								EditableTimesheets.Add(blankEntry);
+                //EditableTimesheets.Add(blankEntry);
+                //InsertEditableTimesheetByDate(blankEntry);
+                EditableTimesheets.Insert(index, blankEntry);
+                OnPropertyChanged(nameof(EditableTimesheets));
 
-								if (SelectedEditableTimesheet == timesheet)
+                if (SelectedEditableTimesheet == timesheet)
 								{
 										SelectedEditableTimesheet = blankEntry;
 								}
@@ -355,8 +366,32 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				SelectedShift = ShiftOptions.FirstOrDefault(s => s.Id == shiftId);
 		}
 
+    private void InsertEditableTimesheetByDate(EditableTimesheetEntry entry)
+    {
+      DateOnly? entryDate = entry.EntryDate;
 
-		private static EditableTimesheetEntry CreateBlankEditableTimesheetEntry(EditableTimesheetEntry template)
+      int insertIndex = EditableTimesheets.Count;
+      for (int i = 0; i < EditableTimesheets.Count; i++)
+      {
+        DateOnly? currentDate = EditableTimesheets[i].EntryDate;
+        if (entryDate is null)
+        {
+          continue;
+        }
+
+        if (currentDate is null || entryDate > currentDate)
+        {
+          insertIndex = i;
+          break;
+        }
+      }
+
+      EditableTimesheets.Insert(insertIndex, entry);
+      OnPropertyChanged(nameof(EditableTimesheets));
+    }
+
+
+    private static EditableTimesheetEntry CreateBlankEditableTimesheetEntry(EditableTimesheetEntry template)
 		{
 				EditableTimesheetEntry blankEntry = new()
 				{
