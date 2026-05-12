@@ -161,7 +161,7 @@ internal class ListAllTimesheetHandler(
     var totalLates = attendances.Sum(i => i.LateHrs) ?? 0;
     var totalAbsents = AttendanceSummaryCalculator.CountAbsencesExcludingApprovedLeaves(attendances, holidayDates);
 
-    decimal totalUndertimes = attendances.Sum(i => i.UnderHrs) ?? 0;
+    decimal totalUndertimes = AttendanceSummaryCalculator.SumUndertimesExcludingApprovedLeaves(attendances);
     decimal totalOverbreaks = attendances.Sum(i => i.OverbreakHrs) ?? 0;
     decimal totalLeaves = AttendanceSummaryCalculator.CountApprovedLeaves(attendances);
 
