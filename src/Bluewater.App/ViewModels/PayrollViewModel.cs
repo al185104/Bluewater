@@ -18,6 +18,8 @@ public partial class PayrollViewModel : BaseViewModel
 		private const int DownloadBatchSize = 200;
 		private readonly IPayrollApiService payrollApiService;
 		private readonly IReferenceDataService referenceDataService;
+		private readonly IServiceChargeApiService serviceChargeApiService;
+		private bool hasServiceChargeInPeriod;
 		private bool hasInitialized;
 		private bool isInitializing;
 		private bool hasPendingPayrollsInPeriod;
@@ -26,12 +28,14 @@ public partial class PayrollViewModel : BaseViewModel
 		public PayrollViewModel(
 			IPayrollApiService payrollApiService,
 			IReferenceDataService referenceDataService,
+			IServiceChargeApiService serviceChargeApiService,
 			IActivityTraceService activityTraceService,
 			IExceptionHandlingService exceptionHandlingService)
 			: base(activityTraceService, exceptionHandlingService)
 		{
 				this.payrollApiService = payrollApiService;
 				this.referenceDataService = referenceDataService;
+				this.serviceChargeApiService = serviceChargeApiService;
 				SetCurrentPayslipPeriod();
 				EditablePayroll = CreateNewPayroll();
 		}
@@ -53,6 +57,8 @@ public partial class PayrollViewModel : BaseViewModel
 		public bool CanSavePayrollPeriod => !IsBusy && hasPendingPayrollsInPeriod;
 
 		public bool CanDownloadPayrollPeriod => !IsBusy && payrollCountInPeriod > 0 && !hasPendingPayrollsInPeriod;
+
+		public bool CanUploadServiceCharge => !IsBusy && !hasServiceChargeInPeriod;
 
 		[ObservableProperty]
 		public partial DateOnly StartDate { get; set; }
@@ -383,7 +389,70 @@ public partial class PayrollViewModel : BaseViewModel
 				}
 		}
 
-		[RelayCommand]
+		
+		[RelayCommand(CanExecute = nameof(CanUploadServiceCharge))]
+		private async Task UploadServiceChargeAsync()
+		{
+			try
+			{
+				PickOptions options = new()
+				{
+					PickerTitle = "Select Service Charge CSV",
+					FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+					{
+						[DevicePlatform.WinUI] = [".csv"],
+						[DevicePlatform.Android] = ["text/csv", "text/comma-separated-values"],
+						[DevicePlatform.iOS] = ["public.comma-separated-values-text"]
+					})
+				};
+
+				FileResult? file = await FilePicker.Default.PickAsync(options).ConfigureAwait(false);
+				if (file is null)
+				{
+					return;
+				}
+
+				List<ServiceChargeSummary> parsedRows = await ParseServiceChargeCsvAsync(file).ConfigureAwait(false);
+				if (parsedRows.Count == 0)
+				{
+					await MainThread.InvokeOnMainThreadAsync(() =>
+						Shell.Current.DisplayAlert("Upload SC", "No valid service charge rows were found.", "OK"));
+					return;
+				}
+
+				bool confirmed = await MainThread.InvokeOnMainThreadAsync(() =>
+					Shell.Current.DisplayAlert("Upload SC", $"Upload {parsedRows.Count} service charge entr{(parsedRows.Count == 1 ? "y" : "ies")} for {PeriodRangeDisplay}?", "Yes", "No"));
+
+				if (!confirmed)
+				{
+					return;
+				}
+
+				IsBusy = true;
+				int uploadedCount = 0;
+				foreach (ServiceChargeSummary row in parsedRows)
+				{
+					Guid? created = await serviceChargeApiService.CreateServiceChargeAsync(row).ConfigureAwait(false);
+					if (created.HasValue) uploadedCount++;
+				}
+
+				await MainThread.InvokeOnMainThreadAsync(() =>
+					Shell.Current.DisplayAlert("Upload SC", $"Successfully uploaded {uploadedCount} service charge entr{(uploadedCount == 1 ? "y" : "ies")}.", "OK"));
+
+				await RefreshAsync().ConfigureAwait(false);
+			}
+			catch (Exception ex)
+			{
+				ExceptionHandlingService.Handle(ex, "Uploading service charge");
+			}
+			finally
+			{
+				IsBusy = false;
+				UpdatePayrollCommandStates();
+			}
+		}
+
+[RelayCommand]
 		private async Task DeletePayrollAsync(PayrollSummary? payroll)
 		{
 				if (payroll is null)
@@ -577,7 +646,51 @@ public partial class PayrollViewModel : BaseViewModel
 				}
 		}
 
-		private static string EscapeCsv(string? value)
+		
+		private async Task<List<ServiceChargeSummary>> ParseServiceChargeCsvAsync(FileResult file)
+		{
+			List<ServiceChargeSummary> results = [];
+			using Stream stream = await file.OpenReadAsync().ConfigureAwait(false);
+			using StreamReader reader = new(stream);
+			string content = await reader.ReadToEndAsync().ConfigureAwait(false);
+			string normalizedContent = content.Replace("\r", string.Empty, StringComparison.Ordinal).Replace("\\n", "\n", StringComparison.Ordinal);
+
+			foreach (string rawLine in normalizedContent.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+			{
+				if (string.IsNullOrWhiteSpace(rawLine))
+				{
+					continue;
+				}
+
+				string[] cols = rawLine.Split(',');
+				if (cols.Length < 2)
+				{
+					continue;
+				}
+
+				string barcode = cols[0].Trim();
+				if (barcode.Equals("barcode", StringComparison.OrdinalIgnoreCase))
+				{
+					continue;
+				}
+
+				if (!decimal.TryParse(cols[1].Trim(), NumberStyles.Any, CultureInfo.InvariantCulture, out decimal amount))
+				{
+					continue;
+				}
+
+				results.Add(new ServiceChargeSummary
+				{
+					Username = barcode,
+					Amount = amount,
+					Date = EndDate
+				});
+			}
+
+			return results;
+		}
+
+private static string EscapeCsv(string? value)
 		{
 				if (string.IsNullOrEmpty(value))
 				{
@@ -801,6 +914,8 @@ public partial class PayrollViewModel : BaseViewModel
 		{
 				OnPropertyChanged(nameof(CanSavePayrollPeriod));
 				OnPropertyChanged(nameof(CanDownloadPayrollPeriod));
+			OnPropertyChanged(nameof(CanUploadServiceCharge));
+			UploadServiceChargeCommand.NotifyCanExecuteChanged();
 				//SavePayrollCommand.NotifyCanExecuteChanged();
 		}
 
@@ -811,6 +926,11 @@ public partial class PayrollViewModel : BaseViewModel
 
 				payrollCountInPeriod = payrollPeriodState.TotalCount;
 				hasPendingPayrollsInPeriod = payrollPeriodState.Items.Any(payroll => !payroll.IsSaved);
+			hasServiceChargeInPeriod = payrollPeriodState.Items.Any(payroll => payroll.SvcCharge > 0);
+
+			IReadOnlyList<ServiceChargeSummary> serviceCharges = await serviceChargeApiService.GetServiceChargesByDateAsync(EndDate).ConfigureAwait(false);
+			hasServiceChargeInPeriod = hasServiceChargeInPeriod || serviceCharges.Count > 0;
+			UpdatePayrollCommandStates();
 		}
 
 		private void RaiseNavigationState()
