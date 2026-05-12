@@ -42,6 +42,23 @@ public class AttendanceSummaryCalculatorTests
 
 
   [Fact]
+  public void SumUndertimesExcludingApprovedLeaves_ExcludesUndertimeWhenApprovedLeaveHasScheduledShift()
+  {
+    ShiftDTO shift = new(Guid.NewGuid(), "D", new TimeOnly(8, 0), new TimeOnly(12, 0), new TimeOnly(13, 0), new TimeOnly(17, 0), 1);
+
+    List<AttendanceDTO> attendances =
+    [
+      new AttendanceDTO(Guid.NewGuid(), Guid.NewGuid(), shift.Id, null, Guid.NewGuid(), DateOnly.FromDateTime(DateTime.Today), 0, 0, 2, 0, 0, ApplicationStatusDTO.Approved, shift: shift),
+      new AttendanceDTO(Guid.NewGuid(), Guid.NewGuid(), shift.Id, null, Guid.NewGuid(), DateOnly.FromDateTime(DateTime.Today.AddDays(1)), 0, 0, 1, 0, 0, ApplicationStatusDTO.Pending, shift: shift),
+      new AttendanceDTO(Guid.NewGuid(), Guid.NewGuid(), shift.Id, null, null, DateOnly.FromDateTime(DateTime.Today.AddDays(2)), 0, 0, 3, 0, 0, shift: shift)
+    ];
+
+    decimal totalUndertimes = AttendanceSummaryCalculator.SumUndertimesExcludingApprovedLeaves(attendances);
+
+    totalUndertimes.Should().Be(4m);
+  }
+
+  [Fact]
   public void CountAbsencesExcludingApprovedLeaves_DoesNotTreatHolidayAsAbsence()
   {
     ShiftDTO shift = new(Guid.NewGuid(), "D", new TimeOnly(8, 0), new TimeOnly(12, 0), new TimeOnly(13, 0), new TimeOnly(17, 0), 1);

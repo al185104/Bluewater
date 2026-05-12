@@ -12,6 +12,11 @@ public static class AttendanceSummaryCalculator
   public static int CountApprovedLeaves(IEnumerable<AttendanceDTO> attendances) =>
     attendances.Count(HasApprovedLeave);
 
+  public static decimal SumUndertimesExcludingApprovedLeaves(IEnumerable<AttendanceDTO> attendances) =>
+    attendances
+      .Where(attendance => !(HasApprovedLeave(attendance) && attendance.ShiftId.HasValue && attendance.Shift is not null))
+      .Sum(attendance => attendance.UnderHrs ?? 0m);
+
   public static int CountAbsencesExcludingApprovedLeaves(
     IEnumerable<AttendanceDTO> attendances,
     IEnumerable<DateOnly>? holidayDates = null)
