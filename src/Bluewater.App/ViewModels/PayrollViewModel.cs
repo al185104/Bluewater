@@ -914,8 +914,9 @@ private static string EscapeCsv(string? value)
 		{
 				OnPropertyChanged(nameof(CanSavePayrollPeriod));
 				OnPropertyChanged(nameof(CanDownloadPayrollPeriod));
-			OnPropertyChanged(nameof(CanUploadServiceCharge));
-			UploadServiceChargeCommand.NotifyCanExecuteChanged();
+			  OnPropertyChanged(nameof(CanUploadServiceCharge));
+
+		//	UploadServiceChargeCommand.NotifyCanExecuteChanged();
 				//SavePayrollCommand.NotifyCanExecuteChanged();
 		}
 

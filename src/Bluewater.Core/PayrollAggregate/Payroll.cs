@@ -231,10 +231,15 @@ public class Payroll : EntityBase<Guid>, IAggregateRoot
         decimal totalWorkHours, decimal totalLateHrs, decimal totalUnderHrs, decimal totalOverbreakHrs, decimal totalNightShiftHrs, decimal totalLeaves,
         decimal restDayHrs, decimal regularHolidayHrs, decimal specialHolidayHrs, decimal overtimeHrs, decimal nightOtHrs, decimal nightRegHolHrs, decimal nightSpecHolHrs, decimal otRestDayHrs, decimal otRegHolHrs, decimal otSpHolHrs,
         decimal cola, decimal monal, decimal salun, decimal refabs, decimal refut, decimal refot,
-        int absences, decimal totalMonthlyAmortization, bool hasScheduledWork)
+        int absences, decimal totalMonthlyAmortization, bool hasScheduledWork, int scheduledDays)
     {
-        BasicPayAmount = hasScheduledWork ? basicPay : 0;
-        LaborHoursIncome = BasicPayAmount / 2; // semi-monthly
+        var isProbationary = string.Equals(type, "Probationary", StringComparison.OrdinalIgnoreCase);
+        BasicPayAmount = hasScheduledWork
+            ? isProbationary ? Math.Round(dailyRate * scheduledDays, 2) : basicPay
+            : 0;
+        LaborHoursIncome = isProbationary
+            ? BasicPayAmount
+            : BasicPayAmount / 2; // semi-monthly
         LaborHrs = totalWorkHours;
 
         RestDayHrs = restDayHrs;
