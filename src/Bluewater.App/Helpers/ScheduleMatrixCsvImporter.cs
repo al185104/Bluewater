@@ -59,9 +59,9 @@ public static class ScheduleMatrixCsvImporter
 
 	private static void ValidateHeaders(string[] headers)
 	{
-		if (headers.Length < 11)
+		if (headers.Length < 5)
 		{
-			throw new FormatException("The CSV file must include Barcode, Employee, Section, Charging, and 7 day columns.");
+			throw new FormatException("The CSV file must include Barcode, Employee, Section, Charging, and at least one day column.");
 		}
 
 		string[] required = ["Barcode", "Employee", "Section", "Charging"];
@@ -76,10 +76,11 @@ public static class ScheduleMatrixCsvImporter
 
 	private static DateOnly[] ResolveColumnDates(string[] headers, DateOnly weekStart)
 	{
-		var dates = new DateOnly[7];
-		for (int i = 0; i < 7; i++)
+		int dayColumnCount = headers.Length - 4;
+		var dates = new DateOnly[dayColumnCount];
+		for (int i = 0; i < dayColumnCount; i++)
 		{
-			string header = i + 4 < headers.Length ? headers[i + 4] : string.Empty;
+			string header = headers[i + 4];
 			dates[i] = TryParseHeaderDate(header, weekStart) ?? weekStart.AddDays(i);
 		}
 
@@ -93,11 +94,38 @@ public static class ScheduleMatrixCsvImporter
 			return null;
 		}
 
-		string[] formats = ["ddd MMM d", "ddd MMM dd", "MMMM d", "MMM d"];
-		foreach (var format in formats)
+		string trimmed = value.Trim();
+		string[] fullDateFormats =
+		[
+			"yyyy-MM-dd",
+			"M/d/yyyy",
+			"MM/dd/yyyy",
+			"M-d-yyyy",
+			"MM-dd-yyyy",
+			"MMM d yyyy",
+			"MMM d, yyyy",
+			"MMMM d yyyy",
+			"MMMM d, yyyy",
+			"ddd MMM d yyyy",
+			"ddd MMM d, yyyy",
+			"ddd MMM dd yyyy",
+			"ddd MMM dd, yyyy"
+		];
+
+		foreach (var format in fullDateFormats)
 		{
-			if (DateTime.TryParseExact(value.Trim(), format, CultureInfo.CurrentCulture, DateTimeStyles.AllowWhiteSpaces, out var parsed) ||
-				DateTime.TryParseExact(value.Trim(), format, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out parsed))
+			if (DateTime.TryParseExact(trimmed, format, CultureInfo.CurrentCulture, DateTimeStyles.AllowWhiteSpaces, out var parsed) ||
+				DateTime.TryParseExact(trimmed, format, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out parsed))
+			{
+				return DateOnly.FromDateTime(parsed);
+			}
+		}
+
+		string[] weekRelativeFormats = ["ddd MMM d", "ddd MMM dd", "MMMM d", "MMM d"];
+		foreach (var format in weekRelativeFormats)
+		{
+			if (DateTime.TryParseExact(trimmed, format, CultureInfo.CurrentCulture, DateTimeStyles.AllowWhiteSpaces, out var parsed) ||
+				DateTime.TryParseExact(trimmed, format, CultureInfo.InvariantCulture, DateTimeStyles.AllowWhiteSpaces, out parsed))
 			{
 				int year = weekStart.Year;
 				var date = new DateOnly(year, parsed.Month, parsed.Day);

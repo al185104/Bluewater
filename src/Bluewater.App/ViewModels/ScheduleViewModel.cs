@@ -284,7 +284,10 @@ public partial class ScheduleViewModel : BaseViewModel
 
 				IsBusy = true;
 
-				IReadOnlyList<EmployeeScheduleSummary> schedules = await LoadAllSchedulesForWeekAsync(SelectedCharging.Name).ConfigureAwait(false);
+				var importDates = rows.SelectMany(row => row.ShiftsByDate.Keys).ToList();
+				DateOnly importStartDate = importDates.Min();
+				DateOnly importEndDate = importDates.Max();
+				IReadOnlyList<EmployeeScheduleSummary> schedules = await LoadAllSchedulesForDateRangeAsync(SelectedCharging.Name, importStartDate, importEndDate).ConfigureAwait(false);
 				var employeesByBarcode = schedules
 					.GroupBy(e => e.Barcode.Trim(), StringComparer.OrdinalIgnoreCase)
 					.ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
@@ -336,6 +339,8 @@ public partial class ScheduleViewModel : BaseViewModel
 					File = file.FileName,
 					WeekStart = CurrentWeekStart,
 					WeekEnd = CurrentWeekEnd,
+					ImportStartDate = importStartDate,
+					ImportEndDate = importEndDate,
 					Charging = SelectedCharging.Name,
 					ImportedRows = successCount,
 					SkippedRows = skippedRows,
@@ -377,13 +382,18 @@ public partial class ScheduleViewModel : BaseViewModel
 
 		private async Task<IReadOnlyList<EmployeeScheduleSummary>> LoadAllSchedulesForWeekAsync(string chargingName)
 		{
+			return await LoadAllSchedulesForDateRangeAsync(chargingName, CurrentWeekStart, CurrentWeekEnd).ConfigureAwait(false);
+		}
+
+		private async Task<IReadOnlyList<EmployeeScheduleSummary>> LoadAllSchedulesForDateRangeAsync(string chargingName, DateOnly startDate, DateOnly endDate)
+		{
 			var all = new List<EmployeeScheduleSummary>();
 			int skip = 0;
 
 			while (true)
 			{
 				PagedResult<EmployeeScheduleSummary> page = await scheduleApiService
-					.GetSchedulesAsync(chargingName, CurrentWeekStart, CurrentWeekEnd, skip, PageSize, SelectedTenant)
+					.GetSchedulesAsync(chargingName, startDate, endDate, skip, PageSize, SelectedTenant)
 					.ConfigureAwait(false);
 
 				if (page.Items.Count == 0)
