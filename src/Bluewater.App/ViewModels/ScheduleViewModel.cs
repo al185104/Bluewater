@@ -76,7 +76,6 @@ public partial class ScheduleViewModel : BaseViewModel
 		{
 				if (hasInitialized)
 				{
-						await LoadSchedulesAsync().ConfigureAwait(false);
 						return;
 				}
 
@@ -102,9 +101,20 @@ public partial class ScheduleViewModel : BaseViewModel
 						await MainThread.InvokeOnMainThreadAsync(() => IsBusy = false);
 				}
 
-				if (SelectedCharging is not null)
+		}
+
+		[RelayCommand]
+		private async Task SearchAsync()
+		{
+				try
 				{
+						await TraceCommandAsync(nameof(SearchAsync), new { CurrentWeekStart, CurrentWeekEnd }).ConfigureAwait(false);
+						CurrentPage = 1;
 						await LoadSchedulesAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Searching schedules");
 				}
 		}
 
@@ -116,7 +126,6 @@ public partial class ScheduleViewModel : BaseViewModel
 						SetWeek(CurrentWeekStart.AddDays(-7));
 						CurrentPage = 1;
 						await TraceCommandAsync(nameof(PreviousWeekAsync), new { CurrentWeekStart, CurrentWeekEnd }).ConfigureAwait(false);
-						await LoadSchedulesAsync().ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
@@ -132,7 +141,6 @@ public partial class ScheduleViewModel : BaseViewModel
 						SetWeek(CurrentWeekStart.AddDays(7));
 						CurrentPage = 1;
 						await TraceCommandAsync(nameof(NextWeekAsync), new { CurrentWeekStart, CurrentWeekEnd }).ConfigureAwait(false);
-						await LoadSchedulesAsync().ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
@@ -352,8 +360,6 @@ public partial class ScheduleViewModel : BaseViewModel
 						"Import",
 						$"Imported {successCount} row(s). Skipped {skippedRows} row(s). Failed updates: {failedUpdates}.",
 						"Okay"));
-
-				await LoadSchedulesAsync().ConfigureAwait(false);
 			}
 			catch (OperationCanceledException)
 			{
@@ -462,14 +468,12 @@ public partial class ScheduleViewModel : BaseViewModel
 						return;
 				}
 				CurrentPage = 1;
-				_ = LoadSchedulesAsync();
 		}
 
 		partial void OnSelectedTenantChanged(TenantDto value)
 		{
 				if (!hasInitialized) return;
 				CurrentPage = 1;
-				_ = LoadSchedulesAsync();
 		}
 
 		[RelayCommand]
@@ -489,7 +493,6 @@ public partial class ScheduleViewModel : BaseViewModel
 
 						CurrentPage = page;
 						await TraceCommandAsync(nameof(GoToPageAsync), new { page }).ConfigureAwait(false);
-						await LoadSchedulesAsync().ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{

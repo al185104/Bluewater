@@ -104,4 +104,24 @@ public class AttendanceCalculateWorkHours
 
     result.totalNightShiftHours.Should().Be(5m);
   }
+
+  [Fact]
+  public void GrantsEightWorkHoursForNonRestAllMidnightShift()
+  {
+    DateOnly shiftDate = new(2024, 1, 15);
+    Shift shift = new("FREE", TimeOnly.MinValue, TimeOnly.MinValue, TimeOnly.MinValue, TimeOnly.MinValue, 0);
+    Attendance attendance = new(Guid.NewGuid(), Guid.NewGuid(), null, null, shiftDate, null, null, null, null, null)
+    {
+      Shift = shift
+    };
+
+    var result = attendance.CalculateWorkHours();
+
+    result.totalWorkHours.Should().Be(8m);
+    result.totalLateHours.Should().Be(0m);
+    result.totalUndertimeHours.Should().Be(0m);
+    result.totalOverbreakHours.Should().Be(0m);
+    result.totalNightShiftHours.Should().Be(0m);
+    attendance.WorkHrs.Should().Be(8m);
+  }
 }

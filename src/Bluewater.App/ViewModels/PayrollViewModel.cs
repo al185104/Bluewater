@@ -89,12 +89,26 @@ public partial class PayrollViewModel : BaseViewModel
 						isInitializing = true;
 						await TraceCommandAsync(nameof(InitializeAsync));
 						await LoadChargingOptionsAsync();
-						await LoadPayrollsAsync();
 						hasInitialized = true;
 				}
 				finally
 				{
 						isInitializing = false;
+				}
+		}
+
+		[RelayCommand]
+		private async Task SearchAsync()
+		{
+				try
+				{
+						await TraceCommandAsync(nameof(SearchAsync));
+						CurrentPage = 1;
+						await LoadPayrollsAsync();
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Searching payroll");
 				}
 		}
 
@@ -105,7 +119,6 @@ public partial class PayrollViewModel : BaseViewModel
 				{
 						await TraceCommandAsync(nameof(RefreshAsync));
 						CurrentPage = 1;
-						await LoadPayrollsAsync();
 				}
 				catch (Exception ex)
 				{
@@ -121,7 +134,6 @@ public partial class PayrollViewModel : BaseViewModel
 						SetPreviousPayslipPeriod();
 						CurrentPage = 1;
 						await TraceCommandAsync(nameof(PreviousPeriodAsync));
-						await LoadPayrollsAsync();
 				}
 				catch (Exception ex)
 				{
@@ -137,7 +149,6 @@ public partial class PayrollViewModel : BaseViewModel
 						SetNextPayslipPeriod();
 						CurrentPage = 1;
 						await TraceCommandAsync(nameof(NextPeriodAsync));
-						await LoadPayrollsAsync();
 				}
 				catch (Exception ex)
 				{
@@ -162,7 +173,6 @@ public partial class PayrollViewModel : BaseViewModel
 
 						CurrentPage = page;
 						await TraceCommandAsync(nameof(GoToPageAsync), new { page }).ConfigureAwait(false);
-						await LoadPayrollsAsync().ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
@@ -239,7 +249,6 @@ public partial class PayrollViewModel : BaseViewModel
 						int savedCount = await SavePayrollEntriesAsync(pendingPayrolls).ConfigureAwait(false);
 
 						EditablePayroll = CreateNewPayroll();
-						await LoadPayrollsAsync().ConfigureAwait(false);
 
             await MainThread.InvokeOnMainThreadAsync(() =>
                 Shell.Current.DisplayAlert(
@@ -897,7 +906,6 @@ private static string EscapeCsv(string? value)
 				}
 
 				CurrentPage = 1;
-				_ = LoadPayrollsAsync();
 		}
 
 		partial void OnStartDateChanged(DateOnly value)

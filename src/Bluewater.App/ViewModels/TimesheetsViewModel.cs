@@ -105,14 +105,25 @@ public partial class TimesheetsViewModel : BaseViewModel
 				hasInitialized = true;
 				await TraceCommandAsync(nameof(InitializeAsync)).ConfigureAwait(false);
 
-				MainThread.BeginInvokeOnMainThread(async () => {
+				MainThread.BeginInvokeOnMainThread(() => {
 						LoadChargings();
-						if (SelectedCharging is not null)
-						{
-								await LoadTimesheetsAsync().ConfigureAwait(false);
-						}
 				});
 
+		}
+
+		[RelayCommand]
+		private async Task SearchAsync()
+		{
+				try
+				{
+						await TraceCommandAsync(nameof(SearchAsync)).ConfigureAwait(false);
+						CurrentPage = 1;
+						await LoadTimesheetsAsync().ConfigureAwait(false);
+				}
+				catch (Exception ex)
+				{
+						ExceptionHandlingService.Handle(ex, "Searching timesheets");
+				}
 		}
 
 		[RelayCommand]
@@ -121,7 +132,6 @@ public partial class TimesheetsViewModel : BaseViewModel
 				try
 				{
 						await TraceCommandAsync(nameof(RefreshAsync)).ConfigureAwait(false);
-						await LoadTimesheetsAsync().ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
@@ -137,7 +147,6 @@ public partial class TimesheetsViewModel : BaseViewModel
 						SetPreviousPayslipPeriod();
 						CurrentPage = 1;
 						await TraceCommandAsync(nameof(PreviousPeriodAsync)).ConfigureAwait(false);
-						await LoadTimesheetsAsync().ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
@@ -153,7 +162,6 @@ public partial class TimesheetsViewModel : BaseViewModel
 						SetNextPayslipPeriod();
 						CurrentPage = 1;
 						await TraceCommandAsync(nameof(NextPeriodAsync)).ConfigureAwait(false);
-						await LoadTimesheetsAsync().ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{
@@ -307,7 +315,6 @@ public partial class TimesheetsViewModel : BaseViewModel
 				}
 
 				CurrentPage = 1;
-				_ = LoadTimesheetsAsync();
 		}
 
 		partial void OnSelectedTenantChanged(TenantDto value)
@@ -318,7 +325,6 @@ public partial class TimesheetsViewModel : BaseViewModel
 				}
 
 				CurrentPage = 1;
-				_ = LoadTimesheetsAsync();
 		}
 
 
@@ -595,7 +601,6 @@ public partial class TimesheetsViewModel : BaseViewModel
 
 						CurrentPage = page;
 						await TraceCommandAsync(nameof(GoToPageAsync), new { page }).ConfigureAwait(false);
-						await LoadTimesheetsAsync().ConfigureAwait(false);
 				}
 				catch (Exception ex)
 				{

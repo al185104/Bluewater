@@ -143,12 +143,7 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
           .Sum(o => o.ApprovedHours);
 
       // absences is counted when the attendance has ShiftId but no TimesheetId, and the Shift.Name is not "Rest Day"
-      var absences = attendance.Attendances.Count(s =>
-        s.Shift != null
-        && s.ShiftId.HasValue
-        && !s.TimesheetId.HasValue
-        && !s.Shift!.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase)
-        && !AttendanceSummaryCalculator.HasApprovedLeave(s));
+      var absences = attendance.Attendances.Count(CountsAsAbsence);
 
       // service charge by username
       var svcCharge = serviceCharges.FirstOrDefault(i => i.Username.Equals(username, StringComparison.InvariantCultureIgnoreCase));
@@ -267,5 +262,27 @@ internal class ListPayrollHandler(IRepository<Payroll> _repository, IServiceScop
       }
       
       return nightOtHours;
+  }
+
+  private static bool CountsAsAbsence(AttendanceDTO attendance)
+  {
+    return attendance.Shift != null
+      && attendance.ShiftId.HasValue
+      && !attendance.TimesheetId.HasValue
+      && !attendance.Shift.Name.Equals("R", StringComparison.InvariantCultureIgnoreCase)
+      && !IsFreeWorkDayShift(attendance)
+      && !AttendanceSummaryCalculator.HasApprovedLeave(attendance);
+  }
+
+  private static bool IsFreeWorkDayShift(AttendanceDTO attendance)
+  {
+    TimeOnly midnight = TimeOnly.MinValue;
+
+    return attendance.ShiftId.HasValue
+      && attendance.Shift != null
+      && attendance.Shift.ShiftStartTime == midnight
+      && attendance.Shift.ShiftBreakTime == midnight
+      && attendance.Shift.ShiftBreakEndTime == midnight
+      && attendance.Shift.ShiftEndTime == midnight;
   }
 }

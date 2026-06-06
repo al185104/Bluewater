@@ -47,6 +47,13 @@
 					VerticalOptions="End"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 					Style="{StaticResource SecondaryButtonStyle}" />-->
+			<Button Grid.Column="3"
+					Text="Search"
+					FontSize="14"
+					VerticalOptions="End"
+					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Search},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+					Style="{StaticResource SecondaryButtonStyle}"
+					Command="{Binding SearchCommand}" />
 			<Button Grid.Column="4"
 					Text="Download"
 					FontSize="14"

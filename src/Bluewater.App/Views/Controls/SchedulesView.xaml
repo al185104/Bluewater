@@ -14,7 +14,7 @@
 		  Padding="20">
 		<!--header-->
 		<Grid Grid.Row="0"
-			  ColumnDefinitions="240,*,Auto,Auto"
+			  ColumnDefinitions="240,*,Auto,Auto,Auto"
 			  ColumnSpacing="10">
 			<Picker Grid.Column="0" 
 					VerticalOptions="End" 
@@ -34,13 +34,20 @@
 						Style="{StaticResource SecondaryButtonStyle}"/>
 			</HorizontalStackLayout>
 			<Button Grid.Column="2"
+					Text="Search"
+					VerticalOptions="End"
+					FontSize="14"
+					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Search},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+					Style="{StaticResource SecondaryButtonStyle}"
+					Command="{Binding SearchCommand}" />
+			<Button Grid.Column="3"
 					Text="Upload"
 					VerticalOptions="End"
 					FontSize="14"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 					Style="{StaticResource SecondaryButtonStyle}"
 					Command="{Binding ImportSchedulesCommand}" />
-			<Button Grid.Column="3"
+			<Button Grid.Column="4"
 					Text="Download"
 					VerticalOptions="End"
 					FontSize="14"

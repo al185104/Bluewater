@@ -23,10 +23,7 @@ public partial class TimesheetView : ContentView
 				{
 						hasLoadedOnce = true;
 						await vm.InitializeAsync();
-						return;
 				}
-
-				await vm.RefreshSelectedTimesheetEntry();
 		}
 
 		private void ContentView_Unloaded(object sender, EventArgs e)

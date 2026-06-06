@@ -74,6 +74,16 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
         return (0, 0, 0, 0, 0);
       }
 
+      if (Shift != null && IsFreeWorkDayShift(Shift))
+      {
+        WorkHrs = 8;
+        LateHrs = 0;
+        UnderHrs = 0;
+        OverbreakHrs = 0;
+        NightShiftHours = 0;
+        return (8, 0, 0, 0, 0);
+      }
+
       if (Timesheet == null || Shift == null || !Timesheet.TimeIn1.HasValue || !Shift.ShiftStartTime.HasValue || !Shift.ShiftEndTime.HasValue)
       {
         return (-1, 0, 0, 0, 0);
@@ -178,6 +188,17 @@ public class Attendance(Guid employeeId, Guid? shiftId, Guid? timesheetId, Guid?
   private static DateTime BuildShiftDateTime(DateTime referenceDate, TimeOnly shiftTime)
   {
     return new DateTime(referenceDate.Year, referenceDate.Month, referenceDate.Day, shiftTime.Hour, shiftTime.Minute, shiftTime.Second);
+  }
+
+  private static bool IsFreeWorkDayShift(Shift shift)
+  {
+    TimeOnly midnight = TimeOnly.MinValue;
+
+    return !string.Equals(shift.Name?.Trim(), "R", StringComparison.OrdinalIgnoreCase)
+      && shift.ShiftStartTime == midnight
+      && shift.ShiftBreakTime == midnight
+      && shift.ShiftBreakEndTime == midnight
+      && shift.ShiftEndTime == midnight;
   }
 
   private static decimal CalculateOverlapHours(DateTime intervalStart, DateTime intervalEnd, DateTime rangeStart, DateTime rangeEnd)

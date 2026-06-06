@@ -19,7 +19,7 @@
     <Grid RowDefinitions="Auto,*,Auto"
           Padding="20">
         <Grid Grid.Row="0"
-              ColumnDefinitions="260,Auto,*,Auto,Auto,Auto"
+              ColumnDefinitions="260,Auto,*,Auto,Auto,Auto,Auto"
               ColumnSpacing="10">
             <Picker Grid.Column="0"
                     VerticalOptions="End"
@@ -40,6 +40,13 @@
 						Style="{StaticResource SecondaryButtonStyle}" />
 			</HorizontalStackLayout>
             <Button Grid.Column="3"
+                    Text="Search"
+                    FontSize="14"
+                    VerticalOptions="End"
+                    Command="{Binding SearchCommand}"
+                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.Search},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+                    Style="{StaticResource SecondaryButtonStyle}" />
+            <Button Grid.Column="4"
                     Text="Upload SC"
                     FontSize="14"
                     VerticalOptions="End"
@@ -47,7 +54,7 @@
                     Command="{Binding UploadServiceChargeCommand}"
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
                     Style="{StaticResource SecondaryButtonStyle}" />
-            <Button Grid.Column="4"
+            <Button Grid.Column="5"
 					Text="Download"
 					FontSize="14"
 					VerticalOptions="End"
@@ -55,7 +62,7 @@
 					Command="{Binding DownloadPayrollsCommand}"
 					ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
 					Style="{StaticResource SecondaryButtonStyle}" />
-			<Button Grid.Column="5"
+			<Button Grid.Column="6"
 					Text="Save"
 					FontSize="14"
 					VerticalOptions="End"
