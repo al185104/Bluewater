@@ -272,6 +272,15 @@
                     ContentLayout="Left, 20"
                     Clicked="btnFeedback_Clicked"
                     BackgroundColor="Transparent" />-->
+            <Button x:Name="btnWhatsNew"
+                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.Gift}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                    Text="What's New"
+                    HorizontalOptions="Start"
+                    TextColor="{StaticResource TextPrimaryColor}"
+                    ContentLayout="Left, 20"
+                    Padding="14, 10, 0, 10"
+                    Clicked="btnWhatsNew_Clicked"
+                    BackgroundColor="Transparent" />
             <Button x:Name="btnSettings"
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.Settings}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Settings"

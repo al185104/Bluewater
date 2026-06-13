@@ -30,6 +30,7 @@ using FastEndpoints.Swagger;
 using MediatR;
 using Serilog;
 using Serilog.Extensions.Logging;
+using Microsoft.AspNetCore.StaticFiles;
 
 var logger = Log.Logger = new LoggerConfiguration()
   .Enrich.FromLogContext()
@@ -84,6 +85,13 @@ else
 
 var app = builder.Build();
 
+var contentTypeProvider = new FileExtensionContentTypeProvider();
+contentTypeProvider.Mappings[".appinstaller"] = "application/appinstaller";
+contentTypeProvider.Mappings[".msix"] = "application/msix";
+contentTypeProvider.Mappings[".msixbundle"] = "application/msixbundle";
+contentTypeProvider.Mappings[".appx"] = "application/appx";
+contentTypeProvider.Mappings[".appxbundle"] = "application/appxbundle";
+
 if (app.Environment.IsDevelopment())
 {
   app.UseDeveloperExceptionPage();
@@ -94,6 +102,12 @@ else
   app.UseDefaultExceptionHandler(); // from FastEndpoints
   app.UseHsts();
 }
+
+//app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+  ContentTypeProvider = contentTypeProvider
+});
 
 app.UseFastEndpoints()
     .UseSwaggerGen(); // Includes AddFileServer and static files middleware

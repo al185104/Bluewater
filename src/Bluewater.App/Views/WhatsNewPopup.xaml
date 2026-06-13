@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+               xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+               xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+               xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+               x:Class="Bluewater.App.Views.WhatsNewPopup"
+               CanBeDismissedByTappingOutsideOfPopup="True">
+    <Border WidthRequest="720"
+            MaximumHeightRequest="680"
+            BackgroundColor="White"
+            Stroke="#D9E2EC"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle 8">
+        <Grid RowDefinitions="Auto,*,Auto">
+            <Grid Grid.Row="0"
+                  ColumnDefinitions="Auto,*,Auto"
+                  Padding="24,22,18,18"
+                  ColumnSpacing="14"
+                  BackgroundColor="#F7FAFC">
+                <Border WidthRequest="44"
+                        HeightRequest="44"
+                        StrokeThickness="0"
+                        StrokeShape="RoundRectangle 8"
+                        BackgroundColor="#EAF4FF"
+                        VerticalOptions="Start">
+                    <Label Text="{x:Static helpers:Icon.Gift}"
+                           FontFamily="Icons"
+                           FontSize="20"
+                           TextColor="#1C6FB8"
+                           HorizontalTextAlignment="Center"
+                           VerticalTextAlignment="Center" />
+                </Border>
+                <VerticalStackLayout Grid.Column="1"
+                                     Spacing="3">
+                    <Label Text="What's New"
+                           FontAttributes="Bold"
+                           FontSize="22"
+                           TextColor="#1F2933" />
+                    <Label Text="Recent updates from the master branch"
+                           FontSize="13"
+                           TextColor="#52616B" />
+                </VerticalStackLayout>
+                <Button Grid.Column="2"
+                        Text="{x:Static helpers:Icon.x}"
+                        FontFamily="Icons"
+                        FontSize="16"
+                        WidthRequest="40"
+                        HeightRequest="40"
+                        Padding="0"
+                        BackgroundColor="Transparent"
+                        TextColor="#52616B"
+                        Clicked="OnCloseClicked" />
+            </Grid>
+
+            <ScrollView Grid.Row="1"
+                        Padding="24,18">
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Updates}"
+                                     Spacing="12">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Border Stroke="#E4E7EB"
+                                    StrokeThickness="1"
+                                    StrokeShape="RoundRectangle 8"
+                                    BackgroundColor="#FFFFFF"
+                                    Padding="16,14">
+                                <Grid ColumnDefinitions="Auto,*"
+                                      ColumnSpacing="12">
+                                    <Border WidthRequest="30"
+                                            HeightRequest="30"
+                                            StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 6"
+                                            BackgroundColor="#EEF2F7"
+                                            VerticalOptions="Start">
+                                        <Label Text="{Binding Number}"
+                                               FontAttributes="Bold"
+                                               FontSize="12"
+                                               TextColor="#334E68"
+                                               HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Center" />
+                                    </Border>
+                                    <VerticalStackLayout Grid.Column="1"
+                                                         Spacing="5">
+                                        <Grid ColumnDefinitions="*,Auto"
+                                              ColumnSpacing="12">
+                                            <Label Text="{Binding Title}"
+                                                   FontAttributes="Bold"
+                                                   FontSize="15"
+                                                   TextColor="#1F2933"
+                                                   LineBreakMode="WordWrap" />
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding Date}"
+                                                   FontSize="12"
+                                                   TextColor="#829AB1"
+                                                   HorizontalOptions="End"
+                                                   VerticalOptions="Start" />
+                                        </Grid>
+                                        <Label Text="{Binding Description}"
+                                               FontSize="13"
+                                               TextColor="#52616B"
+                                               LineBreakMode="WordWrap" />
+                                        <Label Text="{Binding Commit}"
+                                               FontSize="11"
+                                               TextColor="#9FB3C8" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <Grid Grid.Row="2"
+                  Padding="24,16"
+                  BackgroundColor="#F7FAFC"
+                  ColumnDefinitions="*,Auto">
+                <Label Text="Showing the latest 10 master branch changes."
+                       FontSize="12"
+                       TextColor="#829AB1"
+                       VerticalOptions="Center" />
+                <Button Grid.Column="1"
+                        Text="Done"
+                        Padding="20,10"
+                        BackgroundColor="#1C6FB8"
+                        TextColor="White"
+                        Clicked="OnCloseClicked" />
+            </Grid>
+        </Grid>
+    </Border>
+</toolkit:Popup>

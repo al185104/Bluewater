@@ -276,7 +276,7 @@ public sealed class ExceptionHandlingService : IExceptionHandlingService, IDispo
         }
 
         string appDataDirectory = Path.Combine(
-          Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+          "C:\\temp",
           "Bluewater",
           "App",
           "Logs");

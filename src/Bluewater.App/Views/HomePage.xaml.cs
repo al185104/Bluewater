@@ -2,6 +2,7 @@
 using Bluewater.App.ViewModels;
 using Bluewater.App.ViewModels.Content;
 using Bluewater.App.Views.Controls;
+using CommunityToolkit.Maui.Extensions;
 
 namespace Bluewater.App.Views;
 
@@ -55,4 +56,9 @@ public sealed partial class HomePage : ContentPage
 				// test of exception
 				throw new Exception("Something went wrong when clicking the feedback button!");
     }
+
+		private void btnWhatsNew_Clicked(object sender, EventArgs e)
+		{
+				this.ShowPopup(new WhatsNewPopup());
+		}
 }
