@@ -798,6 +798,27 @@ public partial class DashboardContentViewModel : BaseViewModel
 						? ChargingOptions.FirstOrDefault(option => option.Id == preferredChargingId.Value) ?? ChargingOptions.FirstOrDefault()
 						: ChargingOptions.FirstOrDefault();
 		}
+
+		protected override void Dispose(bool disposing)
+		{
+				if (!disposing)
+				{
+						return;
+				}
+
+				CancelPendingDashboardLoad();
+				dashboardLoadCancellationTokenSource?.Dispose();
+				dashboardLoadCancellationTokenSource = null;
+				dashboardLoadSemaphore.Dispose();
+				ClearPayrollCache();
+				cachedEmployees = Array.Empty<EmployeeSummary>();
+				DepartmentOptions.Clear();
+				ChargingOptions.Clear();
+				PayrollCostByDepartment.Clear();
+				PayrollGeneratedStatusByCharging.Clear();
+				UpcomingHolidays.Clear();
+				base.Dispose(disposing);
+		}
 }
 
 public class DepartmentPayrollCostSummary

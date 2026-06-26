@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text;
 using Bluewater.App.Interfaces;
@@ -18,7 +18,8 @@ public partial class EmployeeContentViewModel : BaseViewModel
 {
 		private const string AllChargingName = "All Charging";
 		private int skip = 0;
-		private int take = 50;
+		private const int PageSize = 50;
+		private int take = PageSize;
 		private readonly List<EmployeeSummary> _allEmployees = [];
 		private readonly SemaphoreSlim _searchLoadLock = new(1, 1);
 		private bool _hasLoadedAllEmployeesForSearch;
@@ -77,7 +78,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				{
 						IsBusy = true;
 						skip = 0; 
-						take = 50;
+						take = PageSize;
 						var employees = await _employeeApiService.GetEmployeesAsync(skip, take, _cts.Token);
 						_allEmployees.Clear();
 						ResetEmployees([]);
@@ -195,7 +196,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 
 				try
 				{
-						bool confirmed = await Shell.Current.DisplayAlert(
+						bool confirmed = await Shell.Current.DisplayAlertAsync(
 								"Delete shift",
 								$"Are you sure you want to delete '{employee.FullName}'?",
 								"Yes",
@@ -210,7 +211,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						var deleted = await _employeeApiService.DeleteEmployeeAsync(employee.Id, _cts.Token);
 						if (!deleted)
 						{
-								await Shell.Current.DisplayAlert("Delete failed", "Unable to delete employee.", "Okay");
+								await Shell.Current.DisplayAlertAsync("Delete failed", "Unable to delete employee.", "Okay");
 								return;
 						}
 
@@ -261,7 +262,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 
 						if (result == null)
 						{
-								await Shell.Current.DisplayAlert("Import warning", "There is nothing to import. Please select a correct 201 import file.", "Okay");
+								await Shell.Current.DisplayAlertAsync("Import warning", "There is nothing to import. Please select a correct 201 import file.", "Okay");
 								return;
 						}
 
@@ -271,15 +272,14 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						var headerLine = await reader.ReadLineAsync();
 						if (string.IsNullOrWhiteSpace(headerLine))
 						{
-								await Shell.Current.DisplayAlert("Import error", "Unable to read a correct header file.", "Back");
+								await Shell.Current.DisplayAlertAsync("Import error", "Unable to read a correct header file.", "Back");
 								return;
 						}
 
 						var headers = headerLine.Split(',').Select(h => h.Trim()).ToList();
 
-						while (!reader.EndOfStream)
+						while (await reader.ReadLineAsync(_cts.Token).ConfigureAwait(false) is { } line)
 						{
-								var line = await reader.ReadLineAsync();
 								if (string.IsNullOrWhiteSpace(line))
 										continue;
 
@@ -322,7 +322,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 												Weight = TryDecimal(Get("Weight")),
 												Remarks = Get("Remarks"),
 												MealCredits = TryInt(Get("MealCredits"), 0),
-												Tenant = TryEnum(Get("Project"), Tenant.Maribago),
+												Tenant = TryEnum(GetTenantValue(), Tenant.Maribago),
 
 												Email = Get("Email"),
 												TelNumber = Get("TelNumber"),
@@ -378,6 +378,14 @@ public partial class EmployeeContentViewModel : BaseViewModel
 										};
 
 										employees.Add(employee);
+
+										string GetTenantValue()
+										{
+												string tenant = Get("Tenant");
+												return string.IsNullOrWhiteSpace(tenant)
+														? Get("Project")
+														: tenant;
+										}
 								}
 								catch
 								{
@@ -422,7 +430,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						}
 
 						MainThread.BeginInvokeOnMainThread(async () => {
-								await Shell.Current.DisplayAlert(
+								await Shell.Current.DisplayAlertAsync(
 								"Import result",
 								$"Successfully imported {successCount} out of {employees.Count} records.",
 								"Okay");
@@ -471,7 +479,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 
 				if (Employees is null || Employees.Count == 0)
 				{
-						await Shell.Current.DisplayAlert("Export", "No employees to export.", "Okay");
+						await Shell.Current.DisplayAlertAsync("Export", "No employees to export.", "Okay");
 						return;
 				}
 
@@ -479,7 +487,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				{
 						IsBusy = true;
 
-						bool confirmed = await Shell.Current.DisplayAlert(
+						bool confirmed = await Shell.Current.DisplayAlertAsync(
 								"Export employees",
 								"Export employee records to your Downloads folder?",
 								"Yes",
@@ -540,7 +548,7 @@ public partial class EmployeeContentViewModel : BaseViewModel
 						var filePath = Path.Combine(downloadsDirectory, fileName);
 						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8);
 
-						await Shell.Current.DisplayAlert("Export", $"Employees exported to {filePath}", "Okay");
+						await Shell.Current.DisplayAlertAsync("Export", $"Employees exported to {filePath}", "Okay");
 				}
 				finally
 				{
@@ -851,14 +859,21 @@ public partial class EmployeeContentViewModel : BaseViewModel
 				_cts?.Cancel();
 		}
 
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
+				if (!disposing)
+				{
+						return;
+				}
+
 				CancelAndDispose();
 				CancelAndDisposeLoadMore();
 				CancelAndDisposeSelectedCharging();
+				_searchLoadLock.Dispose();
 				_allEmployees.Clear();
-				Employees!.Clear();
+				Employees?.Clear();
 				Employees = null;
+				base.Dispose(disposing);
 		}
 
 		private void CancelAndDispose()

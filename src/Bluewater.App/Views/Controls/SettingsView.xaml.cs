@@ -22,7 +22,7 @@ public partial class SettingsView : ContentView
 		{
 				if (BindingContext is SettingViewModel vm)
 				{
-						//vm.Dispose();
+						vm.Dispose();
 						BindingContext = null;
 				}
 		}

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Bluewater.App.Exceptions;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
@@ -130,7 +130,7 @@ public partial class LoginViewModel : BaseViewModel
 				if (string.IsNullOrWhiteSpace(providedUsername) || string.IsNullOrWhiteSpace(providedPassword))
 				{
 						await MainThread.InvokeOnMainThreadAsync(() =>
-							Shell.Current.DisplayAlert("Login", "Please enter both username and password.", "Okay"));
+							Shell.Current.DisplayAlertAsync("Login", "Please enter both username and password.", "Okay"));
 						return;
 				}
 
@@ -148,7 +148,7 @@ public partial class LoginViewModel : BaseViewModel
 				if (user is null || !string.Equals(user.PasswordHash, providedPassword, StringComparison.Ordinal))
 				{
 						await MainThread.InvokeOnMainThreadAsync(() =>
-							Shell.Current.DisplayAlert("Login failed", "Invalid username or password.", "Okay"));
+							Shell.Current.DisplayAlertAsync("Login failed", "Invalid username or password.", "Okay"));
 						return;
 				}
 
@@ -156,7 +156,7 @@ public partial class LoginViewModel : BaseViewModel
         if (!isAuthorizedCredential)
         {
           await MainThread.InvokeOnMainThreadAsync(() =>
-            Shell.Current.DisplayAlert("Login failed", "You do not have permission to access this application.", "Okay"));
+            Shell.Current.DisplayAlertAsync("Login failed", "You do not have permission to access this application.", "Okay"));
           return;
         }
 

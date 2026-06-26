@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
@@ -167,7 +167,7 @@ public partial class EmployeeViewModel : BaseViewModel
 					? "this employee"
 					: employee.FullName;
 
-						return await mainPage.DisplayAlert(
+						return await mainPage.DisplayAlertAsync(
 					"Delete Employee",
 					$"Are you sure you want to delete {employeeName}?",
 					"Delete",

@@ -51,7 +51,7 @@ public sealed class ApiBaseAddressRecoveryService(IApiBaseAddressService apiBase
     }
 
     return await MainThread.InvokeOnMainThreadAsync(() =>
-      page.DisplayAlert("API Connection", message, "Update Address", "Cancel")).ConfigureAwait(false);
+      page.DisplayAlertAsync("API Connection", message, "Update Address", "Cancel")).ConfigureAwait(false);
   }
 
   private async Task<bool> PromptForValidAddressAsync()
@@ -84,7 +84,7 @@ public sealed class ApiBaseAddressRecoveryService(IApiBaseAddressService apiBase
       }
 
       await MainThread.InvokeOnMainThreadAsync(() =>
-        page.DisplayAlert("Invalid API Address", validationMessage ?? "Please enter a valid API base URL.", "OK")).ConfigureAwait(false);
+        page.DisplayAlertAsync("Invalid API Address", validationMessage ?? "Please enter a valid API base URL.", "OK")).ConfigureAwait(false);
     }
   }
 

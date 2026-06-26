@@ -1,4 +1,3 @@
-﻿using System.Collections.ObjectModel;
 using System.Text;
 using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
@@ -124,14 +123,14 @@ public partial class SettingViewModel : BaseViewModel
 		public partial string UpdateStatusMessage { get; set; } = "Updater feed is not configured.";
 
 
-		public ObservableCollection<DivisionSummary> Divisions { get; } = new();
-		public ObservableCollection<DepartmentSummary> Departments { get; } = new();
-		public ObservableCollection<SectionSummary> Sections { get; } = new();
-		public ObservableCollection<ChargingSummary> Chargings { get; } = new();
-		public ObservableCollection<PositionSummary> Positions { get; } = new();
-		public ObservableCollection<EmployeeTypeSummary> EmployeeTypes { get; } = new();
-		public ObservableCollection<LevelSummary> EmployeeLevels { get; } = new();
-		public ObservableCollection<HolidaySummary> Holidays { get; } = new();
+		public RangeObservableCollection<DivisionSummary> Divisions { get; } = new();
+		public RangeObservableCollection<DepartmentSummary> Departments { get; } = new();
+		public RangeObservableCollection<SectionSummary> Sections { get; } = new();
+		public RangeObservableCollection<ChargingSummary> Chargings { get; } = new();
+		public RangeObservableCollection<PositionSummary> Positions { get; } = new();
+		public RangeObservableCollection<EmployeeTypeSummary> EmployeeTypes { get; } = new();
+		public RangeObservableCollection<LevelSummary> EmployeeLevels { get; } = new();
+		public RangeObservableCollection<HolidaySummary> Holidays { get; } = new();
 		public IReadOnlyList<Tenant> TenantOptions { get; } = Enum.GetValues<Tenant>();
 
 		public SettingViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService,
@@ -192,13 +191,13 @@ public partial class SettingViewModel : BaseViewModel
 		{
 				if (!_apiBaseAddressService.TryUpdate(ApiBaseAddress, out string? validationMessage))
 				{
-						await Shell.Current.DisplayAlert("Invalid API Address", validationMessage ?? "Please provide a valid API address.", "OK");
+						await Shell.Current.DisplayAlertAsync("Invalid API Address", validationMessage ?? "Please provide a valid API address.", "OK");
 						return;
 				}
 
 				ApiBaseAddress = _apiBaseAddressService.ApiBaseAddress;
 				await TraceCommandAsync(nameof(SaveApiBaseAddressAsync), ApiBaseAddress);
-				await Shell.Current.DisplayAlert("API Address Updated", "Future requests will use the new API base address.", "OK");
+				await Shell.Current.DisplayAlertAsync("API Address Updated", "Future requests will use the new API base address.", "OK");
 		}
 
 
@@ -207,7 +206,7 @@ public partial class SettingViewModel : BaseViewModel
 		{
 			if (!_appUpdaterService.TryUpdateManifestUrl(UpdateManifestUrl, out string? validationMessage))
 			{
-				await Shell.Current.DisplayAlert("Invalid Feed URL", validationMessage ?? "Please provide a valid updater feed URL.", "OK");
+				await Shell.Current.DisplayAlertAsync("Invalid Feed URL", validationMessage ?? "Please provide a valid updater feed URL.", "OK");
 				return;
 			}
 
@@ -230,7 +229,7 @@ public partial class SettingViewModel : BaseViewModel
 					return;
 				}
 
-				bool confirmed = await Shell.Current.DisplayAlert(
+				bool confirmed = await Shell.Current.DisplayAlertAsync(
 					"Install Update",
 					$"Version {checkResult.AvailableVersion} is available. Download and install now?",
 					"Install",
@@ -246,7 +245,7 @@ public partial class SettingViewModel : BaseViewModel
 
 				if (!installResult.IsSuccess)
 				{
-					await Shell.Current.DisplayAlert("Update Failed", installResult.Message, "OK");
+					await Shell.Current.DisplayAlertAsync("Update Failed", installResult.Message, "OK");
 					return;
 				}
 
@@ -254,7 +253,7 @@ public partial class SettingViewModel : BaseViewModel
 
 				if (installResult.RequiresRestart)
 				{
-					await Shell.Current.DisplayAlert("Installing", installResult.Message, "OK");
+					await Shell.Current.DisplayAlertAsync("Installing", installResult.Message, "OK");
 					Application.Current?.Quit();
 				}
 			}
@@ -295,7 +294,7 @@ public partial class SettingViewModel : BaseViewModel
 		private async Task DeleteDivisionAsync(DivisionSummary? division)
 		{
 				if (division is null ||
-						!await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this division?", "Yes", "No"))
+						!await Shell.Current.DisplayAlertAsync("Delete", "Are you sure you want to delete this division?", "Yes", "No"))
 				{
 						return;
 				}
@@ -342,7 +341,7 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeleteDepartmentAsync(DepartmentSummary? department)
 		{
-				if (department is null || !await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this department?", "Yes", "No"))
+				if (department is null || !await Shell.Current.DisplayAlertAsync("Delete", "Are you sure you want to delete this department?", "Yes", "No"))
 				{
 						return;
 				}
@@ -389,7 +388,7 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeleteSectionAsync(SectionSummary? section)
 		{
-				if (section is null || !await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this section?", "Yes", "No"))
+				if (section is null || !await Shell.Current.DisplayAlertAsync("Delete", "Are you sure you want to delete this section?", "Yes", "No"))
 				{
 						return;
 				}
@@ -436,7 +435,7 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeleteChargingAsync(ChargingSummary? charging)
 		{
-				if (charging is null || !await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this charging?", "Yes", "No"))
+				if (charging is null || !await Shell.Current.DisplayAlertAsync("Delete", "Are you sure you want to delete this charging?", "Yes", "No"))
 				{
 						return;
 				}
@@ -727,7 +726,7 @@ public partial class SettingViewModel : BaseViewModel
 		private async Task DeletePositionAsync(PositionSummary? position)
 		{
 				if (position is null ||
-						!await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this position?", "Yes", "No"))
+						!await Shell.Current.DisplayAlertAsync("Delete", "Are you sure you want to delete this position?", "Yes", "No"))
 				{
 						return;
 				}
@@ -774,7 +773,7 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeleteEmployeeTypeAsync(EmployeeTypeSummary? employeeType)
 		{
-				if (employeeType is null || !await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this employee type?", "Yes", "No"))
+				if (employeeType is null || !await Shell.Current.DisplayAlertAsync("Delete", "Are you sure you want to delete this employee type?", "Yes", "No"))
 				{
 						return;
 				}
@@ -821,7 +820,7 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeleteEmployeeLevelAsync(LevelSummary? level)
 		{
-				if (level is null || !await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this employee level?", "Yes", "No"))
+				if (level is null || !await Shell.Current.DisplayAlertAsync("Delete", "Are you sure you want to delete this employee level?", "Yes", "No"))
 				{
 						return;
 				}
@@ -846,7 +845,7 @@ public partial class SettingViewModel : BaseViewModel
 		[RelayCommand]
 		private async Task DeleteHolidayAsync(HolidaySummary? holiday)
 		{
-				if (holiday is null || !await Shell.Current.DisplayAlert("Delete", "Are you sure you want to delete this holiday?", "Yes", "No"))
+				if (holiday is null || !await Shell.Current.DisplayAlertAsync("Delete", "Are you sure you want to delete this holiday?", "Yes", "No"))
 				{
 						return;
 				}
@@ -1442,7 +1441,7 @@ public partial class SettingViewModel : BaseViewModel
 						}
 
 						await RunOnMainThreadAsync(() =>
-							Shell.Current.DisplayAlert(
+							Shell.Current.DisplayAlertAsync(
 								"Import result",
 								$"Successfully imported {imported} out of {rows.Count} records.",
 								"Okay"));
@@ -1473,7 +1472,7 @@ public partial class SettingViewModel : BaseViewModel
 
 				if (items.Count == 0)
 				{
-						await Shell.Current.DisplayAlert("Export", $"No {filePrefix.Replace('_', ' ')} to export.", "Okay");
+						await Shell.Current.DisplayAlertAsync("Export", $"No {filePrefix.Replace('_', ' ')} to export.", "Okay");
 						return;
 				}
 
@@ -1482,7 +1481,7 @@ public partial class SettingViewModel : BaseViewModel
 						IsBusy = true;
 
 						string displayName = filePrefix.Replace('_', ' ');
-						bool confirmed = await Shell.Current.DisplayAlert(
+						bool confirmed = await Shell.Current.DisplayAlertAsync(
 								$"Export {displayName}",
 								$"Export {displayName} records to your Downloads folder?",
 								"Yes",
@@ -1511,7 +1510,7 @@ public partial class SettingViewModel : BaseViewModel
 
 						MainThread.BeginInvokeOnMainThread(async () =>
 						{
-								await Shell.Current.DisplayAlert("Export", $"{displayName} exported to {filePath}", "Okay");
+								await Shell.Current.DisplayAlertAsync("Export", $"{displayName} exported to {filePath}", "Okay");
 						});
 				}
 				finally
@@ -1732,86 +1731,23 @@ public partial class SettingViewModel : BaseViewModel
 						await RunOnMainThreadAsync(() =>
 						{
 								IsBusy = true;
-								Divisions.Clear();
-								Departments.Clear();
-								Sections.Clear();
-								Chargings.Clear();
-								Positions.Clear();
-								EmployeeTypes.Clear();
-								EmployeeLevels.Clear();
-								Holidays.Clear();
 						});
+						await Task.Yield();
 
 						await _referenceService.InitializeAsync().ConfigureAwait(false);
 
-						IReadOnlyList<DivisionSummary> divisions = _referenceService.Divisions;
-						IReadOnlyList<DepartmentSummary> departments = _referenceService.Departments;
-						IReadOnlyList<SectionSummary> sections = _referenceService.Sections;
-						IReadOnlyList<ChargingSummary> chargings = _referenceService.Chargings;
-						IReadOnlyList<PositionSummary> positions = _referenceService.Positions;
-						IReadOnlyList<EmployeeTypeSummary> employeeTypes = _referenceService.EmployeeTypes;
-						IReadOnlyList<LevelSummary> levels = _referenceService.Levels;
-						IReadOnlyList<HolidaySummary> holidays = _referenceService.Holidays;
+						SettingsDataSnapshot settingsData = BuildSettingsDataSnapshot();
 
 						await RunOnMainThreadAsync(() =>
 						{
-								int index = 0;
-								foreach (DivisionSummary division in divisions)
-								{
-										division.RowIndex = index++;
-										Divisions.Add(division);
-								}
-
-								index = 0;
-								foreach (DepartmentSummary department in departments)
-								{
-										department.RowIndex = index++;
-										department.DivisionName = Divisions.FirstOrDefault(i => i.Id == department.DivisionId)?.Name;
-										department.DivisionDescription = Divisions.FirstOrDefault(i => i.Id == department.DivisionId)?.Description;
-										Departments.Add(department);
-								}
-
-								index = 0;
-								foreach (SectionSummary section in sections)
-								{
-										section.RowIndex = index++;
-										section.DepartmentName = Departments.FirstOrDefault(i => i.Id == section.DepartmentId)?.Name;
-										section.DepartmentDescription = Departments.FirstOrDefault(i => i.Id == section.DepartmentId)?.Description;
-										Sections.Add(section);
-								}
-
-								index = 0;
-								foreach (ChargingSummary charging in chargings)
-								{
-										charging.RowIndex = index++;
-										charging.DepartmentName = Departments.FirstOrDefault(i => i.Id == charging.DepartmentId)?.Name;
-										charging.DepartmentDescription = Departments.FirstOrDefault(i => i.Id == charging.DepartmentId)?.Description;
-										Chargings.Add(charging);
-								}
-
-								index = 0;
-								foreach (PositionSummary position in positions)
-								{
-										position.RowIndex = index++;
-										position.SectionName = Sections.FirstOrDefault(i => i.Id == position.SectionId)?.Name;
-										position.SectionDescription = Sections.FirstOrDefault(i => i.Id == position.SectionId)?.Description;
-										Positions.Add(position);
-								}
-
-								foreach (EmployeeTypeSummary employeeType in employeeTypes)
-								{
-										EmployeeTypes.Add(employeeType);
-								}
-
-								foreach (LevelSummary level in levels)
-								{
-										EmployeeLevels.Add(level);
-								}
-
-								foreach (HolidaySummary holiday in holidays)
-								{
-										Holidays.Add(holiday);
-								}
+								Divisions.ReplaceRange(settingsData.Divisions);
+								Departments.ReplaceRange(settingsData.Departments);
+								Sections.ReplaceRange(settingsData.Sections);
+								Chargings.ReplaceRange(settingsData.Chargings);
+								Positions.ReplaceRange(settingsData.Positions);
+								EmployeeTypes.ReplaceRange(settingsData.EmployeeTypes);
+								EmployeeLevels.ReplaceRange(settingsData.EmployeeLevels);
+								Holidays.ReplaceRange(settingsData.Holidays);
 
 								SelectedDivisionForDepartment = Divisions.FirstOrDefault();
 								SelectedDepartmentForSection = Departments.FirstOrDefault();
@@ -1831,4 +1767,107 @@ public partial class SettingViewModel : BaseViewModel
 						_initializeSemaphore.Release();
 				}
 		}
+
+		private SettingsDataSnapshot BuildSettingsDataSnapshot()
+		{
+				List<DivisionSummary> divisions = AssignRowIndexes(_referenceService.Divisions);
+				Dictionary<Guid, DivisionSummary> divisionsById = divisions.ToDictionary(item => item.Id);
+
+				List<DepartmentSummary> departments = AssignRowIndexes(_referenceService.Departments);
+				foreach (DepartmentSummary department in departments)
+				{
+						if (divisionsById.TryGetValue(department.DivisionId, out DivisionSummary? division))
+						{
+								department.DivisionName = division.Name;
+								department.DivisionDescription = division.Description;
+						}
+				}
+
+				Dictionary<Guid, DepartmentSummary> departmentsById = departments.ToDictionary(item => item.Id);
+
+				List<SectionSummary> sections = AssignRowIndexes(_referenceService.Sections);
+				foreach (SectionSummary section in sections)
+				{
+						if (departmentsById.TryGetValue(section.DepartmentId, out DepartmentSummary? department))
+						{
+								section.DepartmentName = department.Name;
+								section.DepartmentDescription = department.Description;
+						}
+				}
+
+				Dictionary<Guid, SectionSummary> sectionsById = sections.ToDictionary(item => item.Id);
+
+				List<ChargingSummary> chargings = AssignRowIndexes(_referenceService.Chargings);
+				foreach (ChargingSummary charging in chargings)
+				{
+						if (charging.DepartmentId is Guid departmentId
+								&& departmentsById.TryGetValue(departmentId, out DepartmentSummary? department))
+						{
+								charging.DepartmentName = department.Name;
+								charging.DepartmentDescription = department.Description;
+						}
+				}
+
+				List<PositionSummary> positions = AssignRowIndexes(_referenceService.Positions);
+				foreach (PositionSummary position in positions)
+				{
+						if (sectionsById.TryGetValue(position.SectionId, out SectionSummary? section))
+						{
+								position.SectionName = section.Name;
+								position.SectionDescription = section.Description;
+						}
+				}
+
+				return new SettingsDataSnapshot(
+					divisions,
+					departments,
+					sections,
+					chargings,
+					positions,
+					_referenceService.EmployeeTypes.ToList(),
+					_referenceService.Levels.ToList(),
+					_referenceService.Holidays.ToList());
+		}
+
+		private static List<T> AssignRowIndexes<T>(IEnumerable<T> items)
+			where T : IRowIndexed
+		{
+				List<T> indexedItems = items.ToList();
+				for (int index = 0; index < indexedItems.Count; index++)
+				{
+						indexedItems[index].RowIndex = index;
+				}
+
+				return indexedItems;
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+				if (!disposing)
+				{
+						return;
+				}
+
+				_initializeSemaphore.Dispose();
+				Divisions.Clear();
+				Departments.Clear();
+				Sections.Clear();
+				Chargings.Clear();
+				Positions.Clear();
+				EmployeeTypes.Clear();
+				EmployeeLevels.Clear();
+				Holidays.Clear();
+				EditableSetting = null;
+				base.Dispose(disposing);
+		}
 }
+
+internal sealed record SettingsDataSnapshot(
+	IReadOnlyList<DivisionSummary> Divisions,
+	IReadOnlyList<DepartmentSummary> Departments,
+	IReadOnlyList<SectionSummary> Sections,
+	IReadOnlyList<ChargingSummary> Chargings,
+	IReadOnlyList<PositionSummary> Positions,
+	IReadOnlyList<EmployeeTypeSummary> EmployeeTypes,
+	IReadOnlyList<LevelSummary> EmployeeLevels,
+	IReadOnlyList<HolidaySummary> Holidays);

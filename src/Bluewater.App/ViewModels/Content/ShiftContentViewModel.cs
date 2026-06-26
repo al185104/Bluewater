@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text;
 using Bluewater.App.Interfaces;
@@ -65,8 +65,13 @@ public partial class ShiftContentViewModel : BaseViewModel
 				}
 		}
 
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
+				if (!disposing)
+				{
+						return;
+				}
+
 				if (_initCts != null)
 				{
 						_initCts.Cancel();
@@ -75,8 +80,9 @@ public partial class ShiftContentViewModel : BaseViewModel
 				}
 
 				_allShifts.Clear();
-				Shifts!.Clear();
+				Shifts?.Clear();
 				Shifts = null;
+				base.Dispose(disposing);
 		}
 
 		[RelayCommand]
@@ -109,7 +115,7 @@ public partial class ShiftContentViewModel : BaseViewModel
 
 						if (result is null)
 						{
-								await Shell.Current.DisplayAlert("Import warning", "There is nothing to import. Please select a correct shift import file.", "Okay");
+								await Shell.Current.DisplayAlertAsync("Import warning", "There is nothing to import. Please select a correct shift import file.", "Okay");
 								return;
 						}
 
@@ -121,15 +127,14 @@ public partial class ShiftContentViewModel : BaseViewModel
 						var headerLine = await reader.ReadLineAsync();
 						if (string.IsNullOrWhiteSpace(headerLine))
 						{
-								await Shell.Current.DisplayAlert("Import error", "Unable to read shift import headers.", "Back");
+								await Shell.Current.DisplayAlertAsync("Import error", "Unable to read shift import headers.", "Back");
 								return;
 						}
 
 						var headers = headerLine.Split(',').Select(h => h.Trim()).ToList();
 
-						while (!reader.EndOfStream)
+						while (await reader.ReadLineAsync(ct).ConfigureAwait(false) is { } line)
 						{
-								var line = await reader.ReadLineAsync();
 								if (string.IsNullOrWhiteSpace(line))
 								{
 										continue;
@@ -178,7 +183,7 @@ public partial class ShiftContentViewModel : BaseViewModel
 								successfulImports++;
 						}
 
-						await Shell.Current.DisplayAlert("Import complete", $"Successfully imported {successfulImports} shift(s).", "Okay");
+						await Shell.Current.DisplayAlertAsync("Import complete", $"Successfully imported {successfulImports} shift(s).", "Okay");
 						await InitializeAsync();
 				}
 				catch (OperationCanceledException)
@@ -206,7 +211,7 @@ public partial class ShiftContentViewModel : BaseViewModel
 
 				if (Shifts is null || Shifts.Count == 0)
 				{
-						await Shell.Current.DisplayAlert("Export", "No shifts to export.", "Okay");
+						await Shell.Current.DisplayAlertAsync("Export", "No shifts to export.", "Okay");
 						return;
 				}
 
@@ -214,7 +219,7 @@ public partial class ShiftContentViewModel : BaseViewModel
 				{
 						IsBusy = true;
 
-						bool confirmed = await Shell.Current.DisplayAlert(
+						bool confirmed = await Shell.Current.DisplayAlertAsync(
 								"Export shifts",
 								"Export shift records to your Downloads folder?",
 								"Yes",
@@ -247,7 +252,7 @@ public partial class ShiftContentViewModel : BaseViewModel
 						var filePath = Path.Combine(downloadsDirectory, fileName);
 						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8);
 
-						await Shell.Current.DisplayAlert("Export", $"Shifts exported to {filePath}", "Okay");
+						await Shell.Current.DisplayAlertAsync("Export", $"Shifts exported to {filePath}", "Okay");
 				}
 				catch (Exception ex)
 				{
@@ -286,7 +291,7 @@ public partial class ShiftContentViewModel : BaseViewModel
 
 				try
 				{
-						bool confirmed = await Shell.Current.DisplayAlert(
+						bool confirmed = await Shell.Current.DisplayAlertAsync(
 								"Delete shift",
 								$"Are you sure you want to delete shift '{shift.Name}'?",
 								"Yes",
@@ -302,7 +307,7 @@ public partial class ShiftContentViewModel : BaseViewModel
 
 						if (!deleted)
 						{
-								await Shell.Current.DisplayAlert("Delete failed", "Unable to delete shift.", "Okay");
+								await Shell.Current.DisplayAlertAsync("Delete failed", "Unable to delete shift.", "Okay");
 								return;
 						}
 

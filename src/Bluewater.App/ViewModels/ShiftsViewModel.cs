@@ -427,7 +427,7 @@ public partial class ShiftsViewModel : BaseViewModel
         ? "this shift"
         : shift.Name;
 
-      return await mainPage.DisplayAlert(
+      return await mainPage.DisplayAlertAsync(
         "Delete Shift",
         $"Are you sure you want to delete {shiftName}?",
         "Delete",

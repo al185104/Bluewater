@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text;
@@ -158,12 +158,12 @@ public partial class ScheduleViewModel : BaseViewModel
 
 				if (Employees.Count == 0)
 				{
-						await Shell.Current.DisplayAlert("Export", "No schedules to export.", "Okay");
+						await Shell.Current.DisplayAlertAsync("Export", "No schedules to export.", "Okay");
 						return;
 				}
 
 				string chargingName = SelectedCharging?.Name ?? "All";
-				bool confirmed = await Shell.Current.DisplayAlert(
+				bool confirmed = await Shell.Current.DisplayAlertAsync(
 						"Export schedules",
 						$"Export {chargingName} schedules for {WeekRangeDisplay} to your Downloads folder?",
 						"Yes",
@@ -218,7 +218,7 @@ public partial class ScheduleViewModel : BaseViewModel
 						var filePath = Path.Combine(downloadsDirectory, fileName);
 						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8).ConfigureAwait(false);
 
-						await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.DisplayAlert("Export", $"Schedules exported to {filePath}", "Okay"));
+						await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.DisplayAlertAsync("Export", $"Schedules exported to {filePath}", "Okay"));
 
 						await TraceCommandAsync(nameof(ExportSchedulesAsync), new
 						{
@@ -251,7 +251,7 @@ public partial class ScheduleViewModel : BaseViewModel
 
 			if (SelectedCharging is null)
 			{
-				await Shell.Current.DisplayAlert("Import", "Please select a charging before importing schedules.", "Okay");
+				await Shell.Current.DisplayAlertAsync("Import", "Please select a charging before importing schedules.", "Okay");
 				return;
 			}
 
@@ -286,7 +286,7 @@ public partial class ScheduleViewModel : BaseViewModel
 
 				if (rows.Count == 0)
 				{
-					await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.DisplayAlert("Import", "No schedules were found in the selected file.", "Okay"));
+					await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.DisplayAlertAsync("Import", "No schedules were found in the selected file.", "Okay"));
 					return;
 				}
 
@@ -295,7 +295,7 @@ public partial class ScheduleViewModel : BaseViewModel
 				var importDates = rows.SelectMany(row => row.ShiftsByDate.Keys).ToList();
 				DateOnly importStartDate = importDates.Min();
 				DateOnly importEndDate = importDates.Max();
-				IReadOnlyList<EmployeeScheduleSummary> schedules = await LoadAllSchedulesForDateRangeAsync(SelectedCharging.Name, importStartDate, importEndDate).ConfigureAwait(false);
+				IReadOnlyList<EmployeeScheduleSummary> schedules = await LoadDepartmentSchedulesForDateRangeAsync(SelectedCharging, importStartDate, importEndDate).ConfigureAwait(false);
 				var employeesByBarcode = schedules
 					.GroupBy(e => e.Barcode.Trim(), StringComparer.OrdinalIgnoreCase)
 					.ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
@@ -356,10 +356,18 @@ public partial class ScheduleViewModel : BaseViewModel
 				}).ConfigureAwait(false);
 
 				await MainThread.InvokeOnMainThreadAsync(() =>
-					Shell.Current.DisplayAlert(
+					Shell.Current.DisplayAlertAsync(
 						"Import",
 						$"Imported {successCount} row(s). Skipped {skippedRows} row(s). Failed updates: {failedUpdates}.",
 						"Okay"));
+
+
+				if (IsBusy)
+				{
+					IsBusy = false;
+				}
+
+				await SearchAsync().ConfigureAwait(false);
 			}
 			catch (OperationCanceledException)
 			{
@@ -368,7 +376,7 @@ public partial class ScheduleViewModel : BaseViewModel
 			catch (FormatException ex)
 			{
 				ExceptionHandlingService.Handle(ex, "Importing schedules");
-				await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.DisplayAlert("Import error", ex.Message, "Okay"));
+				await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.DisplayAlertAsync("Import error", ex.Message, "Okay"));
 			}
 			catch (Exception ex)
 			{
@@ -417,6 +425,39 @@ public partial class ScheduleViewModel : BaseViewModel
 			}
 
 			return all;
+		}
+
+		private async Task<IReadOnlyList<EmployeeScheduleSummary>> LoadDepartmentSchedulesForDateRangeAsync(ChargingSummary selectedCharging, DateOnly startDate, DateOnly endDate)
+		{
+			IReadOnlyList<string> chargingNames = GetDepartmentChargingNames(selectedCharging);
+			var all = new List<EmployeeScheduleSummary>();
+
+			foreach (string chargingName in chargingNames)
+			{
+				IReadOnlyList<EmployeeScheduleSummary> schedules = await LoadAllSchedulesForDateRangeAsync(chargingName, startDate, endDate).ConfigureAwait(false);
+				all.AddRange(schedules);
+			}
+
+			return all;
+		}
+
+		private IReadOnlyList<string> GetDepartmentChargingNames(ChargingSummary selectedCharging)
+		{
+			if (selectedCharging.DepartmentId is not Guid departmentId)
+			{
+				return [selectedCharging.Name];
+			}
+
+			List<string> departmentChargingNames = referenceDataService.Chargings
+				.Where(charging => charging.DepartmentId == departmentId)
+				.Select(charging => charging.Name)
+				.Where(name => !string.IsNullOrWhiteSpace(name))
+				.Distinct(StringComparer.OrdinalIgnoreCase)
+				.ToList();
+
+			return departmentChargingNames.Count > 0
+				? departmentChargingNames
+				: [selectedCharging.Name];
 		}
 
 		private async Task<bool> PersistImportedShiftAsync(Guid employeeId, DateOnly date, ScheduleShiftInfoSummary? existing, ShiftPickerItem? newShift)
@@ -691,14 +732,6 @@ public partial class ScheduleViewModel : BaseViewModel
 						previousSelections[day] = day.SelectedShift;
 				}
 		}
-
-		//private void OnDayPropertyChanging(object? sender, PropertyChangingEventArgs e)
-		//{
-		//  if (sender is DailyShiftSelection day && e.PropertyName == nameof(DailyShiftSelection.SelectedShift))
-		//  {
-		//    previousSelections[day] = day.SelectedShift;
-		//  }
-		//}
 
 		private async void OnDayPropertyChanged(object? sender, PropertyChangedEventArgs e)
 		{
@@ -979,7 +1012,7 @@ public partial class ScheduleViewModel : BaseViewModel
 				if (breakHours > 0)
 						segments.Add(breakHours == 1 ? "1 hour break" : $"{breakHours:0.##} hour break");
 
-				return string.Join(" • ", segments);
+				return string.Join(" � ", segments);
 		}
 
 		private static string FormatTime(TimeOnly? time) => time?.ToString("hh:mm tt", CultureInfo.CurrentCulture) ?? string.Empty;
@@ -1025,36 +1058,28 @@ public partial class ScheduleViewModel : BaseViewModel
 				}
 		}
 
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-				// Detach all event handlers from DailyShiftSelection instances
+				if (!disposing)
+				{
+						return;
+				}
+
 				foreach (var weekly in Employees)
 				{
 						foreach (var day in weekly.Days)
 						{
-								day.PropertyChanging -= OnDayPropertyChanging;
-								day.PropertyChanged -= OnDayPropertyChanged;
+								DetachDaySelectionHandlers(day);
 						}
 				}
 
-				// Clear collections to release references
 				Employees.Clear();
 				Chargings.Clear();
 				ShiftOptions.Clear();
 				PageNumbers.Clear();
 				previousSelections.Clear();
 				shiftLookup.Clear();
-
-				// Dispose services if they support IDisposable
-				if (scheduleApiService is IDisposable d1)
-						d1.Dispose();
-
-				if (shiftApiService is IDisposable d2)
-						d2.Dispose();
-
-				if (referenceDataService is IDisposable d3)
-						d3.Dispose();
-
+				base.Dispose(disposing);
 		}
 }
 

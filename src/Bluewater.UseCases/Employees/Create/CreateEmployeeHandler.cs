@@ -14,13 +14,14 @@ public class CreateEmployeeHandler(IRepository<Employee> repository) : ICommandH
       Employee? existingByUserId = await repository.FirstOrDefaultAsync(new EmployeeByUserIdSpec(request.UserId.Value), cancellationToken);
       if (existingByUserId != null)
       {
+        ApplyEmployeeData(existingByUserId, request);
+
         if (existingByUserId.IsDeleted)
         {
-          ApplyEmployeeData(existingByUserId, request);
           existingByUserId.Restore();
-          await repository.UpdateAsync(existingByUserId, cancellationToken);
         }
 
+        await repository.UpdateAsync(existingByUserId, cancellationToken);
         return existingByUserId.Id;
       }
     }

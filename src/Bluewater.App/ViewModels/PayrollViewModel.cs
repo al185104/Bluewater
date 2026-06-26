@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -251,7 +251,7 @@ public partial class PayrollViewModel : BaseViewModel
 						EditablePayroll = CreateNewPayroll();
 
             await MainThread.InvokeOnMainThreadAsync(() =>
-                Shell.Current.DisplayAlert(
+                Shell.Current.DisplayAlertAsync(
                     "Payroll Saved",
                     $"Saved {savedCount} payroll record(s) for {PeriodRangeDisplay}. Skipped {pendingPayrolls.Count - savedCount} record(s).",
                     "OK"));
@@ -309,7 +309,7 @@ public partial class PayrollViewModel : BaseViewModel
 								}
 
                 await MainThread.InvokeOnMainThreadAsync(() =>
-                    Shell.Current.DisplayAlert("Payroll Submitted", $"Submitted payroll entry for {refreshedPayroll.Name}.", "OK"));
+                    Shell.Current.DisplayAlertAsync("Payroll Submitted", $"Submitted payroll entry for {refreshedPayroll.Name}.", "OK"));
 						}
 
 						await TraceCommandAsync(nameof(SubmitPayrollAsync), new
@@ -346,12 +346,12 @@ public partial class PayrollViewModel : BaseViewModel
 						if (payrollPeriod.Count == 0)
 						{
 								await MainThread.InvokeOnMainThreadAsync(() =>
-										Shell.Current.DisplayAlert("Download", "No payroll records to download.", "Okay"));
+										Shell.Current.DisplayAlertAsync("Download", "No payroll records to download.", "Okay"));
 								return;
 						}
 
 						string chargingName = string.IsNullOrWhiteSpace(ChargingFilter) ? "All" : ChargingFilter;
-						bool confirmed = await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.DisplayAlert(
+						bool confirmed = await MainThread.InvokeOnMainThreadAsync(() => Shell.Current.DisplayAlertAsync(
 								"Download payroll",
 								$"Download {chargingName} payroll records for {PeriodRangeDisplay} to your Downloads folder?",
 								"Yes",
@@ -377,7 +377,7 @@ public partial class PayrollViewModel : BaseViewModel
 						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8).ConfigureAwait(false);
 
 						await MainThread.InvokeOnMainThreadAsync(() =>
-								Shell.Current.DisplayAlert("Download", $"Payroll downloaded to {filePath}", "Okay"));
+								Shell.Current.DisplayAlertAsync("Download", $"Payroll downloaded to {filePath}", "Okay"));
 
 						await TraceCommandAsync(nameof(DownloadPayrollsAsync), new
 						{
@@ -425,12 +425,12 @@ public partial class PayrollViewModel : BaseViewModel
 				if (parsedRows.Count == 0)
 				{
 					await MainThread.InvokeOnMainThreadAsync(() =>
-						Shell.Current.DisplayAlert("Upload SC", "No valid service charge rows were found.", "OK"));
+						Shell.Current.DisplayAlertAsync("Upload SC", "No valid service charge rows were found.", "OK"));
 					return;
 				}
 
 				bool confirmed = await MainThread.InvokeOnMainThreadAsync(() =>
-					Shell.Current.DisplayAlert("Upload SC", $"Upload {parsedRows.Count} service charge entr{(parsedRows.Count == 1 ? "y" : "ies")} for {PeriodRangeDisplay}?", "Yes", "No"));
+					Shell.Current.DisplayAlertAsync("Upload SC", $"Upload {parsedRows.Count} service charge entr{(parsedRows.Count == 1 ? "y" : "ies")} for {PeriodRangeDisplay}?", "Yes", "No"));
 
 				if (!confirmed)
 				{
@@ -446,7 +446,7 @@ public partial class PayrollViewModel : BaseViewModel
 				}
 
 				await MainThread.InvokeOnMainThreadAsync(() =>
-					Shell.Current.DisplayAlert("Upload SC", $"Successfully uploaded {uploadedCount} service charge entr{(uploadedCount == 1 ? "y" : "ies")}.", "OK"));
+					Shell.Current.DisplayAlertAsync("Upload SC", $"Successfully uploaded {uploadedCount} service charge entr{(uploadedCount == 1 ? "y" : "ies")}.", "OK"));
 
 				await RefreshAsync().ConfigureAwait(false);
 			}

@@ -4,8 +4,10 @@ using CommunityToolkit.Mvvm.Input;
 
 namespace Bluewater.App.ViewModels.Base;
 
-public abstract partial class BaseViewModel : ObservableObject
+public abstract partial class BaseViewModel : ObservableObject, IDisposable
 {
+    private bool disposed;
+
     protected BaseViewModel(IActivityTraceService activityTraceService, IExceptionHandlingService exceptionHandlingService)
     {
         ActivityTraceService = activityTraceService;
@@ -46,4 +48,20 @@ public abstract partial class BaseViewModel : ObservableObject
 
 		[RelayCommand]
     public virtual Task InitializeAsync() => Task.CompletedTask;
+
+    public void Dispose()
+    {
+      if (disposed)
+      {
+        return;
+      }
+
+      Dispose(true);
+      disposed = true;
+      GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+    }
 }

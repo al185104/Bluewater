@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Bluewater.App.Enums;
 using Bluewater.App.Interfaces;
@@ -190,7 +190,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				}
 
 				bool confirmed = await MainThread.InvokeOnMainThreadAsync(() =>
-						Shell.Current.DisplayAlert(
+						Shell.Current.DisplayAlertAsync(
 								"Delete Timesheet",
 								"Are you sure you want to delete this timesheet?",
 								"Delete",
@@ -225,8 +225,6 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 								EditableTimesheetEntry blankEntry = CreateBlankEditableTimesheetEntry(timesheet);
 								blankEntry.PropertyChanged += OnEditableTimesheetPropertyChanged;
-                //EditableTimesheets.Add(blankEntry);
-                //InsertEditableTimesheetByDate(blankEntry);
                 EditableTimesheets.Insert(index, blankEntry);
                 OnPropertyChanged(nameof(EditableTimesheets));
 
@@ -319,7 +317,7 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				if (anyUpdated)
 				{
             await MainThread.InvokeOnMainThreadAsync(() =>
-                Shell.Current.DisplayAlert(
+                Shell.Current.DisplayAlertAsync(
                     "Timesheet Updated",
                     "Timesheet has been successfully updated.",
                     "OK"));
@@ -365,31 +363,6 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 
 				SelectedShift = ShiftOptions.FirstOrDefault(s => s.Id == shiftId);
 		}
-
-    private void InsertEditableTimesheetByDate(EditableTimesheetEntry entry)
-    {
-      DateOnly? entryDate = entry.EntryDate;
-
-      int insertIndex = EditableTimesheets.Count;
-      for (int i = 0; i < EditableTimesheets.Count; i++)
-      {
-        DateOnly? currentDate = EditableTimesheets[i].EntryDate;
-        if (entryDate is null)
-        {
-          continue;
-        }
-
-        if (currentDate is null || entryDate > currentDate)
-        {
-          insertIndex = i;
-          break;
-        }
-      }
-
-      EditableTimesheets.Insert(insertIndex, entry);
-      OnPropertyChanged(nameof(EditableTimesheets));
-    }
-
 
     private static EditableTimesheetEntry CreateBlankEditableTimesheetEntry(EditableTimesheetEntry template)
 		{
@@ -441,6 +414,21 @@ public partial class TimesheetDetailsViewModel : BaseViewModel, IQueryAttributab
 				}
 
 				EditableTimesheets.Clear();
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+				if (!disposing)
+				{
+						return;
+				}
+
+				ClearEditableTimesheets();
+				ShiftOptions.Clear();
+				SelectedEditableTimesheet = null;
+				SelectedEmployeeTimesheet = null;
+				SelectedShift = null;
+				base.Dispose(disposing);
 		}
 
 		private void UpdateSelectedEmployeeTimesheetEntry(AttendanceTimesheetSummary updatedTimesheet)

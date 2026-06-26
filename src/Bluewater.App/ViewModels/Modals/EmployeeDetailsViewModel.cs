@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using Bluewater.App.Enums;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
@@ -163,7 +163,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 						if (updated != null) {
               MainThread.BeginInvokeOnMainThread(async() =>
               { 
-                  await Shell.Current.DisplayAlert(
+                  await Shell.Current.DisplayAlertAsync(
                   "Employee Updated",
                   "Employee has been successfully updated.",
                   "OK");
@@ -345,7 +345,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				if (!created)
 				{
             MainThread.BeginInvokeOnMainThread(async () => { 
-                              await Shell.Current.DisplayAlert(
+                              await Shell.Current.DisplayAlertAsync(
                                       "Employee Create Failed",
                                       "Employee create failed. Please check required fields and try again.",
                                       "OK");
@@ -354,7 +354,7 @@ public partial class EmployeeDetailsViewModel : BaseViewModel, IQueryAttributabl
 				}
 
     MainThread.BeginInvokeOnMainThread(async () => { 
-                await Shell.Current.DisplayAlert(
+                await Shell.Current.DisplayAlertAsync(
                         "Employee Created",
                         "Employee has been successfully created.",
                         "OK");

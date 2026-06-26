@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Globalization;
 using System.Text;
@@ -15,7 +15,6 @@ namespace Bluewater.App.ViewModels;
 
 public partial class TimesheetsViewModel : BaseViewModel
 {
-		private const string DefaultDetailsPrimaryActionText = "Save Changes";
 		private const int PageSize = 24;
 
 		private readonly ITimesheetApiService timesheetApiService;
@@ -68,15 +67,6 @@ public partial class TimesheetsViewModel : BaseViewModel
 		public partial DateOnly EndDate { get; set; }
 
 		public string PeriodRangeDisplay => $"{StartDate:MMMM dd} - {EndDate:MMMM dd}";
-
-		//[ObservableProperty]
-		//public partial bool IsDetailsOpen { get; set; }
-
-		//[ObservableProperty]
-		//public partial string DetailsTitle { get; set; } = string.Empty;
-
-		//[ObservableProperty]
-		//public partial string DetailsPrimaryActionText { get; set; } = DefaultDetailsPrimaryActionText;
 
 		[ObservableProperty]
 		public partial EmployeeTimesheetSummary? SelectedEmployeeTimesheet { get; set; }
@@ -339,12 +329,12 @@ public partial class TimesheetsViewModel : BaseViewModel
 
 				if (Timesheets.Count == 0)
 				{
-						await Shell.Current.DisplayAlert("Download", "No timesheets to download.", "Okay");
+						await Shell.Current.DisplayAlertAsync("Download", "No timesheets to download.", "Okay");
 						return;
 				}
 
 				string chargingName = SelectedCharging?.Name ?? "All";
-				bool confirmed = await Shell.Current.DisplayAlert(
+				bool confirmed = await Shell.Current.DisplayAlertAsync(
 						"Download timesheets",
 						$"Download {chargingName} timesheets for {PeriodRangeDisplay} to your Downloads folder?",
 						"Yes",
@@ -415,7 +405,7 @@ public partial class TimesheetsViewModel : BaseViewModel
 						await File.WriteAllTextAsync(filePath, csv.ToString(), Encoding.UTF8).ConfigureAwait(false);
 
 						await MainThread.InvokeOnMainThreadAsync(() =>
-								Shell.Current.DisplayAlert("Download", $"Timesheets downloaded to {filePath}", "Okay"));
+								Shell.Current.DisplayAlertAsync("Download", $"Timesheets downloaded to {filePath}", "Okay"));
 
 						await TraceCommandAsync(nameof(DownloadTimesheetsAsync), new
 						{
@@ -523,7 +513,7 @@ public partial class TimesheetsViewModel : BaseViewModel
 
             MainThread.BeginInvokeOnMainThread(async() =>
             {
-              await Shell.Current.DisplayAlert(
+              await Shell.Current.DisplayAlertAsync(
                         "Timesheets Updated",
                         "Timesheet and attendance have been successfully updated.",
                         "OK");
@@ -962,30 +952,26 @@ public partial class TimesheetsViewModel : BaseViewModel
 				}
 		}
 
-		public void Dispose()
+		protected override void Dispose(bool disposing)
 		{
-				// Unsubscribe PropertyChanged handlers from editable entries
+				if (!disposing)
+				{
+						return;
+				}
+
 				foreach (var entry in EditableTimesheets)
 				{
 						entry.PropertyChanged -= OnEditableTimesheetPropertyChanged;
 				}
 
-				// Clear collections
 				EditableTimesheets.Clear();
 				Timesheets.Clear();
 				Chargings.Clear();
 				PageNumbers.Clear();
 
-				// Reset selections
 				SelectedCharging = null;
 				SelectedEmployeeTimesheet = null;
 				SelectedEditableTimesheet = null;
-
-				// Dispose services if applicable
-				if (timesheetApiService is IDisposable d1)
-						d1.Dispose();
-
-				if (referenceDataService is IDisposable d2)
-						d2.Dispose();
+				base.Dispose(disposing);
 		}
 }

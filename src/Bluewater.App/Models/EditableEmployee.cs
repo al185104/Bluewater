@@ -249,12 +249,12 @@ public partial class EditableEmployee : ObservableObject
 						Level = summary.Level,
 						Image = summary.Image,
 						IsDeleted = summary.IsDeleted,
-						UserId = summary.UserId,
-						PositionId = summary.PositionId,
-						PayId = summary.PayId,
-						TypeId = summary.TypeId,
-						LevelId = summary.LevelId,
-						ChargingId = summary.ChargingId,
+						UserId = EmptyToNull(summary.UserId),
+						PositionId = EmptyToNull(summary.PositionId),
+						PayId = EmptyToNull(summary.PayId),
+						TypeId = EmptyToNull(summary.TypeId),
+						LevelId = EmptyToNull(summary.LevelId),
+						ChargingId = EmptyToNull(summary.ChargingId),
 						CreatedDate = summary.CreatedDate,
 						CreateBy = summary.CreateBy,
 						UpdatedDate = summary.UpdatedDate,
@@ -580,6 +580,13 @@ public partial class EditableEmployee : ObservableObject
 				{
 						return null;
 				}
+		}
+
+		private static Guid? EmptyToNull(Guid? value)
+		{
+				return value is Guid id && id != Guid.Empty
+					? id
+					: null;
 		}
 
 		private static bool IsContactInfoEmpty(UpdateEmployeeContactInfoDto contactInfo)

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Microsoft.Maui.Controls;
@@ -170,15 +170,15 @@ public partial class SlideInEditorView : ContentView
 								PanelBorder.IsVisible = true;
 								PanelBorder.TranslationX = targetWidth;
 								await Task.WhenAll(
-									OverlayLayer.FadeTo(1, AnimationDuration, Easing.SinOut),
-									PanelBorder.TranslateTo(0, 0, AnimationDuration, Easing.SinOut));
+									OverlayLayer.FadeToAsync(1, AnimationDuration, Easing.SinOut),
+									PanelBorder.TranslateToAsync(0, 0, AnimationDuration, Easing.SinOut));
 								InputTransparent = false;
 						}
 						else
 						{
 								await Task.WhenAll(
-									PanelBorder.TranslateTo(targetWidth, 0, AnimationDuration, Easing.SinIn),
-									OverlayLayer.FadeTo(0, AnimationDuration, Easing.SinIn));
+									PanelBorder.TranslateToAsync(targetWidth, 0, AnimationDuration, Easing.SinIn),
+									OverlayLayer.FadeToAsync(0, AnimationDuration, Easing.SinIn));
 								PanelBorder.IsVisible = false;
 								OverlayLayer.InputTransparent = true;
 								OverlayLayer.IsVisible = false;
