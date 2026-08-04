@@ -11,6 +11,7 @@ public enum MainSectionEnum
 		Timesheet,
 		Attendance,
 		Payroll,
+		Profile,
 		Users,
 		Forms,
 		Settings

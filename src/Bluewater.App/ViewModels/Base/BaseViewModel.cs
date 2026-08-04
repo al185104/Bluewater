@@ -38,12 +38,26 @@ public abstract partial class BaseViewModel : ObservableObject, IDisposable
 
     protected Task NavigateAsync(string route)
     {
-      return MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(route));
+      return MainThread.InvokeOnMainThreadAsync(async () =>
+      {
+        Shell? shell = Shell.Current ?? Application.Current?.Windows.FirstOrDefault()?.Page as Shell;
+        if (shell is not null)
+        {
+          await shell.GoToAsync(route);
+        }
+      });
     }
 
     protected Task NavigateAsync(string route, IDictionary<string, object> parameters)
     {
-      return MainThread.InvokeOnMainThreadAsync(() => Shell.Current.GoToAsync(route, parameters));
+      return MainThread.InvokeOnMainThreadAsync(async () =>
+      {
+        Shell? shell = Shell.Current ?? Application.Current?.Windows.FirstOrDefault()?.Page as Shell;
+        if (shell is not null)
+        {
+          await shell.GoToAsync(route, parameters);
+        }
+      });
     }
 
 		[RelayCommand]

@@ -15,6 +15,7 @@ public partial class ScheduleViewModel : BaseViewModel
 {
 		private const int PageSize = 100;
 		private readonly IScheduleApiService scheduleApiService;
+		private readonly IEmployeeApiService employeeApiService;
 		private readonly IShiftApiService shiftApiService;
 		private readonly IReferenceDataService referenceDataService;
 
@@ -29,6 +30,7 @@ public partial class ScheduleViewModel : BaseViewModel
 
 		public ScheduleViewModel(
 			IScheduleApiService scheduleApiService,
+			IEmployeeApiService employeeApiService,
 			IShiftApiService shiftApiService,
 			IReferenceDataService referenceDataService,
 			IActivityTraceService activityTraceService,
@@ -36,6 +38,7 @@ public partial class ScheduleViewModel : BaseViewModel
 			: base(activityTraceService, exceptionHandlingService)
 		{
 				this.scheduleApiService = scheduleApiService;
+				this.employeeApiService = employeeApiService;
 				this.shiftApiService = shiftApiService;
 				this.referenceDataService = referenceDataService;
 
@@ -84,6 +87,7 @@ public partial class ScheduleViewModel : BaseViewModel
 						await MainThread.InvokeOnMainThreadAsync(() =>
 						{
 								IsBusy = true;
+								SelectedTenant = TenantPreferences.GetSelectedTenant();
 								SetWeek(DateOnly.FromDateTime(DateTime.Today));
 								LoadChargings();
 						});
@@ -291,11 +295,12 @@ public partial class ScheduleViewModel : BaseViewModel
 				}
 
 				IsBusy = true;
+				SelectedTenant = TenantPreferences.GetSelectedTenant();
 
 				var importDates = rows.SelectMany(row => row.ShiftsByDate.Keys).ToList();
 				DateOnly importStartDate = importDates.Min();
 				DateOnly importEndDate = importDates.Max();
-				IReadOnlyList<EmployeeScheduleSummary> schedules = await LoadDepartmentSchedulesForDateRangeAsync(SelectedCharging, importStartDate, importEndDate).ConfigureAwait(false);
+				IReadOnlyList<EmployeeScheduleSummary> schedules = await LoadImportSchedulesForDateRangeAsync(rows, importStartDate, importEndDate).ConfigureAwait(false);
 				var employeesByBarcode = schedules
 					.GroupBy(e => e.Barcode.Trim(), StringComparer.OrdinalIgnoreCase)
 					.ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
@@ -349,7 +354,7 @@ public partial class ScheduleViewModel : BaseViewModel
 					WeekEnd = CurrentWeekEnd,
 					ImportStartDate = importStartDate,
 					ImportEndDate = importEndDate,
-					Charging = SelectedCharging.Name,
+					Tenant = SelectedTenant.ToString(),
 					ImportedRows = successCount,
 					SkippedRows = skippedRows,
 					FailedUpdates = failedUpdates
@@ -441,6 +446,98 @@ public partial class ScheduleViewModel : BaseViewModel
 			return all;
 		}
 
+		private async Task<IReadOnlyList<EmployeeScheduleSummary>> LoadImportSchedulesForDateRangeAsync(
+			IReadOnlyList<ScheduleMatrixCsvRow> rows,
+			DateOnly startDate,
+			DateOnly endDate)
+		{
+			HashSet<string> importedBarcodes = rows
+				.Select(row => row.Barcode.Trim())
+				.Where(barcode => !string.IsNullOrWhiteSpace(barcode))
+				.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+			if (importedBarcodes.Count == 0)
+			{
+				return [];
+			}
+
+			IReadOnlyList<EmployeeSummary> tenantEmployees = await LoadAllEmployeesForTenantAsync(SelectedTenant).ConfigureAwait(false);
+
+			Dictionary<string, EmployeeSummary> importedEmployeesByBarcode = tenantEmployees
+				.Where(employee => importedBarcodes.Contains(employee.User.Username.Trim()))
+				.GroupBy(employee => employee.User.Username.Trim(), StringComparer.OrdinalIgnoreCase)
+				.ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+
+			if (importedEmployeesByBarcode.Count == 0)
+			{
+				return [];
+			}
+
+			List<EmployeeScheduleSummary> schedules = new();
+			IReadOnlyList<string> chargingNames = importedEmployeesByBarcode.Values
+				.Select(employee => employee.Charging)
+				.Where(charging => !string.IsNullOrWhiteSpace(charging))
+				.Select(charging => charging!)
+				.Distinct(StringComparer.OrdinalIgnoreCase)
+				.ToList();
+
+			foreach (string chargingName in chargingNames)
+			{
+				IReadOnlyList<EmployeeScheduleSummary> chargingSchedules = await LoadAllSchedulesForDateRangeAsync(chargingName, startDate, endDate).ConfigureAwait(false);
+				schedules.AddRange(chargingSchedules.Where(schedule => importedEmployeesByBarcode.ContainsKey(schedule.Barcode.Trim())));
+			}
+
+			Dictionary<string, EmployeeScheduleSummary> schedulesByBarcode = schedules
+				.GroupBy(schedule => schedule.Barcode.Trim(), StringComparer.OrdinalIgnoreCase)
+				.ToDictionary(group => group.Key, group => group.First(), StringComparer.OrdinalIgnoreCase);
+
+			foreach ((string barcode, EmployeeSummary employee) in importedEmployeesByBarcode)
+			{
+				if (schedulesByBarcode.ContainsKey(barcode))
+				{
+					continue;
+				}
+
+				schedules.Add(new EmployeeScheduleSummary
+				{
+					EmployeeId = employee.Id,
+					Barcode = employee.User.Username,
+					Name = employee.FullName,
+					Section = employee.Section ?? string.Empty,
+					Charging = employee.Charging ?? string.Empty
+				});
+			}
+
+			return schedules;
+		}
+
+		private async Task<IReadOnlyList<EmployeeSummary>> LoadAllEmployeesForTenantAsync(TenantDto tenant)
+		{
+			var all = new List<EmployeeSummary>();
+			int skip = 0;
+
+			while (true)
+			{
+				PagedResult<EmployeeSummary> page = await employeeApiService
+					.GetEmployeesAsync(skip, PageSize, tenant: tenant)
+					.ConfigureAwait(false);
+
+				if (page.Items.Count == 0)
+				{
+					break;
+				}
+
+				all.AddRange(page.Items);
+				skip += page.Items.Count;
+
+				if (all.Count >= page.TotalCount)
+				{
+					break;
+				}
+			}
+
+			return all;
+		}
 		private IReadOnlyList<string> GetDepartmentChargingNames(ChargingSummary selectedCharging)
 		{
 			if (selectedCharging.DepartmentId is not Guid departmentId)

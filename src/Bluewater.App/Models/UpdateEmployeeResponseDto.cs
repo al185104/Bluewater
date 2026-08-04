@@ -85,6 +85,7 @@ public class UserRecordDto
   public Credential Credential { get; set; }
   public Guid? SupervisedGroup { get; set; }
   public bool IsGlobalSupervisor { get; set; }
+  public EmployeeDto? Employee { get; set; }
 }
 
 public class PayRecordDto

@@ -218,7 +218,7 @@ public class EmployeeApiService(IApiClient apiClient) : IEmployeeApiService
 				return $"Employees?{query}";
 		}
 
-		private static EmployeeSummary MapToSummary(EmployeeDto dto)
+		public static EmployeeSummary MapToSummary(EmployeeDto dto)
 		{
 				return new EmployeeSummary
 				{

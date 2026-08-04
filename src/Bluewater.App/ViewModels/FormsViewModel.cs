@@ -2,8 +2,10 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Reflection;
 using Bluewater.App.Extensions;
+using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
+using Bluewater.App.Services;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,16 +16,19 @@ public partial class FormsViewModel : BaseViewModel
 {
   private readonly IDeductionApiService deductionApiService;
   private readonly IEmployeeApiService employeeApiService;
+  private readonly IUserApiService userApiService;
   private readonly IReferenceDataService referenceDataService;
   private readonly List<DeductionSummary> allDeductions = [];
   private readonly Dictionary<Guid, HashSet<Guid>> employeeIdsByCharging = [];
   private bool hasInitialized;
   private bool suppressSelectedChargingChanged;
+  private bool suppressSearchTextChanged;
   private bool hasLoadedEmployeeChargingMap;
 
   public FormsViewModel(
     IDeductionApiService deductionApiService,
     IEmployeeApiService employeeApiService,
+    IUserApiService userApiService,
     IReferenceDataService referenceDataService,
     IActivityTraceService activityTraceService,
     IExceptionHandlingService exceptionHandlingService)
@@ -31,6 +36,7 @@ public partial class FormsViewModel : BaseViewModel
   {
     this.deductionApiService = deductionApiService;
     this.employeeApiService = employeeApiService;
+    this.userApiService = userApiService;
     this.referenceDataService = referenceDataService;
 
     EditableDeduction = CreateNewDeduction();
@@ -63,6 +69,10 @@ public partial class FormsViewModel : BaseViewModel
   [ObservableProperty]
   public partial DeductionTypeOption? SelectedDeductionType { get; set; }
 
+  public bool IsSelfServiceMode => !LoginSession.IsManagerOrAbove;
+  public bool CanSelectEmployeeFilters => !IsSelfServiceMode;
+  public bool CanReviewApplications => LoginSession.IsManagerOrAbove;
+
   public override async Task InitializeAsync()
   {
     if (hasInitialized)
@@ -73,6 +83,7 @@ public partial class FormsViewModel : BaseViewModel
     hasInitialized = true;
     await TraceCommandAsync(nameof(InitializeAsync));
     await LoadChargingsAsync();
+    await ApplySelfServiceScopeAsync();
     await LoadDeductionsAsync();
   }
 
@@ -83,6 +94,7 @@ public partial class FormsViewModel : BaseViewModel
     {
       await TraceCommandAsync(nameof(RefreshAsync));
       await LoadChargingsAsync();
+      await ApplySelfServiceScopeAsync();
       await LoadDeductionsAsync();
     }
     catch (Exception ex)
@@ -169,6 +181,17 @@ public partial class FormsViewModel : BaseViewModel
 
   partial void OnSearchTextChanged(string value)
   {
+    if (suppressSearchTextChanged)
+    {
+      return;
+    }
+
+    if (IsSelfServiceMode)
+    {
+      SearchText = SelectedEmployee?.FullName ?? SearchText;
+      return;
+    }
+
     _ = LoadSearchedEmployeeAsync(value);
     ApplyDeductionFilter();
   }
@@ -388,6 +411,50 @@ public partial class FormsViewModel : BaseViewModel
     {
       ExceptionHandlingService.Handle(ex, "Searching employee");
     }
+  }
+
+  private async Task ApplySelfServiceScopeAsync()
+  {
+    if (!IsSelfServiceMode)
+    {
+      return;
+    }
+
+    EmployeeSummary? employee = await FindLoggedInEmployeeAsync();
+    if (employee is null)
+    {
+      return;
+    }
+
+    await MainThread.InvokeOnMainThreadAsync(() =>
+    {
+      suppressSearchTextChanged = true;
+      try
+      {
+        Employees.Clear();
+        Employees.Add(employee);
+        RegisterEmployeeCharging(employee);
+        SelectedEmployee = employee;
+        SearchText = employee.FullName;
+        TrySelectChargingForEmployee(employee);
+      }
+      finally
+      {
+        suppressSearchTextChanged = false;
+      }
+    });
+  }
+
+  private async Task<EmployeeSummary?> FindLoggedInEmployeeAsync()
+  {
+    Guid userId = LoginSession.CurrentUserId;
+    if (userId == Guid.Empty)
+    {
+      return null;
+    }
+
+    UserRecordDto? user = await userApiService.GetUserByIdAsync(userId);
+    return user?.Employee is null ? null : EmployeeApiService.MapToSummary(user.Employee);
   }
 
   private void ApplyDeductionFilter()

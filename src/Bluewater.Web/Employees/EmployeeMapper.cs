@@ -3,7 +3,7 @@ using Bluewater.UseCases.Employees;
 
 namespace Bluewater.Web.Employees;
 
-internal static class EmployeeMapper
+public static class EmployeeMapper
 {
   public static EmployeeRecord ToRecord(EmployeeDTO dto)
   {

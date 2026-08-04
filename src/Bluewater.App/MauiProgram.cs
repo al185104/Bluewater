@@ -142,6 +142,7 @@ public static class MauiProgram
 				builder.Services.AddTransient<LeavesView>();
 				builder.Services.AddTransient<TimesheetView>();
 				builder.Services.AddTransient<PayrollView>();
+				builder.Services.AddTransient<ProfileView>();
 				builder.Services.AddTransient<AttendanceView>();
 				builder.Services.AddTransient<UsersView>();
 				builder.Services.AddTransient<SettingsView>();

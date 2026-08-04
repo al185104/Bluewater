@@ -28,7 +28,9 @@
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
                     Command="{Binding ToggleMenuCommand}"/>
-            <Grid ColumnDefinitions="4,*" ColumnSpacing="0">
+            <Grid ColumnDefinitions="4,*"
+                  ColumnSpacing="0"
+                  IsVisible="{Binding IsDashboardVisible}">
                 <BoxView Color="{StaticResource Primary}"
                          IsVisible="False">
                     <BoxView.Triggers>
@@ -52,7 +54,8 @@
                         CommandParameter="{x:Static enum:MainSectionEnum.Dashboard}" />
             </Grid>
             <Grid ColumnDefinitions="4,*"
-                  ColumnSpacing="0">
+                  ColumnSpacing="0"
+                  IsVisible="{Binding IsEmployeesVisible}">
                 <BoxView Color="{StaticResource Primary}"
                          IsVisible="False">
                     <BoxView.Triggers>
@@ -76,7 +79,8 @@
                         CommandParameter="{x:Static enum:MainSectionEnum.Employees}" />
             </Grid>
             <Grid ColumnDefinitions="4,*"
-                  ColumnSpacing="0">
+                  ColumnSpacing="0"
+                  IsVisible="{Binding IsShiftsVisible}">
                 <BoxView Color="{StaticResource Primary}"
                          IsVisible="False">
                     <BoxView.Triggers>
@@ -100,7 +104,8 @@
                         CommandParameter="{x:Static enum:MainSectionEnum.Shifts}" />
             </Grid>
             <Grid ColumnDefinitions="4,*"
-                  ColumnSpacing="0">
+                  ColumnSpacing="0"
+                  IsVisible="{Binding IsSchedulesVisible}">
                 <BoxView Color="{StaticResource Primary}"
                          IsVisible="False">
                     <BoxView.Triggers>
@@ -124,7 +129,7 @@
                         CommandParameter="{x:Static enum:MainSectionEnum.Schedules}" />
             </Grid>
             <Grid ColumnDefinitions="4,*"
-                  IsVisible="False"
+                  IsVisible="{Binding IsMealCreditVisible}"
                   ColumnSpacing="0">
                 <BoxView Color="{StaticResource Primary}"
                          IsVisible="False">
@@ -149,7 +154,8 @@
                         CommandParameter="{x:Static enum:MainSectionEnum.MealCredit}" />
             </Grid>
             <Grid ColumnDefinitions="4,*"
-                  ColumnSpacing="0">
+                  ColumnSpacing="0"
+                  IsVisible="{Binding IsLeavesVisible}">
                 <BoxView Color="{StaticResource Primary}"
                          IsVisible="False">
                     <BoxView.Triggers>
@@ -173,7 +179,8 @@
                         CommandParameter="{x:Static enum:MainSectionEnum.Leaves}" />
             </Grid>
             <Grid ColumnDefinitions="4,*"
-                  ColumnSpacing="0">
+                  ColumnSpacing="0"
+                  IsVisible="{Binding IsFormsVisible}">
                 <BoxView Color="{StaticResource Primary}"
                          IsVisible="False">
                     <BoxView.Triggers>
@@ -197,7 +204,8 @@
                         CommandParameter="{x:Static enum:MainSectionEnum.Forms}" />
             </Grid>
             <Grid ColumnDefinitions="4,*"
-                  ColumnSpacing="0">
+                  ColumnSpacing="0"
+                  IsVisible="{Binding IsTimesheetVisible}">
                 <BoxView Color="{StaticResource Primary}"
                          IsVisible="False">
                     <BoxView.Triggers>
@@ -230,7 +238,8 @@
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Attendance}" />-->
             <Grid ColumnDefinitions="4,*"
-                  ColumnSpacing="0">
+                  ColumnSpacing="0"
+                  IsVisible="{Binding IsPayrollVisible}">
                 <BoxView Color="{StaticResource Primary}"
                          IsVisible="False">
                     <BoxView.Triggers>
@@ -252,6 +261,31 @@
                         BackgroundColor="Transparent"
                         Command="{Binding NavigateCommand}"
                         CommandParameter="{x:Static enum:MainSectionEnum.Payroll}" />
+            </Grid>
+            <Grid ColumnDefinitions="4,*"
+                  ColumnSpacing="0"
+                  IsVisible="{Binding IsProfileVisible}">
+                <BoxView Color="{StaticResource Primary}"
+                         IsVisible="False">
+                    <BoxView.Triggers>
+                        <DataTrigger TargetType="BoxView"
+                                     Binding="{Binding CurrentSection}"
+                                     Value="{x:Static enum:MainSectionEnum.Profile}">
+                            <Setter Property="IsVisible"
+                                    Value="True" />
+                        </DataTrigger>
+                    </BoxView.Triggers>
+                </BoxView>
+                <Button x:Name="btnProfile"
+                        Grid.Column="1"
+                        ImageSource="{FontImage Glyph={x:Static helpers:Icon.User}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                        Text="Profile"
+                        HorizontalOptions="Start"
+                        TextColor="{StaticResource TextPrimaryColor}"
+                        ContentLayout="Left, 20"
+                        BackgroundColor="Transparent"
+                        Command="{Binding NavigateCommand}"
+                        CommandParameter="{x:Static enum:MainSectionEnum.Profile}" />
             </Grid>
         </VerticalStackLayout>
         
@@ -281,6 +315,15 @@
                     Padding="14, 10, 0, 10"
                     Clicked="btnWhatsNew_Clicked"
                     BackgroundColor="Transparent" />
+            <Button x:Name="btnLogout"
+                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.LogOut}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
+                    Text="Logout"
+                    HorizontalOptions="Start"
+                    TextColor="{StaticResource TextPrimaryColor}"
+                    ContentLayout="Left, 20"
+                    Padding="14, 10, 0, 10"
+                    Command="{Binding LogoutCommand}"
+                    BackgroundColor="Transparent" />
             <Button x:Name="btnSettings"
                     ImageSource="{FontImage Glyph={x:Static helpers:Icon.Settings}, FontFamily=Icons, Size=16, Color={StaticResource TextPrimaryColor}}"
                     Text="Settings"
@@ -288,6 +331,7 @@
                     TextColor="{StaticResource TextPrimaryColor}"
                     ContentLayout="Left, 20"
                     BackgroundColor="Transparent"
+                    IsVisible="{Binding IsSettingsVisible}"
                     Command="{Binding NavigateCommand}"
                     CommandParameter="{x:Static enum:MainSectionEnum.Settings}" />
             <Label Padding="18,0,18,5"

@@ -25,6 +25,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 		private IReadOnlyList<EmployeeSummary> cachedEmployees = Array.Empty<EmployeeSummary>();
 		private TenantDto? cachedEmployeesTenant;
 		private bool hasInitialized;
+		private bool isDisposed;
 		private bool suppressSelectionChanged;
 
 		public DashboardContentViewModel(
@@ -115,8 +116,15 @@ public partial class DashboardContentViewModel : BaseViewModel
 		[ObservableProperty]
 		public partial decimal OtherLeaveTypesDays { get; set; }
 
+		public bool CanChangeDashboardInputs => LoginSession.IsManagerOrAbove;
+
 		public override async Task InitializeAsync()
 		{
+				if (isDisposed)
+				{
+						return;
+				}
+
 				if (hasInitialized)
 				{
 						return;
@@ -175,7 +183,7 @@ public partial class DashboardContentViewModel : BaseViewModel
 				}
 		}
 
-		private bool CanChangePeriod() => !IsBusy;
+		private bool CanChangePeriod() => !IsBusy && CanChangeDashboardInputs;
 
 		private async Task EnsureFilterOptionsAsync(CancellationToken cancellationToken = default)
 		{
@@ -221,6 +229,11 @@ public partial class DashboardContentViewModel : BaseViewModel
 
 		private async Task LoadDashboardAsync(CancellationToken cancellationToken = default)
 		{
+				if (isDisposed)
+				{
+						return;
+				}
+
 				CancelPendingDashboardLoad();
 				using CancellationTokenSource linkedCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
 				dashboardLoadCancellationTokenSource = linkedCancellationTokenSource;
@@ -230,6 +243,11 @@ public partial class DashboardContentViewModel : BaseViewModel
 				{
 						await dashboardLoadSemaphore.WaitAsync(linkedCancellationTokenSource.Token).ConfigureAwait(false);
 						lockAcquired = true;
+						if (isDisposed)
+						{
+								return;
+						}
+
 						await MainThread.InvokeOnMainThreadAsync(() =>
 						{
 								IsBusy = true;
@@ -261,6 +279,10 @@ public partial class DashboardContentViewModel : BaseViewModel
 				{
 						// A newer filter selection superseded this load.
 				}
+				catch (ObjectDisposedException) when (isDisposed)
+				{
+						// Logout can dispose the view model while a dashboard load is still unwinding.
+				}
 				catch (Exception ex)
 				{
 						ExceptionHandlingService.Handle(ex, "Loading dashboard information");
@@ -277,11 +299,14 @@ public partial class DashboardContentViewModel : BaseViewModel
 								dashboardLoadSemaphore.Release();
 						}
 
-						await MainThread.InvokeOnMainThreadAsync(() =>
+						if (!isDisposed)
 						{
-								IsBusy = false;
-								RaisePeriodNavigationState();
-						});
+								await MainThread.InvokeOnMainThreadAsync(() =>
+								{
+										IsBusy = false;
+										RaisePeriodNavigationState();
+								});
+						}
 				}
 		}
 
@@ -806,10 +831,9 @@ public partial class DashboardContentViewModel : BaseViewModel
 						return;
 				}
 
+				isDisposed = true;
 				CancelPendingDashboardLoad();
-				dashboardLoadCancellationTokenSource?.Dispose();
 				dashboardLoadCancellationTokenSource = null;
-				dashboardLoadSemaphore.Dispose();
 				ClearPayrollCache();
 				cachedEmployees = Array.Empty<EmployeeSummary>();
 				DepartmentOptions.Clear();

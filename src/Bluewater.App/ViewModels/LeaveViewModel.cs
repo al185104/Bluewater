@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using Bluewater.App.Extensions;
+using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
+using Bluewater.App.Services;
 using Bluewater.App.ViewModels.Base;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -12,16 +14,19 @@ public partial class LeaveViewModel : BaseViewModel
 {
   private readonly ILeaveApiService leaveApiService;
   private readonly IEmployeeApiService employeeApiService;
+  private readonly IUserApiService userApiService;
   private readonly IReferenceDataService referenceDataService;
   private readonly List<LeaveSummary> allLeaves = [];
   private readonly Dictionary<Guid, HashSet<Guid>> employeeIdsByCharging = [];
   private bool hasInitialized;
   private bool suppressSelectedChargingChanged;
+  private bool suppressSearchTextChanged;
   private bool hasLoadedEmployeeChargingMap;
 
   public LeaveViewModel(
     ILeaveApiService leaveApiService,
     IEmployeeApiService employeeApiService,
+    IUserApiService userApiService,
     IReferenceDataService referenceDataService,
     IActivityTraceService activityTraceService,
     IExceptionHandlingService exceptionHandlingService)
@@ -29,6 +34,7 @@ public partial class LeaveViewModel : BaseViewModel
   {
     this.leaveApiService = leaveApiService;
     this.employeeApiService = employeeApiService;
+    this.userApiService = userApiService;
     this.referenceDataService = referenceDataService;
     EditableLeave = CreateNewLeave();
   }
@@ -59,6 +65,10 @@ public partial class LeaveViewModel : BaseViewModel
   [ObservableProperty]
   public partial LeaveCreditSummary? SelectedLeaveCredit { get; set; }
 
+  public bool IsSelfServiceMode => !LoginSession.IsManagerOrAbove;
+  public bool CanSelectEmployeeFilters => !IsSelfServiceMode;
+  public bool CanReviewApplications => LoginSession.IsManagerOrAbove;
+
   public override async Task InitializeAsync()
   {
     if (hasInitialized)
@@ -70,6 +80,7 @@ public partial class LeaveViewModel : BaseViewModel
     await TraceCommandAsync(nameof(InitializeAsync));
     await LoadReferenceDataAsync();
     await LoadChargingsAsync();
+    await ApplySelfServiceScopeAsync();
     await LoadLeavesAsync();
   }
 
@@ -81,6 +92,7 @@ public partial class LeaveViewModel : BaseViewModel
       await TraceCommandAsync(nameof(RefreshAsync));
       await LoadReferenceDataAsync();
       await LoadChargingsAsync();
+      await ApplySelfServiceScopeAsync();
       await LoadLeavesAsync();
     }
     catch (Exception ex)
@@ -210,6 +222,17 @@ public partial class LeaveViewModel : BaseViewModel
 
   partial void OnSearchTextChanged(string value)
   {
+    if (suppressSearchTextChanged)
+    {
+      return;
+    }
+
+    if (IsSelfServiceMode)
+    {
+      SearchText = SelectedEmployee?.FullName ?? SearchText;
+      return;
+    }
+
     _ = LoadSearchedEmployeeAsync(value);
     _ = ApplyLeaveFilterAsync();
   }
@@ -341,6 +364,50 @@ public partial class LeaveViewModel : BaseViewModel
     {
       ExceptionHandlingService.Handle(ex, "Searching employee");
     }
+  }
+
+  private async Task ApplySelfServiceScopeAsync()
+  {
+    if (!IsSelfServiceMode)
+    {
+      return;
+    }
+
+    EmployeeSummary? employee = await FindLoggedInEmployeeAsync();
+    if (employee is null)
+    {
+      return;
+    }
+
+    await MainThread.InvokeOnMainThreadAsync(() =>
+    {
+      suppressSearchTextChanged = true;
+      try
+      {
+        Employees.Clear();
+        Employees.Add(employee);
+        RegisterEmployeeCharging(employee);
+        SelectedEmployee = employee;
+        SearchText = employee.FullName;
+        TrySelectChargingForEmployee(employee);
+      }
+      finally
+      {
+        suppressSearchTextChanged = false;
+      }
+    });
+  }
+
+  private async Task<EmployeeSummary?> FindLoggedInEmployeeAsync()
+  {
+    Guid userId = LoginSession.CurrentUserId;
+    if (userId == Guid.Empty)
+    {
+      return null;
+    }
+
+    UserRecordDto? user = await userApiService.GetUserByIdAsync(userId);
+    return user?.Employee is null ? null : EmployeeApiService.MapToSummary(user.Employee);
   }
 
   private async Task UpdateLeaveStatusAsync(LeaveSummary? leave, ApplicationStatusDto status)

@@ -1,9 +1,11 @@
 using System.Diagnostics.CodeAnalysis;
 using Bluewater.App.Exceptions;
+using Bluewater.App.Helpers;
 using Bluewater.App.Interfaces;
 using Bluewater.App.Models;
 using Bluewater.App.ViewModels.Base;
 using Bluewater.App.Views;
+using Bluewater.Core.UserAggregate.Enum;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Maui.Storage;
@@ -137,8 +139,10 @@ public partial class LoginViewModel : BaseViewModel
         if(providedUsername.Equals("hrisadmin", StringComparison.InvariantCultureIgnoreCase) 
           && providedPassword.Equals("@Maribago2023", StringComparison.InvariantCultureIgnoreCase))
         {
+            LoginSession.SetCurrentUser(providedUsername, Credential.SuperAdmin);
             await TraceCommandAsync("Login with admin rights.", new { Target = nameof(HomePage) }).ConfigureAwait(false);
             await NavigateAsync($"//{nameof(HomePage)}");
+            return;
         }
 
 				IReadOnlyList<UserRecordDto> users = await userApiService.GetUsersAsync().ConfigureAwait(false);
@@ -152,15 +156,6 @@ public partial class LoginViewModel : BaseViewModel
 						return;
 				}
 
-        bool isAuthorizedCredential = (int)user.Credential >= 7;
-        if (!isAuthorizedCredential)
-        {
-          await MainThread.InvokeOnMainThreadAsync(() =>
-            Shell.Current.DisplayAlertAsync("Login failed", "You do not have permission to access this application.", "Okay"));
-          return;
-        }
-
-
         Preferences.Set(RememberSignInKey, RememberSignIn);
         if (!RememberSignIn)
         {
@@ -172,6 +167,7 @@ public partial class LoginViewModel : BaseViewModel
             StoreCredentials();
         }
 
+        LoginSession.SetCurrentUser(providedUsername, user.Credential, user.Id);
         await TraceCommandAsync("Login", new { Target = nameof(HomePage) }).ConfigureAwait(false);
 				await NavigateAsync($"//{nameof(HomePage)}");
 		}

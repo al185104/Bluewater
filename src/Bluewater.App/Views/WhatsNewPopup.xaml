@@ -36,7 +36,7 @@
                            FontAttributes="Bold"
                            FontSize="22"
                            TextColor="#1F2933" />
-                    <Label Text="Recent updates from the master branch"
+                    <Label Text="Recent app updates"
                            FontSize="13"
                            TextColor="#52616B" />
                 </VerticalStackLayout>
@@ -113,7 +113,7 @@
                   Padding="24,16"
                   BackgroundColor="#F7FAFC"
                   ColumnDefinitions="*,Auto">
-                <Label Text="Showing the latest 10 master branch changes."
+                <Label Text="Showing the latest 10 app updates."
                        FontSize="12"
                        TextColor="#829AB1"
                        VerticalOptions="Center" />

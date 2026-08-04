@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:Bluewater.App.ViewModels"
+             xmlns:helpers="clr-namespace:Bluewater.App.Helpers"
+             x:Class="Bluewater.App.Views.Controls.ProfileView"
+             x:DataType="vm:ProfileViewModel"
+             Loaded="ContentView_Loaded"
+             Background="{StaticResource CollectionBackgroundBrush}">
+    <Grid Padding="24"
+          RowDefinitions="Auto,*">
+        <Grid Grid.Row="0"
+              ColumnDefinitions="*,Auto"
+              ColumnSpacing="16">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="{Binding DisplayName}"
+                       FontSize="24"
+                       FontAttributes="Bold" />
+                <Label Text="{Binding Username, StringFormat='User: {0}'}"
+                       TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="{x:Static helpers:Icon.RefreshCcw}"
+                    FontFamily="Icons"
+                    VerticalOptions="Center"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Command="{Binding RefreshCommand}" />
+        </Grid>
+
+        <ScrollView Grid.Row="1"
+                    Margin="0,18,0,0">
+            <VerticalStackLayout Spacing="14">
+                <Border StrokeShape="RoundRectangle 5 5 5 5"
+                        Padding="18">
+                    <Grid ColumnDefinitions="*,*,*,*"
+                          RowDefinitions="Auto,Auto,Auto"
+                          ColumnSpacing="20"
+                          RowSpacing="10">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="Email"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Label Text="{Binding EmailDisplay}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="1"
+                                             Spacing="2">
+                            <Label Text="Mobile"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Label Text="{Binding MobileDisplay}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="2"
+                                             Spacing="2">
+                            <Label Text="Tenant"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Label Text="{Binding TenantDisplay}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Column="3"
+                                             Spacing="2">
+                            <Label Text="Status"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Label Text="{Binding StatusDisplay}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Row="1"
+                                             Spacing="2">
+                            <Label Text="Position"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Label Text="{Binding PositionDisplay}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Row="1"
+                                             Grid.Column="1"
+                                             Spacing="2">
+                            <Label Text="Department"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Label Text="{Binding DepartmentDisplay}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Row="1"
+                                             Grid.Column="2"
+                                             Spacing="2">
+                            <Label Text="Section"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Label Text="{Binding SectionDisplay}" />
+                        </VerticalStackLayout>
+                        <VerticalStackLayout Grid.Row="1"
+                                             Grid.Column="3"
+                                             Spacing="2">
+                            <Label Text="Type / Level"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Label Text="{Binding TypeLevelDisplay}" />
+                        </VerticalStackLayout>
+
+                        <VerticalStackLayout Grid.Row="2"
+                                             Spacing="2">
+                            <Label Text="Date hired"
+                                   FontSize="12"
+                                   TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                            <Label Text="{Binding DateHiredDisplay}" />
+                        </VerticalStackLayout>
+                    </Grid>
+                </Border>
+
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="14">
+                    <Border StrokeShape="RoundRectangle 5 5 5 5"
+                            Padding="16">
+                        <Grid RowDefinitions="Auto,*"
+                              RowSpacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Leave Balance"
+                                       FontSize="18"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding LeaveBalanceCount}" />
+                            </Grid>
+                            <CollectionView Grid.Row="1"
+                                            ItemsSource="{Binding LeaveBalances}">
+                                <CollectionView.EmptyView>
+                                    <Label Text="{Binding EmptyMessage}"
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center" />
+                                </CollectionView.EmptyView>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ProfileLeaveBalance">
+                                        <Grid Padding="0,8"
+                                              ColumnDefinitions="*,80,80,80"
+                                              ColumnSpacing="10">
+                                            <Label Text="{Binding LeaveCreditName}" />
+                                            <Label Grid.Column="1"
+                                                   Text="{Binding Entitled, StringFormat='{}{0:N1}'}"
+                                                   HorizontalTextAlignment="End" />
+                                            <Label Grid.Column="2"
+                                                   Text="{Binding Used, StringFormat='{}{0:N1}'}"
+                                                   HorizontalTextAlignment="End" />
+                                            <Label Grid.Column="3"
+                                                   Text="{Binding Remaining, StringFormat='{}{0:N1}'}"
+                                                   HorizontalTextAlignment="End"
+                                                   FontAttributes="Bold" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                                <CollectionView.Header>
+                                    <Grid Padding="0,0,0,6"
+                                          ColumnDefinitions="*,80,80,80"
+                                          ColumnSpacing="10">
+                                        <Label Text="Type" />
+                                        <Label Grid.Column="1"
+                                               Text="Entitled"
+                                               HorizontalTextAlignment="End" />
+                                        <Label Grid.Column="2"
+                                               Text="Used"
+                                               HorizontalTextAlignment="End" />
+                                        <Label Grid.Column="3"
+                                               Text="Balance"
+                                               HorizontalTextAlignment="End" />
+                                    </Grid>
+                                </CollectionView.Header>
+                            </CollectionView>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            StrokeShape="RoundRectangle 5 5 5 5"
+                            Padding="16">
+                        <Grid RowDefinitions="Auto,*"
+                              RowSpacing="10">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="Filed Forms"
+                                       FontSize="18"
+                                       FontAttributes="Bold" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding FiledFormCount}" />
+                            </Grid>
+                            <CollectionView Grid.Row="1"
+                                            ItemsSource="{Binding FiledForms}">
+                                <CollectionView.EmptyView>
+                                    <Label Text="No filed forms found."
+                                           HorizontalTextAlignment="Center"
+                                           VerticalTextAlignment="Center" />
+                                </CollectionView.EmptyView>
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:ProfileFiledForm">
+                                        <Border StrokeShape="RoundRectangle 5 5 5 5"
+                                                Padding="10"
+                                                Margin="0,0,0,8">
+                                            <Grid ColumnDefinitions="*,Auto"
+                                                  RowDefinitions="Auto,Auto"
+                                                  ColumnSpacing="10">
+                                                <Label Text="{Binding Description}"
+                                                       FontAttributes="Bold" />
+                                                <Label Grid.Column="1"
+                                                       Text="{Binding Status}"
+                                                       HorizontalTextAlignment="End" />
+                                                <Label Grid.Row="1"
+                                                       Text="{Binding FormType}"
+                                                       FontSize="12"
+                                                       TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                                                <Label Grid.Row="1"
+                                                       Grid.Column="1"
+                                                       Text="{Binding DateRange}"
+                                                       FontSize="12"
+                                                       HorizontalTextAlignment="End"
+                                                       TextColor="{AppThemeBinding Light={StaticResource Gray300}, Dark={StaticResource Gray600}}" />
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <ActivityIndicator Grid.RowSpan="2"
+                           IsRunning="{Binding IsBusy}"
+                           IsVisible="{Binding IsBusy}"
+                           HorizontalOptions="Center"
+                           VerticalOptions="Center" />
+    </Grid>
+</ContentView>

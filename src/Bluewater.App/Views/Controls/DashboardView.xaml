@@ -19,11 +19,13 @@
 										   Spacing="20">
 						<Button Text="{x:Static helpers:Icon.ChevronLeft}"
 								FontFamily="Icons"
+								IsEnabled="{Binding CanChangeDashboardInputs}"
 								Command="{Binding PreviousPayrollPeriodCommand}"
 								Style="{StaticResource SecondaryButtonStyle}" />
 						<Label Text="{Binding PayrollPeriodDisplay}" />
 						<Button Text="{x:Static helpers:Icon.ChevronRight}"
 								FontFamily="Icons"
+								IsEnabled="{Binding CanChangeDashboardInputs}"
 								Command="{Binding NextPayrollPeriodCommand}"
 								Style="{StaticResource SecondaryButtonStyle}" />
 					</HorizontalStackLayout>
@@ -32,11 +34,13 @@
 									 HorizontalOptions="End"
 									 VerticalOptions="End">
 							<Picker WidthRequest="220"
+									IsEnabled="{Binding CanChangeDashboardInputs}"
 									ItemsSource="{Binding ChargingOptions}"
 									SelectedItem="{Binding SelectedCharging, Mode=TwoWay}"
 									ItemDisplayBinding="{Binding Description}"
 									Title="Charging" />
 							<Picker WidthRequest="220"
+									IsEnabled="{Binding CanChangeDashboardInputs}"
 									ItemsSource="{Binding DepartmentOptions}"
 									SelectedItem="{Binding SelectedDepartment, Mode=TwoWay}"
 									ItemDisplayBinding="{Binding Name}"

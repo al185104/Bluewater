@@ -17,11 +17,13 @@
               ColumnSpacing="10">
             <Picker Grid.Column="0"
                     Title="Select charging"
+                    IsEnabled="{Binding CanSelectEmployeeFilters}"
                     ItemsSource="{Binding Chargings}"
                     ItemDisplayBinding="{Binding Description}"
                     SelectedItem="{Binding SelectedCharging}" />
             <SearchBar Grid.Column="1"
                        VerticalOptions="End"
+                       IsEnabled="{Binding CanSelectEmployeeFilters}"
                        Placeholder="Search employees"
                        Text="{Binding SearchText}" />
             <Button Grid.Column="2"
@@ -128,6 +130,7 @@
 
                                     <Button Text="Accept"
                                             Padding="12,6"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.CanReviewApplications}"
                                             IsEnabled="False"
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.AcceptLeaveCommand}"
@@ -149,6 +152,7 @@
                                     <Button Text="Reject"
                                             Padding="12,6"
                                             IsEnabled="False"
+                                            IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.CanReviewApplications}"
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.RejectLeaveCommand}"
                                             CommandParameter="{Binding .}">

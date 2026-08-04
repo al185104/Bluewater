@@ -16,13 +16,14 @@ public sealed partial class HomePage : ContentPage
 				BindingContext = vm;
 				_services = services;
 				vm.NavigateRequested += OnNavigateRequestedAsync;
+				vm.LogoutRequested += OnLogoutRequestedAsync;
 
-				Host.Content = services.GetRequiredService<DashboardView>();
+				SetHostContent(services.GetRequiredService<DashboardView>());
 		}
 
 		private Task OnNavigateRequestedAsync(MainSectionEnum section)
 		{
-				Host.Content = section switch
+				SetHostContent(section switch
 				{
 						MainSectionEnum.Dashboard => _services.GetRequiredService<DashboardView>(),
 						MainSectionEnum.Employees => _services.GetRequiredService<EmployeesView>(),
@@ -33,12 +34,72 @@ public sealed partial class HomePage : ContentPage
 						MainSectionEnum.Timesheet => _services.GetRequiredService<TimesheetView>(),
 						MainSectionEnum.Attendance => _services.GetRequiredService<AttendanceView>(),
 						MainSectionEnum.Payroll => _services.GetRequiredService<PayrollView>(),
+						MainSectionEnum.Profile => _services.GetRequiredService<ProfileView>(),
 						MainSectionEnum.Forms => _services.GetRequiredService<FormsView>(),
 						MainSectionEnum.Settings => _services.GetRequiredService<SettingsView>(),
 						_ => _services.GetRequiredService<DashboardView>()
-				};
+				});
 
 				return Task.CompletedTask;
+		}
+
+		private async Task OnLogoutRequestedAsync()
+		{
+				DisposeHostContent();
+				if (BindingContext is HomeViewModel viewModel)
+				{
+						viewModel.CurrentSection = MainSectionEnum.Dashboard;
+				}
+
+				Shell? shell = FindParentShell() ?? Application.Current?.Windows.FirstOrDefault()?.Page as Shell;
+				if (shell is null)
+				{
+						return;
+				}
+
+				await shell.GoToAsync("//LoginPage");
+		}
+
+		private Shell? FindParentShell()
+		{
+				Element? current = this;
+				while (current is not null)
+				{
+						if (current is Shell shell)
+						{
+								return shell;
+						}
+
+						current = current.Parent;
+				}
+
+				return null;
+		}
+
+		private void SetHostContent(View content)
+		{
+				DisposeHostContent();
+				Host.Content = content;
+		}
+
+		private void DisposeHostContent()
+		{
+				if (Host.Content is null)
+				{
+						return;
+				}
+
+				if (Host.Content.BindingContext is IDisposable disposableContext)
+				{
+						disposableContext.Dispose();
+				}
+
+				if (Host.Content is IDisposable disposableContent)
+				{
+						disposableContent.Dispose();
+				}
+
+				Host.Content = null;
 		}
 
 		protected override async void OnAppearing()
@@ -48,6 +109,10 @@ public sealed partial class HomePage : ContentPage
 				if (BindingContext is HomeViewModel viewModel)
 				{
 						await viewModel.InitializeAsync();
+						if (Host.Content is null)
+						{
+								await OnNavigateRequestedAsync(viewModel.CurrentSection);
+						}
 				}
 		}
 

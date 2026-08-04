@@ -2,102 +2,90 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:Bluewater.App.ViewModels"
-             xmlns:selectors="clr-namespace:Bluewater.App.Selectors"
              x:Class="Bluewater.App.Views.ProfilePage"
-             Title="ProfilePage">
-    <ContentPage.Resources>
-        <ResourceDictionary>
-            <Style x:Key="ProfileRowBorderStyle"
-                   TargetType="Border">
-                <Setter Property="StrokeThickness"
-                        Value="1" />
-                <Setter Property="Stroke"
-                        Value="Transparent" />
-                <Setter Property="Padding"
-                        Value="20,12" />
-            </Style>
-            <DataTemplate x:Key="ProfilePrimaryTemplate"
-                          x:DataType="viewModels:ProfileDetail">
-                <Border Style="{StaticResource ProfileRowBorderStyle}"
-                        BackgroundColor="{AppThemeBinding Light=#FFFFFF, Dark=#1F1F1F}">
-                    <Grid ColumnSpacing="12"
-                          ColumnDefinitions="2*,2*,Auto"
-                          VerticalOptions="Center">
-                        <Label Text="{Binding DisplayName}"
-                               FontAttributes="Bold" />
-                        <Label Grid.Column="1"
-                               Text="{Binding Email}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <Label Grid.Column="2"
-                               Text="{Binding Department}"
-                               FontSize="13"
-                               HorizontalTextAlignment="End"
-                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                    </Grid>
-                </Border>
-            </DataTemplate>
-            <DataTemplate x:Key="ProfileAlternateTemplate"
-                          x:DataType="viewModels:ProfileDetail">
-                <Border Style="{StaticResource ProfileRowBorderStyle}"
-                        BackgroundColor="{AppThemeBinding Light=#0A386eb3, Dark=#262626}">
-                    <Grid ColumnSpacing="12"
-                          ColumnDefinitions="2*,2*,Auto"
-                          VerticalOptions="Center">
-                        <Label Text="{Binding DisplayName}"
-                               FontAttributes="Bold" />
-                        <Label Grid.Column="1"
-                               Text="{Binding Email}"
-                               FontSize="13"
-                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                        <Label Grid.Column="2"
-                               Text="{Binding Department}"
-                               FontSize="13"
-                               HorizontalTextAlignment="End"
-                               TextColor="{AppThemeBinding Light=#444444, Dark=#DDDDDD}" />
-                    </Grid>
-                </Border>
-            </DataTemplate>
-            <selectors:AlternateRowTemplateSelector x:Key="ProfileTemplateSelector"
-                                                    PrimaryTemplate="{StaticResource ProfilePrimaryTemplate}"
-                                                    AlternateTemplate="{StaticResource ProfileAlternateTemplate}" />
-        </ResourceDictionary>
-    </ContentPage.Resources>
-    <CollectionView ItemsSource="{Binding Profiles}"
-                    ItemTemplate="{StaticResource ProfileTemplateSelector}">
-        <CollectionView.Header>
-            <Border StrokeShape="RoundRectangle 10 10 0 0"
-                    BackgroundColor="{AppThemeBinding Light={StaticResource AccentColor}, Dark=#1F5AA8}">
-                <Grid ColumnSpacing="12"
-                      Padding="20,14"
-                      ColumnDefinitions="2*,2*,Auto">
-                    <Label Text="Name"
-                           TextColor="White"
+             x:DataType="viewModels:ProfileViewModel"
+             Title="Profile">
+    <Grid Padding="24"
+          RowDefinitions="Auto,Auto,*"
+          RowSpacing="14"
+          Background="{StaticResource CollectionBackgroundBrush}">
+        <VerticalStackLayout Spacing="4">
+            <Label Text="{Binding DisplayName}"
+                   FontSize="24"
+                   FontAttributes="Bold" />
+            <Label Text="{Binding Username, StringFormat='User: {0}'}" />
+        </VerticalStackLayout>
+
+        <Border Grid.Row="1"
+                StrokeShape="RoundRectangle 5 5 5 5"
+                Padding="16">
+            <Grid ColumnDefinitions="*,*,*"
+                  RowDefinitions="Auto,Auto"
+                  ColumnSpacing="20"
+                  RowSpacing="8">
+                <Label Text="{Binding EmailDisplay}" />
+                <Label Grid.Column="1"
+                       Text="{Binding PositionDisplay}" />
+                <Label Grid.Column="2"
+                       Text="{Binding DepartmentDisplay}" />
+                <Label Grid.Row="1"
+                       Text="{Binding SectionDisplay}" />
+                <Label Grid.Row="1"
+                       Grid.Column="1"
+                       Text="{Binding TypeLevelDisplay}" />
+                <Label Grid.Row="1"
+                       Grid.Column="2"
+                       Text="{Binding DateHiredDisplay}" />
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,*"
+              ColumnSpacing="14">
+            <CollectionView ItemsSource="{Binding LeaveBalances}">
+                <CollectionView.Header>
+                    <Label Text="Leave Balance"
+                           FontSize="18"
                            FontAttributes="Bold" />
-                    <Label Grid.Column="1"
-                           Text="Email"
-                           TextColor="White"
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="viewModels:ProfileLeaveBalance">
+                        <Grid Padding="0,8"
+                              ColumnDefinitions="*,Auto">
+                            <Label Text="{Binding LeaveCreditName}" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding Remaining, StringFormat='{}{0:N1}'}" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <CollectionView Grid.Column="1"
+                            ItemsSource="{Binding FiledForms}">
+                <CollectionView.Header>
+                    <Label Text="Filed Forms"
+                           FontSize="18"
                            FontAttributes="Bold" />
-                    <Label Grid.Column="2"
-                           Text="Department"
-                           TextColor="White"
-                           FontAttributes="Bold"
-                           HorizontalTextAlignment="End" />
-                </Grid>
-            </Border>
-        </CollectionView.Header>
-        <CollectionView.EmptyView>
-            <VerticalStackLayout Padding="24"
-                                 HorizontalOptions="Center"
-                                 VerticalOptions="Center"
-                                 Spacing="8">
-                <Label Text="No profiles found"
-                       FontAttributes="Bold"
-                       HorizontalTextAlignment="Center" />
-                <Label Text="Profiles will be shown once they are created or synced."
-                       HorizontalTextAlignment="Center"
-                       FontSize="12" />
-            </VerticalStackLayout>
-        </CollectionView.EmptyView>
-    </CollectionView>
+                </CollectionView.Header>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="viewModels:ProfileFiledForm">
+                        <Grid Padding="0,8"
+                              ColumnDefinitions="*,Auto"
+                              RowDefinitions="Auto,Auto">
+                            <Label Text="{Binding Description}" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding Status}" />
+                            <Label Grid.Row="1"
+                                   Text="{Binding FormType}"
+                                   FontSize="12" />
+                            <Label Grid.Row="1"
+                                   Grid.Column="1"
+                                   Text="{Binding DateRange}"
+                                   FontSize="12" />
+                        </Grid>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </Grid>
+    </Grid>
 </ContentPage>

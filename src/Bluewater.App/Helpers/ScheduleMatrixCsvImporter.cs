@@ -21,9 +21,9 @@ public static class ScheduleMatrixCsvImporter
 		}
 
 		string[] headers = SplitCsvLine(headerLine);
-		ValidateHeaders(headers);
+		int firstDayColumnIndex = ValidateHeaders(headers, weekStart);
 
-		DateOnly[] columnDates = ResolveColumnDates(headers, weekStart);
+		DateOnly[] columnDates = ResolveColumnDates(headers, weekStart, firstDayColumnIndex);
 		var rows = new List<ScheduleMatrixCsvRow>();
 
 		string? line;
@@ -48,7 +48,7 @@ public static class ScheduleMatrixCsvImporter
 			var shiftsByDate = new Dictionary<DateOnly, string>();
 			for (int i = 0; i < columnDates.Length; i++)
 			{
-				shiftsByDate[columnDates[i]] = GetValue(values, 4 + i);
+				shiftsByDate[columnDates[i]] = GetValue(values, firstDayColumnIndex + i);
 			}
 
 			rows.Add(new ScheduleMatrixCsvRow(lineNumber, barcode, shiftsByDate));
@@ -57,14 +57,14 @@ public static class ScheduleMatrixCsvImporter
 		return rows;
 	}
 
-	private static void ValidateHeaders(string[] headers)
+	private static int ValidateHeaders(string[] headers, DateOnly weekStart)
 	{
-		if (headers.Length < 5)
+		if (headers.Length < 3)
 		{
-			throw new FormatException("The CSV file must include Barcode, Employee, Section, Charging, and at least one day column.");
+			throw new FormatException("The CSV file must include Barcode, Employee, and at least one day column.");
 		}
 
-		string[] required = ["Barcode", "Employee", "Section", "Charging"];
+		string[] required = ["Barcode", "Employee"];
 		for (int i = 0; i < required.Length; i++)
 		{
 			if (!string.Equals(headers[i], required[i], StringComparison.OrdinalIgnoreCase))
@@ -72,15 +72,36 @@ public static class ScheduleMatrixCsvImporter
 				throw new FormatException($"Expected column {i + 1} to be '{required[i]}'.");
 			}
 		}
+
+		int firstDayColumnIndex = FindFirstDayColumnIndex(headers, weekStart);
+		if (firstDayColumnIndex < 0)
+		{
+			throw new FormatException("The CSV file must include at least one day column after Employee.");
+		}
+
+		return firstDayColumnIndex;
 	}
 
-	private static DateOnly[] ResolveColumnDates(string[] headers, DateOnly weekStart)
+	private static int FindFirstDayColumnIndex(string[] headers, DateOnly weekStart)
 	{
-		int dayColumnCount = headers.Length - 4;
+		for (int i = 2; i < headers.Length; i++)
+		{
+			if (TryParseHeaderDate(headers[i], weekStart) is not null)
+			{
+				return i;
+			}
+		}
+
+		return -1;
+	}
+
+	private static DateOnly[] ResolveColumnDates(string[] headers, DateOnly weekStart, int firstDayColumnIndex)
+	{
+		int dayColumnCount = headers.Length - firstDayColumnIndex;
 		var dates = new DateOnly[dayColumnCount];
 		for (int i = 0; i < dayColumnCount; i++)
 		{
-			string header = headers[i + 4];
+			string header = headers[firstDayColumnIndex + i];
 			dates[i] = TryParseHeaderDate(header, weekStart) ?? weekStart.AddDays(i);
 		}
 
