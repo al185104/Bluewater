@@ -1,3 +1,4 @@
+using Ardalis.Result;
 using Bluewater.UseCases.Leaves.Create;
 using Bluewater.UserCases.Forms.Enum;
 using FastEndpoints;
@@ -31,11 +32,22 @@ public class Create(IMediator _mediator) : Endpoint<CreateLeaveRequest, CreateLe
           req.StartDate,
           req.EndDate,
           req.IsHalfDay,
-          ApplicationStatusDTO.NotSet,
+          ApplicationStatusDTO.Pending,
           req.EmployeeId,
           req.LeaveCreditId,
           string.Empty,
           string.Empty));
+      return;
+    }
+
+    if (result.Status == Ardalis.Result.ResultStatus.Invalid)
+    {
+      foreach (ValidationError error in result.ValidationErrors)
+      {
+        AddError(error.ErrorMessage);
+      }
+
+      await SendErrorsAsync(cancellation: ct);
     }
   }
 }

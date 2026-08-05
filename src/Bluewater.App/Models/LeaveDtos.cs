@@ -15,6 +15,9 @@ public class LeaveDto
   public DateTime? EndDate { get; set; }
   public bool IsHalfDay { get; set; }
   public ApplicationStatusDto Status { get; set; } = ApplicationStatusDto.NotSet;
+  public bool HasPayrollCreated { get; set; }
+  public bool CanModify => !HasPayrollCreated;
+  public bool CanReview => CanModify && (Status is ApplicationStatusDto.Pending or ApplicationStatusDto.NotSet);
   public Guid? EmployeeId { get; set; }
   public Guid LeaveCreditId { get; set; }
   public string EmployeeName { get; set; } = string.Empty;
@@ -63,6 +66,9 @@ public class LeaveSummary : IRowIndexed
   public DateTime? EndDate { get; set; }
   public bool IsHalfDay { get; set; }
   public ApplicationStatusDto Status { get; set; } = ApplicationStatusDto.NotSet;
+  public bool HasPayrollCreated { get; set; }
+  public bool CanModify => !HasPayrollCreated;
+  public bool CanReview => CanModify && (Status is ApplicationStatusDto.Pending or ApplicationStatusDto.NotSet);
   public Guid? EmployeeId { get; set; }
   public Guid LeaveCreditId { get; set; }
   public string EmployeeName { get; set; } = string.Empty;

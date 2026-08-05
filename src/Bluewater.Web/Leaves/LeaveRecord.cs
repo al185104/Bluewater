@@ -11,4 +11,5 @@ public record LeaveRecord(
   Guid? EmployeeId,
   Guid LeaveCreditId,
   string EmployeeName,
-  string LeaveCreditName);
+  string LeaveCreditName,
+  bool HasPayrollCreated = false);

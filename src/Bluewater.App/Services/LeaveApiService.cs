@@ -176,6 +176,7 @@ public class LeaveApiService(IApiClient apiClient) : ILeaveApiService
       EndDate = dto.EndDate,
       IsHalfDay = dto.IsHalfDay,
       Status = dto.Status,
+      HasPayrollCreated = dto.HasPayrollCreated,
       EmployeeId = dto.EmployeeId,
       LeaveCreditId = dto.LeaveCreditId,
       EmployeeName = dto.EmployeeName,

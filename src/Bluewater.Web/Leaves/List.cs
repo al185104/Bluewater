@@ -36,7 +36,8 @@ public class List(IMediator _mediator) : Endpoint<LeaveListRequest, LeaveListRes
             l.EmployeeId,
             l.LeaveCreditId,
             l.EmployeeName,
-            l.LeaveCreditName))
+            l.LeaveCreditName,
+            l.HasPayrollCreated))
           .ToList()
       };
     }

@@ -13,7 +13,7 @@
           Padding="20"
           RowSpacing="12">
         <Grid Grid.Row="0"
-              ColumnDefinitions="220,320,Auto,Auto,*"
+              ColumnDefinitions="220,320,Auto,*,Auto,Auto"
               ColumnSpacing="10">
             <Picker Grid.Column="0"
                     Title="Select charging"
@@ -32,9 +32,23 @@
                     VerticalOptions="End"
                     Style="{StaticResource SecondaryButtonStyle}"
                     Command="{Binding RefreshCommand}" />
-            <Label Grid.Column="3"
+            <Button Grid.Column="4"
+                    Text="Upload"
+                    FontSize="14"
+                    VerticalOptions="End"
+                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.Upload},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Command="{Binding UploadLeavesCommand}" />
+            <Button Grid.Column="5"
+                    Text="Download"
+                    FontSize="14"
+                    VerticalOptions="End"
+                    ImageSource="{FontImage Glyph={x:Static helpers:Icon.Download},FontFamily=Icons, Color={StaticResource PrimaryDarkText},Size=18}"
+                    Style="{StaticResource SecondaryButtonStyle}"
+                    Command="{Binding DownloadLeavesCommand}" />
+            <!--<Label Grid.Column="5"
                    VerticalTextAlignment="Center"
-                   Text="{Binding Leaves.Count, StringFormat='{}{0} leave applications'}" />
+                   Text="{Binding Leaves.Count, StringFormat='{}{0} leave applications'}" />-->
         </Grid>
         
         <Grid Grid.Row="1"
@@ -131,44 +145,25 @@
                                     <Button Text="Accept"
                                             Padding="12,6"
                                             IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.CanReviewApplications}"
-                                            IsEnabled="False"
+                                            IsEnabled="{Binding CanReview}"
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.AcceptLeaveCommand}"
-                                            CommandParameter="{Binding .}">
-                                        <Button.Triggers>
-                                            <DataTrigger TargetType="Button"
-                                                         Binding="{Binding Status}"
-                                                         Value="{x:Static models:ApplicationStatusDto.Pending}">
-                                                <Setter Property="IsEnabled" Value="True" />
-                                            </DataTrigger>
-                                            <DataTrigger TargetType="Button"
-                                                         Binding="{Binding Status}"
-                                                         Value="{x:Static models:ApplicationStatusDto.NotSet}">
-                                                <Setter Property="IsEnabled" Value="True" />
-                                            </DataTrigger>
-                                        </Button.Triggers>
-                                    </Button>
+                                            CommandParameter="{Binding .}" />
 
                                     <Button Text="Reject"
                                             Padding="12,6"
-                                            IsEnabled="False"
+                                            IsEnabled="{Binding CanReview}"
                                             IsVisible="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.CanReviewApplications}"
                                             Style="{StaticResource SecondaryButtonStyle}"
                                             Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.RejectLeaveCommand}"
-                                            CommandParameter="{Binding .}">
-                                        <Button.Triggers>
-                                            <DataTrigger TargetType="Button"
-                                                         Binding="{Binding Status}"
-                                                         Value="{x:Static models:ApplicationStatusDto.Pending}">
-                                                <Setter Property="IsEnabled" Value="True" />
-                                            </DataTrigger>
-                                            <DataTrigger TargetType="Button"
-                                                         Binding="{Binding Status}"
-                                                         Value="{x:Static models:ApplicationStatusDto.NotSet}">
-                                                <Setter Property="IsEnabled" Value="True" />
-                                            </DataTrigger>
-                                        </Button.Triggers>
-                                    </Button>
+                                            CommandParameter="{Binding .}" />
+
+                                    <Button Text="Delete"
+                                            Padding="12,6"
+                                            IsEnabled="{Binding CanModify}"
+                                            Style="{StaticResource SecondaryButtonStyle}"
+                                            Command="{Binding Source={RelativeSource AncestorType={x:Type ContentView}}, Path=BindingContext.DeleteLeaveCommand}"
+                                            CommandParameter="{Binding .}" />
                                 </HorizontalStackLayout>
 							</Grid>
                         </Border>

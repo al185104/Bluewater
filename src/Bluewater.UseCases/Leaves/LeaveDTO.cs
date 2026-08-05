@@ -13,6 +13,7 @@ public record LeaveDTO()
     public Guid LeaveCreditId { get; set; }
     public string EmployeeName { get; set; } = string.Empty;
     public string LeaveCreditName { get; set; } = string.Empty;
+    public bool HasPayrollCreated { get; set; }
 
     public LeaveDTO(Guid id, DateTime? startDate, DateTime? endDate, bool isHalfDay, ApplicationStatusDTO status, Guid employeeId, Guid leaveCreditId) : this()
     {
@@ -25,7 +26,7 @@ public record LeaveDTO()
         LeaveCreditId = leaveCreditId;
     }
 
-    public LeaveDTO(Guid id, DateTime? startDate, DateTime? endDate, bool isHalfDay, ApplicationStatusDTO status, Guid employeeId, Guid leaveCreditId, string employeeName, string leaveCreditName) : this()
+    public LeaveDTO(Guid id, DateTime? startDate, DateTime? endDate, bool isHalfDay, ApplicationStatusDTO status, Guid employeeId, Guid leaveCreditId, string employeeName, string leaveCreditName, bool hasPayrollCreated = false) : this()
     {
       Id = id;
       StartDate = startDate;
@@ -36,5 +37,6 @@ public record LeaveDTO()
       LeaveCreditId = leaveCreditId;
       EmployeeName = employeeName;
       LeaveCreditName = leaveCreditName;
+      HasPayrollCreated = hasPayrollCreated;
     } 
 }
