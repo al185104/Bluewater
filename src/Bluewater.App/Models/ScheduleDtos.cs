@@ -9,6 +9,34 @@ public class ScheduleListResponseDto
   public int TotalCount { get; set; }
 }
 
+public class ScheduleImportRequestDto
+{
+  public const string Route = "Schedules/Import";
+
+  public TenantDto Tenant { get; set; } = TenantDto.Maribago;
+  public List<ScheduleImportEntryDto> Entries { get; set; } = new();
+}
+
+public class ScheduleImportEntryDto
+{
+  public string Barcode { get; set; } = string.Empty;
+  public DateOnly ScheduleDate { get; set; }
+  public string? ShiftName { get; set; }
+  public bool IsDefault { get; set; }
+}
+
+public class ScheduleImportResponseDto
+{
+  public int Attempted { get; set; }
+  public int Created { get; set; }
+  public int Updated { get; set; }
+  public int Deleted { get; set; }
+  public int SkippedPayrollLocked { get; set; }
+  public int SkippedUnchanged { get; set; }
+  public int SkippedInvalid { get; set; }
+  public int Persisted { get; set; }
+}
+
 public class ScheduleDto
 {
   public Guid Id { get; set; }
@@ -126,4 +154,16 @@ public class ScheduleShiftInfoSummary
   public DateOnly ScheduleDate { get; set; }
   public bool IsDefault { get; set; }
   public bool IsUpdated { get; set; }
+}
+
+public class ScheduleImportResultSummary
+{
+  public int Attempted { get; set; }
+  public int Created { get; set; }
+  public int Updated { get; set; }
+  public int Deleted { get; set; }
+  public int SkippedPayrollLocked { get; set; }
+  public int SkippedUnchanged { get; set; }
+  public int SkippedInvalid { get; set; }
+  public int Persisted { get; set; }
 }

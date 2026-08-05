@@ -135,6 +135,27 @@ public class ScheduleApiService(IApiClient apiClient) : IScheduleApiService
     return apiClient.DeleteAsync(ScheduleRequestRoutes.BuildDeleteRoute(scheduleId), cancellationToken);
   }
 
+  public async Task<ScheduleImportResultSummary?> ImportSchedulesAsync(
+    ScheduleImportRequestDto request,
+    CancellationToken cancellationToken = default)
+  {
+    ArgumentNullException.ThrowIfNull(request);
+
+    if (request.Entries.Count == 0)
+    {
+      return new ScheduleImportResultSummary();
+    }
+
+    ScheduleImportResponseDto? response = await apiClient
+      .PostAsync<ScheduleImportRequestDto, ScheduleImportResponseDto>(
+        ScheduleImportRequestDto.Route,
+        request,
+        cancellationToken)
+      .ConfigureAwait(false);
+
+    return response is null ? null : MapImportResult(response);
+  }
+
   private static string BuildListRequestUri(
     string chargingName,
     DateOnly startDate,
@@ -223,6 +244,21 @@ public class ScheduleApiService(IApiClient apiClient) : IScheduleApiService
       ScheduleDate = dto.ScheduleDate,
       IsDefault = dto.IsDefault,
       IsUpdated = dto.IsUpdated
+    };
+  }
+
+  private static ScheduleImportResultSummary MapImportResult(ScheduleImportResponseDto dto)
+  {
+    return new ScheduleImportResultSummary
+    {
+      Attempted = dto.Attempted,
+      Created = dto.Created,
+      Updated = dto.Updated,
+      Deleted = dto.Deleted,
+      SkippedPayrollLocked = dto.SkippedPayrollLocked,
+      SkippedUnchanged = dto.SkippedUnchanged,
+      SkippedInvalid = dto.SkippedInvalid,
+      Persisted = dto.Persisted
     };
   }
 }

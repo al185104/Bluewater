@@ -22,4 +22,8 @@ public interface IScheduleApiService
   Task<ScheduleSummary?> UpdateScheduleAsync(ScheduleSummary schedule, CancellationToken cancellationToken = default);
 
   Task<bool> DeleteScheduleAsync(Guid scheduleId, CancellationToken cancellationToken = default);
+
+  Task<ScheduleImportResultSummary?> ImportSchedulesAsync(
+    ScheduleImportRequestDto request,
+    CancellationToken cancellationToken = default);
 }

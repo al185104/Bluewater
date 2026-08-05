@@ -279,12 +279,6 @@ public partial class ScheduleViewModel : BaseViewModel
 					return;
 				}
 
-				await EnsureShiftOptionsAsync().ConfigureAwait(false);
-				var shiftNameLookup = ShiftOptions
-					.Where(s => s.Id.HasValue)
-					.GroupBy(s => s.Name.Trim(), StringComparer.OrdinalIgnoreCase)
-					.ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
-
 				await using Stream stream = await file.OpenReadAsync();
 				IReadOnlyList<ScheduleMatrixCsvRow> rows = await ScheduleMatrixCsvImporter.ParseAsync(stream, CurrentWeekStart).ConfigureAwait(false);
 
@@ -300,53 +294,39 @@ public partial class ScheduleViewModel : BaseViewModel
 				var importDates = rows.SelectMany(row => row.ShiftsByDate.Keys).ToList();
 				DateOnly importStartDate = importDates.Min();
 				DateOnly importEndDate = importDates.Max();
-				IReadOnlyList<EmployeeScheduleSummary> schedules = await LoadImportSchedulesForDateRangeAsync(rows, importStartDate, importEndDate).ConfigureAwait(false);
-				var employeesByBarcode = schedules
-					.GroupBy(e => e.Barcode.Trim(), StringComparer.OrdinalIgnoreCase)
-					.ToDictionary(g => g.Key, g => g.First(), StringComparer.OrdinalIgnoreCase);
-
-				int successCount = 0;
+				var importEntries = new List<ScheduleImportEntryDto>();
 				int skippedRows = 0;
 				int failedUpdates = 0;
 
 				foreach (var row in rows)
 				{
-					if (!employeesByBarcode.TryGetValue(row.Barcode.Trim(), out var employee))
+					string barcode = row.Barcode.Trim();
+					if (string.IsNullOrWhiteSpace(barcode))
 					{
 						skippedRows++;
 						continue;
 					}
 
-					bool rowUpdated = true;
 					foreach (var date in row.ShiftsByDate.Keys.OrderBy(d => d))
 					{
 						string shiftName = row.ShiftsByDate[date].Trim();
 						bool isNoShift = string.IsNullOrWhiteSpace(shiftName) || string.Equals(shiftName, noShiftOption.Name, StringComparison.OrdinalIgnoreCase);
-						ShiftPickerItem? newShift = null;
 
-						if (!isNoShift && !shiftNameLookup.TryGetValue(shiftName, out newShift))
+						importEntries.Add(new ScheduleImportEntryDto
 						{
-							rowUpdated = false;
-							failedUpdates++;
-							break;
-						}
-
-						var existing = employee.Shifts.FirstOrDefault(s => s.ScheduleDate == date);
-						bool updated = await PersistImportedShiftAsync(employee.EmployeeId, date, existing, isNoShift ? null : newShift).ConfigureAwait(false);
-						if (!updated)
-						{
-							rowUpdated = false;
-							failedUpdates++;
-							break;
-						}
-					}
-
-					if (rowUpdated)
-					{
-						successCount++;
+							Barcode = barcode,
+							ScheduleDate = date,
+							ShiftName = isNoShift ? null : shiftName,
+							IsDefault = false
+						});
 					}
 				}
 
+				ScheduleImportResultSummary importResult = importEntries.Count == 0
+					? new ScheduleImportResultSummary()
+					: await scheduleApiService
+						.ImportSchedulesAsync(new ScheduleImportRequestDto { Tenant = SelectedTenant, Entries = importEntries })
+						.ConfigureAwait(false) ?? new ScheduleImportResultSummary { SkippedInvalid = importEntries.Count };
 				await TraceCommandAsync(nameof(ImportSchedulesAsync), new
 				{
 					File = file.FileName,
@@ -355,15 +335,20 @@ public partial class ScheduleViewModel : BaseViewModel
 					ImportStartDate = importStartDate,
 					ImportEndDate = importEndDate,
 					Tenant = SelectedTenant.ToString(),
-					ImportedRows = successCount,
+					AttemptedDates = importResult.Attempted,
+					Created = importResult.Created,
+					Updated = importResult.Updated,
+					Deleted = importResult.Deleted,
 					SkippedRows = skippedRows,
-					FailedUpdates = failedUpdates
+					SkippedPayrollLocked = importResult.SkippedPayrollLocked,
+					SkippedUnchanged = importResult.SkippedUnchanged,
+					FailedUpdates = failedUpdates + importResult.SkippedInvalid
 				}).ConfigureAwait(false);
 
 				await MainThread.InvokeOnMainThreadAsync(() =>
 					Shell.Current.DisplayAlertAsync(
 						"Import",
-						$"Imported {successCount} row(s). Skipped {skippedRows} row(s). Failed updates: {failedUpdates}.",
+						$"Persisted {importResult.Persisted} schedule date(s). Created {importResult.Created}, updated {importResult.Updated}, deleted {importResult.Deleted}. Skipped {skippedRows} row(s), {importResult.SkippedPayrollLocked} payroll-locked date(s), {importResult.SkippedUnchanged} unchanged date(s). Failed updates: {failedUpdates + importResult.SkippedInvalid}.",
 						"Okay"));
 
 
@@ -1109,7 +1094,7 @@ public partial class ScheduleViewModel : BaseViewModel
 				if (breakHours > 0)
 						segments.Add(breakHours == 1 ? "1 hour break" : $"{breakHours:0.##} hour break");
 
-				return string.Join(" • ", segments);
+				return string.Join(" ? ", segments);
 		}
 
 		private static string FormatTime(TimeOnly? time) => time?.ToString("hh:mm tt", CultureInfo.CurrentCulture) ?? string.Empty;
