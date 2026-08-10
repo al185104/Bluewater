@@ -685,6 +685,8 @@ public partial class LeaveViewModel : BaseViewModel
         return;
       }
 
+      PreserveLeaveDisplayFields(updated, leave);
+
       int existingIndex = allLeaves.FindIndex(item => item.Id == updated.Id);
       if (existingIndex >= 0)
       {
@@ -914,6 +916,22 @@ public partial class LeaveViewModel : BaseViewModel
       leave.EndDate.HasValue &&
       leave.StartDate.Value.Date <= rangeEnd &&
       leave.EndDate.Value.Date >= rangeStart);
+  }
+
+  private static void PreserveLeaveDisplayFields(LeaveSummary target, LeaveSummary source)
+  {
+    if (string.IsNullOrWhiteSpace(target.EmployeeName))
+    {
+      target.EmployeeName = source.EmployeeName;
+    }
+
+    if (string.IsNullOrWhiteSpace(target.LeaveCreditName))
+    {
+      target.LeaveCreditName = source.LeaveCreditName;
+    }
+
+    target.HasPayrollCreated = source.HasPayrollCreated;
+    target.RowIndex = source.RowIndex;
   }
 
   private static async Task<IReadOnlyList<LeaveCsvRow>> ParseLeaveCsvAsync(Stream stream)
